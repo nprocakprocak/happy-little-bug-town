@@ -2,17 +2,20 @@
 
 import { useState } from "react";
 import { Mine } from "../types/mine";
+import { Item } from "../types/item";
 
 interface GroundGridInteractionLayerProps {
   cols: number;
   rows: number;
   mines: Mine[];
+  items: Item[];
 }
 
 export function GroundGridInteractionLayer({
   cols,
   rows,
   mines,
+  items,
 }: GroundGridInteractionLayerProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 

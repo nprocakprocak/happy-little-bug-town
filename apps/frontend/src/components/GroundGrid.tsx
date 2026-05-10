@@ -10,6 +10,7 @@ export function GroundGrid() {
   const cols = GROUND_WIDTH;
 
   const mines = [{ id: "hole", image: "/mines/mine.webp", x: 5, y: 8, span: 2 }];
+  const items = [{ id: "123", image: "/items/leaf-part.webp", x: 3, y: 4 }];
 
   return (
     <div
@@ -25,11 +26,12 @@ export function GroundGrid() {
           aspectRatio: `${cols} / ${rows}`,
         }}
       >
-        <GroundGridAssetLayer cols={cols} rows={rows} mines={mines} />
+        <GroundGridAssetLayer cols={cols} rows={rows} mines={mines} items={items} />
         <GroundGridInteractionLayer
           cols={cols}
           rows={rows}
           mines={mines}
+          items={items}
         />
       </div>
     </div>

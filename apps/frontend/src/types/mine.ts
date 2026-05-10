@@ -1,6 +1,5 @@
-export interface Mine {
-  id: string;
-  x: number;
-  y: number;
+import { GridItem } from "./gridItem";
+
+export interface Mine extends GridItem {
   span: number;
 }

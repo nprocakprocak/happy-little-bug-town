@@ -7,14 +7,16 @@ import {
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../constants";
 import { Mine } from "../types/mine";
+import { Item } from "../types/item";
 
 interface GroundGridAssetLayerProps {
   cols: number;
   rows: number;
   mines: Mine[];
+  items: Item[];
 }
 
-export function GroundGridAssetLayer({ cols, rows, mines }: GroundGridAssetLayerProps) {
+export function GroundGridAssetLayer({ cols, rows, mines, items }: GroundGridAssetLayerProps) {
   return (
     <div
       className="pointer-events-none absolute inset-0 grid h-full w-full gap-1"
@@ -41,6 +43,24 @@ export function GroundGridAssetLayer({ cols, rows, mines }: GroundGridAssetLayer
             fill
             className="object-cover"
             sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * mine.span)}px`}
+          />
+        </div>
+      ))}
+      {items.map((item) => (
+        <div
+          key={item.id}
+          className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
+          style={{
+            gridColumn: `${item.x} / span 1`,
+            gridRow: `${item.y} / span 1`,
+          }}
+        >
+          <Image
+            src="/items/leaf-part.webp"
+            alt=""
+            fill
+            className="object-cover"
+            sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols))}px`}
           />
         </div>
       ))}
