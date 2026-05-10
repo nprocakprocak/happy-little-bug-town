@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX, GROUND_HEIGHT, GROUND_WIDTH } from "../constants";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
@@ -27,12 +26,7 @@ export function GroundGrid() {
         }}
       >
         <GroundGridAssetLayer cols={cols} rows={rows} mines={mines} items={items} />
-        <GroundGridInteractionLayer
-          cols={cols}
-          rows={rows}
-          mines={mines}
-          items={items}
-        />
+        <GroundGridInteractionLayer cols={cols} rows={rows} mines={mines} items={items} />
       </div>
     </div>
   );

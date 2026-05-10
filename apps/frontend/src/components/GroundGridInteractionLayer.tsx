@@ -4,11 +4,29 @@ import { useState } from "react";
 import { Mine } from "../types/mine";
 import { Item } from "../types/item";
 
+interface SelectedSquarePosition {
+  x: number;
+  y: number;
+}
+
 interface GroundGridInteractionLayerProps {
   cols: number;
   rows: number;
   mines: Mine[];
   items: Item[];
+}
+
+function positionOverlapsMine(position: SelectedSquarePosition, mine: Mine): boolean {
+  return (
+    position.x >= mine.x &&
+    position.x < mine.x + mine.span &&
+    position.y >= mine.y &&
+    position.y < mine.y + mine.span
+  );
+}
+
+function positionOverlapsAnyMine(position: SelectedSquarePosition, mines: Mine[]): boolean {
+  return mines.some((mine) => positionOverlapsMine(position, mine));
 }
 
 export function GroundGridInteractionLayer({
@@ -17,29 +35,9 @@ export function GroundGridInteractionLayer({
   mines,
   items,
 }: GroundGridInteractionLayerProps) {
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<SelectedSquarePosition | null>(null);
 
   const cellCount = rows * cols;
-
-  const skippedIndices = new Set<number>();
-  const mineAtTopLeftIndex = new Map(
-    mines.map((mine) => {
-      const topLeft = (mine.y - 1) * cols + (mine.x - 1);
-      return [topLeft, mine] as const;
-    }),
-  );
-
-  for (const mine of mines) {
-    const topLeft = (mine.y - 1) * cols + (mine.x - 1);
-    for (let dr = 0; dr < mine.span; dr += 1) {
-      for (let dc = 0; dc < mine.span; dc += 1) {
-        const idx = topLeft + dr * cols + dc;
-        if (idx !== topLeft) {
-          skippedIndices.add(idx);
-        }
-      }
-    }
-  }
 
   return (
     <div
@@ -50,38 +48,33 @@ export function GroundGridInteractionLayer({
       }}
     >
       {Array.from({ length: cellCount }, (_, index) => {
-        if (skippedIndices.has(index)) {
-          return null;
-        }
 
         const gridRow = Math.floor(index / cols) + 1;
         const gridCol = (index % cols) + 1;
-        const mine = mineAtTopLeftIndex.get(index);
-        const isSelected = selectedIndex === index;
+        const mine = mines.find((mine) => mine.x === gridCol && mine.y === gridRow);
 
-        if (mine) {
-          return (
-            <div
-              key={index}
-              className={`min-h-0 min-w-0 cursor-pointer rounded-sm transition-colors ${isSelected ? "bg-amber-300" : "bg-zinc-200/20"}`}
-              style={{
-                gridColumn: `${gridCol} / span ${mine.span}`,
-                gridRow: `${gridRow} / span ${mine.span}`,
-              }}
-              onClick={() => setSelectedIndex(index)}
-            />
-          );
+        if (!mine && positionOverlapsAnyMine({ x: gridCol, y: gridRow }, mines)) {
+          return null;
         }
+
+        const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
 
         return (
           <div
             key={index}
             className={`min-h-0 min-w-0 cursor-pointer rounded-sm transition-colors ${isSelected ? "bg-amber-300" : "bg-zinc-200/20"}`}
-            style={{
-              gridColumn: gridCol,
-              gridRow: gridRow,
-            }}
-            onClick={() => setSelectedIndex(index)}
+            style={
+              mine
+                ? {
+                  gridColumn: `${mine.x} / span ${mine.span}`,
+                  gridRow: `${mine.y} / span ${mine.span}`,
+                }
+                : {
+                  gridColumn: gridCol,
+                  gridRow: gridRow,
+                }
+            }
+            onClick={() => setSelectedPosition({ x: gridCol, y: gridRow })}
           />
         );
       })}
