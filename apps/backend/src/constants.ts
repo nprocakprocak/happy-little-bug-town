@@ -1,0 +1,1 @@
+export const MAX_PEDESTRIANS_PER_IP = 50000;

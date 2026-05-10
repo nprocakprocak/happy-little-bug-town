@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+npm-debug.log*
+apps/frontend/.next
+apps/backend/dist
+apps/types/dist
+.env
+*.tsbuildinfo
