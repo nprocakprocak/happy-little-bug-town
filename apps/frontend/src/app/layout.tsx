@@ -4,9 +4,8 @@ import type { Metadata } from "next";
 import { APP_LOCALE } from "../constants";
 
 export const metadata: Metadata = {
-  title: "High traffic city simulator",
-  description:
-    "A demo application showing how to handle heavy WebSocket traffic and displaying real time updated dashboard.",
+  title: "Happy little park",
+  description: "A demo game showing how to handle heavy WebSocket traffic and displaying real time updated dashboard.",
   openGraph: {
     locale: APP_LOCALE,
     type: "website",
