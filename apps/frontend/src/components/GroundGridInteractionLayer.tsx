@@ -3,30 +3,15 @@
 import { useState } from "react";
 import { Mine } from "../types/mine";
 import { Item } from "../types/item";
-
-interface SelectedSquarePosition {
-  x: number;
-  y: number;
-}
+import { SelectedSquarePosition } from "../types/position";
+import { positionOverlapsAnyMine } from "./helpers/overlaps";
 
 interface GroundGridInteractionLayerProps {
   cols: number;
   rows: number;
   mines: Mine[];
   items: Item[];
-}
-
-function positionOverlapsMine(position: SelectedSquarePosition, mine: Mine): boolean {
-  return (
-    position.x >= mine.x &&
-    position.x < mine.x + mine.span &&
-    position.y >= mine.y &&
-    position.y < mine.y + mine.span
-  );
-}
-
-function positionOverlapsAnyMine(position: SelectedSquarePosition, mines: Mine[]): boolean {
-  return mines.some((mine) => positionOverlapsMine(position, mine));
+  onMineClick: (mine: Mine) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -34,6 +19,7 @@ export function GroundGridInteractionLayer({
   rows,
   mines,
   items,
+  onMineClick,
 }: GroundGridInteractionLayerProps) {
   const [selectedPosition, setSelectedPosition] = useState<SelectedSquarePosition | null>(null);
 
@@ -74,7 +60,7 @@ export function GroundGridInteractionLayer({
                   gridRow: gridRow,
                 }
             }
-            onClick={() => setSelectedPosition({ x: gridCol, y: gridRow })}
+            onClick={() => mine ? onMineClick(mine) : setSelectedPosition({ x: gridCol, y: gridRow })}
           />
         );
       })}
