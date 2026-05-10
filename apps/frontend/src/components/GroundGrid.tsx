@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX, GROUND_HEIGHT, GROUND_WIDTH } from "../constants";
 import { Item } from "../types/item";
 import { Mine } from "../types/mine";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
+import { pickRandomNearestMineCenterCell } from "./helpers/mineCenterCell";
 import { findRandomEmptyPosition } from "./helpers/randomPosition";
+import { ItemFlightLayer } from "./ItemFlightLayer";
 
 export function GroundGrid() {
   const rows = GROUND_HEIGHT;
@@ -14,25 +16,43 @@ export function GroundGrid() {
 
   const mines: Mine[] = [{ id: "hole", image: "/mines/mine.webp", x: 5, y: 8, span: 2 }];
 
-  const [items, setItems] = useState<Item[]>([{ id: "1", image: "/items/leaf-part.webp", x: 3, y: 4 }]);
+  const [items, setItems] = useState<Item[]>([]);
 
-  const onMineClick = (mine: Mine) => {
-    const emptyPosition = findRandomEmptyPosition(rows, cols, mines, items);
+  const handleFlightComplete = useCallback((itemId: string) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, fromX: undefined, fromY: undefined } : item,
+      ),
+    );
+  }, []);
 
-    if (!emptyPosition) {
-      // todo: show alert
-      return;
-    }
-    
-    setItems([...items, {
-      id: `${items.length + 1}`,
-      image: "/items/leaf-part.webp",
-      fromX: mine.x,
-      fromY: mine.y,
-      x: emptyPosition.x,
-      y: emptyPosition.y
-    }]);
-  };
+  const onMineClick = useCallback(
+    (mine: Mine) => {
+      setItems((prev) => {
+        const emptyPosition = findRandomEmptyPosition(rows, cols, mines, prev);
+
+        if (!emptyPosition) {
+          // todo: show alert
+          console.log("No empty position found");
+          return prev;
+        }
+
+        const origin = pickRandomNearestMineCenterCell(mine);
+
+        const newItem: Item = {
+          id: crypto.randomUUID(),
+          image: "/items/leaf-part.webp",
+          fromX: origin.x,
+          fromY: origin.y,
+          x: emptyPosition.x,
+          y: emptyPosition.y,
+        };
+
+        return [...prev, newItem];
+      });
+    },
+    [cols, mines, rows],
+  );
 
   return (
     <div
@@ -49,7 +69,19 @@ export function GroundGrid() {
         }}
       >
         <GroundGridAssetLayer cols={cols} rows={rows} mines={mines} items={items} />
-        <GroundGridInteractionLayer cols={cols} rows={rows} mines={mines} items={items} onMineClick={onMineClick} />
+        <ItemFlightLayer
+          cols={cols}
+          rows={rows}
+          items={items}
+          onFlightComplete={handleFlightComplete}
+        />
+        <GroundGridInteractionLayer
+          cols={cols}
+          rows={rows}
+          mines={mines}
+          items={items}
+          onMineClick={onMineClick}
+        />
       </div>
     </div>
   );

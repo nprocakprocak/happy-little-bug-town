@@ -8,6 +8,7 @@ import {
 } from "../constants";
 import { Mine } from "../types/mine";
 import { Item } from "../types/item";
+import { isFlyingItem } from "./helpers/isFlyingItem";
 
 interface GroundGridAssetLayerProps {
   cols: number;
@@ -17,6 +18,8 @@ interface GroundGridAssetLayerProps {
 }
 
 export function GroundGridAssetLayer({ cols, rows, mines, items }: GroundGridAssetLayerProps) {
+  const groundedItems = items.filter(it => !isFlyingItem(it));
+
   return (
     <div
       className="pointer-events-none absolute inset-0 grid h-full w-full gap-1"
@@ -46,7 +49,7 @@ export function GroundGridAssetLayer({ cols, rows, mines, items }: GroundGridAss
           />
         </div>
       ))}
-      {items.map((item) => (
+      {groundedItems.map((item) => (
         <div
           key={item.id}
           className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
@@ -56,11 +59,11 @@ export function GroundGridAssetLayer({ cols, rows, mines, items }: GroundGridAss
           }}
         >
           <Image
-            src="/items/leaf-part.webp"
+            src={item.image}
             alt=""
             fill
             className="object-cover"
-            sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols))}px`}
+            sizes={`${Math.ceil(GROUND_GRID_MAX_WIDTH_PX / cols)}px`}
           />
         </div>
       ))}

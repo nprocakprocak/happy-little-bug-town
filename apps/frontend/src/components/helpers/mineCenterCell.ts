@@ -1,0 +1,28 @@
+import { Mine } from "../../types/mine";
+import { SelectedSquarePosition } from "../../types/position";
+
+const EVEN_CENTER_OFFSETS: ReadonlyArray<readonly [number, number]> = [
+  [0, 0],
+  [1, 0],
+  [0, 1],
+  [1, 1],
+];
+
+export function pickRandomNearestMineCenterCell(mine: Mine): SelectedSquarePosition {
+  const { span, x: originX, y: originY } = mine;
+
+  if (span < 1) {
+    return { x: originX, y: originY };
+  }
+
+  if (span % 2 === 1) {
+    const half = Math.floor(span / 2);
+    return { x: originX + half, y: originY + half };
+  }
+
+  const shift = span / 2 - 1;
+  const baseX = originX + shift;
+  const baseY = originY + shift;
+  const pick = EVEN_CENTER_OFFSETS[Math.floor(Math.random() * EVEN_CENTER_OFFSETS.length)];
+  return { x: baseX + pick[0], y: baseY + pick[1] };
+}
