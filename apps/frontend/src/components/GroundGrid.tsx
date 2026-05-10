@@ -8,9 +8,8 @@ import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 export function GroundGrid() {
   const rows = GROUND_HEIGHT;
   const cols = GROUND_WIDTH;
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  const mines = [{ image: "/mines/mine.webp", col: 5, row: 8, span: 2 }];
+  const mines = [{ id: "hole", image: "/mines/mine.webp", x: 5, y: 8, span: 2 }];
 
   return (
     <div
@@ -31,8 +30,6 @@ export function GroundGrid() {
           cols={cols}
           rows={rows}
           mines={mines}
-          selectedIndex={selectedIndex}
-          onCellSelect={setSelectedIndex}
         />
       </div>
     </div>

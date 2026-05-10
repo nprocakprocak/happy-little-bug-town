@@ -1,5 +1,6 @@
 export interface Mine {
-  col: number;
-  row: number;
+  id: string;
+  x: number;
+  y: number;
   span: number;
 }

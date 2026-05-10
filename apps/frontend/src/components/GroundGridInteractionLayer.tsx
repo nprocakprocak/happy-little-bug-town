@@ -1,34 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import { Mine } from "../types/mine";
 
 interface GroundGridInteractionLayerProps {
   cols: number;
   rows: number;
   mines: Mine[];
-  selectedIndex: number | null;
-  onCellSelect: (index: number) => void;
 }
 
 export function GroundGridInteractionLayer({
   cols,
   rows,
   mines,
-  selectedIndex,
-  onCellSelect,
 }: GroundGridInteractionLayerProps) {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
   const cellCount = rows * cols;
 
   const skippedIndices = new Set<number>();
   const mineAtTopLeftIndex = new Map(
     mines.map((mine) => {
-      const topLeft = (mine.row - 1) * cols + (mine.col - 1);
+      const topLeft = (mine.y - 1) * cols + (mine.x - 1);
       return [topLeft, mine] as const;
     }),
   );
 
   for (const mine of mines) {
-    const topLeft = (mine.row - 1) * cols + (mine.col - 1);
+    const topLeft = (mine.y - 1) * cols + (mine.x - 1);
     for (let dr = 0; dr < mine.span; dr += 1) {
       for (let dc = 0; dc < mine.span; dc += 1) {
         const idx = topLeft + dr * cols + dc;
@@ -66,7 +65,7 @@ export function GroundGridInteractionLayer({
                 gridColumn: `${gridCol} / span ${mine.span}`,
                 gridRow: `${gridRow} / span ${mine.span}`,
               }}
-              onClick={() => onCellSelect(index)}
+              onClick={() => setSelectedIndex(index)}
             />
           );
         }
@@ -79,7 +78,7 @@ export function GroundGridInteractionLayer({
               gridColumn: gridCol,
               gridRow: gridRow,
             }}
-            onClick={() => onCellSelect(index)}
+            onClick={() => setSelectedIndex(index)}
           />
         );
       })}

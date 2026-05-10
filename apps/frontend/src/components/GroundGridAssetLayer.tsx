@@ -28,11 +28,11 @@ export function GroundGridAssetLayer({ cols, rows, mines }: GroundGridAssetLayer
     >
       {mines.map((mine) => (
         <div
-          key={`${mine.col}-${mine.row}`}
+          key={mine.id}
           className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
           style={{
-            gridColumn: `${mine.col} / span ${mine.span}`,
-            gridRow: `${mine.row} / span ${mine.span}`,
+            gridColumn: `${mine.x} / span ${mine.span}`,
+            gridRow: `${mine.y} / span ${mine.span}`,
           }}
         >
           <Image
