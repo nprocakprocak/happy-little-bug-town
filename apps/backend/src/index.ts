@@ -5,12 +5,17 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { loadServerEnv } from "./config/serverEnv.js";
 import { getPedestriansFor, saveVisitsFor } from "./services/DatabaseService.js";
+import { itemsRouter } from "./routes/items.js";
+import { gridRouter } from "./routes/grid.js";
 
 const { railwayPublicDomain, corsOrigin, port } = loadServerEnv();
 
 const app = express();
 
 app.use(cors());
+app.use(express.json());
+app.use("/api/items", itemsRouter);
+app.use("/api/grid", gridRouter);
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {

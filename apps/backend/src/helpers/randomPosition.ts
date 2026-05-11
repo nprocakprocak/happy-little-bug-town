@@ -1,5 +1,5 @@
 import { Item, Mine } from "@happy-little-park/types";
-import { positionOverlapsAnything } from "./overlaps";
+import { positionOverlapsAnything } from "./overlaps.js";
 
 export function findRandomEmptyPosition(rows: number, cols: number, mines: Mine[], items: Item[]) {
   const emptyPositions = [];

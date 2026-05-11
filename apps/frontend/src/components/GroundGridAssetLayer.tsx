@@ -1,5 +1,6 @@
 "use client";
 
+import { Item, Mine } from "@happy-little-park/types";
 import Image from "next/image";
 import {
   GROUND_GRID_MAX_WIDTH_PX,
@@ -8,7 +9,7 @@ import {
 } from "../constants";
 import type { GridDragPayload } from "../types/gridDrag";
 import { isFlyingItem } from "./helpers/isFlyingItem";
-import { Item, Mine } from "@happy-little-park/types";
+import { itemTypeToImage } from "./helpers/itemTypeToImage";
 
 interface GroundGridAssetLayerProps {
   cols: number;
@@ -83,7 +84,7 @@ export function GroundGridAssetLayer({
             }}
           >
             <Image
-              src={item.image}
+              src={itemTypeToImage(item.itemType)}
               alt=""
               fill
               className="object-cover"

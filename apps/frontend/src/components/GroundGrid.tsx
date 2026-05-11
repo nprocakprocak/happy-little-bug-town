@@ -1,20 +1,21 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { GROUND_GRID_MAX_WIDTH_PX, GROUND_HEIGHT, GROUND_WIDTH } from "../constants";
+import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { GridDragPayload } from "../types/gridDrag";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestMineCenterCell } from "./helpers/mineCenterCell";
-import { findRandomEmptyPosition } from "./helpers/randomPosition";
 import { ItemFlightLayer } from "./ItemFlightLayer";
 import { Mine, Item } from "@happy-little-park/types";
 
-export function GroundGrid() {
-  const rows = GROUND_HEIGHT;
-  const cols = GROUND_WIDTH;
+interface GroundGridProps {
+  rows: number;
+  cols: number;
+}
 
-  const mines: Mine[] = [{ id: "hole", image: "/mines/mine.webp", x: 5, y: 8, span: 2 }];
+export function GroundGrid({ rows, cols }: GroundGridProps) {
+  const mines: Mine[] = [{ id: "hole", mineType: "hole", x: 5, y: 8, span: 2 }];
 
   const [items, setItems] = useState<Item[]>([]);
   const [gridDrag, setGridDrag] = useState<GridDragPayload | null>(null);
@@ -29,28 +30,32 @@ export function GroundGrid() {
 
   const onMineClick = useCallback(
     (mine: Mine) => {
-      setItems((prev) => {
-        const emptyPosition = findRandomEmptyPosition(rows, cols, mines, prev);
+      (async () => {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items/random`, {
+          method: "POST",
+        });
 
-        if (!emptyPosition) {
+        if (!response.ok) {
+          const { error } = await response.json();
           // todo: show alert
-          console.log("No empty position found");
-          return prev;
+          console.error("Failed to create random item:", error);
+          return;
         }
 
-        const origin = pickRandomNearestMineCenterCell(mine);
+        const item = await response.json();
 
-        const newItem: Item = {
-          id: crypto.randomUUID(),
-          image: "/items/leaf-part.webp",
-          fromX: origin.x,
-          fromY: origin.y,
-          x: emptyPosition.x,
-          y: emptyPosition.y,
-        };
+        setItems((prev) => {
+          const origin = pickRandomNearestMineCenterCell(mine);
 
-        return [...prev, newItem];
-      });
+          const newItem: Item = {
+            ...item,
+            fromX: origin.x,
+            fromY: origin.y,
+          };
+
+          return [...prev, newItem];
+        });
+      })()
     },
     [cols, mines, rows],
   );
