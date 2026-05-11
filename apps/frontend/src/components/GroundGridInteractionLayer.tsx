@@ -4,11 +4,15 @@ import { useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { Mine } from "../types/mine";
 import { Item } from "../types/item";
-import { SelectedSquarePosition } from "../types/position";
+import { Position } from "../types/position";
+import type { GridDragPayload } from "../types/gridDrag";
+import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
+import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
 import {
-  gridCellFromClientPoint,
-} from "./helpers/gridCellFromClientPoint";
-import { positionOverlapsAnyMine } from "./helpers/overlaps";
+  positionOverlapsAnyItem,
+  positionOverlapsAnyMine,
+  positionOverlapsMine,
+} from "./helpers/overlaps";
 import { DRAG_THRESHOLD_PX } from "./constants";
 
 interface GroundGridInteractionLayerProps {
@@ -17,16 +21,18 @@ interface GroundGridInteractionLayerProps {
   mines: Mine[];
   items: Item[];
   onMineClick: (mine: Mine) => void;
+  onDragChange: (payload: GridDragPayload | null) => void;
 }
 
 export function GroundGridInteractionLayer({
   cols,
   rows,
   mines,
-  items: _items,
+  items,
   onMineClick,
+  onDragChange,
 }: GroundGridInteractionLayerProps) {
-  const [selectedPosition, setSelectedPosition] = useState<SelectedSquarePosition | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [dragState, setDragState] = useState<{ index: number; dx: number; dy: number } | null>(
     null,
   );
@@ -37,8 +43,11 @@ export function GroundGridInteractionLayer({
 
   const cellCount = rows * cols;
 
-  function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+  function handlePointerDown(canDrag: boolean, event: ReactPointerEvent<HTMLDivElement>) {
     if (event.button !== 0) {
+      return;
+    }
+    if (!canDrag) {
       return;
     }
     pointerStartRef.current = { x: event.clientX, y: event.clientY };
@@ -46,7 +55,14 @@ export function GroundGridInteractionLayer({
     event.currentTarget.setPointerCapture(event.pointerId);
   }
 
-  function handlePointerMove(index: number, event: ReactPointerEvent<HTMLDivElement>) {
+  function handlePointerMove(
+    canDrag: boolean,
+    index: number,
+    event: ReactPointerEvent<HTMLDivElement>,
+  ) {
+    if (!canDrag) {
+      return;
+    }
     if (!pointerStartRef.current) {
       return;
     }
@@ -55,6 +71,10 @@ export function GroundGridInteractionLayer({
 
     if (hasDraggedRef.current) {
       setDragState({ index, dx, dy });
+      const payload = buildGridDragPayload(index, dx, dy, cols, mines, items);
+      if (payload !== null) {
+        onDragChange(payload);
+      }
       return;
     }
 
@@ -62,6 +82,10 @@ export function GroundGridInteractionLayer({
     if (distance >= DRAG_THRESHOLD_PX) {
       hasDraggedRef.current = true;
       setDragState({ index, dx, dy });
+      const payload = buildGridDragPayload(index, dx, dy, cols, mines, items);
+      if (payload !== null) {
+        onDragChange(payload);
+      }
     }
   }
 
@@ -79,6 +103,7 @@ export function GroundGridInteractionLayer({
     if (hasDraggedRef.current) {
       hasDraggedRef.current = false;
       setDragState(null);
+      onDragChange(null);
 
       const container = gridContainerRef.current;
       if (container) {
@@ -108,6 +133,7 @@ export function GroundGridInteractionLayer({
     pointerStartRef.current = null;
     hasDraggedRef.current = false;
     setDragState(null);
+    onDragChange(null);
   }
 
   return (
@@ -128,6 +154,8 @@ export function GroundGridInteractionLayer({
           return null;
         }
 
+        const canDrag = positionOverlapsAnyItem({ x: gridCol, y: gridRow }, items);
+
         const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
         const isDragging = dragState?.index === index;
         const placementStyle = mine
@@ -147,10 +175,10 @@ export function GroundGridInteractionLayer({
         return (
           <div
             key={index}
-            className={`min-h-0 min-w-0 cursor-grab touch-none select-none rounded-sm transition-colors active:cursor-grabbing ${isSelected ? "bg-amber-300" : "bg-zinc-200/20"}`}
+            className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${isSelected ? "bg-amber-300/20" : "bg-zinc-200/20"}`}
             style={{ ...placementStyle, ...dragStyle }}
-            onPointerDown={handlePointerDown}
-            onPointerMove={(event) => handlePointerMove(index, event)}
+            onPointerDown={(event) => handlePointerDown(canDrag, event)}
+            onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
             onPointerUp={(event) => handlePointerUp(mine, gridCol, gridRow, event)}
             onPointerCancel={handlePointerCancel}
           />

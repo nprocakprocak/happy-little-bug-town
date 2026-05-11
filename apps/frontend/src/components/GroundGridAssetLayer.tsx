@@ -6,6 +6,7 @@ import {
   GROUND_MUD_BG_TILE_HEIGHT_PX,
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../constants";
+import type { GridDragPayload } from "../types/gridDrag";
 import { Mine } from "../types/mine";
 import { Item } from "../types/item";
 import { isFlyingItem } from "./helpers/isFlyingItem";
@@ -15,10 +16,17 @@ interface GroundGridAssetLayerProps {
   rows: number;
   mines: Mine[];
   items: Item[];
+  gridDrag: GridDragPayload | null;
 }
 
-export function GroundGridAssetLayer({ cols, rows, mines, items }: GroundGridAssetLayerProps) {
-  const groundedItems = items.filter(it => !isFlyingItem(it));
+export function GroundGridAssetLayer({
+  cols,
+  rows,
+  mines,
+  items,
+  gridDrag,
+}: GroundGridAssetLayerProps) {
+  const groundedItems = items.filter((it) => !isFlyingItem(it));
 
   return (
     <div
@@ -31,42 +39,60 @@ export function GroundGridAssetLayer({ cols, rows, mines, items }: GroundGridAss
         gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
       }}
     >
-      {mines.map((mine) => (
-        <div
-          key={mine.id}
-          className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
-          style={{
-            gridColumn: `${mine.x} / span ${mine.span}`,
-            gridRow: `${mine.y} / span ${mine.span}`,
-          }}
-        >
-          <Image
-            src="/mines/hole.webp"
-            alt=""
-            fill
-            className="object-cover"
-            sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * mine.span)}px`}
-          />
-        </div>
-      ))}
-      {groundedItems.map((item) => (
-        <div
-          key={item.id}
-          className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
-          style={{
-            gridColumn: `${item.x} / span 1`,
-            gridRow: `${item.y} / span 1`,
-          }}
-        >
-          <Image
-            src={item.image}
-            alt=""
-            fill
-            className="object-cover"
-            sizes={`${Math.ceil(GROUND_GRID_MAX_WIDTH_PX / cols)}px`}
-          />
-        </div>
-      ))}
+      {mines.map((mine) => {
+        const isDragged = gridDrag?.target.kind === "mine" && gridDrag.target.mineId === mine.id;
+        const dragStyle =
+          isDragged && gridDrag
+            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
+            : {};
+
+        return (
+          <div
+            key={mine.id}
+            className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
+            style={{
+              gridColumn: `${mine.x} / span ${mine.span}`,
+              gridRow: `${mine.y} / span ${mine.span}`,
+              ...dragStyle,
+            }}
+          >
+            <Image
+              src="/mines/hole.webp"
+              alt=""
+              fill
+              className="object-cover"
+              sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * mine.span)}px`}
+            />
+          </div>
+        );
+      })}
+      {groundedItems.map((item) => {
+        const isDragged = gridDrag?.target.kind === "item" && gridDrag.target.itemId === item.id;
+        const dragStyle =
+          isDragged && gridDrag
+            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
+            : {};
+
+        return (
+          <div
+            key={item.id}
+            className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
+            style={{
+              gridColumn: `${item.x} / span 1`,
+              gridRow: `${item.y} / span 1`,
+              ...dragStyle,
+            }}
+          >
+            <Image
+              src={item.image}
+              alt=""
+              fill
+              className="object-cover"
+              sizes={`${Math.ceil(GROUND_GRID_MAX_WIDTH_PX / cols)}px`}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }

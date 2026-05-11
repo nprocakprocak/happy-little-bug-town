@@ -1,6 +1,6 @@
-import { SelectedSquarePosition } from "./position";
+import { Position } from "./position";
 
-export interface GridItem extends SelectedSquarePosition {
+export interface GridItem extends Position {
   id: string;
   image: string;
 }

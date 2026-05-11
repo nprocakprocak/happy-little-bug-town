@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX, GROUND_HEIGHT, GROUND_WIDTH } from "../constants";
 import { Item } from "../types/item";
+import { GridDragPayload } from "../types/gridDrag";
 import { Mine } from "../types/mine";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
@@ -17,6 +18,7 @@ export function GroundGrid() {
   const mines: Mine[] = [{ id: "hole", image: "/mines/mine.webp", x: 5, y: 8, span: 2 }];
 
   const [items, setItems] = useState<Item[]>([]);
+  const [gridDrag, setGridDrag] = useState<GridDragPayload | null>(null);
 
   const handleFlightComplete = useCallback((itemId: string) => {
     setItems((prev) =>
@@ -68,7 +70,13 @@ export function GroundGrid() {
           aspectRatio: `${cols} / ${rows}`,
         }}
       >
-        <GroundGridAssetLayer cols={cols} rows={rows} mines={mines} items={items} />
+        <GroundGridAssetLayer
+          cols={cols}
+          rows={rows}
+          mines={mines}
+          items={items}
+          gridDrag={gridDrag}
+        />
         <ItemFlightLayer
           cols={cols}
           rows={rows}
@@ -81,6 +89,7 @@ export function GroundGrid() {
           mines={mines}
           items={items}
           onMineClick={onMineClick}
+          onDragChange={setGridDrag}
         />
       </div>
     </div>
