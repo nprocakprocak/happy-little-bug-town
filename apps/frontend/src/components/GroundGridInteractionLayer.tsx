@@ -2,17 +2,14 @@
 
 import { useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
+import { useGridVisibility } from "../context/GridVisibilityContext";
 import { Mine } from "../types/mine";
 import { Item } from "../types/item";
 import { Position } from "../types/position";
 import type { GridDragPayload } from "../types/gridDrag";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
-import {
-  positionOverlapsAnyItem,
-  positionOverlapsAnyMine,
-  positionOverlapsMine,
-} from "./helpers/overlaps";
+import { positionOverlapsAnyItem, positionOverlapsAnyMine } from "./helpers/overlaps";
 import { DRAG_THRESHOLD_PX } from "./constants";
 
 interface GroundGridInteractionLayerProps {
@@ -32,6 +29,7 @@ export function GroundGridInteractionLayer({
   onMineClick,
   onDragChange,
 }: GroundGridInteractionLayerProps) {
+  const { gridCellsVisible } = useGridVisibility();
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [dragState, setDragState] = useState<{ index: number; dx: number; dy: number } | null>(
     null,
@@ -158,6 +156,11 @@ export function GroundGridInteractionLayer({
 
         const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
         const isDragging = dragState?.index === index;
+        const cellBackgroundClass = isSelected
+          ? "bg-amber-300/20"
+          : gridCellsVisible
+            ? "bg-zinc-200/20"
+            : "bg-transparent";
         const placementStyle = mine
           ? {
               gridColumn: `${mine.x} / span ${mine.span}`,
@@ -175,7 +178,7 @@ export function GroundGridInteractionLayer({
         return (
           <div
             key={index}
-            className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${isSelected ? "bg-amber-300/20" : "bg-zinc-200/20"}`}
+            className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${cellBackgroundClass}`}
             style={{ ...placementStyle, ...dragStyle }}
             onPointerDown={(event) => handlePointerDown(canDrag, event)}
             onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
