@@ -1,6 +1,4 @@
-import { Item } from "../../types/item";
-import { Mine } from "../../types/mine";
-import { Position } from "../../types/position";
+import { Item, Mine, Position } from "@happy-little-park/types";
 
 export function positionOverlapsMine(position: Position, mine: Mine): boolean {
   return (

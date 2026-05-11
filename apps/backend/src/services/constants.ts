@@ -1,1 +1,1 @@
-export const INITIAL_GRID_SIZE = 30;
+// export const INITIAL_GRID_SIZE = 30;

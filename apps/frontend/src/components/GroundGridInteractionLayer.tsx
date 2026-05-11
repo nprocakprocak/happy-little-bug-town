@@ -3,14 +3,12 @@
 import { useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useGridVisibility } from "../context/GridVisibilityContext";
-import { Mine } from "../types/mine";
-import { Item } from "../types/item";
-import { Position } from "../types/position";
 import type { GridDragPayload } from "../types/gridDrag";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
 import { positionOverlapsAnyItem, positionOverlapsAnyMine } from "./helpers/overlaps";
 import { DRAG_THRESHOLD_PX } from "./constants";
+import { Item, Mine, Position } from "@happy-little-park/types";
 
 interface GroundGridInteractionLayerProps {
   cols: number;

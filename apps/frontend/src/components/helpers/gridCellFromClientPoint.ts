@@ -1,4 +1,4 @@
-import type { Mine } from "../../types/mine";
+import type { Mine } from "@happy-little-park/types";
 import { positionOverlapsAnyMine } from "./overlaps";
 
 export function gridCellFromClientPoint(

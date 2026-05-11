@@ -1,9 +1,9 @@
 "use client";
 
+import { Item } from "@happy-little-park/types";
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
-import { Item } from "../types/item";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 
 const FLIGHT_DURATION_MS = 550;

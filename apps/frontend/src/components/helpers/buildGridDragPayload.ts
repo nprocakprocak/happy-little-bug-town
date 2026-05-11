@@ -1,6 +1,5 @@
 import type { GridDragPayload } from "../../types/gridDrag";
-import type { Item } from "../../types/item";
-import type { Mine } from "../../types/mine";
+import type { Item, Mine } from "@happy-little-park/types";
 
 export function buildGridDragPayload(
   index: number,

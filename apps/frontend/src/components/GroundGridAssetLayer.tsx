@@ -7,9 +7,8 @@ import {
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../constants";
 import type { GridDragPayload } from "../types/gridDrag";
-import { Mine } from "../types/mine";
-import { Item } from "../types/item";
 import { isFlyingItem } from "./helpers/isFlyingItem";
+import { Item, Mine } from "@happy-little-park/types";
 
 interface GroundGridAssetLayerProps {
   cols: number;

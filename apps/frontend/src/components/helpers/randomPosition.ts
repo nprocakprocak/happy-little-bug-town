@@ -1,5 +1,4 @@
-import { Item } from "../../types/item";
-import { Mine } from "../../types/mine";
+import { Item, Mine } from "@happy-little-park/types";
 import { positionOverlapsAnything } from "./overlaps";
 
 export function findRandomEmptyPosition(rows: number, cols: number, mines: Mine[], items: Item[]) {

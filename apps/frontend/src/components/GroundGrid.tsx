@@ -2,14 +2,13 @@
 
 import { useCallback, useState } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX, GROUND_HEIGHT, GROUND_WIDTH } from "../constants";
-import { Item } from "../types/item";
 import { GridDragPayload } from "../types/gridDrag";
-import { Mine } from "../types/mine";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestMineCenterCell } from "./helpers/mineCenterCell";
 import { findRandomEmptyPosition } from "./helpers/randomPosition";
 import { ItemFlightLayer } from "./ItemFlightLayer";
+import { Mine, Item } from "@happy-little-park/types";
 
 export function GroundGrid() {
   const rows = GROUND_HEIGHT;
