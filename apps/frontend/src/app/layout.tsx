@@ -1,6 +1,7 @@
 import "dotenv/config";
 import "./globals.css";
 import type { Metadata } from "next";
+import { AnonymousIdProvider } from "../context/AnonymousIdContext";
 import { GridVisibilityProvider } from "../context/GridVisibilityContext";
 import { APP_LOCALE } from "../constants";
 
@@ -17,7 +18,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang={APP_LOCALE}>
       <body>
-        <GridVisibilityProvider>{children}</GridVisibilityProvider>
+        <AnonymousIdProvider>
+          <GridVisibilityProvider>{children}</GridVisibilityProvider>
+        </AnonymousIdProvider>
       </body>
     </html>
   );

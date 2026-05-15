@@ -1,4 +1,4 @@
-import { Item, Mine } from "@happy-little-park/types";
+import { Item, Mine } from "../prisma/prisma/client.js";
 import { positionOverlapsAnything } from "./overlaps.js";
 
 export function findRandomEmptyPosition(rows: number, cols: number, mines: Mine[], items: Item[]) {

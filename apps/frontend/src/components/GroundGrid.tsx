@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { Item, Mine } from "@happy-little-park/types";
+import { useCallback, useEffect, useState } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { GridDragPayload } from "../types/gridDrag";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestMineCenterCell } from "./helpers/mineCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
-import { Mine, Item } from "@happy-little-park/types";
 
 interface GroundGridProps {
   rows: number;
@@ -19,6 +19,16 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const [items, setItems] = useState<Item[]>([]);
   const [gridDrag, setGridDrag] = useState<GridDragPayload | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items`, {
+        credentials: "include",
+      });
+      const items = await response.json();
+      setItems(items);
+    })();
+  }, []);
 
   const handleFlightComplete = useCallback((itemId: string) => {
     setItems((prev) =>
@@ -33,6 +43,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       (async () => {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items/random`, {
           method: "POST",
+          credentials: "include",
         });
 
         if (!response.ok) {

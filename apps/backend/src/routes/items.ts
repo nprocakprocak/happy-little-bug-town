@@ -1,14 +1,21 @@
-import type { Item } from "@happy-little-park/types";
 import { Router, type RequestHandler } from "express";
-import { generateRandomItem } from "../services/ItemsService.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
+import { Item } from "../prisma/prisma/client.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
+import { createItem as createItemService, generateRandomItem, getItems } from "../services/ItemsService.js";
+import { getMines } from "../services/MinesService.js";
 
 export const itemsRouter = Router();
 
-const listItems: RequestHandler = (req, res) => {
-  console.log("GET /items", { query: req.query });
-  res.status(200).json([]);
+const listItems: RequestHandler = async (req, res) => {
+  
+  const authorId = req.cookies?.aid;
+  if (!authorId) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const items = await getItems(authorId);
+  res.status(200).json(items);
 };
 
 const getItem: RequestHandler<{ id: string }> = (req, res) => {
@@ -37,15 +44,22 @@ const deleteItem: RequestHandler<{ id: string }> = (req, res) => {
   res.status(204).send();
 };
 
-const createRandomItem: RequestHandler = (req, res) => {
-  console.log("POST /items/random", { body: req.body });
-  const emptyPosition = findRandomEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, [], []);
+const createRandomItem: RequestHandler = async (req, res) => {
+  const authorId = req.cookies?.aid;
+  if (!authorId) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const items = await getItems(authorId);
+  const mines = await getMines(authorId);
+  const emptyPosition = findRandomEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, mines, items);
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
   }
-  const item = generateRandomItem(emptyPosition);
-  res.status(201).json(item);
+  const item = await generateRandomItem(authorId, emptyPosition);
+  const createdItem = await createItemService(item);
+  res.status(201).json(createdItem);
 }
 
 itemsRouter.get("/", listItems);
