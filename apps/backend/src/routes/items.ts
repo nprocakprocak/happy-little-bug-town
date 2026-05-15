@@ -8,7 +8,6 @@ import { getMines } from "../services/MinesService.js";
 export const itemsRouter = Router();
 
 const listItems: RequestHandler = async (req, res) => {
-  
   const authorId = req.cookies?.aid;
   if (!authorId) {
     res.status(401).json({ error: "Unauthorized" });

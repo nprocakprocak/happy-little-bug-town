@@ -8,3 +8,15 @@ export const getMines = async (authorId: string): Promise<Mine[]> => {
     },
   });
 }
+
+export const createFirstMine = async (authorId: string): Promise<Mine> => {
+  return await prisma.mine.create({
+    data: {
+      authorId,
+      mineType: "hole",
+      x: 5,
+      y: 8,
+      span: 2,
+    },
+  });
+}

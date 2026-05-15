@@ -8,6 +8,7 @@ import { loadServerEnv } from "./config/serverEnv.js";
 import { gridRouter } from "./routes/grid.js";
 import { itemsRouter } from "./routes/items.js";
 import { usersRouter } from "./routes/users.js";
+import { minesRouter } from "./routes/mines.js";
 
 const { railwayPublicDomain, corsOrigin, port } = loadServerEnv();
 
@@ -23,6 +24,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use("/api/items", itemsRouter);
 app.use("/api/grid", gridRouter);
+app.use("/api/mines", minesRouter);
 app.use("/api/users", usersRouter);
 
 const httpServer = createServer(app);

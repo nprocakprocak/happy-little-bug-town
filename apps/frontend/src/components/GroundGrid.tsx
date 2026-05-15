@@ -15,18 +15,47 @@ interface GroundGridProps {
 }
 
 export function GroundGrid({ rows, cols }: GroundGridProps) {
-  const mines: Mine[] = [{ id: "hole", mineType: "hole", x: 5, y: 8, span: 2 }];
-
+  const [mines, setMines] = useState<Mine[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [gridDrag, setGridDrag] = useState<GridDragPayload | null>(null);
 
   useEffect(() => {
     (async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items`, {
-        credentials: "include",
-      });
-      const items = await response.json();
-      setItems(items);
+      const [minesResponse, itemsResponse] = await Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mines`, {
+          credentials: "include",
+        }),
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items`, {
+          credentials: "include",
+        }),
+      ]);
+
+      if (!minesResponse.ok || !itemsResponse.ok) {
+        const {error: minesError} = await minesResponse.json();
+        const {error: itemsError} = await itemsResponse.json();
+        console.error("Failed to fetch grid items:", minesError, itemsError);
+        return;
+      }
+
+      const mines = await minesResponse.json();
+      const items = await itemsResponse.json();
+
+      if (mines.length === 0) {
+        const createFirstMineResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mines/create`, {
+          method: "POST",
+          credentials: "include",
+        });
+        if (!createFirstMineResponse.ok) {
+          const { error } = await createFirstMineResponse.json();
+          console.error("Failed to create first mine:", error);
+          return;
+        }
+        const firstMine = await createFirstMineResponse.json();
+        setMines([firstMine]);
+      } else {
+        setMines(mines);
+        setItems(items);
+      }
     })();
   }, []);
 
