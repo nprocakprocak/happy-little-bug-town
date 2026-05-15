@@ -1,19 +1,23 @@
 import { Router, type RequestHandler } from "express";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
+import { requireAid } from "../middleware/requireAid.js";
 import { Item } from "../prisma/prisma/client.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
-import { createItem as createItemService, generateRandomItem, getItems, getItem as getItemService, updateItem as updateItemService } from "../services/ItemsService.js";
+import {
+  createItem as createItemService,
+  generateRandomItem,
+  getItems,
+  getItem as getItemService,
+  updateItem as updateItemService,
+} from "../services/ItemsService.js";
 import { getMines } from "../services/MinesService.js";
 
 export const itemsRouter = Router();
 
+itemsRouter.use(requireAid);
+
 const listItems: RequestHandler = async (req, res) => {
-  const authorId = req.cookies?.aid;
-  if (!authorId) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-  const items = await getItems(authorId);
+  const items = await getItems(req.authorId!);
   res.status(200).json(items);
 };
 
@@ -34,12 +38,6 @@ const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
   req,
   res,
 ) => {
-  const authorId = req.cookies?.aid;
-  if (!authorId) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-  
   const { id } = req.params;
 
   const existingItem = await getItemService(id);
@@ -47,7 +45,7 @@ const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
     res.status(404).json({ error: "Item not found" });
     return;
   }
-  if (existingItem.authorId !== authorId) {
+  if (existingItem.authorId !== req.authorId) {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
@@ -62,14 +60,15 @@ const deleteItem: RequestHandler<{ id: string }> = (req, res) => {
 };
 
 const createRandomItem: RequestHandler = async (req, res) => {
-  const authorId = req.cookies?.aid;
-  if (!authorId) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
+  const authorId = req.authorId!;
   const items = await getItems(authorId);
   const mines = await getMines(authorId);
-  const emptyPosition = findRandomEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, mines, items);
+  const emptyPosition = findRandomEmptyPosition(
+    GROUND_HEIGHT,
+    GROUND_WIDTH,
+    mines,
+    items,
+  );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
@@ -77,7 +76,7 @@ const createRandomItem: RequestHandler = async (req, res) => {
   const item = await generateRandomItem(authorId, emptyPosition);
   const createdItem = await createItemService(item);
   res.status(201).json(createdItem);
-}
+};
 
 itemsRouter.get("/", listItems);
 itemsRouter.get("/:id", getItem);
