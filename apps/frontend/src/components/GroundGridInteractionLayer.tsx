@@ -22,6 +22,7 @@ interface GroundGridInteractionLayerProps {
   onMineClick: (mine: Mine) => void;
   onDragChange: (payload: GridDragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropX: number, dropY: number) => void;
+  onItemDropped: (itemId: string, x: number, y: number) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -32,6 +33,7 @@ export function GroundGridInteractionLayer({
   onMineClick,
   onDragChange,
   onItemDropCancelled,
+  onItemDropped,
 }: GroundGridInteractionLayerProps) {
   const { gridCellsVisible } = useGridVisibility();
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
@@ -114,14 +116,22 @@ export function GroundGridInteractionLayer({
         const centerY = bounds.top + bounds.height / 2;
         const target = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
         const isOtherCell = target.x !== gridCol || target.y !== gridRow;
+        const itemToDrop = items.find((i) => i.x === gridCol && i.y === gridRow);
 
         if (isOtherCell) {
           const shouldCancel = positionOverlapsAnything({ x: target.x, y: target.y }, mines, items);
+          const shouldDrop = !shouldCancel;
 
           if (shouldCancel) {
-            const item = items.find((i) => i.x === gridCol && i.y === gridRow);
-            if (item) {
-              onItemDropCancelled(item.id, target.x, target.y);
+            if (itemToDrop) {
+              onItemDropCancelled(itemToDrop.id, target.x, target.y);
+            }
+            return;
+          }
+
+          if (shouldDrop) {
+            if (itemToDrop) {
+              onItemDropped(itemToDrop.id, target.x, target.y);
             }
             return;
           }

@@ -2,7 +2,7 @@ import { Router, type RequestHandler } from "express";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { Item } from "../prisma/prisma/client.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
-import { createItem as createItemService, generateRandomItem, getItems } from "../services/ItemsService.js";
+import { createItem as createItemService, generateRandomItem, getItems, getItem as getItemService, updateItem as updateItemService } from "../services/ItemsService.js";
 import { getMines } from "../services/MinesService.js";
 
 export const itemsRouter = Router();
@@ -30,12 +30,30 @@ const createItem: RequestHandler<Record<string, string>, unknown, Item> = (
   res.status(201).json(req.body);
 };
 
-const updateItem: RequestHandler<{ id: string }, unknown, Item> = (
+const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
   req,
   res,
 ) => {
-  console.log("PUT /items/:id", { params: req.params, body: req.body });
-  res.status(200).json({ ...req.body, id: req.params.id });
+  const authorId = req.cookies?.aid;
+  if (!authorId) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  
+  const { id } = req.params;
+
+  const existingItem = await getItemService(id);
+  if (!existingItem) {
+    res.status(404).json({ error: "Item not found" });
+    return;
+  }
+  if (existingItem.authorId !== authorId) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const item = await updateItemService(id, req.body);
+  res.status(200).json(item);
 };
 
 const deleteItem: RequestHandler<{ id: string }> = (req, res) => {

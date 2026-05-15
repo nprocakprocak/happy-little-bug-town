@@ -76,6 +76,35 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     );
   }, []);
 
+  const handleItemDropped = useCallback((itemId: string, x: number, y: number) => {
+    (async () => {
+      const originalItem = items.find((item) => item.id === itemId);
+      if (!originalItem) {
+        console.error("Can't drop the item, could not find item with id:", itemId);
+        return;
+      }
+
+      setItems((prev) => prev.map((it) => (it.id === itemId ? { ...it, x, y } : it)));
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items/${itemId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ x, y }),
+      });
+
+      if (!response.ok) {
+        setItems((prev) => prev.map((it) => (it.id === itemId ? originalItem : it)));
+        const { error } = await response.json();
+        console.error("Failed to update item:", error);
+        return;
+      }
+
+      const item = await response.json();
+      setItems((prev) => prev.map((it) => (it.id === itemId ? item : it)));
+    })();
+  }, [items]);
+
   const onMineClick = useCallback(
     (mine: Mine) => {
       (async () => {
@@ -144,6 +173,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onMineClick={onMineClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
+          onItemDropped={handleItemDropped}
         />
       </div>
     </div>
