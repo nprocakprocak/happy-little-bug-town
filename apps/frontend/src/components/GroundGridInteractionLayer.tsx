@@ -6,7 +6,11 @@ import { useGridVisibility } from "../context/GridVisibilityContext";
 import type { GridDragPayload } from "../types/gridDrag";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
-import { positionOverlapsAnyItem, positionOverlapsAnyMine } from "./helpers/overlaps";
+import {
+  positionOverlapsAnyItem,
+  positionOverlapsAnyMine,
+  positionOverlapsAnything,
+} from "./helpers/overlaps";
 import { DRAG_THRESHOLD_PX } from "./constants";
 import { Item, Mine, Position } from "@happy-little-park/types";
 
@@ -17,6 +21,7 @@ interface GroundGridInteractionLayerProps {
   items: Item[];
   onMineClick: (mine: Mine) => void;
   onDragChange: (payload: GridDragPayload | null) => void;
+  onItemDropCancelled: (itemId: string, dropX: number, dropY: number) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -26,6 +31,7 @@ export function GroundGridInteractionLayer({
   items,
   onMineClick,
   onDragChange,
+  onItemDropCancelled,
 }: GroundGridInteractionLayerProps) {
   const { gridCellsVisible } = useGridVisibility();
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
@@ -108,7 +114,18 @@ export function GroundGridInteractionLayer({
         const centerY = bounds.top + bounds.height / 2;
         const target = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
         const isOtherCell = target.x !== gridCol || target.y !== gridRow;
-        if (isOtherCell && !positionOverlapsAnyMine({ x: target.x, y: target.y }, mines)) {
+
+        if (isOtherCell) {
+          const shouldCancel = positionOverlapsAnything({ x: target.x, y: target.y }, mines, items);
+
+          if (shouldCancel) {
+            const item = items.find((i) => i.x === gridCol && i.y === gridRow);
+            if (item) {
+              onItemDropCancelled(item.id, target.x, target.y);
+            }
+            return;
+          }
+
           setSelectedPosition({ x: target.x, y: target.y });
         }
       }

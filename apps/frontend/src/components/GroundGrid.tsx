@@ -31,8 +31,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       ]);
 
       if (!minesResponse.ok || !itemsResponse.ok) {
-        const {error: minesError} = await minesResponse.json();
-        const {error: itemsError} = await itemsResponse.json();
+        const { error: minesError } = await minesResponse.json();
+        const { error: itemsError } = await itemsResponse.json();
         console.error("Failed to fetch grid items:", minesError, itemsError);
         return;
       }
@@ -41,10 +41,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       const items = await itemsResponse.json();
 
       if (mines.length === 0) {
-        const createFirstMineResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mines/create`, {
-          method: "POST",
-          credentials: "include",
-        });
+        const createFirstMineResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mines/create`,
+          {
+            method: "POST",
+            credentials: "include",
+          },
+        );
         if (!createFirstMineResponse.ok) {
           const { error } = await createFirstMineResponse.json();
           console.error("Failed to create first mine:", error);
@@ -64,6 +67,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       prev.map((item) =>
         item.id === itemId ? { ...item, fromX: undefined, fromY: undefined } : item,
       ),
+    );
+  }, []);
+
+  const handleItemDropCancelled = useCallback((itemId: string, dropX: number, dropY: number) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === itemId ? { ...item, fromX: dropX, fromY: dropY } : item)),
     );
   }, []);
 
@@ -95,7 +104,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
           return [...prev, newItem];
         });
-      })()
+      })();
     },
     [cols, mines, rows],
   );
@@ -134,6 +143,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           items={items}
           onMineClick={onMineClick}
           onDragChange={setGridDrag}
+          onItemDropCancelled={handleItemDropCancelled}
         />
       </div>
     </div>
