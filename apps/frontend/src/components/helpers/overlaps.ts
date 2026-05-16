@@ -9,22 +9,26 @@ export function positionOverlapsMine(position: Position, mine: Mine): boolean {
   );
 }
 
-function positionOverlapsItem(position: Position, item: Item): boolean {
-  return position.x === item.x && position.y === item.y;
+function positionOverlapsItemOrStack(position: Position, itemOrStack: Position): boolean {
+  return position.x === itemOrStack.x && position.y === itemOrStack.y;
 }
 
 export function positionOverlapsAnyMine(position: Position, mines: Mine[]): boolean {
   return mines.some((mine) => positionOverlapsMine(position, mine));
 }
 
-export function positionOverlapsAnyItem(position: Position, items: Item[]): boolean {
-  return items.some((item) => positionOverlapsItem(position, item));
+export function positionOverlapsAnyItem(position: Position, itemsOrStacks: Position[]): boolean {
+  return itemsOrStacks.some((item) => positionOverlapsItemOrStack(position, item));
 }
 
 export function positionOverlapsAnything(
   position: Position,
   mines: Mine[],
-  items: Item[],
+  itemsOrStacks: Position[],
 ): boolean {
-  return positionOverlapsAnyMine(position, mines) || positionOverlapsAnyItem(position, items);
+  return positionOverlapsAnyMine(position, mines) || positionOverlapsAnyItem(position, itemsOrStacks);
+}
+
+export function findOverlappingItem(position: Position, items: Item[]): Item | undefined {
+  return items.find((item) => positionOverlapsItemOrStack(position, item));
 }

@@ -1,26 +1,28 @@
 "use client";
 
-import { Item } from "@happy-little-park/types";
+import { GridAnimatable, ItemType, Position, WithId } from "@happy-little-park/types";
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { isFlyingItem } from "./helpers/isFlyingItem";
-import { itemTypeToImage } from "./helpers/itemTypeToImage";
+import { itemTypeToImageForItem } from "./helpers/itemTypeToImage";
 
 const FLIGHT_DURATION_MS = 550;
 const FLIGHT_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
+type Animatable = GridAnimatable & WithId & Position & { itemType: ItemType };
+
 interface ItemFlightLayerProps {
   cols: number;
   rows: number;
-  items: Item[];
+  animatables: Animatable[];
   onFlightComplete: (itemId: string) => void;
 }
 
 interface FlyingItemAnimationProps {
   cols: number;
   rows: number;
-  item: Item & { fromX: number; fromY: number };
+  item: Animatable;
   onComplete: () => void;
 }
 
@@ -124,7 +126,7 @@ function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimati
       </div>
       <div ref={flyerRef} className="pointer-events-none absolute overflow-hidden rounded-sm">
         <Image
-          src={itemTypeToImage(item.itemType)}
+          src={itemTypeToImageForItem(item.itemType)}
           alt=""
           fill
           className="object-cover"
@@ -135,10 +137,10 @@ function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimati
   );
 }
 
-export function ItemFlightLayer({ cols, rows, items, onFlightComplete }: ItemFlightLayerProps) {
+export function ItemFlightLayer({ cols, rows, animatables, onFlightComplete }: ItemFlightLayerProps) {
   return (
     <>
-      {items.filter(isFlyingItem).map((item) => (
+      {animatables.filter(isFlyingItem).map((item: Animatable) => (
         <FlyingItemAnimation
           key={item.id}
           cols={cols}

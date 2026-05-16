@@ -1,6 +1,6 @@
 "use client";
 
-import { Item, Mine } from "@happy-little-park/types";
+import { Item, Mine, Stack } from "@happy-little-park/types";
 import Image from "next/image";
 import {
   GROUND_GRID_MAX_WIDTH_PX,
@@ -9,13 +9,15 @@ import {
 } from "../constants";
 import type { GridDragPayload } from "../types/gridDrag";
 import { isFlyingItem } from "./helpers/isFlyingItem";
-import { itemTypeToImage } from "./helpers/itemTypeToImage";
+import { itemTypeToImageForItem, itemTypeToImageForStack } from "./helpers/itemTypeToImage";
+import { useMemo } from "react";
 
 interface GroundGridAssetLayerProps {
   cols: number;
   rows: number;
   mines: Mine[];
   items: Item[];
+  stacks: Stack[];
   gridDrag: GridDragPayload | null;
 }
 
@@ -24,9 +26,14 @@ export function GroundGridAssetLayer({
   rows,
   mines,
   items,
+  stacks,
   gridDrag,
 }: GroundGridAssetLayerProps) {
-  const groundedItems = items.filter((it) => !isFlyingItem(it));
+  const allGrounded = useMemo(() => {
+    const groundedItems = items.filter((it) => !isFlyingItem(it));
+    const groundedStacks = stacks.filter((it) => !isFlyingItem(it));
+    return [...groundedItems, ...groundedStacks]
+  }, [items, stacks]);
 
   return (
     <div
@@ -66,12 +73,13 @@ export function GroundGridAssetLayer({
           </div>
         );
       })}
-      {groundedItems.map((item) => {
+      {allGrounded.map((item: Item | Stack) => {
         const isDragged = gridDrag?.target.kind === "item" && gridDrag.target.itemId === item.id;
         const dragStyle =
           isDragged && gridDrag
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
+        const isStack = stacks.some((i) => i.id === item.id);
 
         return (
           <div
@@ -84,7 +92,7 @@ export function GroundGridAssetLayer({
             }}
           >
             <Image
-              src={itemTypeToImage(item.itemType)}
+              src={isStack ? itemTypeToImageForStack(item.itemType) : itemTypeToImageForItem(item.itemType)}
               alt=""
               fill
               className="object-cover"

@@ -26,17 +26,20 @@ model User {
   updatedAt DateTime @updatedAt
   items Item[]
   mines Mine[]
+  stacks Stack[]
 }
 
 model Item {
   id String @id @default(uuid())
   itemType ItemType
-  x Int
-  y Int
+  x Int?
+  y Int?
   authorId String
+  stackId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author User @relation(fields: [authorId], references: [id])
+  stack Stack? @relation(fields: [stackId], references: [id])
 }
 
 model Mine {
@@ -45,6 +48,18 @@ model Mine {
   x Int
   y Int
   span Int
+  authorId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author User @relation(fields: [authorId], references: [id])
+}
+
+model Stack {
+  id String @id @default(uuid())
+  itemType ItemType
+  items Item[]
+  x Int
+  y Int
   authorId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,28 +1,29 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { Item, Mine, Position, Stack } from "@happy-little-park/types";
 import type { PointerEvent as ReactPointerEvent } from "react";
+import { useRef, useState } from "react";
 import { useGridVisibility } from "../context/GridVisibilityContext";
 import type { GridDragPayload } from "../types/gridDrag";
+import { DRAG_THRESHOLD_PX } from "./constants";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
 import {
+  findOverlappingItem,
   positionOverlapsAnyItem,
-  positionOverlapsAnyMine,
-  positionOverlapsAnything,
+  positionOverlapsAnyMine
 } from "./helpers/overlaps";
-import { DRAG_THRESHOLD_PX } from "./constants";
-import { Item, Mine, Position } from "@happy-little-park/types";
 
 interface GroundGridInteractionLayerProps {
   cols: number;
   rows: number;
   mines: Mine[];
   items: Item[];
+  stacks: Stack[];
   onMineClick: (mine: Mine) => void;
   onDragChange: (payload: GridDragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropX: number, dropY: number) => void;
-  onItemDropped: (itemId: string, x: number, y: number) => void;
+  onItemDropped: (itemId: string, x: number, y: number, targetItemId: string | undefined) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -30,6 +31,7 @@ export function GroundGridInteractionLayer({
   rows,
   mines,
   items,
+  stacks,
   onMineClick,
   onDragChange,
   onItemDropCancelled,
@@ -118,25 +120,16 @@ export function GroundGridInteractionLayer({
         const isOtherCell = target.x !== gridCol || target.y !== gridRow;
         const itemToDrop = items.find((i) => i.x === gridCol && i.y === gridRow);
 
-        if (isOtherCell) {
-          const shouldCancel = positionOverlapsAnything({ x: target.x, y: target.y }, mines, items);
-          const shouldDrop = !shouldCancel;
+        if (isOtherCell && itemToDrop) {
+          const overlappingItem = findOverlappingItem({ x: target.x, y: target.y }, items);
+          const overlapsMine = positionOverlapsAnyMine({ x: target.x, y: target.y }, mines);
+          const shouldCancel = overlapsMine || (overlappingItem && overlappingItem.itemType !== itemToDrop.itemType);
 
           if (shouldCancel) {
-            if (itemToDrop) {
-              onItemDropCancelled(itemToDrop.id, target.x, target.y);
-            }
-            return;
+            onItemDropCancelled(itemToDrop.id, target.x, target.y);
+          } else {
+            onItemDropped(itemToDrop.id, target.x, target.y, overlappingItem?.id);
           }
-
-          if (shouldDrop) {
-            if (itemToDrop) {
-              onItemDropped(itemToDrop.id, target.x, target.y);
-            }
-            return;
-          }
-
-          setSelectedPosition({ x: target.x, y: target.y });
         }
       }
       return;
@@ -177,7 +170,7 @@ export function GroundGridInteractionLayer({
           return null;
         }
 
-        const canDrag = positionOverlapsAnyItem({ x: gridCol, y: gridRow }, items);
+        const canDrag = positionOverlapsAnyItem({ x: gridCol, y: gridRow }, [...items, ...stacks]);
 
         const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
         const isDragging = dragState?.index === index;
@@ -188,13 +181,13 @@ export function GroundGridInteractionLayer({
             : "bg-transparent";
         const placementStyle = mine
           ? {
-              gridColumn: `${mine.x} / span ${mine.span}`,
-              gridRow: `${mine.y} / span ${mine.span}`,
-            }
+            gridColumn: `${mine.x} / span ${mine.span}`,
+            gridRow: `${mine.y} / span ${mine.span}`,
+          }
           : {
-              gridColumn: gridCol,
-              gridRow: gridRow,
-            };
+            gridColumn: gridCol,
+            gridRow: gridRow,
+          };
         const dragStyle =
           isDragging && dragState
             ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }

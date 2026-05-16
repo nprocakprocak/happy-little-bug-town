@@ -27,6 +27,17 @@ export const getItems = async (authorId: string): Promise<Item[]> => {
   return await prisma.item.findMany({
     where: {
       authorId,
+      x: { not: null },
+      y: { not: null },
+    },
+  });
+}
+
+export const getItemByIds = async (authorId: string, itemIds: string[]): Promise<Item[]> => {
+  return await prisma.item.findMany({
+    where: {
+      authorId,
+      id: { in: itemIds },
     },
   });
 }
