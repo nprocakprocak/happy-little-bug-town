@@ -32,7 +32,7 @@ export function GroundGridAssetLayer({
   const allGrounded = useMemo(() => {
     const groundedItems = items.filter((it) => !isFlyingItem(it));
     const groundedStacks = stacks.filter((it) => !isFlyingItem(it));
-    return [...groundedItems, ...groundedStacks]
+    return [...groundedItems, ...groundedStacks];
   }, [items, stacks]);
 
   return (
@@ -74,7 +74,9 @@ export function GroundGridAssetLayer({
         );
       })}
       {allGrounded.map((item: Item | Stack) => {
-        const isDragged = gridDrag?.target.kind === "item" && gridDrag.target.itemId === item.id;
+        const isDragged =
+          (gridDrag?.target.kind === "item" && gridDrag.target.itemId === item.id) ||
+          (gridDrag?.target.kind === "stack" && gridDrag.target.stackId === item.id);
         const dragStyle =
           isDragged && gridDrag
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
@@ -92,7 +94,11 @@ export function GroundGridAssetLayer({
             }}
           >
             <Image
-              src={isStack ? itemTypeToImageForStack(item.itemType) : itemTypeToImageForItem(item.itemType)}
+              src={
+                isStack
+                  ? itemTypeToImageForStack(item.itemType)
+                  : itemTypeToImageForItem(item.itemType)
+              }
               alt=""
               fill
               className="object-cover"

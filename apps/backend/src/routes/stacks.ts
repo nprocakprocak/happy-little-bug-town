@@ -1,7 +1,8 @@
 import { Router, type RequestHandler } from "express";
 import { requireAid } from "../middleware/requireAid.js";
-import { createStackWithItems, getStacks } from "../services/StacksService.js";
+import { createStackWithItems, getStack, getStacks, updateStack as updateStackService } from "../services/StacksService.js";
 import { getItemByIds, getItems } from "../services/ItemsService.js";
+import { getMines } from "../services/MinesService.js";
 
 export const stacksRouter = Router();
 
@@ -39,5 +40,34 @@ const createStack: RequestHandler = async (req, res) => {
   res.status(201).json(stack);
 };
 
+const updateStack: RequestHandler = async (req, res) => {
+  const { id } = req.params;
+  const { x, y } = req.body;
+  const authorId = req.authorId!;
+
+  const existingStack = await getStack(id);
+  if (!existingStack) {
+    res.status(400).json({ error: "Item not found when updating" });
+    return;
+  }
+  if (existingStack.authorId !== authorId) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const items = await getItems(authorId);
+  const mines = await getMines(authorId);
+
+  if ([...items, ...mines].some((it) => it.x === x && it.y === y)) {
+    res.status(400).json({ error: "Position is already occupied" });
+    return;
+  }
+
+  const stack = await updateStackService(id, {x, y});
+  res.status(200).json(stack);
+};
+
+
 stacksRouter.get("/", listStacks);
 stacksRouter.post("/create", createStack);
+stacksRouter.put("/:id", updateStack);

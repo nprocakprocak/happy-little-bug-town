@@ -1,5 +1,5 @@
 import type { GridDragPayload } from "../../types/gridDrag";
-import type { Item, Mine } from "@happy-little-park/types";
+import type { Item, Mine, Stack } from "@happy-little-park/types";
 
 export function buildGridDragPayload(
   index: number,
@@ -8,6 +8,7 @@ export function buildGridDragPayload(
   cols: number,
   mines: Mine[],
   items: Item[],
+  stacks: Stack[],
 ): GridDragPayload | null {
   const gridRow = Math.floor(index / cols) + 1;
   const gridCol = (index % cols) + 1;
@@ -18,6 +19,10 @@ export function buildGridDragPayload(
   const item = items.find((i) => i.x === gridCol && i.y === gridRow);
   if (item) {
     return { dx, dy, target: { kind: "item", itemId: item.id } };
+  }
+  const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
+  if (stack) {
+    return { dx, dy, target: { kind: "stack", stackId: stack.id } };
   }
   return null;
 }

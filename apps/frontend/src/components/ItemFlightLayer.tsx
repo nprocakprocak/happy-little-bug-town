@@ -137,7 +137,12 @@ function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimati
   );
 }
 
-export function ItemFlightLayer({ cols, rows, animatables, onFlightComplete }: ItemFlightLayerProps) {
+export function ItemFlightLayer({
+  cols,
+  rows,
+  animatables,
+  onFlightComplete,
+}: ItemFlightLayerProps) {
   return (
     <>
       {animatables.filter(isFlyingItem).map((item: Animatable) => (

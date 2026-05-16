@@ -26,7 +26,9 @@ export function positionOverlapsAnything(
   mines: Mine[],
   itemsOrStacks: Position[],
 ): boolean {
-  return positionOverlapsAnyMine(position, mines) || positionOverlapsAnyItem(position, itemsOrStacks);
+  return (
+    positionOverlapsAnyMine(position, mines) || positionOverlapsAnyItem(position, itemsOrStacks)
+  );
 }
 
 export function findOverlappingItem(position: Position, items: Item[]): Item | undefined {

@@ -39,18 +39,28 @@ const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
   res,
 ) => {
   const { id } = req.params;
+  const { x, y } = req.body;
+  const authorId = req.authorId!;
 
   const existingItem = await getItemService(id);
   if (!existingItem) {
-    res.status(404).json({ error: "Item not found" });
+    res.status(400).json({ error: "Item not found when updating" });
     return;
   }
-  if (existingItem.authorId !== req.authorId) {
+  if (existingItem.authorId !== authorId) {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
 
-  const item = await updateItemService(id, req.body);
+  const items = await getItems(authorId);
+  const mines = await getMines(authorId);
+
+  if ([...items, ...mines].some((it) => it.x === x && it.y === y)) {
+    res.status(400).json({ error: "Position is already occupied" });
+    return;
+  }
+
+  const item = await updateItemService(id, { x, y });
   res.status(200).json(item);
 };
 

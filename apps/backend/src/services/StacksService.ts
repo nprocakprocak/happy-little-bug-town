@@ -3,6 +3,7 @@ import { ItemType, Mine, Stack } from "../prisma/prisma/client.js";
 
 type CreateStackData = Pick<Stack, "itemType" | "x" | "y" | "authorId">;
 type ReturnStackData = Stack & { itemsCount: number };
+type UpdateStackData = Pick<Stack,  "x" | "y">;
 
 export const getStacks = async (authorId: string): Promise<ReturnStackData[]> => {
   const stacks = await prisma.stack.findMany({
@@ -19,6 +20,16 @@ export const getStacks = async (authorId: string): Promise<ReturnStackData[]> =>
   }));
 }
 
+export const getStack = async (id: string): Promise<ReturnStackData | null> => {
+  const stack = await prisma.stack.findUnique({
+    where: { id },
+    include: {
+      items: true,
+    },
+  });
+  return stack ? { ...stack, itemsCount: stack.items.length } : null;
+}
+
 export const createStack = async (stack: CreateStackData): Promise<ReturnStackData> => {
   const createdStack = await prisma.stack.create({
     data: {
@@ -28,6 +39,20 @@ export const createStack = async (stack: CreateStackData): Promise<ReturnStackDa
   return {
     ...createdStack,
     itemsCount: 0,
+  };
+}
+
+export const updateStack = async (id: string, stack: UpdateStackData): Promise<ReturnStackData> => {
+  const updatedStack = await prisma.stack.update({
+    where: { id },
+    data: stack,
+    include: {
+      items: true,
+    },
+  });
+  return {
+    ...updatedStack,
+    itemsCount: updatedStack.items.length,
   };
 }
 

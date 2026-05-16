@@ -11,7 +11,8 @@ import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
 import {
   findOverlappingItem,
   positionOverlapsAnyItem,
-  positionOverlapsAnyMine
+  positionOverlapsAnyMine,
+  positionOverlapsAnything,
 } from "./helpers/overlaps";
 
 interface GroundGridInteractionLayerProps {
@@ -23,7 +24,7 @@ interface GroundGridInteractionLayerProps {
   onMineClick: (mine: Mine) => void;
   onDragChange: (payload: GridDragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropX: number, dropY: number) => void;
-  onItemDropped: (itemId: string, x: number, y: number, targetItemId: string | undefined) => void;
+  onItemDropped: (itemId: string, x: number, y: number, targetItemId?: string) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -77,7 +78,7 @@ export function GroundGridInteractionLayer({
 
     if (hasDraggedRef.current) {
       setDragState({ index, dx, dy });
-      const payload = buildGridDragPayload(index, dx, dy, cols, mines, items);
+      const payload = buildGridDragPayload(index, dx, dy, cols, mines, items, stacks);
       if (payload !== null) {
         onDragChange(payload);
       }
@@ -88,7 +89,7 @@ export function GroundGridInteractionLayer({
     if (distance >= DRAG_THRESHOLD_PX) {
       hasDraggedRef.current = true;
       setDragState({ index, dx, dy });
-      const payload = buildGridDragPayload(index, dx, dy, cols, mines, items);
+      const payload = buildGridDragPayload(index, dx, dy, cols, mines, items, stacks);
       if (payload !== null) {
         onDragChange(payload);
       }
@@ -119,16 +120,32 @@ export function GroundGridInteractionLayer({
         const target = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
         const isOtherCell = target.x !== gridCol || target.y !== gridRow;
         const itemToDrop = items.find((i) => i.x === gridCol && i.y === gridRow);
+        const stackToDrop = stacks.find((s) => s.x === gridCol && s.y === gridRow);
 
-        if (isOtherCell && itemToDrop) {
-          const overlappingItem = findOverlappingItem({ x: target.x, y: target.y }, items);
-          const overlapsMine = positionOverlapsAnyMine({ x: target.x, y: target.y }, mines);
-          const shouldCancel = overlapsMine || (overlappingItem && overlappingItem.itemType !== itemToDrop.itemType);
+        if (isOtherCell) {
+          if (itemToDrop) {
+            const overlappingItem = findOverlappingItem({ x: target.x, y: target.y }, items);
+            const overlapsMine = positionOverlapsAnyMine({ x: target.x, y: target.y }, mines);
+            const shouldCancel =
+              overlapsMine || (overlappingItem && overlappingItem.itemType !== itemToDrop.itemType);
 
-          if (shouldCancel) {
-            onItemDropCancelled(itemToDrop.id, target.x, target.y);
-          } else {
-            onItemDropped(itemToDrop.id, target.x, target.y, overlappingItem?.id);
+            if (shouldCancel) {
+              onItemDropCancelled(itemToDrop.id, target.x, target.y);
+            } else {
+              onItemDropped(itemToDrop.id, target.x, target.y, overlappingItem?.id);
+            }
+          }
+
+          if (stackToDrop) {
+            const shouldCancel = positionOverlapsAnything({ x: target.x, y: target.y }, mines, [
+              ...items,
+              ...stacks,
+            ]);
+            if (shouldCancel) {
+              onItemDropCancelled(stackToDrop.id, target.x, target.y);
+            } else {
+              onItemDropped(stackToDrop.id, target.x, target.y);
+            }
           }
         }
       }
@@ -181,13 +198,13 @@ export function GroundGridInteractionLayer({
             : "bg-transparent";
         const placementStyle = mine
           ? {
-            gridColumn: `${mine.x} / span ${mine.span}`,
-            gridRow: `${mine.y} / span ${mine.span}`,
-          }
+              gridColumn: `${mine.x} / span ${mine.span}`,
+              gridRow: `${mine.y} / span ${mine.span}`,
+            }
           : {
-            gridColumn: gridCol,
-            gridRow: gridRow,
-          };
+              gridColumn: gridCol,
+              gridRow: gridRow,
+            };
         const dragStyle =
           isDragging && dragState
             ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }

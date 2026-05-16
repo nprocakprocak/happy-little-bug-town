@@ -85,61 +85,103 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     );
   }, []);
 
-  const handleItemDropped = useCallback((itemId: string, x: number, y: number, targetItemId: string | undefined) => {
-    (async () => {
-      const originalItem = items.find((item) => item.id === itemId);
-      if (!originalItem) {
-        console.error("Can't drop the item, could not find item with id:", itemId);
-        return;
-      }
-
-      if (targetItemId) {
-        const targetItem = items.find((item) => item.id === targetItemId);
-        if (!targetItem) {
-          console.error("Can't drop the item, could not find target item with id:", targetItemId);
+  const handleItemDropped = useCallback(
+    (itemId: string, x: number, y: number, targetItemId?: string) => {
+      (async () => {
+        const originalItem = items.find((item) => item.id === itemId);
+        const originalStack = stacks.find((stack) => stack.id === itemId);
+        if (!originalItem && !originalStack) {
+          console.error("Can't drop the item, could not find item or stack with id:", itemId);
           return;
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stacks/create`, {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ x, y, itemType: targetItem.itemType, itemIds: [itemId, targetItemId] }),
-        });
+        if (targetItemId) {
+          const targetItem = items.find((item) => item.id === targetItemId);
+          if (!targetItem) {
+            console.error("Can't drop the item, could not find target item with id:", targetItemId);
+            return;
+          }
 
-        if (!response.ok) {
-          const { error } = await response.json();
-          console.error("Failed to create stack:", error);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stacks/create`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              x,
+              y,
+              itemType: targetItem.itemType,
+              itemIds: [itemId, targetItemId],
+            }),
+          });
+
+          if (!response.ok) {
+            const { error } = await response.json();
+            console.error("Failed to create stack:", error);
+            return;
+          }
+
+          const stack = await response.json();
+          setItems((prev) => prev.filter((it) => it.id !== itemId && it.id !== targetItemId));
+          setStacks((prev) => [...prev, stack]);
+
           return;
         }
 
-        const stack = await response.json();
-        setItems((prev) => prev.filter((it) => it.id !== itemId && it.id !== targetItemId));
-        setStacks((prev) => [...prev, stack]);
+        if (originalStack) {
+          setStacks((prev) =>
+            prev.map((stack) => (stack.id === itemId ? { ...stack, x, y } : stack)),
+          );
 
-        return;
-      }
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stacks/${itemId}`,
+            {
+              method: "PUT",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ x, y }),
+            },
+          );
 
-      setItems((prev) => prev.map((it) => (it.id === itemId ? { ...it, x, y } : it)));
+          if (!response.ok) {
+            setStacks((prev) => prev.map((stack) => (stack.id === itemId ? originalStack : stack)));
+            const { error } = await response.json();
+            console.error("Failed to update stack:", error);
+            return;
+          }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items/${itemId}`, {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ x, y }),
-      });
+          const stack = await response.json();
+          setStacks((prev) => prev.map((s) => (s.id === itemId ? stack : s)));
 
-      if (!response.ok) {
-        setItems((prev) => prev.map((it) => (it.id === itemId ? originalItem : it)));
-        const { error } = await response.json();
-        console.error("Failed to update item:", error);
-        return;
-      }
+          return;
+        }
 
-      const item = await response.json();
-      setItems((prev) => prev.map((it) => (it.id === itemId ? item : it)));
-    })();
-  }, [items]);
+        if (originalItem) {
+          setItems((prev) => prev.map((it) => (it.id === itemId ? { ...it, x, y } : it)));
+
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items/${itemId}`,
+            {
+              method: "PUT",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ x, y }),
+            },
+          );
+
+          if (!response.ok) {
+            setItems((prev) => prev.map((it) => (it.id === itemId ? originalItem : it)));
+            const { error } = await response.json();
+            console.error("Failed to update item:", error);
+            return;
+          }
+
+          const item = await response.json();
+          setItems((prev) => prev.map((it) => (it.id === itemId ? item : it)));
+        }
+      })();
+    },
+    [items],
+  );
 
   const onMineClick = useCallback(
     (mine: Mine) => {
