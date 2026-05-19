@@ -1,9 +1,16 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "preserve",
+    "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "lib": ["dom", "dom.iterable", "es2020"],
+    "jsx": "preserve",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
     "allowJs": true,
     "incremental": true,
     "esModuleInterop": true,
