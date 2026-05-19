@@ -1,20 +1,35 @@
 import { prisma } from "../lib/prisma.js";
 import { User } from "../prisma/prisma/client.js";
+import { UserDto } from "../types/user-dto.js";
 
-export const getUser = async (id: string): Promise<User | undefined> => {
-  return await prisma.user.findUnique({
+export const getUser = async (id: string): Promise<UserDto | undefined> => {
+  const user = await prisma.user.findUnique({
     where: {
       id,
     },
-  }) ?? undefined;
+  });
+  if (!user) {
+    return undefined;
+  }
+  return {
+    id: user.id,
+    name: user.name ?? undefined,
+    email: user.email ?? undefined,
+  };
 };
 
-export const updateUser = async (user: User): Promise<User> => {
-  return await prisma.user.upsert({
+export const updateUser = async (user: User): Promise<UserDto> => {
+  const updatedUser = await prisma.user.upsert({
     where: {
       id: user.id,
     },
     create: user,
     update: user,
   });
+
+  return {
+    id: updatedUser.id,
+    name: updatedUser.name ?? undefined,
+    email: updatedUser.email ?? undefined,
+  };
 };
