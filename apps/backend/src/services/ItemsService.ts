@@ -1,4 +1,4 @@
-import { Position } from "@happy-little-park/types";
+import { Position } from "../types/position.js";
 import { prisma } from "../lib/prisma.js";
 import { Item } from "../prisma/prisma/client.js";
 

@@ -1,4 +1,4 @@
-import { Position } from "@happy-little-park/types";
+import { Position } from "../types/position.js";
 import { Item, Mine } from "../prisma/prisma/client.js";
 
 export function positionOverlapsMine(position: Position, mine: Mine): boolean {
