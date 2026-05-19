@@ -86,7 +86,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   }, []);
 
   const handleItemDropped = useCallback(
-    (itemId: string, x: number, y: number, targetItemId?: string) => {
+    (itemId: string, x: number, y: number, targetItem?: Item, targetStack?: Stack) => {
       (async () => {
         const originalItem = items.find((item) => item.id === itemId);
         const originalStack = stacks.find((stack) => stack.id === itemId);
@@ -95,13 +95,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           return;
         }
 
-        if (targetItemId) {
-          const targetItem = items.find((item) => item.id === targetItemId);
-          if (!targetItem) {
-            console.error("Can't drop the item, could not find target item with id:", targetItemId);
-            return;
-          }
-
+        if (targetItem) {
           const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stacks/create`, {
             method: "POST",
             credentials: "include",
@@ -110,7 +104,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
               x,
               y,
               itemType: targetItem.itemType,
-              itemIds: [itemId, targetItemId],
+              itemIds: [itemId, targetItem.id],
             }),
           });
 
@@ -121,8 +115,31 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           }
 
           const stack = await response.json();
-          setItems((prev) => prev.filter((it) => it.id !== itemId && it.id !== targetItemId));
+          setItems((prev) => prev.filter((it) => it.id !== itemId && it.id !== targetItem.id));
           setStacks((prev) => [...prev, stack]);
+
+          return;
+        }
+
+        if (targetStack) {
+          setItems((prev) => prev.filter((it) => it.id !== itemId));
+
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items/${itemId}`, {
+            method: "PUT",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ stackId: targetStack.id }),
+          });
+
+          if (!response.ok) {
+            const { error } = await response.json();
+            console.error("Failed to update item:", error);
+            return;
+          }
+
+          setStacks((prev) =>
+            prev.map((stack) => (stack.id === itemId ? { ...stack, itemsCount: stack.itemsCount + 1 } : stack)),
+          );
 
           return;
         }
@@ -143,7 +160,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
 
           if (!response.ok) {
-            setStacks((prev) => prev.map((stack) => (stack.id === itemId ? originalStack : stack)));
             const { error } = await response.json();
             console.error("Failed to update stack:", error);
             return;
@@ -180,7 +196,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         }
       })();
     },
-    [items],
+    [items, stacks],
   );
 
   const onMineClick = useCallback(

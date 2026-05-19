@@ -1,4 +1,4 @@
-import { Item, Mine, Position } from "@happy-little-park/types";
+import { Item, Mine, Position, Stack } from "@happy-little-park/types";
 
 export function positionOverlapsMine(position: Position, mine: Mine): boolean {
   return (
@@ -33,4 +33,8 @@ export function positionOverlapsAnything(
 
 export function findOverlappingItem(position: Position, items: Item[]): Item | undefined {
   return items.find((item) => positionOverlapsItemOrStack(position, item));
+}
+
+export function findOverlappingStack(position: Position, stacks: Stack[]): Stack | undefined {
+  return stacks.find((stack) => positionOverlapsItemOrStack(position, stack));
 }

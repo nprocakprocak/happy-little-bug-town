@@ -11,6 +11,7 @@ import {
   updateItem as updateItemService,
 } from "../services/ItemsService.js";
 import { getMines } from "../services/MinesService.js";
+import { getStack } from "../services/StacksService.js";
 
 export const itemsRouter = Router();
 
@@ -39,8 +40,24 @@ const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
   res,
 ) => {
   const { id } = req.params;
-  const { x, y } = req.body;
+  const { x, y, stackId } = req.body;
   const authorId = req.authorId!;
+
+  if (stackId) {
+    const existingStack = await getStack(stackId);
+    if (!existingStack) {
+      res.status(400).json({ error: "Stack not found when updating item" });
+      return;
+    }
+    if (existingStack.authorId !== authorId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    
+    const item = await updateItemService(id, { stackId });
+    res.status(200).json(item);
+    return;
+  }
 
   const existingItem = await getItemService(id);
   if (!existingItem) {
@@ -49,6 +66,11 @@ const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
   }
   if (existingItem.authorId !== authorId) {
     res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  if (!x || !y) {
+    res.status(400).json({ error: "x and y are required when updating item not in stack" });
     return;
   }
 
