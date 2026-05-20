@@ -1,6 +1,7 @@
 "use client";
 
 import { Item, Mine, Stack } from "@happy-little-park/types";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { DragPayload } from "../domain/drag-n-drop/dragPayload";
@@ -12,7 +13,8 @@ import { useAnonymousId } from "../context/AnonymousIdContext";
 import { initFetch } from "../domain/init/initFetch";
 import { createFirstMine } from "../domain/mines/createFirstMine";
 import { dropAction } from "../domain/drag-n-drop/dropAction";
-import { extractItemFromStack } from "../domain/stacks/extract";
+import { useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
+import { queryKeys } from "../lib/queryKeys";
 
 interface GroundGridProps {
   rows: number;
@@ -21,9 +23,12 @@ interface GroundGridProps {
 
 export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { anonymousId } = useAnonymousId();
+  const queryClient = useQueryClient();
+  const { data: stacks = [] } = useStacksQuery(Boolean(anonymousId));
+  const extractFromStack = useExtractFromStackMutation();
+
   const [mines, setMines] = useState<Mine[]>([]);
   const [items, setItems] = useState<Item[]>([]);
-  const [stacks, setStacks] = useState<Stack[]>([]);
   const animatables = useMemo(() => [...items, ...stacks], [items, stacks]);
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
@@ -34,7 +39,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         return;
       }
 
-      const { mines, items, stacks } = await initFetch();
+      const { mines, items } = await initFetch();
 
       if (mines.length === 0) {
         const firstMine = await createFirstMine();
@@ -42,7 +47,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       } else {
         setMines(mines);
         setItems(items);
-        setStacks(stacks);
       }
     })();
   }, [anonymousId]);
@@ -60,6 +64,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       prev.map((item) => (item.id === itemId ? { ...item, fromX: dropX, fromY: dropY } : item)),
     );
   }, []);
+
+  const setStacksCache = useCallback(
+    (updater: (stacks: Stack[]) => Stack[]) => {
+      queryClient.setQueryData<Stack[]>(queryKeys.stacks, (old) => updater(old ?? []));
+    },
+    [queryClient],
+  );
 
   const handleItemDropped = useCallback(
     (itemId: string, x: number, y: number, targetItem?: Item, targetStack?: Stack) => {
@@ -80,7 +91,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             );
           }
           if (originalStack) {
-            setStacks((prev) => prev.map((s) => (s.id === originalStack.id ? { ...s, x, y } : s)));
+            setStacksCache((prev) =>
+              prev.map((s) => (s.id === originalStack.id ? { ...s, x, y } : s)),
+            );
           }
         }
 
@@ -97,16 +110,16 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           targetItem || targetStack,
         );
         setItems(newItems);
-        setStacks(newStacks);
+        queryClient.setQueryData(queryKeys.stacks, newStacks);
       })();
     },
-    [items, stacks],
+    [items, stacks, queryClient, setStacksCache],
   );
 
   const onStackClick = useCallback(
     (stack: Stack) => {
       (async () => {
-        const item = await extractItemFromStack(stack.id);
+        const item = await extractFromStack.mutateAsync(stack.id);
 
         const newItem: Item = {
           ...item,
@@ -117,7 +130,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         setItems((prev) => [...prev, newItem]);
       })();
     },
-    [cols, rows, mines, items, stacks],
+    [extractFromStack],
   );
 
   const onMineClick = useCallback(
