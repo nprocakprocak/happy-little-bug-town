@@ -11,6 +11,7 @@ import { ItemFlightLayer } from "./ItemFlightLayer";
 import { useAnonymousId } from "../context/AnonymousIdContext";
 import { initFetch } from "../domain/init/initFetch";
 import { createFirstMine } from "../domain/mines/createFirstMine";
+import { dropAction } from "../domain/drag-n-drop/dropAction";
 
 interface GroundGridProps {
   rows: number;
@@ -64,110 +65,30 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       (async () => {
         const originalItem = items.find((item) => item.id === itemId);
         const originalStack = stacks.find((stack) => stack.id === itemId);
+
         if (!originalItem && !originalStack) {
           console.error("Can't drop the item, could not find item or stack with id:", itemId);
           return;
         }
 
-        if (targetItem) {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stacks/create`, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              x,
-              y,
-              itemType: targetItem.itemType,
-              itemIds: [itemId, targetItem.id],
-            }),
-          });
-
-          if (!response.ok) {
-            const { error } = await response.json();
-            console.error("Failed to create stack:", error);
-            return;
+        // drop onto an empty position, assume optimistic update
+        if (!targetItem && !targetStack) {
+          if (originalItem) {
+            setItems((prev) => prev.map((it) => (it.id === originalItem.id ? { ...it, x, y } : it)));
           }
-
-          const stack = await response.json();
-          setItems((prev) => prev.filter((it) => it.id !== itemId && it.id !== targetItem.id));
-          setStacks((prev) => [...prev, stack]);
-
-          return;
+          if (originalStack) {
+            setStacks((prev) => prev.map((s) => (s.id === originalStack.id ? { ...s, x, y } : s)));
+          }
         }
 
-        if (targetStack) {
-          setItems((prev) => prev.filter((it) => it.id !== itemId));
-
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items/${itemId}`, {
-            method: "PUT",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ stackId: targetStack.id }),
-          });
-
-          if (!response.ok) {
-            const { error } = await response.json();
-            console.error("Failed to update item:", error);
-            return;
-          }
-
-          setStacks((prev) =>
-            prev.map((stack) => (stack.id === itemId ? { ...stack, itemsCount: stack.itemsCount + 1 } : stack)),
-          );
-
-          return;
+        // drop an item onto a stack to add it to its items, assume optimistic update
+        if (originalItem && targetStack) {
+          setItems((prev) => prev.filter((it) => it.id !== originalItem.id));
         }
 
-        if (originalStack) {
-          setStacks((prev) =>
-            prev.map((stack) => (stack.id === itemId ? { ...stack, x, y } : stack)),
-          );
-
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stacks/${itemId}`,
-            {
-              method: "PUT",
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ x, y }),
-            },
-          );
-
-          if (!response.ok) {
-            const { error } = await response.json();
-            console.error("Failed to update stack:", error);
-            return;
-          }
-
-          const stack = await response.json();
-          setStacks((prev) => prev.map((s) => (s.id === itemId ? stack : s)));
-
-          return;
-        }
-
-        if (originalItem) {
-          setItems((prev) => prev.map((it) => (it.id === itemId ? { ...it, x, y } : it)));
-
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items/${itemId}`,
-            {
-              method: "PUT",
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ x, y }),
-            },
-          );
-
-          if (!response.ok) {
-            setItems((prev) => prev.map((it) => (it.id === itemId ? originalItem : it)));
-            const { error } = await response.json();
-            console.error("Failed to update item:", error);
-            return;
-          }
-
-          const item = await response.json();
-          setItems((prev) => prev.map((it) => (it.id === itemId ? item : it)));
-        }
+        const { items: newItems, stacks: newStacks } = await dropAction({ x, y }, items, stacks, originalItem || originalStack!, targetItem || targetStack);
+        setItems(newItems);
+        setStacks(newStacks);
       })();
     },
     [items, stacks],
