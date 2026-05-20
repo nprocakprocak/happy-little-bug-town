@@ -11,8 +11,8 @@ import { pickRandomNearestMineCenterCell } from "./helpers/mineCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
 import { useAnonymousId } from "../context/AnonymousIdContext";
 import { initFetch } from "../domain/init/initFetch";
-import { createFirstMine } from "../domain/mines/createFirstMine";
 import { dropAction } from "../domain/drag-n-drop/dropAction";
+import { useCreateFirstMineMutation, useMinesQuery } from "../hooks/useMines";
 import { useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
 import { queryKeys } from "../lib/queryKeys";
 
@@ -24,32 +24,45 @@ interface GroundGridProps {
 export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { anonymousId } = useAnonymousId();
   const queryClient = useQueryClient();
-  const { data: stacks = [] } = useStacksQuery(Boolean(anonymousId));
-  const extractFromStack = useExtractFromStackMutation();
+  const isAuthenticated = Boolean(anonymousId);
 
-  const [mines, setMines] = useState<Mine[]>([]);
+  const { data: mines = [], isSuccess: minesLoaded } = useMinesQuery(isAuthenticated);
+  const { data: stacks = [] } = useStacksQuery(isAuthenticated);
+  const extractFromStack = useExtractFromStackMutation();
+  const {
+    mutate: createFirstMineMutate,
+    isPending: isCreatingFirstMine,
+    isError: firstMineCreateFailed,
+  } = useCreateFirstMineMutation();
+
   const [items, setItems] = useState<Item[]>([]);
   const animatables = useMemo(() => [...items, ...stacks], [items, stacks]);
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
 
   useEffect(() => {
+    if (!minesLoaded || mines.length > 0 || isCreatingFirstMine || firstMineCreateFailed) {
+      return;
+    }
+    createFirstMineMutate();
+  }, [
+    minesLoaded,
+    mines.length,
+    isCreatingFirstMine,
+    firstMineCreateFailed,
+    createFirstMineMutate,
+  ]);
+
+  useEffect(() => {
     (async () => {
-      if (!anonymousId) {
+      if (!anonymousId || mines.length === 0) {
         return;
       }
 
-      const { mines, items } = await initFetch();
-
-      if (mines.length === 0) {
-        const firstMine = await createFirstMine();
-        setMines([firstMine]);
-      } else {
-        setMines(mines);
-        setItems(items);
-      }
+      const { items } = await initFetch();
+      setItems(items);
     })();
-  }, [anonymousId]);
+  }, [anonymousId, mines.length]);
 
   const handleFlightComplete = useCallback((itemId: string) => {
     setItems((prev) =>
