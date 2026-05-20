@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useUpdateUserMutation } from "../hooks/useUser";
 
 interface AnonymousIdContextValue {
   anonymousId: string;
@@ -14,6 +15,7 @@ interface AnonymousIdProviderProps {
 
 export function AnonymousIdProvider({ children }: AnonymousIdProviderProps) {
   const [anonymousId, setAnonymousId] = useState("");
+  const { mutateAsync: registerUser } = useUpdateUserMutation();
 
   useEffect(() => {
     (async () => {
@@ -21,14 +23,11 @@ export function AnonymousIdProvider({ children }: AnonymousIdProviderProps) {
       const anonId = stored ?? crypto.randomUUID();
       if (!stored) {
         localStorage.setItem("aid", anonId);
-        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${anonId}`, {
-          method: "PUT",
-          credentials: "include",
-        });
+        await registerUser(anonId);
       }
       setAnonymousId(anonId);
     })();
-  }, []);
+  }, [registerUser]);
 
   const value = useMemo(() => ({ anonymousId }), [anonymousId]);
 

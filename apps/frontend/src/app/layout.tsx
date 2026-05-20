@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { AnonymousIdProvider } from "../context/AnonymousIdContext";
 import { GridVisibilityProvider } from "../context/GridVisibilityContext";
+import { QueryProvider } from "../providers/QueryProvider";
 import { APP_LOCALE } from "../constants";
 
 export const metadata: Metadata = {
@@ -18,9 +19,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang={APP_LOCALE}>
       <body>
-        <AnonymousIdProvider>
-          <GridVisibilityProvider>{children}</GridVisibilityProvider>
-        </AnonymousIdProvider>
+        <QueryProvider>
+          <AnonymousIdProvider>
+            <GridVisibilityProvider>{children}</GridVisibilityProvider>
+          </AnonymousIdProvider>
+        </QueryProvider>
       </body>
     </html>
   );

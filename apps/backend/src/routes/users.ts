@@ -13,9 +13,6 @@ const getUser: RequestHandler = async (req, res) => {
 
 const updateUser: RequestHandler = async (req, res) => {
   const user = await updateUserService({ ...req.body, id: req.params.id });
-  if (!user) {
-    return res.status(500).json({ error: "Failed to update user" });
-  }
   res.cookie("aid", user.id, {
     path: "/",
     httpOnly: true,
