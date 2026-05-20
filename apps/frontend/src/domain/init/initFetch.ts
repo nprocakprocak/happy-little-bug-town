@@ -1,6 +1,6 @@
 import { Mine, Item, Stack } from "@happy-little-park/types";
 
-export async function initFetch(): Promise<{ mines: Mine[], items: Item[], stacks: Stack[] }> {
+export async function initFetch(): Promise<{ mines: Mine[]; items: Item[]; stacks: Stack[] }> {
   const [minesResponse, itemsResponse, stacksResponse] = await Promise.all([
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mines`, {
       credentials: "include",

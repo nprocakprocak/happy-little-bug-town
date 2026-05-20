@@ -74,7 +74,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         // drop onto an empty position, assume optimistic update
         if (!targetItem && !targetStack) {
           if (originalItem) {
-            setItems((prev) => prev.map((it) => (it.id === originalItem.id ? { ...it, x, y } : it)));
+            setItems((prev) =>
+              prev.map((it) => (it.id === originalItem.id ? { ...it, x, y } : it)),
+            );
           }
           if (originalStack) {
             setStacks((prev) => prev.map((s) => (s.id === originalStack.id ? { ...s, x, y } : s)));
@@ -86,7 +88,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           setItems((prev) => prev.filter((it) => it.id !== originalItem.id));
         }
 
-        const { items: newItems, stacks: newStacks } = await dropAction({ x, y }, items, stacks, originalItem || originalStack!, targetItem || targetStack);
+        const { items: newItems, stacks: newStacks } = await dropAction(
+          { x, y },
+          items,
+          stacks,
+          originalItem || originalStack!,
+          targetItem || targetStack,
+        );
         setItems(newItems);
         setStacks(newStacks);
       })();
