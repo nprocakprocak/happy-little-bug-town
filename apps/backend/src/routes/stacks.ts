@@ -1,8 +1,10 @@
 import { Router, type RequestHandler } from "express";
 import { requireAid } from "../middleware/requireAid.js";
 import { createStackWithItems, getStack, getStacks, updateStack as updateStackService } from "../services/stacksService.js";
-import { getItemByIds, getItems } from "../services/itemsService.js";
+import { getItemByIds, getItems, takeItemFromStack } from "../services/itemsService.js";
 import { getMines } from "../services/minesService.js";
+import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
+import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
 
 export const stacksRouter = Router();
 
@@ -67,7 +69,38 @@ const updateStack: RequestHandler = async (req, res) => {
   res.status(200).json(stack);
 };
 
+const extractItemFromStack: RequestHandler = async (req, res) => {
+  const { id } = req.params;
+  const authorId = req.authorId!;
+  
+  const existingStack = await getStack(id);
+  if (!existingStack) {
+    res.status(400).json({ error: "Stack not found when extracting item" });
+    return;
+  }
+  if (existingStack.authorId !== authorId) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const items = await getItems(authorId);
+  const mines = await getMines(authorId);
+  const emptyPosition = findRandomEmptyPosition(
+    GROUND_HEIGHT,
+    GROUND_WIDTH,
+    mines,
+    items,
+  );
+  if (!emptyPosition) {
+    res.status(400).json({ error: "No empty position found" });
+    return;
+  }
+  
+  const item = await takeItemFromStack(id, emptyPosition);
+  res.status(200).json(item);
+}
 
 stacksRouter.get("/", listStacks);
 stacksRouter.post("/create", createStack);
+stacksRouter.post("/:id/extract", extractItemFromStack);
 stacksRouter.put("/:id", updateStack);

@@ -12,6 +12,7 @@ import { useAnonymousId } from "../context/AnonymousIdContext";
 import { initFetch } from "../domain/init/initFetch";
 import { createFirstMine } from "../domain/mines/createFirstMine";
 import { dropAction } from "../domain/drag-n-drop/dropAction";
+import { extractItemFromStack } from "../domain/stacks/extract";
 
 interface GroundGridProps {
   rows: number;
@@ -102,6 +103,23 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [items, stacks],
   );
 
+  const onStackClick = useCallback(
+    (stack: Stack) => {
+      (async () => {
+        const item = await extractItemFromStack(stack.id);
+
+        const newItem: Item = {
+          ...item,
+          fromX: stack.x,
+          fromY: stack.y,
+        };
+
+        setItems((prev) => [...prev, newItem]);
+      })();
+    },
+    [cols, rows, mines, items, stacks],
+  );
+
   const onMineClick = useCallback(
     (mine: Mine) => {
       (async () => {
@@ -170,6 +188,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           items={items}
           stacks={stacks}
           onMineClick={onMineClick}
+          onStackClick={onStackClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}

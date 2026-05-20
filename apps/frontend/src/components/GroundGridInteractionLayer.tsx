@@ -23,6 +23,7 @@ interface GroundGridInteractionLayerProps {
   items: Item[];
   stacks: Stack[];
   onMineClick: (mine: Mine) => void;
+  onStackClick: (stack: Stack) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropX: number, dropY: number) => void;
   onItemDropped: (
@@ -41,6 +42,7 @@ export function GroundGridInteractionLayer({
   items,
   stacks,
   onMineClick,
+  onStackClick,
   onDragChange,
   onItemDropCancelled,
   onItemDropped,
@@ -105,6 +107,7 @@ export function GroundGridInteractionLayer({
 
   function handlePointerUp(
     mine: Mine | undefined,
+    stack: Stack | undefined,
     gridCol: number,
     gridRow: number,
     event: ReactPointerEvent<HTMLDivElement>,
@@ -164,6 +167,8 @@ export function GroundGridInteractionLayer({
 
     if (mine) {
       onMineClick(mine);
+    } else if (stack) {
+      onStackClick(stack);
     } else {
       setSelectedPosition({ x: gridCol, y: gridRow });
     }
@@ -192,6 +197,7 @@ export function GroundGridInteractionLayer({
         const gridRow = Math.floor(index / cols) + 1;
         const gridCol = (index % cols) + 1;
         const mine = mines.find((mine) => mine.x === gridCol && mine.y === gridRow);
+        const stack = stacks.find((stack) => stack.x === gridCol && stack.y === gridRow);
 
         if (!mine && positionOverlapsAnyMine({ x: gridCol, y: gridRow }, mines)) {
           return null;
@@ -227,7 +233,7 @@ export function GroundGridInteractionLayer({
             style={{ ...placementStyle, ...dragStyle }}
             onPointerDown={(event) => handlePointerDown(canDrag, event)}
             onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
-            onPointerUp={(event) => handlePointerUp(mine, gridCol, gridRow, event)}
+            onPointerUp={(event) => handlePointerUp(mine, stack, gridCol, gridRow, event)}
             onPointerCancel={handlePointerCancel}
           />
         );

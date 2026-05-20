@@ -12,17 +12,6 @@ const ITEM_TYPES_WEIGHTS = {
   stick: 1,
 };
 
-export async function generateRandomItem(authorId: string, position: Position): Promise<ItemData> {
-  const seed = Math.random();
-  const itemType = ITEM_TYPES.find((itemType) => seed < ITEM_TYPES_WEIGHTS[itemType]) ?? "leaf_part";
-  return {
-    itemType,
-    x: position.x,
-    y: position.y,
-    authorId,
-  };
-}
-
 export const getItems = async (authorId: string): Promise<Item[]> => {
   return await prisma.item.findMany({
     where: {
@@ -62,5 +51,38 @@ export const updateItem = async (id: string, item: ItemUpdateData): Promise<Item
       y: item.y ?? null,
       stackId: item.stackId ?? null,
     },
+  });
+}
+
+export async function generateRandomItem(authorId: string, position: Position): Promise<ItemData> {
+  const seed = Math.random();
+  const itemType = ITEM_TYPES.find((itemType) => seed < ITEM_TYPES_WEIGHTS[itemType]) ?? "leaf_part";
+  return {
+    itemType,
+    x: position.x,
+    y: position.y,
+    authorId,
+  };
+}
+
+export async function takeItemFromStack(stackId: string, position: Position): Promise<ItemData> {
+  return await prisma.$transaction(async (tx) => {
+    const item = await tx.item.findFirst({
+      where: {
+        stackId,
+      },
+    });
+    if (!item) {
+      throw new Error(`Item not found in stack ${stackId} when extracting`);
+    }
+    const updatedItem = await tx.item.update({
+      where: { id: item.id },
+      data: {
+        stackId: null,
+        x: position.x,
+        y: position.y,
+      },
+    });
+    return updatedItem;
   });
 }
