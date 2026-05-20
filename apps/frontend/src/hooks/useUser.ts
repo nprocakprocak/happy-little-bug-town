@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchUser, updateUser } from "../api/users";
-import { queryKeys } from "../lib/queryKeys";
+import { queryKeys } from "../constants/queryKeys";
 
 export function useUserQuery(id: string) {
   return useQuery({

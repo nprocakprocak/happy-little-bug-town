@@ -10,11 +10,11 @@ import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestMineCenterCell } from "./helpers/mineCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
 import { useAnonymousId } from "../context/AnonymousIdContext";
-import { initFetch } from "../domain/init/initFetch";
 import { dropAction } from "../domain/drag-n-drop/dropAction";
 import { useCreateFirstMineMutation, useMinesQuery } from "../hooks/useMines";
-import { useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
-import { queryKeys } from "../lib/queryKeys";
+import { useCreateRandomItemMutation, useItemsQuery, updateItemsCache } from "../hooks/useItems";
+import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
+import { queryKeys } from "../constants/queryKeys";
 
 interface GroundGridProps {
   rows: number;
@@ -27,15 +27,17 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const isAuthenticated = Boolean(anonymousId);
 
   const { data: mines = [], isSuccess: minesLoaded } = useMinesQuery(isAuthenticated);
-  const { data: stacks = [] } = useStacksQuery(isAuthenticated);
+  const canLoadGridData = isAuthenticated && mines.length > 0;
+  const { data: items = [] } = useItemsQuery(canLoadGridData);
+  const { data: stacks = [] } = useStacksQuery(canLoadGridData);
   const extractFromStack = useExtractFromStackMutation();
+  const createRandomItem = useCreateRandomItemMutation();
   const {
     mutate: createFirstMineMutate,
     isPending: isCreatingFirstMine,
     isError: firstMineCreateFailed,
   } = useCreateFirstMineMutation();
 
-  const [items, setItems] = useState<Item[]>([]);
   const animatables = useMemo(() => [...items, ...stacks], [items, stacks]);
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
@@ -53,36 +55,38 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     createFirstMineMutate,
   ]);
 
-  useEffect(() => {
-    (async () => {
-      if (!anonymousId || mines.length === 0) {
-        return;
-      }
-
-      const { items } = await initFetch();
-      setItems(items);
-    })();
-  }, [anonymousId, mines.length]);
-
-  const handleFlightComplete = useCallback((itemId: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, fromX: undefined, fromY: undefined } : item,
-      ),
-    );
-  }, []);
-
-  const handleItemDropCancelled = useCallback((itemId: string, dropX: number, dropY: number) => {
-    setItems((prev) =>
-      prev.map((item) => (item.id === itemId ? { ...item, fromX: dropX, fromY: dropY } : item)),
-    );
-  }, []);
+  const setItemsCache = useCallback(
+    (updater: (items: Item[]) => Item[]) => {
+      updateItemsCache(queryClient, updater);
+    },
+    [queryClient],
+  );
 
   const setStacksCache = useCallback(
     (updater: (stacks: Stack[]) => Stack[]) => {
-      queryClient.setQueryData<Stack[]>(queryKeys.stacks, (old) => updater(old ?? []));
+      updateStacksCache(queryClient, updater);
     },
     [queryClient],
+  );
+
+  const handleFlightComplete = useCallback(
+    (itemId: string) => {
+      setItemsCache((prev) =>
+        prev.map((item) =>
+          item.id === itemId ? { ...item, fromX: undefined, fromY: undefined } : item,
+        ),
+      );
+    },
+    [setItemsCache],
+  );
+
+  const handleItemDropCancelled = useCallback(
+    (itemId: string, dropX: number, dropY: number) => {
+      setItemsCache((prev) =>
+        prev.map((item) => (item.id === itemId ? { ...item, fromX: dropX, fromY: dropY } : item)),
+      );
+    },
+    [setItemsCache],
   );
 
   const handleItemDropped = useCallback(
@@ -99,7 +103,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         // drop onto an empty position, assume optimistic update
         if (!targetItem && !targetStack) {
           if (originalItem) {
-            setItems((prev) =>
+            setItemsCache((prev) =>
               prev.map((it) => (it.id === originalItem.id ? { ...it, x, y } : it)),
             );
           }
@@ -112,7 +116,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
         // drop an item onto a stack to add it to its items, assume optimistic update
         if (originalItem && targetStack) {
-          setItems((prev) => prev.filter((it) => it.id !== originalItem.id));
+          setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
         }
 
         const { items: newItems, stacks: newStacks } = await dropAction(
@@ -122,25 +126,18 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           originalItem || originalStack!,
           targetItem || targetStack,
         );
-        setItems(newItems);
+
+        queryClient.setQueryData(queryKeys.items, newItems);
         queryClient.setQueryData(queryKeys.stacks, newStacks);
       })();
     },
-    [items, stacks, queryClient, setStacksCache],
+    [items, stacks, queryClient, setItemsCache, setStacksCache],
   );
 
   const onStackClick = useCallback(
     (stack: Stack) => {
       (async () => {
-        const item = await extractFromStack.mutateAsync(stack.id);
-
-        const newItem: Item = {
-          ...item,
-          fromX: stack.x,
-          fromY: stack.y,
-        };
-
-        setItems((prev) => [...prev, newItem]);
+        await extractFromStack.mutateAsync(stack.id);
       })();
     },
     [extractFromStack],
@@ -149,34 +146,18 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const onMineClick = useCallback(
     (mine: Mine) => {
       (async () => {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items/random`, {
-          method: "POST",
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          const { error } = await response.json();
-          // todo: show alert
-          console.error("Failed to create random item:", error);
-          return;
-        }
-
-        const item = await response.json();
-
-        setItems((prev) => {
+        try {
+          const item = await createRandomItem.mutateAsync();
           const origin = pickRandomNearestMineCenterCell(mine);
 
-          const newItem: Item = {
-            ...item,
-            fromX: origin.x,
-            fromY: origin.y,
-          };
-
-          return [...prev, newItem];
-        });
+          setItemsCache((prev) => [...prev, { ...item, fromX: origin.x, fromY: origin.y }]);
+        } catch (error) {
+          // todo: show alert
+          console.error("Failed to create random item:", error);
+        }
       })();
     },
-    [cols, mines, rows],
+    [createRandomItem, setItemsCache],
   );
 
   return (

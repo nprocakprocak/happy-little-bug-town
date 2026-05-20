@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Position, Stack } from "@happy-little-park/types";
 import { createStack, extractItemFromStack, fetchStacks, updateStack } from "../api/stacks";
-import { queryKeys } from "../lib/queryKeys";
+import { queryKeys } from "../constants/queryKeys";
+import { updateItemsCache } from "./useItems";
 
-function updateStacksCache(
+export function updateStacksCache(
   queryClient: ReturnType<typeof useQueryClient>,
   updater: (stacks: Stack[]) => Stack[],
 ) {
@@ -47,10 +48,11 @@ export function useExtractFromStackMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: extractItemFromStack,
-    onSuccess: () => {
+    mutationFn: (stackId: string) => extractItemFromStack(stackId),
+    onSuccess: (item, stackId) => {
+      updateItemsCache(queryClient, (items) => [...items, item]);
       updateStacksCache(queryClient, (stacks) =>
-        stacks.map((s) => ({ ...s, itemsCount: s.itemsCount - 1 })),
+        stacks.map((s) => (s.id === stackId ? { ...s, itemsCount: s.itemsCount - 1 } : s)),
       );
     },
   });

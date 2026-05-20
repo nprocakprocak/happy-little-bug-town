@@ -1,7 +1,7 @@
 import { Item, Position, Stack } from "@happy-little-park/types";
 import { isItem, isStack } from "../../utils/typeGuards";
-import { addItemToStack } from "../stacks/add";
-import { moveItem } from "../items/move";
+import { addItemToStack } from "../../api/items";
+import { updateItemPosition } from "../../api/items";
 import { createStack, updateStack } from "../../api/stacks";
 
 export async function dropAction(
@@ -62,7 +62,7 @@ export async function dropAction(
 
   // drop an item onto an empty position
   if (originalItem) {
-    const item = await moveItem(originalItem.id, targetPosition);
+    const item = await updateItemPosition(originalItem.id, targetPosition);
 
     return {
       items: items.map((it) => (it.id === originalItem.id ? item : it)),
