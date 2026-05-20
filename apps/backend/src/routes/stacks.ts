@@ -1,8 +1,8 @@
 import { Router, type RequestHandler } from "express";
 import { requireAid } from "../middleware/requireAid.js";
-import { createStackWithItems, getStack, getStacks, updateStack as updateStackService } from "../services/StacksService.js";
-import { getItemByIds, getItems } from "../services/ItemsService.js";
-import { getMines } from "../services/MinesService.js";
+import { createStackWithItems, getStack, getStacks, updateStack as updateStackService } from "../services/stacksService.js";
+import { getItemByIds, getItems } from "../services/itemsService.js";
+import { getMines } from "../services/minesService.js";
 
 export const stacksRouter = Router();
 

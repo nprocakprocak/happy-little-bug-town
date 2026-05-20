@@ -3,11 +3,14 @@
 import { Item, Mine, Stack } from "@happy-little-park/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
-import { GridDragPayload } from "../types/gridDrag";
+import { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestMineCenterCell } from "./helpers/mineCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
+import { useAnonymousId } from "../context/AnonymousIdContext";
+import { initFetch } from "../domain/init/initFetch";
+import { createFirstMine } from "../domain/mines/createFirstMine";
 
 interface GroundGridProps {
   rows: number;
@@ -15,53 +18,24 @@ interface GroundGridProps {
 }
 
 export function GroundGrid({ rows, cols }: GroundGridProps) {
+  const { anonymousId } = useAnonymousId();
   const [mines, setMines] = useState<Mine[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [stacks, setStacks] = useState<Stack[]>([]);
   const animatables = useMemo(() => [...items, ...stacks], [items, stacks]);
 
-  const [gridDrag, setGridDrag] = useState<GridDragPayload | null>(null);
+  const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
 
   useEffect(() => {
     (async () => {
-      const [minesResponse, itemsResponse, stacksResponse] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mines`, {
-          credentials: "include",
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/items`, {
-          credentials: "include",
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stacks`, {
-          credentials: "include",
-        }),
-      ]);
-
-      if (!minesResponse.ok || !itemsResponse.ok || !stacksResponse.ok) {
-        const { error: minesError } = await minesResponse.json();
-        const { error: itemsError } = await itemsResponse.json();
-        const { error: stacksError } = await stacksResponse.json();
-        console.error("Failed to fetch grid items:", minesError, itemsError, stacksError);
+      if (!anonymousId) {
         return;
       }
 
-      const mines = await minesResponse.json();
-      const items = await itemsResponse.json();
-      const stacks = await stacksResponse.json();
+      const { mines, items, stacks } = await initFetch();
 
       if (mines.length === 0) {
-        const createFirstMineResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mines/create`,
-          {
-            method: "POST",
-            credentials: "include",
-          },
-        );
-        if (!createFirstMineResponse.ok) {
-          const { error } = await createFirstMineResponse.json();
-          console.error("Failed to create first mine:", error);
-          return;
-        }
-        const firstMine = await createFirstMineResponse.json();
+        const firstMine = await createFirstMine();
         setMines([firstMine]);
       } else {
         setMines(mines);
@@ -69,7 +43,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         setStacks(stacks);
       }
     })();
-  }, []);
+  }, [anonymousId]);
 
   const handleFlightComplete = useCallback((itemId: string) => {
     setItems((prev) =>

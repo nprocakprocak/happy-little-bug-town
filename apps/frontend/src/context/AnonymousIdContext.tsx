@@ -21,11 +21,11 @@ export function AnonymousIdProvider({ children }: AnonymousIdProviderProps) {
       const anonId = stored ?? crypto.randomUUID();
       if (!stored) {
         localStorage.setItem("aid", anonId);
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${anonId}`, {
+          method: "PUT",
+          credentials: "include",
+        });
       }
-      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${anonId}`, {
-        method: "PUT",
-        credentials: "include",
-      });
       setAnonymousId(anonId);
     })();
   }, []);

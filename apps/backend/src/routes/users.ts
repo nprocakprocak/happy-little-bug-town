@@ -1,5 +1,5 @@
 import { Router, type RequestHandler } from "express";
-import { getUser as getUserService, updateUser as updateUserService } from "../services/UsersService.js";
+import { getUser as getUserService, updateUser as updateUserService } from "../services/usersService.js";
 
 export const usersRouter = Router();
 

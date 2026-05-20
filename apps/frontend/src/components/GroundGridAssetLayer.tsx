@@ -7,7 +7,7 @@ import {
   GROUND_MUD_BG_TILE_HEIGHT_PX,
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../constants";
-import type { GridDragPayload } from "../types/gridDrag";
+import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 import { itemTypeToImageForItem, itemTypeToImageForStack } from "./helpers/itemTypeToImage";
 import { useMemo } from "react";
@@ -18,7 +18,7 @@ interface GroundGridAssetLayerProps {
   mines: Mine[];
   items: Item[];
   stacks: Stack[];
-  gridDrag: GridDragPayload | null;
+  gridDrag: DragPayload | null;
 }
 
 export function GroundGridAssetLayer({

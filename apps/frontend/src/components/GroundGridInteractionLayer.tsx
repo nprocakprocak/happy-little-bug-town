@@ -4,7 +4,7 @@ import { Item, Mine, Position, Stack } from "@happy-little-park/types";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useRef, useState } from "react";
 import { useGridVisibility } from "../context/GridVisibilityContext";
-import type { GridDragPayload } from "../types/gridDrag";
+import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { DRAG_THRESHOLD_PX } from "./constants";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
@@ -23,7 +23,7 @@ interface GroundGridInteractionLayerProps {
   items: Item[];
   stacks: Stack[];
   onMineClick: (mine: Mine) => void;
-  onDragChange: (payload: GridDragPayload | null) => void;
+  onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropX: number, dropY: number) => void;
   onItemDropped: (itemId: string, x: number, y: number, targetItem?: Item, targetStack?: Stack) => void;
 }

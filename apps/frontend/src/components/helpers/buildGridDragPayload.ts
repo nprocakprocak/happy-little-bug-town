@@ -1,4 +1,4 @@
-import type { GridDragPayload } from "../../types/gridDrag";
+import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
 import type { Item, Mine, Stack } from "@happy-little-park/types";
 
 export function buildGridDragPayload(
@@ -9,7 +9,7 @@ export function buildGridDragPayload(
   mines: Mine[],
   items: Item[],
   stacks: Stack[],
-): GridDragPayload | null {
+): DragPayload | null {
   const gridRow = Math.floor(index / cols) + 1;
   const gridCol = (index % cols) + 1;
   const mine = mines.find((m) => m.x === gridCol && m.y === gridRow);
