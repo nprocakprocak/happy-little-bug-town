@@ -149,7 +149,7 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
   }
   
   const item = await takeItemFromStack(id, emptyPosition);
-  res.status(200).json(item);
+  res.status(200).json({ ...item, fromX: existingStack.x, fromY: existingStack.y });
 }
 
 stacksRouter.get("/", listStacks);
