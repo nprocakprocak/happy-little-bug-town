@@ -11,7 +11,7 @@ import {
   updateItem as updateItemService,
 } from "../services/itemsService.js";
 import { getMines } from "../services/minesService.js";
-import { getStack } from "../services/stacksService.js";
+import { getStack, getStacks } from "../services/stacksService.js";
 
 export const itemsRouter = Router();
 
@@ -95,11 +95,13 @@ const createRandomItem: RequestHandler = async (req, res) => {
   const authorId = req.authorId!;
   const items = await getItems(authorId);
   const mines = await getMines(authorId);
+  const stacks = await getStacks(authorId);
   const emptyPosition = findRandomEmptyPosition(
     GROUND_HEIGHT,
     GROUND_WIDTH,
     mines,
     items,
+    stacks,
   );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });

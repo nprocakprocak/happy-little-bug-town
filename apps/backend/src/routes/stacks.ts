@@ -135,11 +135,13 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
 
   const items = await getItems(authorId);
   const mines = await getMines(authorId);
+  const stacks = await getStacks(authorId);
   const emptyPosition = findRandomEmptyPosition(
     GROUND_HEIGHT,
     GROUND_WIDTH,
     mines,
     items,
+    stacks,
   );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });

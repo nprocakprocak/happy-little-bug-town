@@ -1,5 +1,5 @@
 import { Position } from "../types/position.js";
-import { Item, Mine } from "../prisma/prisma/client.js";
+import { Item, Mine, Stack } from "../prisma/prisma/client.js";
 
 export function positionOverlapsMine(position: Position, mine: Mine): boolean {
   return (
@@ -10,7 +10,7 @@ export function positionOverlapsMine(position: Position, mine: Mine): boolean {
   );
 }
 
-function positionOverlapsItem(position: Position, item: Item): boolean {
+function positionOverlapsItem(position: Position, item: Item | Stack): boolean {
   return position.x === item.x && position.y === item.y;
 }
 
@@ -22,10 +22,15 @@ export function positionOverlapsAnyItem(position: Position, items: Item[]): bool
   return items.some((item) => positionOverlapsItem(position, item));
 }
 
+export function positionOverlapsAnyStack(position: Position, stacks: Stack[]): boolean {
+  return stacks.some((stack) => positionOverlapsItem(position, stack));
+}
+
 export function positionOverlapsAnything(
   position: Position,
   mines: Mine[],
   items: Item[],
+  stacks: Stack[],
 ): boolean {
-  return positionOverlapsAnyMine(position, mines) || positionOverlapsAnyItem(position, items);
+  return positionOverlapsAnyMine(position, mines) || positionOverlapsAnyItem(position, items) || positionOverlapsAnyStack(position, stacks);
 }
