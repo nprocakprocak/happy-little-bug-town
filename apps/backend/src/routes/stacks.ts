@@ -1,8 +1,8 @@
 import { Router, type RequestHandler } from "express";
 import { requireAid } from "../middleware/requireAid.js";
-import { createStackWithItems, getStack, getStacks, updateStack as updateStackService } from "../services/stacksService.js";
-import { getItemByIds, getItems, takeItemFromStack } from "../services/itemsService.js";
-import { getMines } from "../services/minesService.js";
+import { createStackWithItems, getStack, getStacks, updateStack as updateStackService } from "../services/stacksService2.js";
+import { getItemByIds, getItems, takeItemFromStack } from "../services/itemsService2.js";
+import { getMines } from "../services/minesService2.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
 
