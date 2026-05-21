@@ -102,3 +102,46 @@ export async function takeItemFromStack(stackId: string, position: Position): Pr
     return toItemDto(updatedItem);
   });
 }
+
+export async function dissolveStack(
+  stackId: string,
+  stackPosition: Position,
+  randomPosition: Position,
+): Promise<{ extractedItem: ItemDto; remainingItem: ItemDto }> {
+  return await prisma.$transaction(async (tx) => {
+    const stackItems = await tx.item.findMany({
+      where: { stackId },
+    });
+    if (stackItems.length !== 2) {
+      throw new Error(`Expected 2 items in stack ${stackId} when dissolving`);
+    }
+    
+    const itemToExtract = stackItems[0];
+    const itemToKeep = stackItems[1];
+
+    const extractedItem = await tx.item.update({
+      where: { id: itemToExtract.id },
+      data: {
+        stackId: null,
+        x: randomPosition.x,
+        y: randomPosition.y,
+      },
+    });
+    const remainingItem = await tx.item.update({
+      where: { id: itemToKeep.id },
+      data: {
+        stackId: null,
+        x: stackPosition.x,
+        y: stackPosition.y,
+      },
+    });
+    await tx.stack.delete({
+      where: { id: stackId },
+    });
+
+    return {
+      extractedItem: toItemDto(extractedItem),
+      remainingItem: toItemDto(remainingItem),
+    };
+  });
+}

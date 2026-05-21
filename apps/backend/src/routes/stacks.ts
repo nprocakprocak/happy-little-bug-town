@@ -7,7 +7,12 @@ import {
   mergeStacks as mergeStacksService,
   updateStack as updateStackService,
 } from "../services/stacksService.js";
-import { getItemsByIds, getItems, takeItemFromStack } from "../services/itemsService.js";
+import {
+  dissolveStack,
+  getItemsByIds,
+  getItems,
+  takeItemFromStack,
+} from "../services/itemsService.js";
 import { getMines } from "../services/minesService.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
@@ -152,9 +157,28 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
     res.status(400).json({ error: "No empty position found" });
     return;
   }
-  
+
+  const stackPosition = { x: existingStack.x, y: existingStack.y };
+
+  if (existingStack.itemsCount === 2) {
+    const { extractedItem, remainingItem } = await dissolveStack(
+      id,
+      stackPosition,
+      emptyPosition,
+    );
+    res.status(200).json({
+      extractedItem: { ...extractedItem, fromX: existingStack.x, fromY: existingStack.y },
+      remainingItem,
+      stackDissolved: true,
+    });
+    return;
+  }
+
   const item = await takeItemFromStack(id, emptyPosition);
-  res.status(200).json({ ...item, fromX: existingStack.x, fromY: existingStack.y });
+  res.status(200).json({
+    extractedItem: { ...item, fromX: existingStack.x, fromY: existingStack.y },
+    stackDissolved: false,
+  });
 }
 
 stacksRouter.get("/", listStacks);

@@ -1,4 +1,4 @@
-import { Item } from "../types/item";
+import { ExtractFromStackResult } from "../types/extractFromStackResult";
 import { Position } from "../types/position";
 import { Stack } from "../types/stack";
 import { apiFetch } from "./client";
@@ -30,8 +30,8 @@ export function updateStack(stackId: string, position: Position): Promise<Stack>
   });
 }
 
-export function extractItemFromStack(stackId: string): Promise<Item> {
-  return apiFetch<Item>(`/api/stacks/${stackId}/extract`, {
+export function extractItemFromStack(stackId: string): Promise<ExtractFromStackResult> {
+  return apiFetch<ExtractFromStackResult>(`/api/stacks/${stackId}/extract`, {
     method: "POST",
   });
 }

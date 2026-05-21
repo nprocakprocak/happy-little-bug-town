@@ -51,11 +51,20 @@ export function useExtractFromStackMutation() {
 
   return useMutation({
     mutationFn: (stackId: string) => extractItemFromStack(stackId),
-    onSuccess: (item, stackId) => {
-      updateItemsCache(queryClient, (items) => [...items, item]);
-      updateStacksCache(queryClient, (stacks) =>
-        stacks.map((s) => (s.id === stackId ? { ...s, itemsCount: s.itemsCount - 1 } : s)),
-      );
+    onSuccess: (result, stackId) => {
+      updateItemsCache(queryClient, (items) => {
+        const next = [...items, result.extractedItem];
+        if (result.remainingItem) {
+          next.push(result.remainingItem);
+        }
+        return next;
+      });
+      updateStacksCache(queryClient, (stacks) => {
+        if (result.stackDissolved) {
+          return stacks.filter((s) => s.id !== stackId);
+        }
+        return stacks.map((s) => (s.id === stackId ? { ...s, itemsCount: s.itemsCount - 1 } : s));
+      });
     },
   });
 }
