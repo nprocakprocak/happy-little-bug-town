@@ -14,6 +14,7 @@ import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "
 import { Item } from "../types/item";
 import { Mine } from "../types/mine";
 import { Stack } from "../types/stack";
+import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestMineCenterCell } from "./helpers/mineCenterCell";
@@ -207,6 +208,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           animatables={animatables}
           onFlightComplete={handleFlightComplete}
         />
+        <GridCountersLayer cols={cols} rows={rows} stacks={stacks} gridDrag={gridDrag} />
         <GroundGridInteractionLayer
           cols={cols}
           rows={rows}
