@@ -1,6 +1,8 @@
 "use client";
 
-import { Item, Mine, Stack } from "@happy-little-park/types";
+import { Item } from "../types/item";
+import { Mine } from "../types/mine";
+import { Stack } from "../types/stack";
 import Image from "next/image";
 import {
   GROUND_GRID_MAX_WIDTH_PX,

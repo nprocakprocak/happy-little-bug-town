@@ -1,4 +1,4 @@
-import { Item } from "@happy-little-park/types";
+import { Item } from "../types/item";
 import { MainState } from "./types";
 import { create } from "zustand";
 

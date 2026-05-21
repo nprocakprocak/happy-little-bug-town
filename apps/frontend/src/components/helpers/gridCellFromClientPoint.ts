@@ -1,5 +1,4 @@
-import type { Mine } from "@happy-little-park/types";
-import { positionOverlapsAnyMine } from "./overlaps";
+import type { Mine } from "../../types/mine";
 
 export function gridCellFromClientPoint(
   container: HTMLElement,

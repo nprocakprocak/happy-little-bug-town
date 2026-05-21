@@ -1,6 +1,9 @@
 "use client";
 
-import { GridAnimatable, ItemType, Position, WithId } from "@happy-little-park/types";
+import { GridAnimatable } from "../types/gridAnimatable";
+import { ItemType } from "../types/itemType";
+import { Position } from "../types/position";
+import { WithId } from "../types/withId";
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";

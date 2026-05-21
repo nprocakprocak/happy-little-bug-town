@@ -1,5 +1,7 @@
 import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
-import type { Item, Mine, Stack } from "@happy-little-park/types";
+import type { Item } from "../../types/item";
+import type { Mine } from "../../types/mine";
+import type { Stack } from "../../types/stack";
 
 export function buildGridDragPayload(
   index: number,

@@ -1,4 +1,5 @@
-import { Mine, Position } from "@happy-little-park/types";
+import { Mine } from "../../types/mine";
+import { Position } from "../../types/position";
 
 const EVEN_CENTER_OFFSETS: ReadonlyArray<readonly [number, number]> = [
   [0, 0],

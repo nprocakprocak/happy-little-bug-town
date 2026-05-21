@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Item, Position } from "@happy-little-park/types";
+import { Item } from "../types/item";
+import { Position } from "../types/position";
 import { addItemToStack, createRandomItem, fetchItems, updateItemPosition } from "../api/items";
 import { queryKeys } from "../constants/queryKeys";
 import { updateStacksCache } from "./useStacks";

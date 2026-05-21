@@ -1,4 +1,4 @@
-import { ItemType } from "@happy-little-park/types";
+import { ItemType } from "../../types/itemType";
 
 export function itemTypeToImageForItem(itemType: ItemType): string {
   switch (itemType) {

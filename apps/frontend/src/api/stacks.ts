@@ -1,4 +1,6 @@
-import { Item, Position, Stack } from "@happy-little-park/types";
+import { Item } from "../types/item";
+import { Position } from "../types/position";
+import { Stack } from "../types/stack";
 import { apiFetch } from "./client";
 
 export function fetchStacks(): Promise<Stack[]> {

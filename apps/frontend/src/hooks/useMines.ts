@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Mine } from "@happy-little-park/types";
+import { Mine } from "../types/mine";
 import { createFirstMine, fetchMines } from "../api/mines";
 import { queryKeys } from "../constants/queryKeys";
 

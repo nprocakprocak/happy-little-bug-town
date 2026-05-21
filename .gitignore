@@ -4,6 +4,5 @@ npm-debug.log*
 apps/frontend/.next
 apps/backend/dist
 apps/backend/src/prisma/prisma
-apps/types/dist
 .env
 *.tsbuildinfo

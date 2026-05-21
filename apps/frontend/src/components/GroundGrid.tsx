@@ -1,6 +1,8 @@
 "use client";
 
-import { Item, Mine, Stack } from "@happy-little-park/types";
+import { Item } from "../types/item";
+import { Mine } from "../types/mine";
+import { Stack } from "../types/stack";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";

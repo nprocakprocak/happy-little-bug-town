@@ -1,4 +1,5 @@
-import { Item, Stack } from "@happy-little-park/types";
+import { Item } from "../types/item";
+import { Stack } from "../types/stack";
 
 export function isStack(item: Item | Stack): item is Stack {
   return "itemsCount" in item;
