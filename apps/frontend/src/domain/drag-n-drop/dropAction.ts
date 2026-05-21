@@ -28,6 +28,9 @@ export async function dropAction(
 
   // drop one item onto another to create a stack
   if (originalItem && targetItem) {
+    if (!originalItem.stackable || !targetItem.stackable) {
+      throw new Error("Items cannot be stacked");
+    }
     const stack = await createStack({
       position: targetPosition,
       itemIds: [originalItem.id, targetItem.id],
@@ -41,6 +44,9 @@ export async function dropAction(
 
   // drop an item onto a stack to add it to its items
   if (originalItem && targetStack) {
+    if (!originalItem.stackable) {
+      throw new Error("Item cannot be added to stack");
+    }
     await addItemToStack(originalItem.id, targetStack.id);
 
     return {

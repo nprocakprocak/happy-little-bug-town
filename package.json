@@ -10,6 +10,7 @@
     "dev:frontend": "npm --workspace @happy-little-park/frontend run dev",
     "build:backend": "npm --workspace @happy-little-park/backend run build",
     "build:frontend": "npm --workspace @happy-little-park/frontend run build",
+    "build": "npm run build:backend && npm run build:frontend",
     "start:backend": "npm --workspace @happy-little-park/backend run start",
     "start:frontend": "npm --workspace @happy-little-park/frontend run start",
     "dev": "npx concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",

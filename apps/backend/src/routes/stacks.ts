@@ -7,7 +7,7 @@ import {
   mergeStacks as mergeStacksService,
   updateStack as updateStackService,
 } from "../services/stacksService.js";
-import { getItemByIds, getItems, takeItemFromStack } from "../services/itemsService.js";
+import { getItemsByIds, getItems, takeItemFromStack } from "../services/itemsService.js";
 import { getMines } from "../services/minesService.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
@@ -25,7 +25,7 @@ const createStack: RequestHandler = async (req, res) => {
   const { x, y, itemIds } = req.body;
   const authorId = req.authorId!;
 
-  const items = await getItemByIds(authorId, itemIds);
+  const items = await getItemsByIds(authorId, itemIds);
   if (items.length !== itemIds.length) {
     res.status(400).json({ error: "Some items were not found when creating stack" });
     return;
@@ -35,6 +35,11 @@ const createStack: RequestHandler = async (req, res) => {
 
   if (!items.every((item) => item.itemType === itemType)) {
     res.status(400).json({ error: "All items must be of the same type to be in a stack" });
+    return;
+  }
+
+  if (!items.every((item) => item.stackable)) {
+    res.status(400).json({ error: "All items must be stackable to be in a stack" });
     return;
   }
 

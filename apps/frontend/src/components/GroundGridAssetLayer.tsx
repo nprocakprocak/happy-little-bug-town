@@ -78,8 +78,11 @@ export function GroundGridAssetLayer({
       })}
       {allGrounded.map((item: Item | Stack) => {
         const isDragged =
-          (gridDrag?.target.kind === "item" && gridDrag.target.itemId === item.id) ||
-          (gridDrag?.target.kind === "stack" && gridDrag.target.stackId === item.id);
+          gridDrag !== null &&
+          ((gridDrag.target.kind === "item" &&
+            gridDrag.target.itemId !== undefined &&
+            gridDrag.target.itemId === item.id) ||
+            (gridDrag.target.kind === "stack" && gridDrag.target.stackId === item.id));
         const dragStyle =
           isDragged && gridDrag
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }

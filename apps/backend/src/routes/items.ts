@@ -44,6 +44,20 @@ const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
   const authorId = req.authorId!;
 
   if (stackId) {
+    const existingItem = await getItemService(id);
+    if (!existingItem) {
+      res.status(400).json({ error: "Item not found when updating" });
+      return;
+    }
+    if (existingItem.authorId !== authorId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    if (!existingItem.stackable) {
+      res.status(400).json({ error: "Item is not stackable" });
+      return;
+    }
+
     const existingStack = await getStack(stackId);
     if (!existingStack) {
       res.status(400).json({ error: "Stack not found when updating item" });
@@ -53,7 +67,11 @@ const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
       res.status(403).json({ error: "Forbidden" });
       return;
     }
-    
+    if (existingItem.itemType !== existingStack.itemType) {
+      res.status(400).json({ error: "Item type must match stack type" });
+      return;
+    }
+
     const item = await updateItemService(id, { stackId });
     res.status(200).json(item);
     return;

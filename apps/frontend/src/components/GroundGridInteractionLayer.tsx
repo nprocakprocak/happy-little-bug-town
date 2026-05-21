@@ -142,8 +142,14 @@ export function GroundGridInteractionLayer({
             const overlappingItem = findOverlappingItem({ x: target.x, y: target.y }, items);
             const overlappingStack = findOverlappingStack({ x: target.x, y: target.y }, stacks);
             const overlapsMine = positionOverlapsAnyMine({ x: target.x, y: target.y }, mines);
+            const wouldCreateOrJoinStack = overlappingItem ?? overlappingStack;
+            const stackNotAllowed =
+              wouldCreateOrJoinStack &&
+              (!itemToDrop.stackable ||
+                (overlappingItem !== undefined && !overlappingItem.stackable));
             const shouldCancel =
               overlapsMine ||
+              stackNotAllowed ||
               (overlappingItem && overlappingItem.itemType !== itemToDrop.itemType) ||
               (overlappingStack && overlappingStack.itemType !== itemToDrop.itemType);
 

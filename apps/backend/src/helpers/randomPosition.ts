@@ -1,7 +1,8 @@
-import { Item, Mine, Stack } from "../prisma/prisma/client.js";
+import { Mine, Stack } from "../prisma/prisma/client.js";
+import { ItemDto } from "../types/itemDto.js";
 import { positionOverlapsAnything } from "./overlaps.js";
 
-export function findRandomEmptyPosition(rows: number, cols: number, mines: Mine[], items: Item[], stacks: Stack[]) {
+export function findRandomEmptyPosition(rows: number, cols: number, mines: Mine[], items: ItemDto[], stacks: Stack[]) {
   const emptyPositions = [];
 
   for (let y = 1; y <= rows; y++) {
