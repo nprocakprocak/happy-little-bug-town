@@ -1,1 +1,1 @@
-export type ItemType = "leaf_part" | "little_rock" | "stick";
+export type ItemType = "leaf_part" | "little_rock" | "stick" | "beetle";

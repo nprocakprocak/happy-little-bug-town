@@ -5,8 +5,9 @@ import { Item } from "../prisma/prisma/client.js";
 type ItemData = Pick<Item, "itemType" | "x" | "y" | "authorId">;
 type ItemUpdateData = Partial<Pick<Item, "x" | "y" | "stackId">>;
 
-const ITEM_TYPES = ["leaf_part", "little_rock", "stick"] as const;
+const ITEM_TYPES = ["beetle", "leaf_part", "little_rock", "stick"] as const;
 const ITEM_TYPES_WEIGHTS = {
+  beetle: 0.1,
   leaf_part: 0.5,
   little_rock: 0.8,
   stick: 1,
