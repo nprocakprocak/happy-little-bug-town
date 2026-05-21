@@ -1,18 +1,19 @@
 "use client";
 
-import { Item } from "../types/item";
-import { Mine } from "../types/mine";
-import { Stack } from "../types/stack";
+import { useMemo } from "react";
 import Image from "next/image";
+
 import {
   GROUND_GRID_MAX_WIDTH_PX,
   GROUND_MUD_BG_TILE_HEIGHT_PX,
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../constants";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
+import { Item } from "../types/item";
+import { Mine } from "../types/mine";
+import { Stack } from "../types/stack";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 import { itemTypeToImageForItem, itemTypeToImageForStack } from "./helpers/itemTypeToImage";
-import { useMemo } from "react";
 
 interface GroundGridAssetLayerProps {
   cols: number;

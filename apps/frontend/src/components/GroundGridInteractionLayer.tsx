@@ -1,13 +1,13 @@
 "use client";
 
+import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+
+import { useGridVisibility } from "../context/GridVisibilityContext";
+import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Item } from "../types/item";
 import { Mine } from "../types/mine";
 import { Position } from "../types/position";
 import { Stack } from "../types/stack";
-import type { PointerEvent as ReactPointerEvent } from "react";
-import { useRef, useState } from "react";
-import { useGridVisibility } from "../context/GridVisibilityContext";
-import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { DRAG_THRESHOLD_PX } from "./constants";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";

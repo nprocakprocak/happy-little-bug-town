@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Mine } from "../types/mine";
+
 import { createFirstMine, fetchMines } from "../api/mines";
 import { queryKeys } from "../constants/queryKeys";
+import { Mine } from "../types/mine";
 
 function updateMinesCache(
   queryClient: ReturnType<typeof useQueryClient>,

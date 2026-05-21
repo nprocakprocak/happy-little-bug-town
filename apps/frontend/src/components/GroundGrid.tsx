@@ -1,22 +1,23 @@
 "use client";
 
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
+import { queryKeys } from "../constants/queryKeys";
+import { useAnonymousId } from "../context/AnonymousIdContext";
+import { DragPayload } from "../domain/drag-n-drop/dragPayload";
+import { dropAction } from "../domain/drag-n-drop/dropAction";
+import { updateItemsCache, useCreateRandomItemMutation, useItemsQuery } from "../hooks/useItems";
+import { useCreateFirstMineMutation, useMinesQuery } from "../hooks/useMines";
+import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
 import { Item } from "../types/item";
 import { Mine } from "../types/mine";
 import { Stack } from "../types/stack";
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
-import { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestMineCenterCell } from "./helpers/mineCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
-import { useAnonymousId } from "../context/AnonymousIdContext";
-import { dropAction } from "../domain/drag-n-drop/dropAction";
-import { useCreateFirstMineMutation, useMinesQuery } from "../hooks/useMines";
-import { useCreateRandomItemMutation, useItemsQuery, updateItemsCache } from "../hooks/useItems";
-import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
-import { queryKeys } from "../constants/queryKeys";
 
 interface GroundGridProps {
   rows: number;

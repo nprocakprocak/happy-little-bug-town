@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Position } from "../types/position";
-import { Stack } from "../types/stack";
+
 import { createStack, extractItemFromStack, fetchStacks, updateStack } from "../api/stacks";
 import { queryKeys } from "../constants/queryKeys";
+import { Position } from "../types/position";
+import { Stack } from "../types/stack";
 import { updateItemsCache } from "./useItems";
 
 export function updateStacksCache(

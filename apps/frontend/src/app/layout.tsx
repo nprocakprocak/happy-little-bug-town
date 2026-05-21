@@ -1,10 +1,12 @@
 import "dotenv/config";
 import "./globals.css";
+
 import type { Metadata } from "next";
+
+import { APP_LOCALE } from "../constants";
 import { AnonymousIdProvider } from "../context/AnonymousIdContext";
 import { GridVisibilityProvider } from "../context/GridVisibilityContext";
 import { QueryProvider } from "../providers/QueryProvider";
-import { APP_LOCALE } from "../constants";
 
 export const metadata: Metadata = {
   title: "Happy little park",
