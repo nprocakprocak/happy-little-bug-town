@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { AID_STORAGE_KEY } from "../constants/aid";
 import { useUpdateUserMutation } from "../hooks/useUser";
 
 interface AnonymousIdContextValue {
@@ -19,10 +20,10 @@ export function AnonymousIdProvider({ children }: AnonymousIdProviderProps) {
 
   useEffect(() => {
     (async () => {
-      const stored = localStorage.getItem("aid");
+      const stored = localStorage.getItem(AID_STORAGE_KEY);
       const anonId = stored ?? crypto.randomUUID();
       if (!stored) {
-        localStorage.setItem("aid", anonId);
+        localStorage.setItem(AID_STORAGE_KEY, anonId);
         await registerUser(anonId);
       }
       setAnonymousId(anonId);

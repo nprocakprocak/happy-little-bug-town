@@ -1,5 +1,5 @@
-import cookieParser from "cookie-parser";
 import cors from "cors";
+import { AID_HEADER } from "./constants/aid.js";
 import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
@@ -18,10 +18,9 @@ const app = express();
 app.use(
   cors({
     origin: corsOrigin,
-    credentials: true,
+    allowedHeaders: ["Content-Type", AID_HEADER],
   }),
 );
-app.use(cookieParser());
 app.use(express.json());
 app.use("/api/items", itemsRouter);
 app.use("/api/grid", gridRouter);

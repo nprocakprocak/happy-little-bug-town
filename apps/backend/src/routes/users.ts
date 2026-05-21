@@ -13,12 +13,6 @@ const getUser: RequestHandler = async (req, res) => {
 
 const updateUser: RequestHandler = async (req, res) => {
   const user = await updateUserService({ ...req.body, id: req.params.id });
-  res.cookie("aid", user.id, {
-    path: "/",
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-  });
   res.status(200).json(user);
 };
 
