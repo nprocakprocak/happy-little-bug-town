@@ -10,15 +10,15 @@ import {
 } from "../constants";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Item } from "../types/item";
-import { Mine } from "../types/mine";
 import { Stack } from "../types/stack";
+import { Structure } from "../types/structure";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 import { itemTypeToImageForItem, itemTypeToImageForStack } from "./helpers/itemTypeToImage";
 
 interface GroundGridAssetLayerProps {
   cols: number;
   rows: number;
-  mines: Mine[];
+  structures: Structure[];
   items: Item[];
   stacks: Stack[];
   gridDrag: DragPayload | null;
@@ -27,7 +27,7 @@ interface GroundGridAssetLayerProps {
 export function GroundGridAssetLayer({
   cols,
   rows,
-  mines,
+  structures,
   items,
   stacks,
   gridDrag,
@@ -49,8 +49,9 @@ export function GroundGridAssetLayer({
         gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
       }}
     >
-      {mines.map((mine) => {
-        const isDragged = gridDrag?.target.kind === "mine" && gridDrag.target.mineId === mine.id;
+      {structures.map((structure) => {
+        const isDragged =
+          gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
         const dragStyle =
           isDragged && gridDrag
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
@@ -58,20 +59,20 @@ export function GroundGridAssetLayer({
 
         return (
           <div
-            key={mine.id}
+            key={structure.id}
             className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
             style={{
-              gridColumn: `${mine.x} / span ${mine.span}`,
-              gridRow: `${mine.y} / span ${mine.span}`,
+              gridColumn: `${structure.x} / span ${structure.span}`,
+              gridRow: `${structure.y} / span ${structure.span}`,
               ...dragStyle,
             }}
           >
             <Image
-              src="/mines/hole.webp"
+              src="/structures/hole.webp"
               alt=""
               fill
               className="object-cover"
-              sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * mine.span)}px`}
+              sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
             />
           </div>
         );
@@ -87,6 +88,7 @@ export function GroundGridAssetLayer({
           isDragged && gridDrag
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
+
         const isStack = stacks.some((i) => i.id === item.id);
 
         return (

@@ -1,5 +1,3 @@
-import type { Mine } from "../../types/mine";
-
 export function gridCellFromClientPoint(
   container: HTMLElement,
   clientX: number,

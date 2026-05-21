@@ -5,9 +5,9 @@ import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react"
 import { useGridVisibility } from "../context/GridVisibilityContext";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Item } from "../types/item";
-import { Mine } from "../types/mine";
 import { Position } from "../types/position";
 import { Stack } from "../types/stack";
+import { Structure } from "../types/structure";
 import { DRAG_THRESHOLD_PX } from "./constants";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
@@ -15,17 +15,16 @@ import {
   findOverlappingItem,
   findOverlappingStack,
   positionOverlapsAnyItem,
-  positionOverlapsAnyMine,
-  positionOverlapsAnything,
+  positionOverlapsAnyStructure,
 } from "./helpers/overlaps";
 
 interface GroundGridInteractionLayerProps {
   cols: number;
   rows: number;
-  mines: Mine[];
+  structures: Structure[];
   items: Item[];
   stacks: Stack[];
-  onMineClick: (mine: Mine) => void;
+  onStructureClick: (structure: Structure) => void;
   onStackClick: (stack: Stack) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropX: number, dropY: number) => void;
@@ -41,10 +40,10 @@ interface GroundGridInteractionLayerProps {
 export function GroundGridInteractionLayer({
   cols,
   rows,
-  mines,
+  structures,
   items,
   stacks,
-  onMineClick,
+  onStructureClick,
   onStackClick,
   onDragChange,
   onItemDropCancelled,
@@ -90,7 +89,7 @@ export function GroundGridInteractionLayer({
 
     if (hasDraggedRef.current) {
       setDragState({ index, dx, dy });
-      const payload = buildGridDragPayload(index, dx, dy, cols, mines, items, stacks);
+      const payload = buildGridDragPayload(index, dx, dy, cols, structures, items, stacks);
       if (payload !== null) {
         onDragChange(payload);
       }
@@ -101,7 +100,7 @@ export function GroundGridInteractionLayer({
     if (distance >= DRAG_THRESHOLD_PX) {
       hasDraggedRef.current = true;
       setDragState({ index, dx, dy });
-      const payload = buildGridDragPayload(index, dx, dy, cols, mines, items, stacks);
+      const payload = buildGridDragPayload(index, dx, dy, cols, structures, items, stacks);
       if (payload !== null) {
         onDragChange(payload);
       }
@@ -109,7 +108,7 @@ export function GroundGridInteractionLayer({
   }
 
   function handlePointerUp(
-    mine: Mine | undefined,
+    structure: Structure | undefined,
     stack: Stack | undefined,
     gridCol: number,
     gridRow: number,
@@ -141,14 +140,17 @@ export function GroundGridInteractionLayer({
           if (itemToDrop) {
             const overlappingItem = findOverlappingItem({ x: target.x, y: target.y }, items);
             const overlappingStack = findOverlappingStack({ x: target.x, y: target.y }, stacks);
-            const overlapsMine = positionOverlapsAnyMine({ x: target.x, y: target.y }, mines);
+            const overlapsStructure = positionOverlapsAnyStructure(
+              { x: target.x, y: target.y },
+              structures,
+            );
             const wouldCreateOrJoinStack = overlappingItem ?? overlappingStack;
             const stackNotAllowed =
               wouldCreateOrJoinStack &&
               (!itemToDrop.stackable ||
                 (overlappingItem !== undefined && !overlappingItem.stackable));
             const shouldCancel =
-              overlapsMine ||
+              overlapsStructure ||
               stackNotAllowed ||
               (overlappingItem && overlappingItem.itemType !== itemToDrop.itemType) ||
               (overlappingStack && overlappingStack.itemType !== itemToDrop.itemType);
@@ -163,7 +165,10 @@ export function GroundGridInteractionLayer({
           if (stackToDrop) {
             const overlappingItem = findOverlappingItem({ x: target.x, y: target.y }, items);
             const overlappingStack = findOverlappingStack({ x: target.x, y: target.y }, stacks);
-            const overlapsMine = positionOverlapsAnyMine({ x: target.x, y: target.y }, mines);
+            const overlapsStructure = positionOverlapsAnyStructure(
+              { x: target.x, y: target.y },
+              structures,
+            );
 
             const targetStack =
               overlappingStack && overlappingStack.id !== stackToDrop.id
@@ -171,7 +176,7 @@ export function GroundGridInteractionLayer({
                 : undefined;
 
             const shouldCancel =
-              overlapsMine ||
+              overlapsStructure ||
               !!overlappingItem ||
               (targetStack !== undefined && targetStack.itemType !== stackToDrop.itemType);
 
@@ -186,8 +191,8 @@ export function GroundGridInteractionLayer({
       return;
     }
 
-    if (mine) {
-      onMineClick(mine);
+    if (structure) {
+      onStructureClick(structure);
     } else if (stack) {
       onStackClick(stack);
     } else {
@@ -219,10 +224,10 @@ export function GroundGridInteractionLayer({
       {Array.from({ length: cellCount }, (_, index) => {
         const gridRow = Math.floor(index / cols) + 1;
         const gridCol = (index % cols) + 1;
-        const mine = mines.find((mine) => mine.x === gridCol && mine.y === gridRow);
-        const stack = stacks.find((stack) => stack.x === gridCol && stack.y === gridRow);
+        const structure = structures.find((s) => s.x === gridCol && s.y === gridRow);
+        const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
 
-        if (!mine && positionOverlapsAnyMine({ x: gridCol, y: gridRow }, mines)) {
+        if (!structure && positionOverlapsAnyStructure({ x: gridCol, y: gridRow }, structures)) {
           return null;
         }
 
@@ -235,10 +240,10 @@ export function GroundGridInteractionLayer({
           : gridCellsVisible
             ? "bg-zinc-200/20"
             : "bg-transparent";
-        const placementStyle = mine
+        const placementStyle = structure
           ? {
-              gridColumn: `${mine.x} / span ${mine.span}`,
-              gridRow: `${mine.y} / span ${mine.span}`,
+              gridColumn: `${structure.x} / span ${structure.span}`,
+              gridRow: `${structure.y} / span ${structure.span}`,
             }
           : {
               gridColumn: gridCol,
@@ -256,7 +261,7 @@ export function GroundGridInteractionLayer({
             style={{ ...placementStyle, ...dragStyle }}
             onPointerDown={(event) => handlePointerDown(canDrag, event)}
             onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
-            onPointerUp={(event) => handlePointerUp(mine, stack, gridCol, gridRow, event)}
+            onPointerUp={(event) => handlePointerUp(structure, stack, gridCol, gridRow, event)}
             onPointerCancel={handlePointerCancel}
           />
         );

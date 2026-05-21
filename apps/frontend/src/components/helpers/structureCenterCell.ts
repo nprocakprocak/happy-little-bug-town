@@ -1,5 +1,5 @@
-import { Mine } from "../../types/mine";
 import { Position } from "../../types/position";
+import { Structure } from "../../types/structure";
 
 const EVEN_CENTER_OFFSETS: ReadonlyArray<readonly [number, number]> = [
   [0, 0],
@@ -8,8 +8,8 @@ const EVEN_CENTER_OFFSETS: ReadonlyArray<readonly [number, number]> = [
   [1, 1],
 ];
 
-export function pickRandomNearestMineCenterCell(mine: Mine): Position {
-  const { span, x: originX, y: originY } = mine;
+export function pickRandomNearestStructureCenterCell(structure: Structure): Position {
+  const { span, x: originX, y: originY } = structure;
 
   if (span < 1) {
     return { x: originX, y: originY };

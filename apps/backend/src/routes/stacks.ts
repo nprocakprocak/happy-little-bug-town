@@ -13,7 +13,7 @@ import {
   getItems,
   takeItemFromStack,
 } from "../services/itemsService.js";
-import { getMines } from "../services/minesService.js";
+import { getStructures } from "../services/structuresService.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
 
@@ -74,9 +74,9 @@ const updateStack: RequestHandler = async (req, res) => {
   }
 
   const items = await getItems(authorId);
-  const mines = await getMines(authorId);
+  const structures = await getStructures(authorId);
 
-  if ([...items, ...mines].some((it) => it.x === x && it.y === y)) {
+  if ([...items, ...structures].some((it) => it.x === x && it.y === y)) {
     res.status(400).json({ error: "Position is already occupied" });
     return;
   }
@@ -144,12 +144,12 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
   }
 
   const items = await getItems(authorId);
-  const mines = await getMines(authorId);
+  const structures = await getStructures(authorId);
   const stacks = await getStacks(authorId);
   const emptyPosition = findRandomEmptyPosition(
     GROUND_HEIGHT,
     GROUND_WIDTH,
-    mines,
+    structures,
     items,
     stacks,
   );

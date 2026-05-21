@@ -9,15 +9,15 @@ import { useAnonymousId } from "../context/AnonymousIdContext";
 import { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { dropAction } from "../domain/drag-n-drop/dropAction";
 import { updateItemsCache, useCreateRandomItemMutation, useItemsQuery } from "../hooks/useItems";
-import { useCreateFirstMineMutation, useMinesQuery } from "../hooks/useMines";
 import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
+import { useCreateFirstStructureMutation, useStructuresQuery } from "../hooks/useStructures";
 import { Item } from "../types/item";
-import { Mine } from "../types/mine";
 import { Stack } from "../types/stack";
+import { Structure } from "../types/structure";
 import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
-import { pickRandomNearestMineCenterCell } from "./helpers/mineCenterCell";
+import { pickRandomNearestStructureCenterCell } from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
 
 interface GroundGridProps {
@@ -30,33 +30,39 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const queryClient = useQueryClient();
   const isAuthenticated = Boolean(anonymousId);
 
-  const { data: mines = [], isSuccess: minesLoaded } = useMinesQuery(isAuthenticated);
-  const canLoadGridData = isAuthenticated && mines.length > 0;
+  const { data: structures = [], isSuccess: structuresLoaded } =
+    useStructuresQuery(isAuthenticated);
+  const canLoadGridData = isAuthenticated && structures.length > 0;
   const { data: items = [] } = useItemsQuery(canLoadGridData);
   const { data: stacks = [] } = useStacksQuery(canLoadGridData);
   const extractFromStack = useExtractFromStackMutation();
   const createRandomItem = useCreateRandomItemMutation();
   const {
-    mutate: createFirstMineMutate,
-    isPending: isCreatingFirstMine,
-    isError: firstMineCreateFailed,
-  } = useCreateFirstMineMutation();
+    mutate: createFirstStructureMutate,
+    isPending: isCreatingFirstStructure,
+    isError: firstStructureCreateFailed,
+  } = useCreateFirstStructureMutation();
 
   const animatables = useMemo(() => [...items, ...stacks], [items, stacks]);
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
 
   useEffect(() => {
-    if (!minesLoaded || mines.length > 0 || isCreatingFirstMine || firstMineCreateFailed) {
+    if (
+      !structuresLoaded ||
+      structures.length > 0 ||
+      isCreatingFirstStructure ||
+      firstStructureCreateFailed
+    ) {
       return;
     }
-    createFirstMineMutate();
+    createFirstStructureMutate();
   }, [
-    minesLoaded,
-    mines.length,
-    isCreatingFirstMine,
-    firstMineCreateFailed,
-    createFirstMineMutate,
+    structuresLoaded,
+    structures.length,
+    isCreatingFirstStructure,
+    firstStructureCreateFailed,
+    createFirstStructureMutate,
   ]);
 
   const setItemsCache = useCallback(
@@ -163,12 +169,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [extractFromStack],
   );
 
-  const onMineClick = useCallback(
-    (mine: Mine) => {
+  const onStructureClick = useCallback(
+    (structure: Structure) => {
       (async () => {
         try {
           const item = await createRandomItem.mutateAsync();
-          const origin = pickRandomNearestMineCenterCell(mine);
+          const origin = pickRandomNearestStructureCenterCell(structure);
 
           setItemsCache((prev) => [...prev, { ...item, fromX: origin.x, fromY: origin.y }]);
         } catch (error) {
@@ -197,7 +203,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         <GroundGridAssetLayer
           cols={cols}
           rows={rows}
-          mines={mines}
+          structures={structures}
           items={items}
           stacks={stacks}
           gridDrag={gridDrag}
@@ -212,10 +218,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         <GroundGridInteractionLayer
           cols={cols}
           rows={rows}
-          mines={mines}
+          structures={structures}
           items={items}
           stacks={stacks}
-          onMineClick={onMineClick}
+          onStructureClick={onStructureClick}
           onStackClick={onStackClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}

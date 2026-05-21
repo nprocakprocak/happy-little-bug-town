@@ -14,7 +14,7 @@ enum ItemType {
   beetle
 }
 
-enum MineType {
+enum StructureType {
   hole
 }
 
@@ -26,7 +26,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   items Item[]
-  mines Mine[]
+  structures Structure[]
   stacks Stack[]
 }
 
@@ -43,9 +43,9 @@ model Item {
   stack Stack? @relation(fields: [stackId], references: [id])
 }
 
-model Mine {
+model Structure {
   id String @id @default(uuid())
-  mineType MineType
+  structureType StructureType
   x Int
   y Int
   span Int

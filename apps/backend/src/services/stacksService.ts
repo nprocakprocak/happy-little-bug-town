@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma.js";
-import { ItemType, Mine, Stack } from "../prisma/prisma/client.js";
+import { ItemType, Stack } from "../prisma/prisma/client.js";
 
 type CreateStackData = Pick<Stack, "itemType" | "x" | "y" | "authorId">;
 type ReturnStackData = Stack & { itemsCount: number };

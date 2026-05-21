@@ -10,7 +10,7 @@ import {
   getItem as getItemService,
   updateItem as updateItemService,
 } from "../services/itemsService.js";
-import { getMines } from "../services/minesService.js";
+import { getStructures } from "../services/structuresService.js";
 import { getStack, getStacks } from "../services/stacksService.js";
 
 export const itemsRouter = Router();
@@ -93,9 +93,9 @@ const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
   }
 
   const items = await getItems(authorId);
-  const mines = await getMines(authorId);
+  const structures = await getStructures(authorId);
 
-  if ([...items, ...mines].some((it) => it.x === x && it.y === y)) {
+  if ([...items, ...structures].some((it) => it.x === x && it.y === y)) {
     res.status(400).json({ error: "Position is already occupied" });
     return;
   }
@@ -112,12 +112,12 @@ const deleteItem: RequestHandler<{ id: string }> = (req, res) => {
 const createRandomItem: RequestHandler = async (req, res) => {
   const authorId = req.authorId!;
   const items = await getItems(authorId);
-  const mines = await getMines(authorId);
+  const structures = await getStructures(authorId);
   const stacks = await getStacks(authorId);
   const emptyPosition = findRandomEmptyPosition(
     GROUND_HEIGHT,
     GROUND_WIDTH,
-    mines,
+    structures,
     items,
     stacks,
   );

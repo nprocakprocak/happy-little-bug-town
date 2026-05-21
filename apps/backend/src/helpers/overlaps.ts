@@ -1,13 +1,13 @@
 import { Position } from "../types/position.js";
-import { Mine, Stack } from "../prisma/prisma/client.js";
+import { Structure, Stack } from "../prisma/prisma/client.js";
 import { ItemDto } from "../types/itemDto.js";
 
-export function positionOverlapsMine(position: Position, mine: Mine): boolean {
+export function positionOverlapsStructure(position: Position, structure: Structure): boolean {
   return (
-    position.x >= mine.x &&
-    position.x < mine.x + mine.span &&
-    position.y >= mine.y &&
-    position.y < mine.y + mine.span
+    position.x >= structure.x &&
+    position.x < structure.x + structure.span &&
+    position.y >= structure.y &&
+    position.y < structure.y + structure.span
   );
 }
 
@@ -15,8 +15,11 @@ function positionOverlapsItem(position: Position, item: ItemDto | Stack): boolea
   return position.x === item.x && position.y === item.y;
 }
 
-export function positionOverlapsAnyMine(position: Position, mines: Mine[]): boolean {
-  return mines.some((mine) => positionOverlapsMine(position, mine));
+export function positionOverlapsAnyStructure(
+  position: Position,
+  structures: Structure[],
+): boolean {
+  return structures.some((structure) => positionOverlapsStructure(position, structure));
 }
 
 export function positionOverlapsAnyItem(position: Position, items: ItemDto[]): boolean {
@@ -29,9 +32,13 @@ export function positionOverlapsAnyStack(position: Position, stacks: Stack[]): b
 
 export function positionOverlapsAnything(
   position: Position,
-  mines: Mine[],
+  structures: Structure[],
   items: ItemDto[],
   stacks: Stack[],
 ): boolean {
-  return positionOverlapsAnyMine(position, mines) || positionOverlapsAnyItem(position, items) || positionOverlapsAnyStack(position, stacks);
+  return (
+    positionOverlapsAnyStructure(position, structures) ||
+    positionOverlapsAnyItem(position, items) ||
+    positionOverlapsAnyStack(position, stacks)
+  );
 }

@@ -1,14 +1,14 @@
 import { Item } from "../../types/item";
-import { Mine } from "../../types/mine";
 import { Position } from "../../types/position";
 import { Stack } from "../../types/stack";
+import { Structure } from "../../types/structure";
 
-export function positionOverlapsMine(position: Position, mine: Mine): boolean {
+export function positionOverlapsStructure(position: Position, structure: Structure): boolean {
   return (
-    position.x >= mine.x &&
-    position.x < mine.x + mine.span &&
-    position.y >= mine.y &&
-    position.y < mine.y + mine.span
+    position.x >= structure.x &&
+    position.x < structure.x + structure.span &&
+    position.y >= structure.y &&
+    position.y < structure.y + structure.span
   );
 }
 
@@ -16,8 +16,8 @@ function positionOverlapsItemOrStack(position: Position, itemOrStack: Position):
   return position.x === itemOrStack.x && position.y === itemOrStack.y;
 }
 
-export function positionOverlapsAnyMine(position: Position, mines: Mine[]): boolean {
-  return mines.some((mine) => positionOverlapsMine(position, mine));
+export function positionOverlapsAnyStructure(position: Position, structures: Structure[]): boolean {
+  return structures.some((structure) => positionOverlapsStructure(position, structure));
 }
 
 export function positionOverlapsAnyItem(position: Position, itemsOrStacks: Position[]): boolean {
@@ -26,11 +26,12 @@ export function positionOverlapsAnyItem(position: Position, itemsOrStacks: Posit
 
 export function positionOverlapsAnything(
   position: Position,
-  mines: Mine[],
+  structures: Structure[],
   itemsOrStacks: Position[],
 ): boolean {
   return (
-    positionOverlapsAnyMine(position, mines) || positionOverlapsAnyItem(position, itemsOrStacks)
+    positionOverlapsAnyStructure(position, structures) ||
+    positionOverlapsAnyItem(position, itemsOrStacks)
   );
 }
 

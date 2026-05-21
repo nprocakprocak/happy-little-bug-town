@@ -1,5 +1,5 @@
 export type DragTarget =
-  | { kind: "mine"; mineId: string }
+  | { kind: "structure"; structureId: string }
   | { kind: "item"; itemId: string }
   | { kind: "stack"; stackId: string };
 
