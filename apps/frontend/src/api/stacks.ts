@@ -35,3 +35,10 @@ export function extractItemFromStack(stackId: string): Promise<Item> {
     method: "POST",
   });
 }
+
+export function mergeStacks(sourceStackId: string, targetStackId: string): Promise<Stack> {
+  return apiFetch<Stack>(`/api/stacks/${sourceStackId}/merge`, {
+    method: "POST",
+    body: JSON.stringify({ targetStackId }),
+  });
+}

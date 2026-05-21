@@ -1,5 +1,5 @@
 import { addItemToStack, updateItemPosition } from "../../api/items";
-import { createStack, updateStack } from "../../api/stacks";
+import { createStack, mergeStacks, updateStack } from "../../api/stacks";
 import { Item } from "../../types/item";
 import { Position } from "../../types/position";
 import { Stack } from "../../types/stack";
@@ -48,6 +48,18 @@ export async function dropAction(
       stacks: stacks.map((s) =>
         s.id === targetStack.id ? { ...s, itemsCount: s.itemsCount + 1 } : s,
       ),
+    };
+  }
+
+  // drop a stack onto another stack of the same type to merge
+  if (originalStack && targetStack) {
+    const mergedStack = await mergeStacks(originalStack.id, targetStack.id);
+
+    return {
+      items: items,
+      stacks: stacks
+        .filter((s) => s.id !== originalStack.id)
+        .map((s) => (s.id === targetStack.id ? mergedStack : s)),
     };
   }
 

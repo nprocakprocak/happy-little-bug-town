@@ -79,3 +79,33 @@ export const createStackWithItems = async (stack: CreateStackData, itemIds: stri
     };
   });
 }
+
+export const mergeStacks = async (
+  sourceStackId: string,
+  targetStackId: string,
+): Promise<ReturnStackData> => {
+  return await prisma.$transaction(async (tx) => {
+    await tx.item.updateMany({
+      where: { stackId: sourceStackId },
+      data: { stackId: targetStackId },
+    });
+
+    await tx.stack.delete({
+      where: { id: sourceStackId },
+    });
+
+    const mergedStack = await tx.stack.findUnique({
+      where: { id: targetStackId },
+      include: { items: true },
+    });
+
+    if (!mergedStack) {
+      throw new Error("Target stack not found after merge");
+    }
+
+    return {
+      ...mergedStack,
+      itemsCount: mergedStack.items.length,
+    };
+  });
+}

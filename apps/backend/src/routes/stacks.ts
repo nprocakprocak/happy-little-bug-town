@@ -1,6 +1,12 @@
 import { Router, type RequestHandler } from "express";
 import { requireAid } from "../middleware/requireAid.js";
-import { createStackWithItems, getStack, getStacks, updateStack as updateStackService } from "../services/stacksService.js";
+import {
+  createStackWithItems,
+  getStack,
+  getStacks,
+  mergeStacks as mergeStacksService,
+  updateStack as updateStackService,
+} from "../services/stacksService.js";
 import { getItemByIds, getItems, takeItemFromStack } from "../services/itemsService.js";
 import { getMines } from "../services/minesService.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
@@ -69,6 +75,50 @@ const updateStack: RequestHandler = async (req, res) => {
   res.status(200).json(stack);
 };
 
+const mergeStacks: RequestHandler = async (req, res) => {
+  const { id } = req.params;
+  const { targetStackId } = req.body;
+  const authorId = req.authorId!;
+
+  if (!targetStackId || typeof targetStackId !== "string") {
+    res.status(400).json({ error: "targetStackId is required" });
+    return;
+  }
+
+  if (id === targetStackId) {
+    res.status(400).json({ error: "Cannot merge a stack with itself" });
+    return;
+  }
+
+  const sourceStack = await getStack(id);
+  if (!sourceStack) {
+    res.status(400).json({ error: "Source stack not found when merging" });
+    return;
+  }
+  if (sourceStack.authorId !== authorId) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const targetStack = await getStack(targetStackId);
+  if (!targetStack) {
+    res.status(400).json({ error: "Target stack not found when merging" });
+    return;
+  }
+  if (targetStack.authorId !== authorId) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  if (sourceStack.itemType !== targetStack.itemType) {
+    res.status(400).json({ error: "Stacks must be of the same type to merge" });
+    return;
+  }
+
+  const stack = await mergeStacksService(id, targetStackId);
+  res.status(200).json(stack);
+};
+
 const extractItemFromStack: RequestHandler = async (req, res) => {
   const { id } = req.params;
   const authorId = req.authorId!;
@@ -102,5 +152,6 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
 
 stacksRouter.get("/", listStacks);
 stacksRouter.post("/create", createStack);
+stacksRouter.post("/:id/merge", mergeStacks);
 stacksRouter.post("/:id/extract", extractItemFromStack);
 stacksRouter.put("/:id", updateStack);

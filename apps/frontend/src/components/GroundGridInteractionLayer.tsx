@@ -117,7 +117,9 @@ export function GroundGridInteractionLayer({
   ) {
     try {
       event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {}
+    } catch {
+      // no need to do anything
+    }
     pointerStartRef.current = null;
 
     if (hasDraggedRef.current) {
@@ -153,14 +155,22 @@ export function GroundGridInteractionLayer({
           }
 
           if (stackToDrop) {
-            const shouldCancel = positionOverlapsAnything({ x: target.x, y: target.y }, mines, [
-              ...items,
-              ...stacks,
-            ]);
+            const overlappingItem = findOverlappingItem({ x: target.x, y: target.y }, items);
+            const overlappingStack = findOverlappingStack({ x: target.x, y: target.y }, stacks);
+            const overlapsMine = positionOverlapsAnyMine({ x: target.x, y: target.y }, mines);
+
+            const targetStack =
+              overlappingStack && overlappingStack.id !== stackToDrop.id
+                ? overlappingStack
+                : undefined;
+            const sameItemType = targetStack?.itemType === stackToDrop.itemType;
+
+            const shouldCancel = overlapsMine || !!overlappingItem || !sameItemType;
+
             if (shouldCancel) {
               onItemDropCancelled(stackToDrop.id, target.x, target.y);
             } else {
-              onItemDropped(stackToDrop.id, target.x, target.y);
+              onItemDropped(stackToDrop.id, target.x, target.y, undefined, targetStack);
             }
           }
         }
@@ -180,7 +190,9 @@ export function GroundGridInteractionLayer({
   function handlePointerCancel(event: ReactPointerEvent<HTMLDivElement>) {
     try {
       event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {}
+    } catch {
+      // no need to do anything
+    }
     pointerStartRef.current = null;
     hasDraggedRef.current = false;
     setDragState(null);

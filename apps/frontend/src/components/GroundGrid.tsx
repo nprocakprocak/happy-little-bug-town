@@ -122,6 +122,22 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
         }
 
+        if (originalStack && targetStack) {
+          setStacksCache((prev) => {
+            const source = prev.find((s) => s.id === originalStack.id);
+            if (!source) {
+              throw new Error("Source stack not found");
+            }
+            return prev
+              .filter((s) => s.id !== originalStack.id)
+              .map((s) =>
+                s.id === targetStack.id
+                  ? { ...s, itemsCount: s.itemsCount + source.itemsCount }
+                  : s,
+              );
+          });
+        }
+
         const { items: newItems, stacks: newStacks } = await dropAction(
           { x, y },
           items,
