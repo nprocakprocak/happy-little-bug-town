@@ -9,9 +9,9 @@ import {
   getItems,
   getItem as getItemService,
   updateItem as updateItemService,
-} from "../services/itemsService2.js";
-import { getMines } from "../services/minesService2.js";
-import { getStack } from "../services/stacksService2.js";
+} from "../services/itemsService.js";
+import { getMines } from "../services/minesService.js";
+import { getStack } from "../services/stacksService.js";
 
 export const itemsRouter = Router();
 

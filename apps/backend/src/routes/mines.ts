@@ -1,6 +1,6 @@
 import { Router, type RequestHandler } from "express";
 import { requireAid } from "../middleware/requireAid.js";
-import { createFirstMine as createFirstMineService, getMines } from "../services/minesService2.js";
+import { createFirstMine as createFirstMineService, getMines } from "../services/minesService.js";
 
 export const minesRouter = Router();
 
