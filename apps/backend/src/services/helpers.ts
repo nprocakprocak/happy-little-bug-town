@@ -1,8 +1,10 @@
-import { Item, ItemType } from "../prisma/prisma/client.js";
+import { Bug, Item, ItemType } from "../prisma/prisma/client.js";
+import { BugDto, BugOnGridDto } from "../types/bugDto.js";
 import { ItemDto, ItemOnGridDto } from "../types/itemDto.js";
 
 export function isItemStackable(itemType: ItemType): boolean {
-  return itemType !== "beetle";
+  // perhaps will be false for some items
+  return true;
 }
 
 export function toItemDto(item: Item): ItemDto {
@@ -28,5 +30,29 @@ export function toItemOnGridDto(item: ItemDto): ItemOnGridDto {
     x: item.x,
     y: item.y,
     stackable: item.stackable,
+  };
+}
+
+export function toBugDto(bug: Bug): BugDto {
+  return {
+    id: bug.id,
+    bugType: bug.bugType,
+    x: bug.x,
+    y: bug.y,
+    authorId: bug.authorId,
+    structureId: bug.structureId,
+  };
+}
+
+export function toBugOnGridDto(bug: BugDto): BugOnGridDto {
+  if (!bug.x || !bug.y) {
+    throw new Error(`Bug ${bug.id} is not on a grid`);
+  }
+
+  return {
+    id: bug.id,
+    bugType: bug.bugType,
+    x: bug.x,
+    y: bug.y,
   };
 }

@@ -10,6 +10,7 @@ import { itemsRouter } from "./routes/items.js";
 import { usersRouter } from "./routes/users.js";
 import { structuresRouter } from "./routes/structures.js";
 import { stacksRouter } from "./routes/stacks.js";
+import { bugsRouter } from "./routes/bugs.js";
 
 const { railwayPublicDomain, corsOrigin, port } = loadServerEnv();
 
@@ -27,6 +28,7 @@ app.use("/api/grid", gridRouter);
 app.use("/api/structures", structuresRouter);
 app.use("/api/stacks", stacksRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/bugs", bugsRouter);
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
