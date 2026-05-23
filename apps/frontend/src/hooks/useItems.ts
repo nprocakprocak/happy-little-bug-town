@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { addItemToStack, createRandomItem, fetchItems, updateItemPosition } from "../api/items";
+import { addItemToStack, fetchItems, updateItemPosition } from "../api/items";
 import { queryKeys } from "../constants/queryKeys";
 import { Item } from "../types/item";
 import { Position } from "../types/position";
@@ -45,11 +45,5 @@ export function useAddItemToStackMutation() {
         stacks.map((s) => (s.id === stackId ? { ...s, itemsCount: s.itemsCount + 1 } : s)),
       );
     },
-  });
-}
-
-export function useCreateRandomItemMutation() {
-  return useMutation({
-    mutationFn: createRandomItem,
   });
 }

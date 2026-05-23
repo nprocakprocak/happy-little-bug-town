@@ -8,11 +8,12 @@ import { queryKeys } from "../constants/queryKeys";
 import { useAnonymousId } from "../context/AnonymousIdContext";
 import { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { dropAction } from "../domain/drag-n-drop/dropAction";
-import { updateItemsCache, useCreateRandomItemMutation, useItemsQuery } from "../hooks/useItems";
+import { updateItemsCache, useItemsQuery } from "../hooks/useItems";
 import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
 import {
   updateStructuresCache,
   useCreateFirstStructureMutation,
+  useDigMutation,
   useStructuresQuery,
   useUpdateStructurePositionMutation,
 } from "../hooks/useStructures";
@@ -24,6 +25,8 @@ import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestStructureCenterCell } from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
+import { updateBugsCache, useBugsQuery } from "../hooks/useBugs";
+import { Bug } from "../types/bug";
 
 interface GroundGridProps {
   rows: number;
@@ -39,9 +42,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     useStructuresQuery(isAuthenticated);
   const canLoadGridData = isAuthenticated && structures.length > 0;
   const { data: items = [] } = useItemsQuery(canLoadGridData);
+  const { data: bugs = [] } = useBugsQuery(canLoadGridData);
   const { data: stacks = [] } = useStacksQuery(canLoadGridData);
   const extractFromStack = useExtractFromStackMutation();
-  const createRandomItem = useCreateRandomItemMutation();
+  const dig = useDigMutation();
   const updateStructurePosition = useUpdateStructurePositionMutation();
   const {
     mutate: createFirstStructureMutate,
@@ -81,6 +85,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const setStacksCache = useCallback(
     (updater: (stacks: Stack[]) => Stack[]) => {
       updateStacksCache(queryClient, updater);
+    },
+    [queryClient],
+  );
+
+  const setBugsCache = useCallback(
+    (updater: (bugs: Bug[]) => Bug[]) => {
+      updateBugsCache(queryClient, updater);
     },
     [queryClient],
   );
@@ -207,17 +218,21 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     (structure: Structure) => {
       (async () => {
         try {
-          const item = await createRandomItem.mutateAsync();
+          const itemOrBug = await dig.mutateAsync();
           const origin = pickRandomNearestStructureCenterCell(structure);
 
-          setItemsCache((prev) => [...prev, { ...item, fromX: origin.x, fromY: origin.y }]);
+          if ("itemType" in itemOrBug) {
+            setItemsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
+          } else {
+            setBugsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
+          }
         } catch (error) {
           // todo: show alert
           console.error("Failed to create random item:", error);
         }
       })();
     },
-    [createRandomItem, setItemsCache],
+    [dig, setItemsCache],
   );
 
   return (

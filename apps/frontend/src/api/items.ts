@@ -19,9 +19,3 @@ export function addItemToStack(itemId: string, stackId: string): Promise<Item> {
     body: JSON.stringify({ stackId }),
   });
 }
-
-export function createRandomItem(): Promise<Item> {
-  return apiFetch<Item>("/api/items/random", {
-    method: "POST",
-  });
-}

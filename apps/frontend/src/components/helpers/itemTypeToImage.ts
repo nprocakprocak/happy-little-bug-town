@@ -1,9 +1,8 @@
+import { BugType } from "../../types/bugType";
 import { ItemType } from "../../types/itemType";
 
 export function itemTypeToImageForItem(itemType: ItemType): string {
   switch (itemType) {
-    case "beetle":
-      return "/items/beetle.webp";
     case "leaf_part":
       return "/items/leaf-part.webp";
     case "little_rock":
@@ -17,8 +16,6 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
 
 export function itemTypeToImageForStack(itemType: ItemType): string {
   switch (itemType) {
-    case "beetle":
-      return "/items/beetle.webp";
     case "leaf_part":
       return "/stacks/leaf-parts.webp";
     case "little_rock":
@@ -27,5 +24,15 @@ export function itemTypeToImageForStack(itemType: ItemType): string {
       return "/items/stick.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
+  }
+}
+
+
+export function bugTypeToImageForBug(bugType: BugType): string {
+  switch (bugType) {
+    case "beetle":
+      return "/bugs/beetle.webp";
+    default:
+      throw new Error(`Unknown bug type: ${bugType}`);
   }
 }

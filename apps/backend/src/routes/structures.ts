@@ -1,8 +1,11 @@
 import { Router, type RequestHandler } from "express";
 import { structureFootprintFits } from "../helpers/overlaps.js";
+import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
+import { createBug } from "../services/bugsService.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
-import { getItems } from "../services/itemsService.js";
+import { isItemStackable, toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
+import { createItem, generateRandomItemType, getItems } from "../services/itemsService.js";
 import { getStacks } from "../services/stacksService.js";
 import {
   createFirstStructure as createFirstStructureService,
@@ -74,6 +77,33 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   res.status(200).json(structure);
 };
 
+const dig: RequestHandler = async (req, res) => {
+  const authorId = req.authorId!;
+  const items = await getItems(authorId);
+  const structures = await getStructures(authorId);
+  const stacks = await getStacks(authorId);
+  const emptyPosition = findRandomEmptyPosition(
+    GROUND_HEIGHT,
+    GROUND_WIDTH,
+    structures,
+    items,
+    stacks,
+  );
+  if (!emptyPosition) {
+    res.status(400).json({ error: "No empty position found" });
+    return;
+  }
+  const itemOrBug = generateRandomItemType();
+  if (itemOrBug === "beetle") {
+    const createdBug = await createBug({ bugType: itemOrBug, x: emptyPosition.x, y: emptyPosition.y, authorId });
+    res.status(201).json(toBugOnGridDto(createdBug));
+    return;
+  }
+  const createdItem = await createItem({ itemType: itemOrBug, stackable: isItemStackable(itemOrBug), x: emptyPosition.x, y: emptyPosition.y, authorId });
+  res.status(201).json(toItemOnGridDto(createdItem));
+};
+
 structuresRouter.get("/", listStructures);
 structuresRouter.post("/create", createFirstStructure);
 structuresRouter.put("/:id", updateStructure);
+structuresRouter.post("/dig", dig);

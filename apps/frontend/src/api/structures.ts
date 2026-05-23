@@ -1,3 +1,5 @@
+import { Bug } from "../types/bug";
+import { Item } from "../types/item";
 import { Position } from "../types/position";
 import { Structure } from "../types/structure";
 import { apiFetch } from "./client";
@@ -19,5 +21,11 @@ export function updateStructurePosition(
   return apiFetch<Structure>(`/api/structures/${structureId}`, {
     method: "PUT",
     body: JSON.stringify(position),
+  });
+}
+
+export function dig(): Promise<Item | Bug> {
+  return apiFetch<Item | Bug>("/api/structures/dig", {
+    method: "POST",
   });
 }
