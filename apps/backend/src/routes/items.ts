@@ -1,8 +1,9 @@
 import { Router, type RequestHandler } from "express";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
-import { Item } from "../prisma/prisma/client.js";
+import { createBug } from "../services/bugsService.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
+import { isItemStackable, toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
 import {
   createItem as createItemService,
   generateRandomItemType,
@@ -10,9 +11,8 @@ import {
   getItem as getItemService,
   updateItem as updateItemService,
 } from "../services/itemsService.js";
-import { getStructures } from "../services/structuresService.js";
 import { getStack, getStacks } from "../services/stacksService.js";
-import { isItemStackable, toItemOnGridDto } from "../services/helpers.js";
+import { getStructures } from "../services/structuresService.js";
 import { UpdateItemData } from "../types/itemDto.js";
 
 export const itemsRouter = Router();
@@ -109,8 +109,13 @@ const createRandomItem: RequestHandler = async (req, res) => {
     res.status(400).json({ error: "No empty position found" });
     return;
   }
-  const itemType = generateRandomItemType();
-  const createdItem = await createItemService({ itemType, stackable: isItemStackable(itemType), x: emptyPosition.x, y: emptyPosition.y, authorId });
+  const itemOrBug = generateRandomItemType();
+  if (itemOrBug === "beetle") {
+    const createdBug = await createBug({ bugType: itemOrBug, x: emptyPosition.x, y: emptyPosition.y, authorId });
+    res.status(201).json(toBugOnGridDto(createdBug));
+    return;
+  }
+  const createdItem = await createItemService({ itemType: itemOrBug, stackable: isItemStackable(itemOrBug), x: emptyPosition.x, y: emptyPosition.y, authorId });
   res.status(201).json(toItemOnGridDto(createdItem));
 };
 

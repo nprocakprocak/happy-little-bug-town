@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma.js";
-import { ItemType } from "../prisma/prisma/client.js";
+import { BugType, ItemType } from "../prisma/prisma/client.js";
 import { CreateItemData, ItemDto, UpdateItemData } from "../types/itemDto.js";
 import { Position } from "../types/position.js";
 import { toItemDto } from "./helpers.js";
@@ -67,7 +67,7 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
   return toItemDto(updatedItem);
 }
 
-export function generateRandomItemType(): ItemType {
+export function generateRandomItemType(): ItemType | BugType {
   const seed = Math.random();
   return ITEM_TYPES.find((itemType) => seed < ITEM_TYPES_WEIGHTS[itemType]) ?? "leaf_part";
 }
