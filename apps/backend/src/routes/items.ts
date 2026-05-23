@@ -5,13 +5,15 @@ import { Item } from "../prisma/prisma/client.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
 import {
   createItem as createItemService,
-  generateRandomItem,
+  generateRandomItemType,
   getItems,
   getItem as getItemService,
   updateItem as updateItemService,
 } from "../services/itemsService.js";
 import { getStructures } from "../services/structuresService.js";
 import { getStack, getStacks } from "../services/stacksService.js";
+import { isItemStackable, toItemOnGridDto } from "../services/helpers.js";
+import { UpdateItemData } from "../types/itemDto.js";
 
 export const itemsRouter = Router();
 
@@ -19,23 +21,10 @@ itemsRouter.use(requireAid);
 
 const listItems: RequestHandler = async (req, res) => {
   const items = await getItems(req.authorId!);
-  res.status(200).json(items);
+  res.status(200).json(items.map(toItemOnGridDto));
 };
 
-const getItem: RequestHandler<{ id: string }> = (req, res) => {
-  console.log("GET /items/:id", { params: req.params });
-  res.status(200).json({ id: req.params.id });
-};
-
-const createItem: RequestHandler<Record<string, string>, unknown, Item> = (
-  req,
-  res,
-) => {
-  console.log("POST /items", { body: req.body });
-  res.status(201).json(req.body);
-};
-
-const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
+const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = async (
   req,
   res,
 ) => {
@@ -101,12 +90,7 @@ const updateItem: RequestHandler<{ id: string }, unknown, Item> = async (
   }
 
   const item = await updateItemService(id, { x, y });
-  res.status(200).json(item);
-};
-
-const deleteItem: RequestHandler<{ id: string }> = (req, res) => {
-  console.log("DELETE /items/:id", { params: req.params });
-  res.status(204).send();
+  res.status(200).json(toItemOnGridDto(item));
 };
 
 const createRandomItem: RequestHandler = async (req, res) => {
@@ -125,14 +109,11 @@ const createRandomItem: RequestHandler = async (req, res) => {
     res.status(400).json({ error: "No empty position found" });
     return;
   }
-  const item = await generateRandomItem(authorId, emptyPosition);
-  const createdItem = await createItemService(item);
-  res.status(201).json(createdItem);
+  const itemType = generateRandomItemType();
+  const createdItem = await createItemService({ itemType, stackable: isItemStackable(itemType), x: emptyPosition.x, y: emptyPosition.y, authorId });
+  res.status(201).json(toItemOnGridDto(createdItem));
 };
 
 itemsRouter.get("/", listItems);
-itemsRouter.get("/:id", getItem);
-itemsRouter.post("/", createItem);
 itemsRouter.put("/:id", updateItem);
-itemsRouter.delete("/:id", deleteItem);
 itemsRouter.post("/random", createRandomItem);

@@ -1,10 +1,8 @@
-import { Position } from "../types/position.js";
 import { prisma } from "../lib/prisma.js";
-import { Item } from "../prisma/prisma/client.js";
-import { CreateItemDto, ItemDto } from "../types/itemDto.js";
-import { isItemStackable, toItemDto } from "./helpers.js";
-
-type ItemUpdateData = Partial<Pick<Item, "x" | "y" | "stackId">>;
+import { ItemType } from "../prisma/prisma/client.js";
+import { CreateItemData, ItemDto, UpdateItemData } from "../types/itemDto.js";
+import { Position } from "../types/position.js";
+import { toItemDto } from "./helpers.js";
 
 const ITEM_TYPES = ["beetle", "leaf_part", "little_rock", "stick"] as const;
 const ITEM_TYPES_WEIGHTS = {
@@ -45,7 +43,7 @@ export const getItem = async (id: string): Promise<ItemDto | null> => {
   return toItemDto(item);
 }
 
-export const createItem = async (item: CreateItemDto): Promise<ItemDto> => {
+export const createItem = async (item: CreateItemData): Promise<ItemDto> => {
   const createdItem = await prisma.item.create({
     data: {
       itemType: item.itemType,
@@ -57,7 +55,7 @@ export const createItem = async (item: CreateItemDto): Promise<ItemDto> => {
   return toItemDto(createdItem);
 }
 
-export const updateItem = async (id: string, item: ItemUpdateData): Promise<ItemDto> => {
+export const updateItem = async (id: string, item: UpdateItemData): Promise<ItemDto> => {
   const updatedItem = await prisma.item.update({
     where: { id },
     data: {
@@ -69,16 +67,9 @@ export const updateItem = async (id: string, item: ItemUpdateData): Promise<Item
   return toItemDto(updatedItem);
 }
 
-export async function generateRandomItem(authorId: string, position: Position): Promise<CreateItemDto> {
+export function generateRandomItemType(): ItemType {
   const seed = Math.random();
-  const itemType = ITEM_TYPES.find((itemType) => seed < ITEM_TYPES_WEIGHTS[itemType]) ?? "leaf_part";
-  return {
-    itemType,
-    stackable: isItemStackable(itemType),
-    x: position.x,
-    y: position.y,
-    authorId,
-  };
+  return ITEM_TYPES.find((itemType) => seed < ITEM_TYPES_WEIGHTS[itemType]) ?? "leaf_part";
 }
 
 export async function takeItemFromStack(stackId: string, position: Position): Promise<ItemDto> {
