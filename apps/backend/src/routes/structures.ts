@@ -2,7 +2,7 @@ import { Router, type RequestHandler } from "express";
 import { structureFootprintFits } from "../helpers/overlaps.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
-import { createBug } from "../services/bugsService.js";
+import { createBug, getBugs } from "../services/bugsService.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
 import { isItemStackable, toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
 import { createItem, generateRandomItemType, getItems } from "../services/itemsService.js";
@@ -57,6 +57,7 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   const structures = await getStructures(authorId);
   const items = await getItems(authorId);
   const stacks = await getStacks(authorId);
+  const bugs = await getBugs(authorId);
 
   const fits = structureFootprintFits(
     { x, y },
@@ -66,6 +67,7 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
     structures.filter((s) => s.id !== id),
     items,
     stacks,
+    bugs,
   );
 
   if (!fits) {
@@ -82,12 +84,14 @@ const dig: RequestHandler = async (req, res) => {
   const items = await getItems(authorId);
   const structures = await getStructures(authorId);
   const stacks = await getStacks(authorId);
+  const bugs = await getBugs(authorId);
   const emptyPosition = findRandomEmptyPosition(
     GROUND_HEIGHT,
     GROUND_WIDTH,
     structures,
     items,
     stacks,
+    bugs,
   );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });

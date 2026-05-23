@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { Bug } from "../prisma/prisma/client.js";
-import { BugDto, CreateBugData } from "../types/bugDto.js";
+import { BugDto, CreateBugData, UpdateBugData } from "../types/bugDto.js";
 
 function toBugDto(bug: Bug): BugDto {
   return {
@@ -40,4 +40,12 @@ export const createBug = async (bug: CreateBugData): Promise<BugDto> => {
     },
   });
   return toBugDto(createdBug);
-}
+};
+
+export const updateBug = async (id: string, data: UpdateBugData): Promise<BugDto> => {
+  const updatedBug = await prisma.bug.update({
+    where: { id },
+    data: { x: data.x, y: data.y },
+  });
+  return toBugDto(updatedBug);
+};

@@ -9,11 +9,17 @@ import {
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../constants";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
+import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
 import { isFlyingItem } from "./helpers/isFlyingItem";
-import { itemTypeToImageForItem, itemTypeToImageForStack } from "./helpers/itemTypeToImage";
+import {
+  bugTypeToImageForBug,
+  itemTypeToImageForItem,
+  itemTypeToImageForStack,
+} from "./helpers/itemTypeToImage";
+import { isBug, isStack } from "../utils/typeGuards";
 
 interface GroundGridAssetLayerProps {
   cols: number;
@@ -21,6 +27,7 @@ interface GroundGridAssetLayerProps {
   structures: Structure[];
   items: Item[];
   stacks: Stack[];
+  bugs: Bug[];
   gridDrag: DragPayload | null;
 }
 
@@ -30,13 +37,15 @@ export function GroundGridAssetLayer({
   structures,
   items,
   stacks,
+  bugs,
   gridDrag,
 }: GroundGridAssetLayerProps) {
   const allGrounded = useMemo(() => {
     const groundedItems = items.filter((it) => !isFlyingItem(it));
     const groundedStacks = stacks.filter((it) => !isFlyingItem(it));
-    return [...groundedItems, ...groundedStacks];
-  }, [items, stacks]);
+    const groundedBugs = bugs.filter((bug) => !isFlyingItem(bug));
+    return [...groundedItems, ...groundedStacks, ...groundedBugs];
+  }, [items, stacks, bugs]);
 
   return (
     <div
@@ -77,19 +86,22 @@ export function GroundGridAssetLayer({
           </div>
         );
       })}
-      {allGrounded.map((item: Item | Stack) => {
+      {allGrounded.map((item: Item | Stack | Bug) => {
         const isDragged =
           gridDrag !== null &&
-          ((gridDrag.target.kind === "item" &&
-            gridDrag.target.itemId !== undefined &&
-            gridDrag.target.itemId === item.id) ||
-            (gridDrag.target.kind === "stack" && gridDrag.target.stackId === item.id));
+          ((gridDrag.target.kind === "item" && gridDrag.target.itemId === item.id) ||
+            (gridDrag.target.kind === "stack" && gridDrag.target.stackId === item.id) ||
+            (gridDrag.target.kind === "bug" && gridDrag.target.bugId === item.id));
         const dragStyle =
           isDragged && gridDrag
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
 
-        const isStack = stacks.some((i) => i.id === item.id);
+        const imageSource = isStack(item)
+          ? itemTypeToImageForStack(item.itemType)
+          : isBug(item)
+            ? bugTypeToImageForBug(item.bugType)
+            : itemTypeToImageForItem(item.itemType);
 
         return (
           <div
@@ -102,11 +114,7 @@ export function GroundGridAssetLayer({
             }}
           >
             <Image
-              src={
-                isStack
-                  ? itemTypeToImageForStack(item.itemType)
-                  : itemTypeToImageForItem(item.itemType)
-              }
+              src={imageSource}
               alt=""
               fill
               className="object-cover"

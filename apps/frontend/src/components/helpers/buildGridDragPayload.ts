@@ -1,4 +1,5 @@
 import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import type { Bug } from "../../types/bug";
 import type { Item } from "../../types/item";
 import type { Stack } from "../../types/stack";
 import type { Structure } from "../../types/structure";
@@ -11,6 +12,7 @@ export function buildGridDragPayload(
   structures: Structure[],
   items: Item[],
   stacks: Stack[],
+  bugs: Bug[],
 ): DragPayload | null {
   const gridRow = Math.floor(index / cols) + 1;
   const gridCol = (index % cols) + 1;
@@ -25,6 +27,10 @@ export function buildGridDragPayload(
   const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
   if (stack) {
     return { dx, dy, target: { kind: "stack", stackId: stack.id } };
+  }
+  const bug = bugs.find((b) => b.x === gridCol && b.y === gridRow);
+  if (bug) {
+    return { dx, dy, target: { kind: "bug", bugId: bug.id } };
   }
   return null;
 }

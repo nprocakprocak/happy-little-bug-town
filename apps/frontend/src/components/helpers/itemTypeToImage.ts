@@ -27,7 +27,6 @@ export function itemTypeToImageForStack(itemType: ItemType): string {
   }
 }
 
-
 export function bugTypeToImageForBug(bugType: BugType): string {
   switch (bugType) {
     case "beetle":

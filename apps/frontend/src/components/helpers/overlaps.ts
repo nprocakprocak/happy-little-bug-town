@@ -1,3 +1,4 @@
+import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Position } from "../../types/position";
 import { Stack } from "../../types/stack";
@@ -12,35 +13,39 @@ export function positionOverlapsStructure(position: Position, structure: Structu
   );
 }
 
-function positionOverlapsItemOrStack(position: Position, itemOrStack: Position): boolean {
-  return position.x === itemOrStack.x && position.y === itemOrStack.y;
+function positionOverlapsEntity(position: Position, entity: Position): boolean {
+  return position.x === entity.x && position.y === entity.y;
 }
 
 export function positionOverlapsAnyStructure(position: Position, structures: Structure[]): boolean {
   return structures.some((structure) => positionOverlapsStructure(position, structure));
 }
 
-export function positionOverlapsAnyItem(position: Position, itemsOrStacks: Position[]): boolean {
-  return itemsOrStacks.some((item) => positionOverlapsItemOrStack(position, item));
+export function positionOverlapsAnyEntity(position: Position, entities: Position[]): boolean {
+  return entities.some((item) => positionOverlapsEntity(position, item));
 }
 
 export function positionOverlapsAnything(
   position: Position,
   structures: Structure[],
-  itemsOrStacks: Position[],
+  entities: Position[],
 ): boolean {
   return (
     positionOverlapsAnyStructure(position, structures) ||
-    positionOverlapsAnyItem(position, itemsOrStacks)
+    positionOverlapsAnyEntity(position, entities)
   );
 }
 
 export function findOverlappingItem(position: Position, items: Item[]): Item | undefined {
-  return items.find((item) => positionOverlapsItemOrStack(position, item));
+  return items.find((item) => positionOverlapsEntity(position, item));
 }
 
 export function findOverlappingStack(position: Position, stacks: Stack[]): Stack | undefined {
-  return stacks.find((stack) => positionOverlapsItemOrStack(position, stack));
+  return stacks.find((stack) => positionOverlapsEntity(position, stack));
+}
+
+export function findOverlappingBug(position: Position, bugs: Bug[]): Bug | undefined {
+  return bugs.find((bug) => positionOverlapsEntity(position, bug));
 }
 
 export function structureFootprintFits(
@@ -49,7 +54,7 @@ export function structureFootprintFits(
   gridWidth: number,
   gridHeight: number,
   structures: Structure[],
-  itemsOrStacks: Position[],
+  entities: Position[],
 ): boolean {
   if (origin.x < 1 || origin.y < 1) {
     return false;
@@ -64,7 +69,7 @@ export function structureFootprintFits(
       if (positionOverlapsAnyStructure(cell, structures)) {
         return false;
       }
-      if (positionOverlapsAnyItem(cell, itemsOrStacks)) {
+      if (positionOverlapsAnyEntity(cell, entities)) {
         return false;
       }
     }

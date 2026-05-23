@@ -4,17 +4,28 @@ import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
+import { BugType } from "../types/bugType";
 import { GridAnimatable } from "../types/gridAnimatable";
 import { ItemType } from "../types/itemType";
 import { Position } from "../types/position";
 import { WithId } from "../types/withId";
 import { isFlyingItem } from "./helpers/isFlyingItem";
-import { itemTypeToImageForItem } from "./helpers/itemTypeToImage";
+import { bugTypeToImageForBug, itemTypeToImageForItem } from "./helpers/itemTypeToImage";
 
 const FLIGHT_DURATION_MS = 550;
 const FLIGHT_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
-type Animatable = GridAnimatable & WithId & Position & { itemType: ItemType };
+type Animatable = GridAnimatable &
+  WithId &
+  Position &
+  ({ itemType: ItemType } | { bugType: BugType });
+
+function animatableImageSrc(animatable: Animatable): string {
+  if ("bugType" in animatable) {
+    return bugTypeToImageForBug(animatable.bugType);
+  }
+  return itemTypeToImageForItem(animatable.itemType);
+}
 
 interface ItemFlightLayerProps {
   cols: number;
@@ -130,7 +141,7 @@ function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimati
       </div>
       <div ref={flyerRef} className="pointer-events-none absolute overflow-hidden rounded-sm">
         <Image
-          src={itemTypeToImageForItem(item.itemType)}
+          src={animatableImageSrc(item)}
           alt=""
           fill
           className="object-cover"

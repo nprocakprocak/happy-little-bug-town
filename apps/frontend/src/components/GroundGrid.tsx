@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { queryKeys } from "../constants/queryKeys";
 import { useAnonymousId } from "../context/AnonymousIdContext";
 import { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { dropAction } from "../domain/drag-n-drop/dropAction";
+import { updateBugsCache, useBugsQuery } from "../hooks/useBugs";
 import { updateItemsCache, useItemsQuery } from "../hooks/useItems";
 import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
 import {
@@ -17,6 +18,7 @@ import {
   useStructuresQuery,
   useUpdateStructurePositionMutation,
 } from "../hooks/useStructures";
+import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
@@ -25,8 +27,6 @@ import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestStructureCenterCell } from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
-import { updateBugsCache, useBugsQuery } from "../hooks/useBugs";
-import { Bug } from "../types/bug";
 
 interface GroundGridProps {
   rows: number;
@@ -53,7 +53,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     isError: firstStructureCreateFailed,
   } = useCreateFirstStructureMutation();
 
-  const animatables = useMemo(() => [...items, ...stacks], [items, stacks]);
+  const animatables = useMemo(() => [...items, ...stacks, ...bugs], [items, stacks, bugs]);
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
 
@@ -97,14 +97,19 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   );
 
   const handleFlightComplete = useCallback(
-    (itemId: string) => {
+    (entityId: string) => {
       setItemsCache((prev) =>
         prev.map((item) =>
-          item.id === itemId ? { ...item, fromX: undefined, fromY: undefined } : item,
+          item.id === entityId ? { ...item, fromX: undefined, fromY: undefined } : item,
+        ),
+      );
+      setBugsCache((prev) =>
+        prev.map((bug) =>
+          bug.id === entityId ? { ...bug, fromX: undefined, fromY: undefined } : bug,
         ),
       );
     },
-    [setItemsCache],
+    [setItemsCache, setBugsCache],
   );
 
   const handleItemDropCancelled = useCallback(
@@ -112,23 +117,31 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       setItemsCache((prev) =>
         prev.map((item) => (item.id === itemId ? { ...item, fromX: dropX, fromY: dropY } : item)),
       );
+      setBugsCache((prev) =>
+        prev.map((bug) => (bug.id === itemId ? { ...bug, fromX: dropX, fromY: dropY } : bug)),
+      );
+      setStacksCache((prev) =>
+        prev.map((stack) => (stack.id === itemId ? { ...stack, fromX: dropX, fromY: dropY } : stack)),
+      );
     },
     [setItemsCache],
   );
 
+  // todo: either { x, y } or targetEntity (or separate handlers)
   const handleItemDropped = useCallback(
-    (itemId: string, x: number, y: number, targetItem?: Item, targetStack?: Stack) => {
+    (itemId: string, x: number, y: number, targetItem?: Item, targetStack?: Stack, targetBug?: Bug) => {
       (async () => {
         const originalItem = items.find((item) => item.id === itemId);
         const originalStack = stacks.find((stack) => stack.id === itemId);
+        const originalBug = bugs.find((bug) => bug.id === itemId);
 
-        if (!originalItem && !originalStack) {
-          console.error("Can't drop the item, could not find item or stack with id:", itemId);
+        if (!originalItem && !originalStack && !originalBug) {
+          console.error("Can't drop the item, could not find entity with id:", itemId);
           return;
         }
 
         // drop onto an empty position, assume optimistic update
-        if (!targetItem && !targetStack) {
+        if (!targetItem && !targetStack && !targetBug) {
           if (originalItem) {
             setItemsCache((prev) =>
               prev.map((it) => (it.id === originalItem.id ? { ...it, x, y } : it)),
@@ -139,6 +152,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
               prev.map((s) => (s.id === originalStack.id ? { ...s, x, y } : s)),
             );
           }
+          if (originalBug) {
+            setBugsCache((prev) =>
+              prev.map((b) => (b.id === originalBug.id ? { ...b, x, y } : b)),
+            );
+          }
         }
 
         // drop an item onto a stack to add it to its items, assume optimistic update
@@ -146,6 +164,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
         }
 
+        // drop a stack onto another stack to merge them, assume optimistic update
         if (originalStack && targetStack) {
           setStacksCache((prev) => {
             const source = prev.find((s) => s.id === originalStack.id);
@@ -166,8 +185,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           { x, y },
           items,
           stacks,
-          originalItem || originalStack!,
-          targetItem || targetStack,
+          bugs,
+          originalItem || originalStack || originalBug!,
+          targetItem || targetStack || targetBug,
         );
 
         queryClient.setQueryData(queryKeys.items, newItems);
@@ -217,22 +237,17 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const onStructureClick = useCallback(
     (structure: Structure) => {
       (async () => {
-        try {
-          const itemOrBug = await dig.mutateAsync();
-          const origin = pickRandomNearestStructureCenterCell(structure);
+        const itemOrBug = await dig.mutateAsync();
+        const origin = pickRandomNearestStructureCenterCell(structure);
 
-          if ("itemType" in itemOrBug) {
-            setItemsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
-          } else {
-            setBugsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
-          }
-        } catch (error) {
-          // todo: show alert
-          console.error("Failed to create random item:", error);
+        if ("itemType" in itemOrBug) {
+          setItemsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
+        } else {
+          setBugsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
         }
       })();
     },
-    [dig, setItemsCache],
+    [dig, setItemsCache, setBugsCache],
   );
 
   return (
@@ -255,6 +270,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           structures={structures}
           items={items}
           stacks={stacks}
+          bugs={bugs}
           gridDrag={gridDrag}
         />
         <ItemFlightLayer
@@ -270,6 +286,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           structures={structures}
           items={items}
           stacks={stacks}
+          bugs={bugs}
           onStructureClick={onStructureClick}
           onStackClick={onStackClick}
           onDragChange={setGridDrag}

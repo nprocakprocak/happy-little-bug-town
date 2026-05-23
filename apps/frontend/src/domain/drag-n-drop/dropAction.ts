@@ -3,26 +3,30 @@ import { createStack, mergeStacks, updateStack } from "../../api/stacks";
 import { Item } from "../../types/item";
 import { Position } from "../../types/position";
 import { Stack } from "../../types/stack";
-import { isItem, isStack } from "../../utils/typeGuards";
+import { isBug, isItem, isStack } from "../../utils/typeGuards";
+import { Bug } from "../../types/bug";
+import { updateBugPosition } from "../../api/bugs";
 
 export async function dropAction(
   targetPosition: Position,
   items: Item[],
   stacks: Stack[],
-  itemOrStack: Item | Stack,
-  targetItemOrStack?: Item | Stack,
-): Promise<{ items: Item[]; stacks: Stack[] }> {
-  const originalItem = isItem(itemOrStack) ? itemOrStack : undefined;
-  const originalStack = isStack(itemOrStack) ? itemOrStack : undefined;
+  bugs: Bug[],
+  entity: Item | Stack | Bug,
+  targetEntity?: Item | Stack | Bug,
+): Promise<{ items: Item[]; stacks: Stack[], bugs: Bug[] }> {
+  const originalItem = isItem(entity) ? entity : undefined;
+  const originalStack = isStack(entity) ? entity : undefined;
+  const originalBug = isBug(entity) ? entity : undefined;
 
-  const targetItem = targetItemOrStack
-    ? isItem(targetItemOrStack)
-      ? targetItemOrStack
+  const targetItem = targetEntity
+    ? isItem(targetEntity)
+      ? targetEntity
       : undefined
     : undefined;
-  const targetStack = targetItemOrStack
-    ? isStack(targetItemOrStack)
-      ? targetItemOrStack
+  const targetStack = targetEntity
+    ? isStack(targetEntity)
+      ? targetEntity
       : undefined
     : undefined;
 
@@ -39,6 +43,7 @@ export async function dropAction(
     return {
       items: items.filter((it) => it.id !== originalItem.id && it.id !== targetItem.id),
       stacks: [...stacks, stack],
+      bugs: bugs,
     };
   }
 
@@ -54,6 +59,7 @@ export async function dropAction(
       stacks: stacks.map((s) =>
         s.id === targetStack.id ? { ...s, itemsCount: s.itemsCount + 1 } : s,
       ),
+      bugs: bugs,
     };
   }
 
@@ -66,6 +72,7 @@ export async function dropAction(
       stacks: stacks
         .filter((s) => s.id !== originalStack.id)
         .map((s) => (s.id === targetStack.id ? mergedStack : s)),
+      bugs: bugs,
     };
   }
 
@@ -76,6 +83,7 @@ export async function dropAction(
     return {
       items: items,
       stacks: stacks.map((s) => (s.id === originalStack.id ? stack : s)),
+      bugs: bugs,
     };
   }
 
@@ -86,6 +94,17 @@ export async function dropAction(
     return {
       items: items.map((it) => (it.id === originalItem.id ? item : it)),
       stacks: stacks,
+      bugs: bugs,
+    };
+  }
+
+  if (originalBug) {
+    const bug = await updateBugPosition(originalBug.id, targetPosition);
+
+    return {
+      items: items,
+      stacks: stacks,
+      bugs: bugs.map((b) => (b.id === originalBug.id ? bug : b)),
     };
   }
 

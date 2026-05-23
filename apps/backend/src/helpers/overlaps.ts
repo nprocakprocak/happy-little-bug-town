@@ -1,6 +1,9 @@
 import { Position } from "../types/position.js";
 import { Structure, Stack } from "../prisma/prisma/client.js";
+import { BugDto } from "../types/bugDto.js";
 import { ItemDto } from "../types/itemDto.js";
+
+// todo: unify with frontend and extract these helpers to a package
 
 export function positionOverlapsStructure(position: Position, structure: Structure): boolean {
   return (
@@ -11,7 +14,7 @@ export function positionOverlapsStructure(position: Position, structure: Structu
   );
 }
 
-function positionOverlapsItem(position: Position, item: ItemDto | Stack): boolean {
+function positionOverlapsItem(position: Position, item: ItemDto | Stack | BugDto): boolean {
   return position.x === item.x && position.y === item.y;
 }
 
@@ -30,16 +33,22 @@ export function positionOverlapsAnyStack(position: Position, stacks: Stack[]): b
   return stacks.some((stack) => positionOverlapsItem(position, stack));
 }
 
+export function positionOverlapsAnyBug(position: Position, bugs: BugDto[]): boolean {
+  return bugs.some((bug) => positionOverlapsItem(position, bug));
+}
+
 export function positionOverlapsAnything(
   position: Position,
   structures: Structure[],
   items: ItemDto[],
   stacks: Stack[],
+  bugs: BugDto[] = [],
 ): boolean {
   return (
     positionOverlapsAnyStructure(position, structures) ||
     positionOverlapsAnyItem(position, items) ||
-    positionOverlapsAnyStack(position, stacks)
+    positionOverlapsAnyStack(position, stacks) ||
+    positionOverlapsAnyBug(position, bugs)
   );
 }
 
@@ -51,6 +60,7 @@ export function structureFootprintFits(
   structures: Structure[],
   items: ItemDto[],
   stacks: Stack[],
+  bugs: BugDto[] = [],
 ): boolean {
   if (origin.x < 1 || origin.y < 1) {
     return false;
@@ -69,6 +79,9 @@ export function structureFootprintFits(
         return false;
       }
       if (positionOverlapsAnyStack(cell, stacks)) {
+        return false;
+      }
+      if (positionOverlapsAnyBug(cell, bugs)) {
         return false;
       }
     }
