@@ -2,12 +2,12 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
+import { Position } from "@happy-little-park/utils";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { BugType } from "../types/bugType";
 import { GridAnimatable } from "../types/gridAnimatable";
 import { ItemType } from "../types/itemType";
-import { Position } from "../types/position";
 import { WithId } from "../types/withId";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 import { bugTypeToImageForBug, itemTypeToImageForItem } from "./helpers/itemTypeToImage";

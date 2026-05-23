@@ -1,7 +1,7 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { queryKeys } from "../constants/queryKeys";
@@ -121,7 +121,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         prev.map((bug) => (bug.id === itemId ? { ...bug, fromX: dropX, fromY: dropY } : bug)),
       );
       setStacksCache((prev) =>
-        prev.map((stack) => (stack.id === itemId ? { ...stack, fromX: dropX, fromY: dropY } : stack)),
+        prev.map((stack) =>
+          stack.id === itemId ? { ...stack, fromX: dropX, fromY: dropY } : stack,
+        ),
       );
     },
     [setItemsCache],
@@ -129,7 +131,14 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   // todo: either { x, y } or targetEntity (or separate handlers)
   const handleItemDropped = useCallback(
-    (itemId: string, x: number, y: number, targetItem?: Item, targetStack?: Stack, targetBug?: Bug) => {
+    (
+      itemId: string,
+      x: number,
+      y: number,
+      targetItem?: Item,
+      targetStack?: Stack,
+      targetBug?: Bug,
+    ) => {
       (async () => {
         const originalItem = items.find((item) => item.id === itemId);
         const originalStack = stacks.find((stack) => stack.id === itemId);
@@ -153,9 +162,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             );
           }
           if (originalBug) {
-            setBugsCache((prev) =>
-              prev.map((b) => (b.id === originalBug.id ? { ...b, x, y } : b)),
-            );
+            setBugsCache((prev) => prev.map((b) => (b.id === originalBug.id ? { ...b, x, y } : b)));
           }
         }
 

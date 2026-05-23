@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@happy-little-park/utils": "*",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "cors": "^2.8.6",

@@ -1,7 +1,7 @@
+import { Position } from "@happy-little-park/utils";
 import { prisma } from "../lib/prisma.js";
 import { BugType, ItemType } from "../prisma/prisma/client.js";
 import { CreateItemData, ItemDto, UpdateItemData } from "../types/itemDto.js";
-import { Position } from "../types/position.js";
 import { toItemDto } from "./helpers.js";
 
 const ITEM_TYPES = ["beetle", "leaf_part", "little_rock", "stick"] as const;

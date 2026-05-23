@@ -1,5 +1,6 @@
+import { Position } from "@happy-little-park/utils";
+
 import { ExtractFromStackResult } from "../types/extractFromStackResult";
-import { Position } from "../types/position";
 import { Stack } from "../types/stack";
 import { apiFetch } from "./client";
 

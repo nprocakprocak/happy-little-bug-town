@@ -1,4 +1,4 @@
-import { Position } from "../types/position.js";
+import { Position } from "@happy-little-park/utils";
 import { Structure, Stack } from "../prisma/prisma/client.js";
 import { BugDto } from "../types/bugDto.js";
 import { ItemDto } from "../types/itemDto.js";

@@ -1,9 +1,9 @@
+import { Position } from "@happy-little-park/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { addItemToStack, fetchItems, updateItemPosition } from "../api/items";
 import { queryKeys } from "../constants/queryKeys";
 import { Item } from "../types/item";
-import { Position } from "../types/position";
 import { updateStacksCache } from "./useStacks";
 
 export function updateItemsCache(

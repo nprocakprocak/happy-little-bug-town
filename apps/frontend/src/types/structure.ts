@@ -1,4 +1,5 @@
-import { Position } from "./position";
+import { Position } from "@happy-little-park/utils";
+
 import { StructureType } from "./structureType";
 import { WithId } from "./withId";
 

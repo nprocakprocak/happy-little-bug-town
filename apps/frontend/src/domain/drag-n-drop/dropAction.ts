@@ -1,11 +1,12 @@
+import { Position } from "@happy-little-park/utils";
+
+import { updateBugPosition } from "../../api/bugs";
 import { addItemToStack, updateItemPosition } from "../../api/items";
 import { createStack, mergeStacks, updateStack } from "../../api/stacks";
+import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
-import { Position } from "../../types/position";
 import { Stack } from "../../types/stack";
 import { isBug, isItem, isStack } from "../../utils/typeGuards";
-import { Bug } from "../../types/bug";
-import { updateBugPosition } from "../../api/bugs";
 
 export async function dropAction(
   targetPosition: Position,
@@ -14,21 +15,13 @@ export async function dropAction(
   bugs: Bug[],
   entity: Item | Stack | Bug,
   targetEntity?: Item | Stack | Bug,
-): Promise<{ items: Item[]; stacks: Stack[], bugs: Bug[] }> {
+): Promise<{ items: Item[]; stacks: Stack[]; bugs: Bug[] }> {
   const originalItem = isItem(entity) ? entity : undefined;
   const originalStack = isStack(entity) ? entity : undefined;
   const originalBug = isBug(entity) ? entity : undefined;
 
-  const targetItem = targetEntity
-    ? isItem(targetEntity)
-      ? targetEntity
-      : undefined
-    : undefined;
-  const targetStack = targetEntity
-    ? isStack(targetEntity)
-      ? targetEntity
-      : undefined
-    : undefined;
+  const targetItem = targetEntity ? (isItem(targetEntity) ? targetEntity : undefined) : undefined;
+  const targetStack = targetEntity ? (isStack(targetEntity) ? targetEntity : undefined) : undefined;
 
   // drop one item onto another to create a stack
   if (originalItem && targetItem) {

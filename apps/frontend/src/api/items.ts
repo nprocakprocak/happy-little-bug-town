@@ -1,5 +1,6 @@
+import { Position } from "@happy-little-park/utils";
+
 import { Item } from "../types/item";
-import { Position } from "../types/position";
 import { apiFetch } from "./client";
 
 export function fetchItems(): Promise<Item[]> {

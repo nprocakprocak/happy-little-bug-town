@@ -1,4 +1,5 @@
-import { Position } from "../../types/position";
+import { Position } from "@happy-little-park/utils";
+
 import { Structure } from "../../types/structure";
 
 const EVEN_CENTER_OFFSETS: ReadonlyArray<readonly [number, number]> = [

@@ -13,13 +13,13 @@ import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
+import { isBug, isStack } from "../utils/typeGuards";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 import {
   bugTypeToImageForBug,
   itemTypeToImageForItem,
   itemTypeToImageForStack,
 } from "./helpers/itemTypeToImage";
-import { isBug, isStack } from "../utils/typeGuards";
 
 interface GroundGridAssetLayerProps {
   cols: number;

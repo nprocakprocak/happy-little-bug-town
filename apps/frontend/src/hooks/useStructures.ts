@@ -1,8 +1,13 @@
+import { Position } from "@happy-little-park/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { createFirstStructure, dig, fetchStructures, updateStructurePosition } from "../api/structures";
+import {
+  createFirstStructure,
+  dig,
+  fetchStructures,
+  updateStructurePosition,
+} from "../api/structures";
 import { queryKeys } from "../constants/queryKeys";
-import { Position } from "../types/position";
 import { Structure } from "../types/structure";
 
 export function updateStructuresCache(

@@ -1,6 +1,7 @@
+import { Position } from "@happy-little-park/utils";
+
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
-import { Position } from "../../types/position";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
 

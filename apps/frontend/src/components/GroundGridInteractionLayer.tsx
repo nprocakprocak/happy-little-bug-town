@@ -1,12 +1,12 @@
 "use client";
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { Position } from "@happy-little-park/utils";
 
 import { useGridVisibility } from "../context/GridVisibilityContext";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Bug } from "../types/bug";
 import { Item } from "../types/item";
-import { Position } from "../types/position";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
 import { DRAG_THRESHOLD_PX } from "./constants";
@@ -172,7 +172,14 @@ export function GroundGridInteractionLayer({
             if (shouldCancel) {
               onItemDropCancelled(itemToDrop.id, target.x, target.y);
             } else {
-              onItemDropped(itemToDrop.id, target.x, target.y, overlappingItem, overlappingStack, overlappingBug);
+              onItemDropped(
+                itemToDrop.id,
+                target.x,
+                target.y,
+                overlappingItem,
+                overlappingStack,
+                overlappingBug,
+              );
             }
           }
 
@@ -287,13 +294,13 @@ export function GroundGridInteractionLayer({
             : "bg-transparent";
         const placementStyle = structure
           ? {
-            gridColumn: `${structure.x} / span ${structure.span}`,
-            gridRow: `${structure.y} / span ${structure.span}`,
-          }
+              gridColumn: `${structure.x} / span ${structure.span}`,
+              gridRow: `${structure.y} / span ${structure.span}`,
+            }
           : {
-            gridColumn: gridCol,
-            gridRow: gridRow,
-          };
+              gridColumn: gridCol,
+              gridRow: gridRow,
+            };
         const dragStyle =
           isDragging && dragState
             ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }
