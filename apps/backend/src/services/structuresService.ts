@@ -20,3 +20,20 @@ export const createFirstStructure = async (authorId: string): Promise<Structure>
     },
   });
 };
+
+export const getStructure = async (id: string): Promise<Structure | null> => {
+  return await prisma.structure.findUnique({
+    where: { id },
+  });
+};
+
+export const updateStructurePosition = async (
+  id: string,
+  x: number,
+  y: number,
+): Promise<Structure> => {
+  return await prisma.structure.update({
+    where: { id },
+    data: { x, y },
+  });
+};

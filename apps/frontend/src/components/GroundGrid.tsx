@@ -10,7 +10,12 @@ import { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { dropAction } from "../domain/drag-n-drop/dropAction";
 import { updateItemsCache, useCreateRandomItemMutation, useItemsQuery } from "../hooks/useItems";
 import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
-import { useCreateFirstStructureMutation, useStructuresQuery } from "../hooks/useStructures";
+import {
+  updateStructuresCache,
+  useCreateFirstStructureMutation,
+  useStructuresQuery,
+  useUpdateStructurePositionMutation,
+} from "../hooks/useStructures";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
@@ -37,6 +42,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { data: stacks = [] } = useStacksQuery(canLoadGridData);
   const extractFromStack = useExtractFromStackMutation();
   const createRandomItem = useCreateRandomItemMutation();
+  const updateStructurePosition = useUpdateStructurePositionMutation();
   const {
     mutate: createFirstStructureMutate,
     isPending: isCreatingFirstStructure,
@@ -169,6 +175,34 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [extractFromStack],
   );
 
+  const handleStructureDropped = useCallback(
+    (structureId: string, x: number, y: number) => {
+      (async () => {
+        const originalStructure = structures.find((structure) => structure.id === structureId);
+        if (!originalStructure) {
+          console.error("Can't drop structure, could not find structure with id:", structureId);
+          return;
+        }
+
+        // optimistic update
+        updateStructuresCache(queryClient, (prev) =>
+          prev.map((structure) =>
+            structure.id === structureId ? { ...structure, x, y } : structure,
+          ),
+        );
+
+        const structure = await updateStructurePosition.mutateAsync({
+          structureId,
+          position: { x, y },
+        });
+        updateStructuresCache(queryClient, (prev) =>
+          prev.map((s) => (s.id === structure.id ? structure : s)),
+        );
+      })();
+    },
+    [structures, queryClient, updateStructurePosition],
+  );
+
   const onStructureClick = useCallback(
     (structure: Structure) => {
       (async () => {
@@ -226,6 +260,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
+          onStructureDropped={handleStructureDropped}
         />
       </div>
     </div>

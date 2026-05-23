@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { createFirstStructure, fetchStructures } from "../api/structures";
+import { createFirstStructure, fetchStructures, updateStructurePosition } from "../api/structures";
 import { queryKeys } from "../constants/queryKeys";
+import { Position } from "../types/position";
 import { Structure } from "../types/structure";
 
-function updateStructuresCache(
+export function updateStructuresCache(
   queryClient: ReturnType<typeof useQueryClient>,
   updater: (structures: Structure[]) => Structure[],
 ) {
@@ -26,6 +27,20 @@ export function useCreateFirstStructureMutation() {
     mutationFn: createFirstStructure,
     onSuccess: (structure) => {
       updateStructuresCache(queryClient, (structures) => [...structures, structure]);
+    },
+  });
+}
+
+export function useUpdateStructurePositionMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ structureId, position }: { structureId: string; position: Position }) =>
+      updateStructurePosition(structureId, position),
+    onSuccess: (structure) => {
+      updateStructuresCache(queryClient, (structures) =>
+        structures.map((s) => (s.id === structure.id ? structure : s)),
+      );
     },
   });
 }

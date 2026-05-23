@@ -42,3 +42,33 @@ export function findOverlappingItem(position: Position, items: Item[]): Item | u
 export function findOverlappingStack(position: Position, stacks: Stack[]): Stack | undefined {
   return stacks.find((stack) => positionOverlapsItemOrStack(position, stack));
 }
+
+export function structureFootprintFits(
+  origin: Position,
+  span: number,
+  gridWidth: number,
+  gridHeight: number,
+  structures: Structure[],
+  itemsOrStacks: Position[],
+): boolean {
+  if (origin.x < 1 || origin.y < 1) {
+    return false;
+  }
+  if (origin.x + span - 1 > gridWidth || origin.y + span - 1 > gridHeight) {
+    return false;
+  }
+
+  for (let dx = 0; dx < span; dx++) {
+    for (let dy = 0; dy < span; dy++) {
+      const cell = { x: origin.x + dx, y: origin.y + dy };
+      if (positionOverlapsAnyStructure(cell, structures)) {
+        return false;
+      }
+      if (positionOverlapsAnyItem(cell, itemsOrStacks)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}

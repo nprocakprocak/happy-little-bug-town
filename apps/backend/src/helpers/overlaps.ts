@@ -42,3 +42,37 @@ export function positionOverlapsAnything(
     positionOverlapsAnyStack(position, stacks)
   );
 }
+
+export function structureFootprintFits(
+  origin: Position,
+  span: number,
+  gridWidth: number,
+  gridHeight: number,
+  structures: Structure[],
+  items: ItemDto[],
+  stacks: Stack[],
+): boolean {
+  if (origin.x < 1 || origin.y < 1) {
+    return false;
+  }
+  if (origin.x + span - 1 > gridWidth || origin.y + span - 1 > gridHeight) {
+    return false;
+  }
+
+  for (let dx = 0; dx < span; dx++) {
+    for (let dy = 0; dy < span; dy++) {
+      const cell = { x: origin.x + dx, y: origin.y + dy };
+      if (positionOverlapsAnyStructure(cell, structures)) {
+        return false;
+      }
+      if (positionOverlapsAnyItem(cell, items)) {
+        return false;
+      }
+      if (positionOverlapsAnyStack(cell, stacks)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}

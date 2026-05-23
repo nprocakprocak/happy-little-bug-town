@@ -16,6 +16,7 @@ import {
   findOverlappingStack,
   positionOverlapsAnyItem,
   positionOverlapsAnyStructure,
+  structureFootprintFits,
 } from "./helpers/overlaps";
 
 interface GroundGridInteractionLayerProps {
@@ -35,6 +36,7 @@ interface GroundGridInteractionLayerProps {
     targetItem?: Item,
     targetStack?: Stack,
   ) => void;
+  onStructureDropped: (structureId: string, x: number, y: number) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -48,6 +50,7 @@ export function GroundGridInteractionLayer({
   onDragChange,
   onItemDropCancelled,
   onItemDropped,
+  onStructureDropped,
 }: GroundGridInteractionLayerProps) {
   const { gridCellsVisible } = useGridVisibility();
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
@@ -128,13 +131,15 @@ export function GroundGridInteractionLayer({
 
       const container = gridContainerRef.current;
       if (container) {
-        const bounds = event.currentTarget.getBoundingClientRect();
-        const centerX = bounds.left + bounds.width / 2;
-        const centerY = bounds.top + bounds.height / 2;
-        const target = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
-        const isOtherCell = target.x !== gridCol || target.y !== gridRow;
         const itemToDrop = items.find((i) => i.x === gridCol && i.y === gridRow);
         const stackToDrop = stacks.find((s) => s.x === gridCol && s.y === gridRow);
+        const structureToDrop = structures.find((s) => s.x === gridCol && s.y === gridRow);
+
+        const bounds = event.currentTarget.getBoundingClientRect();
+        const centerX = bounds.left + (bounds.width / (structureToDrop?.span ?? 1)) / 2;
+        const centerY = bounds.top + (bounds.height / (structureToDrop?.span ?? 1)) / 2;
+        const target = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
+        const isOtherCell = target.x !== gridCol || target.y !== gridRow;
 
         if (isOtherCell) {
           if (itemToDrop) {
@@ -186,6 +191,21 @@ export function GroundGridInteractionLayer({
               onItemDropped(stackToDrop.id, target.x, target.y, undefined, targetStack);
             }
           }
+
+          if (structureToDrop) {
+            const fits = structureFootprintFits(
+              target,
+              structureToDrop.span,
+              cols,
+              rows,
+              structures.filter((s) => s.id !== structureToDrop.id),
+              [...items, ...stacks],
+            );
+
+            if (fits) {
+              onStructureDropped(structureToDrop.id, target.x, target.y);
+            }
+          }
         }
       }
       return;
@@ -231,7 +251,8 @@ export function GroundGridInteractionLayer({
           return null;
         }
 
-        const canDrag = positionOverlapsAnyItem({ x: gridCol, y: gridRow }, [...items, ...stacks]);
+        const canDrag =
+          !!structure || positionOverlapsAnyItem({ x: gridCol, y: gridRow }, [...items, ...stacks]);
 
         const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
         const isDragging = dragState?.index === index;
