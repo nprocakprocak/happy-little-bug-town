@@ -61,7 +61,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   );
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
-  const [beetlePopupOpen, setBeetlePopupOpen] = useState(false);
+  const [selectedBeetle, setSelectedBeetle] = useState<Bug | null>(null);
 
   useEffect(() => {
     if (
@@ -288,8 +288,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [dig, setItemsCache, setBugsCache],
   );
 
-  const onBeetleClick = useCallback((_bug: Bug) => {
-    setBeetlePopupOpen(true);
+  const onBeetleClick = useCallback((bug: Bug) => {
+    setSelectedBeetle(bug);
   }, []);
 
   return (
@@ -337,7 +337,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
         />
-        {beetlePopupOpen && <BeetlePopup onClose={() => setBeetlePopupOpen(false)} />}
+        {selectedBeetle && (
+          <BeetlePopup
+            beetle={selectedBeetle}
+            onClose={() => setSelectedBeetle(null)}
+          />
+        )}
       </div>
     </div>
   );
