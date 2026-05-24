@@ -23,6 +23,7 @@ import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
 import { isBug, isItem, isStack } from "../utils/typeGuards";
+import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
@@ -231,7 +232,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
               .map((s) =>
                 s.id === targetEntity.id
                   ? { ...s, itemsCount: s.itemsCount + source.itemsCount }
-                  : s,
+                : s,
               );
           });
         }
@@ -315,6 +316,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onFlightComplete={handleFlightComplete}
         />
         <GridCountersLayer cols={cols} rows={rows} stacks={stacks} gridDrag={gridDrag} />
+        <BugsProgressLayer cols={cols} rows={rows} bugs={bugs} gridDrag={gridDrag} />
         <GroundGridInteractionLayer
           cols={cols}
           rows={rows}

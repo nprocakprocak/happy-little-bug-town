@@ -10,7 +10,7 @@ import {
 import {
   dissolveStack,
   getItemsByIds,
-  getItems,
+  getItemsOnGrid,
   takeItemFromStack,
 } from "../services/itemsService.js";
 import { getStructures } from "../services/structuresService.js";
@@ -74,7 +74,7 @@ const updateStack: RequestHandler = async (req, res) => {
     return;
   }
 
-  const items = await getItems(authorId);
+  const items = await getItemsOnGrid(authorId);
   const structures = await getStructures(authorId);
 
   if ([...items, ...structures].some((it) => it.x === x && it.y === y)) {

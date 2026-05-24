@@ -3,8 +3,8 @@ import { requireAid } from "../middleware/requireAid.js";
 import { getBug } from "../services/bugsService.js";
 import { toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
 import {
-  getItems,
   getItem as getItemService,
+  getItemsOnGrid,
   updateItem as updateItemService
 } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
@@ -16,7 +16,7 @@ export const itemsRouter = Router();
 itemsRouter.use(requireAid);
 
 const listItems: RequestHandler = async (req, res) => {
-  const items = await getItems(req.authorId!);
+  const items = await getItemsOnGrid(req.authorId!);
   res.status(200).json(items.map(toItemOnGridDto));
 };
 
@@ -122,7 +122,7 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
     return;
   }
 
-  const items = await getItems(authorId);
+  const items = await getItemsOnGrid(authorId);
   const structures = await getStructures(authorId);
 
   if ([...items, ...structures].some((it) => it.x === x && it.y === y)) {

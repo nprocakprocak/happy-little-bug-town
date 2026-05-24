@@ -12,10 +12,12 @@ const ITEM_TYPES_WEIGHTS = {
   stick: 1,
 };
 
-export const getItems = async (authorId: string): Promise<ItemDto[]> => {
+export const getItemsOnGrid = async (authorId: string): Promise<ItemDto[]> => {
   const items = await prisma.item.findMany({
     where: {
       authorId,
+      x: { not: null },
+      y: { not: null },
     },
   });
   return items.map(toItemDto);
