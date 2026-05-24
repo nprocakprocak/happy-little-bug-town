@@ -1,5 +1,6 @@
 import { BugType } from "../../types/bugType";
 import { ItemType } from "../../types/itemType";
+import { StructureType } from "../../types/structureType";
 
 export function itemTypeToImageForItem(itemType: ItemType): string {
   switch (itemType) {
@@ -27,11 +28,20 @@ export function itemTypeToImageForStack(itemType: ItemType): string {
   }
 }
 
-export function bugTypeToImageForBug(bugType: BugType): string {
+export function bugTypeToImage(bugType: BugType): string {
   switch (bugType) {
     case "beetle":
       return "/bugs/beetle.webp";
     default:
       throw new Error(`Unknown bug type: ${bugType}`);
+  }
+}
+
+export function structureTypeToImage(structureType: StructureType): string {
+  switch (structureType) {
+    case "hole":
+      return "/structures/hole.webp";
+    default:
+      throw new Error(`Unknown structure type: ${structureType}`);
   }
 }

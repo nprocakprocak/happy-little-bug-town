@@ -1,11 +1,9 @@
+import { positionOverlapsAnyEntity } from "@happy-little-park/utils";
 import { Router, type RequestHandler } from "express";
+import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { getBug, getBugs, updateBug as updateBugService } from "../services/bugsService.js";
-import { getItems } from "../services/itemsService.js";
-import { getStacks } from "../services/stacksService.js";
-import { getStructures } from "../services/structuresService.js";
 import { toBugOnGridDto } from "../services/helpers.js";
-import { positionOverlapsAnything } from "../helpers/overlaps.js";
 
 export const bugsRouter = Router();
 
@@ -49,12 +47,9 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
     return;
   }
 
-  const structures = await getStructures(authorId);
-  const items = await getItems(authorId);
-  const stacks = await getStacks(authorId);
-  const bugs = await getBugs(authorId);
+  const entities = await getAllEntitiesOnGrid(authorId);
 
-  if (positionOverlapsAnything({ x, y }, structures, items, stacks, bugs)) {
+  if (positionOverlapsAnyEntity({ x, y }, entities)) {
     res.status(400).json({ error: "Position is already occupied" });
     return;
   }

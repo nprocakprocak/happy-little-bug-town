@@ -1,4 +1,4 @@
-import { Position } from "@happy-little-park/utils";
+import { Position, Positionable } from "@happy-little-park/utils";
 
 import { updateBugPosition } from "../../api/bugs";
 import { addItemToStack, updateItemPosition } from "../../api/items";
@@ -6,19 +6,23 @@ import { createStack, mergeStacks, updateStack } from "../../api/stacks";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
-import { isBug, isItem, isStack } from "../../utils/typeGuards";
+import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
+import { Structure } from "../../types/structure";
+import { updateStructurePosition } from "../../api/structures";
 
 export async function dropAction(
   targetPosition: Position,
   items: Item[],
   stacks: Stack[],
   bugs: Bug[],
-  entity: Item | Stack | Bug,
-  targetEntity?: Item | Stack | Bug,
-): Promise<{ items: Item[]; stacks: Stack[]; bugs: Bug[] }> {
+  structures: Structure[],
+  entity: Positionable,
+  targetEntity?: Positionable,
+): Promise<{ items: Item[]; stacks: Stack[]; bugs: Bug[]; structures: Structure[] }> {
   const originalItem = isItem(entity) ? entity : undefined;
   const originalStack = isStack(entity) ? entity : undefined;
   const originalBug = isBug(entity) ? entity : undefined;
+  const originalStructure = isStructure(entity) ? entity : undefined;
 
   const targetItem = targetEntity ? (isItem(targetEntity) ? targetEntity : undefined) : undefined;
   const targetStack = targetEntity ? (isStack(targetEntity) ? targetEntity : undefined) : undefined;
@@ -37,6 +41,7 @@ export async function dropAction(
       items: items.filter((it) => it.id !== originalItem.id && it.id !== targetItem.id),
       stacks: [...stacks, stack],
       bugs: bugs,
+      structures: structures,
     };
   }
 
@@ -53,6 +58,7 @@ export async function dropAction(
         s.id === targetStack.id ? { ...s, itemsCount: s.itemsCount + 1 } : s,
       ),
       bugs: bugs,
+      structures: structures,
     };
   }
 
@@ -66,10 +72,12 @@ export async function dropAction(
         .filter((s) => s.id !== originalStack.id)
         .map((s) => (s.id === targetStack.id ? mergedStack : s)),
       bugs: bugs,
+      structures: structures,
     };
   }
 
-  // drop a stack onto an empty position
+  // drop an entity onto an empty position
+
   if (originalStack) {
     const stack = await updateStack(originalStack.id, targetPosition);
 
@@ -77,10 +85,10 @@ export async function dropAction(
       items: items,
       stacks: stacks.map((s) => (s.id === originalStack.id ? stack : s)),
       bugs: bugs,
+      structures: structures,
     };
   }
 
-  // drop an item onto an empty position
   if (originalItem) {
     const item = await updateItemPosition(originalItem.id, targetPosition);
 
@@ -88,6 +96,7 @@ export async function dropAction(
       items: items.map((it) => (it.id === originalItem.id ? item : it)),
       stacks: stacks,
       bugs: bugs,
+      structures: structures,
     };
   }
 
@@ -98,6 +107,18 @@ export async function dropAction(
       items: items,
       stacks: stacks,
       bugs: bugs.map((b) => (b.id === originalBug.id ? bug : b)),
+      structures: structures,
+    };
+  }
+
+  if (originalStructure) {
+    const structure = await updateStructurePosition(originalStructure.id, targetPosition);
+
+    return {
+      items: items,
+      stacks: stacks,
+      bugs: bugs,
+      structures: structures.map((s) => (s.id === originalStructure.id ? structure : s)),
     };
   }
 

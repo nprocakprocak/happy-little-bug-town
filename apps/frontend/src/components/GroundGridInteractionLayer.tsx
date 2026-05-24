@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { Position } from "@happy-little-park/utils";
+import { findOverlappingEntity, Position, Positionable, positionOverlapsAnyEntity, structureFootprintFits } from "@happy-little-park/utils";
 
 import { useGridVisibility } from "../context/GridVisibilityContext";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
@@ -12,15 +12,7 @@ import { Structure } from "../types/structure";
 import { DRAG_THRESHOLD_PX } from "./constants";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
-import {
-  findOverlappingBug,
-  findOverlappingItem,
-  findOverlappingStack,
-  positionOverlapsAnyEntity,
-  positionOverlapsAnyStructure,
-  positionOverlapsAnything,
-  structureFootprintFits,
-} from "./helpers/overlaps";
+import { isBug, isItem, isStack, isStructure } from "../utils/typeGuards";
 
 interface GroundGridInteractionLayerProps {
   cols: number;
@@ -32,16 +24,12 @@ interface GroundGridInteractionLayerProps {
   onStructureClick: (structure: Structure) => void;
   onStackClick: (stack: Stack) => void;
   onDragChange: (payload: DragPayload | null) => void;
-  onItemDropCancelled: (itemId: string, dropX: number, dropY: number) => void;
+  onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
   onItemDropped: (
     itemId: string,
-    x: number,
-    y: number,
-    targetItem?: Item,
-    targetStack?: Stack,
-    targetBug?: Bug,
+    position: Position,
+    targetEntity?: Positionable,
   ) => void;
-  onStructureDropped: (structureId: string, x: number, y: number) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -56,7 +44,6 @@ export function GroundGridInteractionLayer({
   onDragChange,
   onItemDropCancelled,
   onItemDropped,
-  onStructureDropped,
 }: GroundGridInteractionLayerProps) {
   const { gridCellsVisible } = useGridVisibility();
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
@@ -141,6 +128,7 @@ export function GroundGridInteractionLayer({
         const stackToDrop = stacks.find((s) => s.x === gridCol && s.y === gridRow);
         const bugToDrop = bugs.find((b) => b.x === gridCol && b.y === gridRow);
         const structureToDrop = structures.find((s) => s.x === gridCol && s.y === gridRow);
+        const entityToDrop = itemToDrop ?? stackToDrop ?? bugToDrop ?? structureToDrop;
 
         const bounds = event.currentTarget.getBoundingClientRect();
         const centerX = bounds.left + bounds.width / (structureToDrop?.span ?? 1) / 2;
@@ -148,92 +136,69 @@ export function GroundGridInteractionLayer({
         const target = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
         const isOtherCell = target.x !== gridCol || target.y !== gridRow;
 
+        const overlappingEntity = findOverlappingEntity({ x: target.x, y: target.y }, [...structures, ...items, ...stacks, ...bugs]);
+        const overlappingItem = overlappingEntity && isItem(overlappingEntity) ? overlappingEntity : undefined;
+        const overlappingStack = overlappingEntity && isStack(overlappingEntity) ? overlappingEntity : undefined;
+        const overlappingBug = overlappingEntity && isBug(overlappingEntity) ? overlappingEntity : undefined;
+        const overlappingStructure = overlappingEntity && isStructure(overlappingEntity) && overlappingEntity?.id !== structureToDrop?.id ? overlappingEntity : undefined;
+
+        if (!entityToDrop) {
+          throw new Error("No entity to drop found on cell: " + gridCol + "," + gridRow);
+        }
+
         if (isOtherCell) {
           if (itemToDrop) {
-            const overlappingItem = findOverlappingItem({ x: target.x, y: target.y }, items);
-            const overlappingStack = findOverlappingStack({ x: target.x, y: target.y }, stacks);
-            const overlappingBug = findOverlappingBug({ x: target.x, y: target.y }, bugs);
-            const overlapsStructure = positionOverlapsAnyStructure(
-              { x: target.x, y: target.y },
-              structures,
-            );
-            const wouldCreateOrJoinStack = overlappingItem ?? overlappingStack;
-            const stackNotAllowed =
-              wouldCreateOrJoinStack &&
-              (!itemToDrop.stackable ||
-                (overlappingItem !== undefined && !overlappingItem.stackable));
+            const wouldCreateOrJoinStack = !!overlappingItem || !!overlappingStack;
+            const sameTypeItems = overlappingItem?.itemType === itemToDrop.itemType;
+            const sameTypeAsStack = overlappingStack?.itemType === itemToDrop.itemType;
+            const typeAllowed = sameTypeItems || sameTypeAsStack;
+            const stackNotAllowed = wouldCreateOrJoinStack && (!itemToDrop.stackable || !typeAllowed);
             const shouldCancel =
-              overlapsStructure ||
+              !!overlappingStructure ||
               stackNotAllowed ||
-              (overlappingItem && overlappingItem.itemType !== itemToDrop.itemType) ||
-              (overlappingStack && overlappingStack.itemType !== itemToDrop.itemType) ||
               !!overlappingBug;
 
             if (shouldCancel) {
-              onItemDropCancelled(itemToDrop.id, target.x, target.y);
+              onItemDropCancelled(itemToDrop.id, target);
             } else {
               onItemDropped(
                 itemToDrop.id,
-                target.x,
-                target.y,
-                overlappingItem,
-                overlappingStack,
-                overlappingBug,
+                target,
+                overlappingEntity,
               );
             }
           }
 
           if (stackToDrop) {
-            const overlappingItem = findOverlappingItem({ x: target.x, y: target.y }, items);
-            const overlappingStack = findOverlappingStack({ x: target.x, y: target.y }, stacks);
-            const overlapsStructure = positionOverlapsAnyStructure(
-              { x: target.x, y: target.y },
-              structures,
-            );
-
-            const targetStack =
-              overlappingStack && overlappingStack.id !== stackToDrop.id
-                ? overlappingStack
-                : undefined;
-
             const shouldCancel =
-              overlapsStructure ||
-              !!overlappingItem ||
-              (targetStack !== undefined && targetStack.itemType !== stackToDrop.itemType);
+              (!!overlappingEntity && !overlappingStack) ||
+              (overlappingStack && overlappingStack.itemType !== stackToDrop.itemType);
 
             if (shouldCancel) {
-              onItemDropCancelled(stackToDrop.id, target.x, target.y);
+              onItemDropCancelled(stackToDrop.id, target);
             } else {
-              onItemDropped(stackToDrop.id, target.x, target.y, undefined, targetStack);
+              onItemDropped(stackToDrop.id, target, overlappingEntity);
             }
           }
 
           if (structureToDrop) {
             const fits = structureFootprintFits(
-              target,
-              structureToDrop.span,
+              { x: target.x, y: target.y, span: structureToDrop.span },
               cols,
               rows,
-              structures.filter((s) => s.id !== structureToDrop.id),
-              [...items, ...stacks, ...bugs],
+              [...structures.filter((s) => s.id !== structureToDrop.id), ...items, ...stacks, ...bugs],
             );
 
             if (fits) {
-              onStructureDropped(structureToDrop.id, target.x, target.y);
+              onItemDropped(structureToDrop.id, target);
             }
           }
 
           if (bugToDrop) {
-            const overlapsOccupied = positionOverlapsAnything(
-              { x: target.x, y: target.y },
-              structures,
-              [...items, ...stacks, ...bugs],
-            );
-
-            if (overlapsOccupied) {
-              onItemDropCancelled(bugToDrop.id, target.x, target.y);
+            if (!!overlappingEntity) {
+              onItemDropCancelled(bugToDrop.id, target);
             } else {
-              onItemDropped(bugToDrop.id, target.x, target.y);
+              onItemDropped(bugToDrop.id, target);
             }
           }
         }
@@ -277,7 +242,7 @@ export function GroundGridInteractionLayer({
         const structure = structures.find((s) => s.x === gridCol && s.y === gridRow);
         const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
 
-        if (!structure && positionOverlapsAnyStructure({ x: gridCol, y: gridRow }, structures)) {
+        if (!structure && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structures)) {
           return null;
         }
 

@@ -1,21 +1,21 @@
 import { Position } from "@happy-little-park/utils";
 import { Positionable } from "../types/positionable.js";
 
-export function positionOverlapsStructure(position: Position, structure: Positionable): boolean {
+function positionOverlaps(position: Position, structure: Positionable): boolean {
   return (
     position.x >= structure.x &&
-    position.x < structure.x + (structure.span ?? 0) &&
+    position.x < structure.x + (structure.span ?? 1) &&
     position.y >= structure.y &&
-    position.y < structure.y + (structure.span ?? 0)
+    position.y < structure.y + (structure.span ?? 1)
   );
 }
 
-export function positionOverlapsEntity(position: Position, entity: Positionable): boolean {
-  return position.x === entity.x && position.y === entity.y;
+export function positionOverlapsAnyEntity(position: Position, entities: Positionable[]): boolean {
+  return entities.some((entity) => positionOverlaps(position, entity));
 }
 
-export function positionOverlapsAnyEntity(position: Position, entities: Positionable[]): boolean {
-  return entities.some((entity) => positionOverlapsEntity(position, entity));
+export function findOverlappingEntity(position: Position, entities: Positionable[]): Positionable | undefined {
+  return entities.find((entity) => positionOverlaps(position, entity));
 }
 
 export function structureFootprintFits(
@@ -24,7 +24,7 @@ export function structureFootprintFits(
   gridHeight: number,
   entities: Positionable[],
 ): boolean {
-  const span = origin.span ?? 0;
+  const span = origin.span ?? 1;
 
   if (origin.x < 1 || origin.y < 1) {
     return false;

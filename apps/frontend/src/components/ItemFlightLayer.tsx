@@ -1,30 +1,37 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { Positionable } from "@happy-little-park/utils";
 import Image from "next/image";
-import { Position } from "@happy-little-park/utils";
+import { useLayoutEffect, useRef } from "react";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
-import { BugType } from "../types/bugType";
 import { GridAnimatable } from "../types/gridAnimatable";
-import { ItemType } from "../types/itemType";
 import { WithId } from "../types/withId";
+import { isBug, isItem, isStack, isStructure } from "../utils/typeGuards";
 import { isFlyingItem } from "./helpers/isFlyingItem";
-import { bugTypeToImageForBug, itemTypeToImageForItem } from "./helpers/itemTypeToImage";
+import { bugTypeToImage, itemTypeToImageForItem, itemTypeToImageForStack, structureTypeToImage } from "./helpers/itemTypeToImage";
 
 const FLIGHT_DURATION_MS = 550;
 const FLIGHT_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 type Animatable = GridAnimatable &
   WithId &
-  Position &
-  ({ itemType: ItemType } | { bugType: BugType });
+  Positionable;
 
 function animatableImageSrc(animatable: Animatable): string {
-  if ("bugType" in animatable) {
-    return bugTypeToImageForBug(animatable.bugType);
+  if (isBug(animatable)) {
+    return bugTypeToImage(animatable.bugType);
   }
-  return itemTypeToImageForItem(animatable.itemType);
+  if (isStack(animatable)) {
+    return itemTypeToImageForStack(animatable.itemType);
+  }
+  if (isItem(animatable)) {
+    return itemTypeToImageForItem(animatable.itemType);
+  }
+  if (isStructure(animatable)) {
+    return structureTypeToImage(animatable.structureType);
+  }
+  throw new Error(`Unknown animatable type: ${animatable}`);
 }
 
 interface ItemFlightLayerProps {

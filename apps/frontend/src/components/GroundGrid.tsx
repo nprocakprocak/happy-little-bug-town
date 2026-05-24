@@ -16,7 +16,6 @@ import {
   useCreateFirstStructureMutation,
   useDigMutation,
   useStructuresQuery,
-  useUpdateStructurePositionMutation,
 } from "../hooks/useStructures";
 import { Bug } from "../types/bug";
 import { Item } from "../types/item";
@@ -27,6 +26,8 @@ import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestStructureCenterCell } from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
+import { Position, Positionable } from "@happy-little-park/utils";
+import { isStack } from "../utils/typeGuards";
 
 interface GroundGridProps {
   rows: number;
@@ -46,14 +47,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { data: stacks = [] } = useStacksQuery(canLoadGridData);
   const extractFromStack = useExtractFromStackMutation();
   const dig = useDigMutation();
-  const updateStructurePosition = useUpdateStructurePositionMutation();
   const {
     mutate: createFirstStructureMutate,
     isPending: isCreatingFirstStructure,
     isError: firstStructureCreateFailed,
   } = useCreateFirstStructureMutation();
 
-  const animatables = useMemo(() => [...items, ...stacks, ...bugs], [items, stacks, bugs]);
+  const animatables = useMemo(() => [...items, ...stacks, ...bugs, ...structures], [items, stacks, bugs, structures]);
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
 
@@ -96,6 +96,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [queryClient],
   );
 
+  const setStructuresCache = useCallback(
+    (updater: (structures: Structure[]) => Structure[]) => {
+      updateStructuresCache(queryClient, updater);
+    },
+    [queryClient],
+  );
+
   const handleFlightComplete = useCallback(
     (entityId: string) => {
       setItemsCache((prev) =>
@@ -108,22 +115,31 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           bug.id === entityId ? { ...bug, fromX: undefined, fromY: undefined } : bug,
         ),
       );
+      setStacksCache((prev) =>
+        prev.map((stack) => (stack.id === entityId ? { ...stack, fromX: undefined, fromY: undefined } : stack)),
+      );
+      setStructuresCache((prev) =>
+        prev.map((structure) => (structure.id === entityId ? { ...structure, fromX: undefined, fromY: undefined } : structure)),
+      );
     },
-    [setItemsCache, setBugsCache],
+    [setItemsCache, setBugsCache, setStructuresCache, setStacksCache],
   );
 
   const handleItemDropCancelled = useCallback(
-    (itemId: string, dropX: number, dropY: number) => {
+    (itemId: string, position: Position) => {
       setItemsCache((prev) =>
-        prev.map((item) => (item.id === itemId ? { ...item, fromX: dropX, fromY: dropY } : item)),
+        prev.map((item) => (item.id === itemId ? { ...item, fromX: position.x, fromY: position.y } : item)),
       );
       setBugsCache((prev) =>
-        prev.map((bug) => (bug.id === itemId ? { ...bug, fromX: dropX, fromY: dropY } : bug)),
+        prev.map((bug) => (bug.id === itemId ? { ...bug, fromX: position.x, fromY: position.y } : bug)),
       );
       setStacksCache((prev) =>
         prev.map((stack) =>
-          stack.id === itemId ? { ...stack, fromX: dropX, fromY: dropY } : stack,
+          stack.id === itemId ? { ...stack, fromX: position.x, fromY: position.y } : stack,
         ),
+      );
+      setStructuresCache((prev) =>
+        prev.map((structure) => (structure.id === itemId ? { ...structure, fromX: position.x, fromY: position.y } : structure)),
       );
     },
     [setItemsCache],
@@ -133,24 +149,23 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const handleItemDropped = useCallback(
     (
       itemId: string,
-      x: number,
-      y: number,
-      targetItem?: Item,
-      targetStack?: Stack,
-      targetBug?: Bug,
+      { x, y }: Position,
+      targetEntity?: Positionable,
     ) => {
       (async () => {
         const originalItem = items.find((item) => item.id === itemId);
         const originalStack = stacks.find((stack) => stack.id === itemId);
         const originalBug = bugs.find((bug) => bug.id === itemId);
+        const originalStructure = structures.find((structure) => structure.id === itemId);
+        const originalEntity = originalItem ?? originalStack ?? originalBug ?? originalStructure;
 
-        if (!originalItem && !originalStack && !originalBug) {
+        if (!originalEntity) {
           console.error("Can't drop the item, could not find entity with id:", itemId);
           return;
         }
 
         // drop onto an empty position, assume optimistic update
-        if (!targetItem && !targetStack && !targetBug) {
+        if (!targetEntity) {
           if (originalItem) {
             setItemsCache((prev) =>
               prev.map((it) => (it.id === originalItem.id ? { ...it, x, y } : it)),
@@ -164,15 +179,20 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           if (originalBug) {
             setBugsCache((prev) => prev.map((b) => (b.id === originalBug.id ? { ...b, x, y } : b)));
           }
+          if (originalStructure) {
+            setStructuresCache((prev) =>
+              prev.map((s) => (s.id === originalStructure.id ? { ...s, x, y } : s)),
+            );
+          }
         }
 
         // drop an item onto a stack to add it to its items, assume optimistic update
-        if (originalItem && targetStack) {
+        if (originalItem && targetEntity && isStack(targetEntity)) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
         }
 
         // drop a stack onto another stack to merge them, assume optimistic update
-        if (originalStack && targetStack) {
+        if (originalStack && targetEntity && isStack(targetEntity)) {
           setStacksCache((prev) => {
             const source = prev.find((s) => s.id === originalStack.id);
             if (!source) {
@@ -181,27 +201,30 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             return prev
               .filter((s) => s.id !== originalStack.id)
               .map((s) =>
-                s.id === targetStack.id
+                s.id === targetEntity.id
                   ? { ...s, itemsCount: s.itemsCount + source.itemsCount }
                   : s,
               );
           });
         }
 
-        const { items: newItems, stacks: newStacks } = await dropAction(
+        const { items: newItems, stacks: newStacks, bugs: newBugs, structures: newStructures } = await dropAction(
           { x, y },
           items,
           stacks,
           bugs,
-          originalItem || originalStack || originalBug!,
-          targetItem || targetStack || targetBug,
+          structures,
+          originalEntity,
+          targetEntity,
         );
 
         queryClient.setQueryData(queryKeys.items, newItems);
         queryClient.setQueryData(queryKeys.stacks, newStacks);
+        queryClient.setQueryData(queryKeys.bugs, newBugs);
+        queryClient.setQueryData(queryKeys.structures, newStructures);
       })();
     },
-    [items, stacks, queryClient, setItemsCache, setStacksCache],
+    [items, stacks, bugs, structures, queryClient, setItemsCache, setStacksCache],
   );
 
   const onStackClick = useCallback(
@@ -211,34 +234,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       })();
     },
     [extractFromStack],
-  );
-
-  const handleStructureDropped = useCallback(
-    (structureId: string, x: number, y: number) => {
-      (async () => {
-        const originalStructure = structures.find((structure) => structure.id === structureId);
-        if (!originalStructure) {
-          console.error("Can't drop structure, could not find structure with id:", structureId);
-          return;
-        }
-
-        // optimistic update
-        updateStructuresCache(queryClient, (prev) =>
-          prev.map((structure) =>
-            structure.id === structureId ? { ...structure, x, y } : structure,
-          ),
-        );
-
-        const structure = await updateStructurePosition.mutateAsync({
-          structureId,
-          position: { x, y },
-        });
-        updateStructuresCache(queryClient, (prev) =>
-          prev.map((s) => (s.id === structure.id ? structure : s)),
-        );
-      })();
-    },
-    [structures, queryClient, updateStructurePosition],
   );
 
   const onStructureClick = useCallback(
@@ -299,7 +294,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
-          onStructureDropped={handleStructureDropped}
         />
       </div>
     </div>

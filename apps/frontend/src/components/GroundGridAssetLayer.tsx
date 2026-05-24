@@ -16,9 +16,10 @@ import { Structure } from "../types/structure";
 import { isBug, isStack } from "../utils/typeGuards";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 import {
-  bugTypeToImageForBug,
+  bugTypeToImage,
   itemTypeToImageForItem,
   itemTypeToImageForStack,
+  structureTypeToImage,
 } from "./helpers/itemTypeToImage";
 
 interface GroundGridAssetLayerProps {
@@ -77,7 +78,7 @@ export function GroundGridAssetLayer({
             }}
           >
             <Image
-              src="/structures/hole.webp"
+              src={structureTypeToImage(structure.structureType)}
               alt=""
               fill
               className="object-cover"
@@ -100,7 +101,7 @@ export function GroundGridAssetLayer({
         const imageSource = isStack(item)
           ? itemTypeToImageForStack(item.itemType)
           : isBug(item)
-            ? bugTypeToImageForBug(item.bugType)
+            ? bugTypeToImage(item.bugType)
             : itemTypeToImageForItem(item.itemType);
 
         return (

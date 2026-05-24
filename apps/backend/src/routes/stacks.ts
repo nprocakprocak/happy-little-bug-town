@@ -16,6 +16,7 @@ import {
 import { getStructures } from "../services/structuresService.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
+import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 
 export const stacksRouter = Router();
 
@@ -143,15 +144,11 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
     return;
   }
 
-  const items = await getItems(authorId);
-  const structures = await getStructures(authorId);
-  const stacks = await getStacks(authorId);
+  const entities = await getAllEntitiesOnGrid(authorId);
   const emptyPosition = findRandomEmptyPosition(
     GROUND_HEIGHT,
     GROUND_WIDTH,
-    structures,
-    items,
-    stacks,
+    entities,
   );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });

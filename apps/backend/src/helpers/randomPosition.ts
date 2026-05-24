@@ -1,21 +1,15 @@
-import { Structure, Stack } from "../prisma/prisma/client.js";
-import { BugDto } from "../types/bugDto.js";
-import { ItemDto } from "../types/itemDto.js";
-import { positionOverlapsAnything } from "./overlaps.js";
+import { Positionable, positionOverlapsAnyEntity } from "@happy-little-park/utils";
 
 export function findRandomEmptyPosition(
   rows: number,
   cols: number,
-  structures: Structure[],
-  items: ItemDto[],
-  stacks: Stack[], // todo: create StackDto
-  bugs: BugDto[] = [],
+  entities: Positionable[],
 ) {
   const emptyPositions = [];
 
   for (let y = 1; y <= rows; y++) {
     for (let x = 1; x <= cols; x++) {
-      if (!positionOverlapsAnything({ x, y }, structures, items, stacks, bugs)) {
+      if (!positionOverlapsAnyEntity({ x, y }, entities)) {
         emptyPositions.push({ x, y });
       }
     }

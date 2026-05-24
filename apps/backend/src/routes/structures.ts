@@ -1,12 +1,12 @@
+import { structureFootprintFits } from "@happy-little-park/utils";
 import { Router, type RequestHandler } from "express";
-import { structureFootprintFits } from "../helpers/overlaps.js";
+import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
-import { createBug, getBugs } from "../services/bugsService.js";
+import { createBug } from "../services/bugsService.js";
 import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
 import { isItemStackable, toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
-import { createItem, generateRandomItemType, getItems } from "../services/itemsService.js";
-import { getStacks } from "../services/stacksService.js";
+import { createItem, generateRandomItemType } from "../services/itemsService.js";
 import {
   createFirstStructure as createFirstStructureService,
   getStructure,
@@ -54,20 +54,13 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
     return;
   }
 
-  const structures = await getStructures(authorId);
-  const items = await getItems(authorId);
-  const stacks = await getStacks(authorId);
-  const bugs = await getBugs(authorId);
+  const entities = await getAllEntitiesOnGrid(authorId);
 
   const fits = structureFootprintFits(
-    { x, y },
-    existingStructure.span,
+    { x, y, span: existingStructure.span },
     GROUND_WIDTH,
     GROUND_HEIGHT,
-    structures.filter((s) => s.id !== id),
-    items,
-    stacks,
-    bugs,
+    entities.filter((e) => e.x !== existingStructure.x || e.y !== existingStructure.y),
   );
 
   if (!fits) {
@@ -81,17 +74,11 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
 
 const dig: RequestHandler = async (req, res) => {
   const authorId = req.authorId!;
-  const items = await getItems(authorId);
-  const structures = await getStructures(authorId);
-  const stacks = await getStacks(authorId);
-  const bugs = await getBugs(authorId);
+  const entities = await getAllEntitiesOnGrid(authorId);
   const emptyPosition = findRandomEmptyPosition(
     GROUND_HEIGHT,
     GROUND_WIDTH,
-    structures,
-    items,
-    stacks,
-    bugs,
+    entities,
   );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
