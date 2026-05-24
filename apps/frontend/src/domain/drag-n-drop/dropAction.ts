@@ -4,6 +4,7 @@ import { updateBugPosition } from "../../api/bugs";
 import { addItemToBug, addItemToStack, updateItemPosition } from "../../api/items";
 import { createStack, mergeStacks, updateStack } from "../../api/stacks";
 import { updateStructurePosition } from "../../api/structures";
+import { BEETLE_MAX_LEAF_PARTS } from "../../constants";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
@@ -66,6 +67,9 @@ export async function dropAction(
   if (originalItem && targetBug) {
     if (originalItem.itemType !== "leaf_part" || targetBug.bugType !== "beetle") {
       throw new Error("Item cannot be given to bug");
+    }
+    if (targetBug.itemIds.length >= BEETLE_MAX_LEAF_PARTS) {
+      throw new Error("Beetle is already full");
     }
     const bug = await addItemToBug(originalItem.id, targetBug.id);
 

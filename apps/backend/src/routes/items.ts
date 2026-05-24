@@ -1,5 +1,6 @@
 import { Router, type RequestHandler } from "express";
 import { requireAid } from "../middleware/requireAid.js";
+import { BEETLE_MAX_LEAF_PARTS } from "../services/constants.js";
 import { getBug } from "../services/bugsService.js";
 import { toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
 import {
@@ -58,6 +59,10 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
     }
     if (!existingBug.x || !existingBug.y) {
       res.status(400).json({ error: "Bug must be on the grid" });
+      return;
+    }
+    if (existingBug.itemIds.length >= BEETLE_MAX_LEAF_PARTS) {
+      res.status(400).json({ error: "Beetle is already full" });
       return;
     }
 
