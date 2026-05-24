@@ -6,9 +6,12 @@ import { getStructures } from "../services/structuresService.js";
 import { isPositioned } from "../typeGuards/items.js";
 
 export async function getAllEntitiesOnGrid(authorId: string): Promise<Positionable[]> {
-  const structures = await getStructures(authorId);
-  const items = await getItems(authorId);
-  const stacks = await getStacks(authorId);
-  const bugs = await getBugs(authorId);
+  const [structures, items, stacks, bugs] = await Promise.all([
+    getStructures(authorId),
+    getItems(authorId),
+    getStacks(authorId),
+    getBugs(authorId),
+  ]);
+  
   return [...structures, ...items, ...stacks, ...bugs].filter(isPositioned) as Positionable[];
 }

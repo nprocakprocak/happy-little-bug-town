@@ -16,8 +16,6 @@ export const getItems = async (authorId: string): Promise<ItemDto[]> => {
   const items = await prisma.item.findMany({
     where: {
       authorId,
-      x: { not: null },
-      y: { not: null },
     },
   });
   return items.map(toItemDto);
@@ -56,13 +54,26 @@ export const createItem = async (item: CreateItemData): Promise<ItemDto> => {
 }
 
 export const updateItem = async (id: string, item: UpdateItemData): Promise<ItemDto> => {
+  const data = item.bugId ? {
+    bugId: item.bugId,
+    x: null,
+    y: null,
+    stackId: null,
+  } : item.stackId ? {
+    bugId: null,
+    x: null,
+    y: null,
+    stackId: item.stackId,
+  } : {
+    x: item.x,
+    y: item.y,
+    stackId: null,
+    bugId: null,
+  }
+
   const updatedItem = await prisma.item.update({
     where: { id },
-    data: {
-      x: item.x ?? null,
-      y: item.y ?? null,
-      stackId: item.stackId ?? null,
-    },
+    data,
   });
   return toItemDto(updatedItem);
 }

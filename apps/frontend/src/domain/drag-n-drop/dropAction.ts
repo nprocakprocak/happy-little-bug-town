@@ -1,14 +1,14 @@
 import { Position, Positionable } from "@happy-little-park/utils";
 
 import { updateBugPosition } from "../../api/bugs";
-import { addItemToStack, updateItemPosition } from "../../api/items";
+import { addItemToBug, addItemToStack, updateItemPosition } from "../../api/items";
 import { createStack, mergeStacks, updateStack } from "../../api/stacks";
+import { updateStructurePosition } from "../../api/structures";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
-import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
 import { Structure } from "../../types/structure";
-import { updateStructurePosition } from "../../api/structures";
+import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
 
 export async function dropAction(
   targetPosition: Position,
@@ -26,6 +26,7 @@ export async function dropAction(
 
   const targetItem = targetEntity ? (isItem(targetEntity) ? targetEntity : undefined) : undefined;
   const targetStack = targetEntity ? (isStack(targetEntity) ? targetEntity : undefined) : undefined;
+  const targetBug = targetEntity ? (isBug(targetEntity) ? targetEntity : undefined) : undefined;
 
   // drop one item onto another to create a stack
   if (originalItem && targetItem) {
@@ -58,6 +59,20 @@ export async function dropAction(
         s.id === targetStack.id ? { ...s, itemsCount: s.itemsCount + 1 } : s,
       ),
       bugs: bugs,
+      structures: structures,
+    };
+  }
+
+  if (originalItem && targetBug) {
+    if (originalItem.itemType !== "leaf_part" || targetBug.bugType !== "beetle") {
+      throw new Error("Item cannot be given to bug");
+    }
+    const bug = await addItemToBug(originalItem.id, targetBug.id);
+
+    return {
+      items: items.filter((it) => it.id !== originalItem.id),
+      stacks: stacks,
+      bugs: bugs.map((b) => (b.id === targetBug.id ? bug : b)),
       structures: structures,
     };
   }

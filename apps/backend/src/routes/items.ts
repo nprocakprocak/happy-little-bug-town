@@ -1,6 +1,7 @@
 import { Router, type RequestHandler } from "express";
 import { requireAid } from "../middleware/requireAid.js";
-import { toItemOnGridDto } from "../services/helpers.js";
+import { getBug } from "../services/bugsService.js";
+import { toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
 import {
   getItems,
   getItem as getItemService,
@@ -24,8 +25,52 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   res,
 ) => {
   const { id } = req.params;
-  const { x, y, stackId } = req.body;
+  const { x, y, stackId, bugId } = req.body;
   const authorId = req.authorId!;
+
+  if (bugId) {
+    const existingItem = await getItemService(id);
+    if (!existingItem) {
+      res.status(400).json({ error: "Item not found when updating" });
+      return;
+    }
+    if (existingItem.authorId !== authorId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    if (existingItem.itemType !== "leaf_part") {
+      res.status(400).json({ error: "Only leaf parts can be given to bugs" });
+      return;
+    }
+
+    const existingBug = await getBug(bugId);
+    if (!existingBug) {
+      res.status(400).json({ error: "Bug not found when updating item" });
+      return;
+    }
+    if (existingBug.authorId !== authorId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    if (existingBug.bugType !== "beetle") {
+      res.status(400).json({ error: "Only beetles can carry leaf parts" });
+      return;
+    }
+    if (!existingBug.x || !existingBug.y) {
+      res.status(400).json({ error: "Bug must be on the grid" });
+      return;
+    }
+
+    await updateItemService(id, { bugId });
+    const bug = await getBug(bugId);
+    if (!bug) {
+      res.status(500).json({ error: "Bug not found after updating item" });
+      return;
+    }
+    // todo: move to bugs router
+    res.status(200).json(toBugOnGridDto(bug));
+    return;
+  }
 
   if (stackId) {
     const existingItem = await getItemService(id);
@@ -57,6 +102,7 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
     }
 
     const item = await updateItemService(id, { stackId });
+    // todo: don't return itemDto, return stackDto (move to stacks)
     res.status(200).json(item);
     return;
   }

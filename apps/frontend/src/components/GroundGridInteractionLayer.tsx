@@ -1,7 +1,13 @@
 "use client";
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { findOverlappingEntity, Position, Positionable, positionOverlapsAnyEntity, structureFootprintFits } from "@happy-little-park/utils";
+import {
+  findOverlappingEntity,
+  Position,
+  Positionable,
+  positionOverlapsAnyEntity,
+  structureFootprintFits,
+} from "@happy-little-park/utils";
 
 import { useGridVisibility } from "../context/GridVisibilityContext";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
@@ -9,10 +15,10 @@ import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
+import { isBug, isItem, isStack, isStructure } from "../utils/typeGuards";
 import { DRAG_THRESHOLD_PX } from "./constants";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
-import { isBug, isItem, isStack, isStructure } from "../utils/typeGuards";
 
 interface GroundGridInteractionLayerProps {
   cols: number;
@@ -25,11 +31,7 @@ interface GroundGridInteractionLayerProps {
   onStackClick: (stack: Stack) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
-  onItemDropped: (
-    itemId: string,
-    position: Position,
-    targetEntity?: Positionable,
-  ) => void;
+  onItemDropped: (itemId: string, position: Position, targetEntity?: Positionable) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -136,11 +138,24 @@ export function GroundGridInteractionLayer({
         const target = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
         const isOtherCell = target.x !== gridCol || target.y !== gridRow;
 
-        const overlappingEntity = findOverlappingEntity({ x: target.x, y: target.y }, [...structures, ...items, ...stacks, ...bugs]);
-        const overlappingItem = overlappingEntity && isItem(overlappingEntity) ? overlappingEntity : undefined;
-        const overlappingStack = overlappingEntity && isStack(overlappingEntity) ? overlappingEntity : undefined;
-        const overlappingBug = overlappingEntity && isBug(overlappingEntity) ? overlappingEntity : undefined;
-        const overlappingStructure = overlappingEntity && isStructure(overlappingEntity) && overlappingEntity?.id !== structureToDrop?.id ? overlappingEntity : undefined;
+        const overlappingEntity = findOverlappingEntity({ x: target.x, y: target.y }, [
+          ...structures,
+          ...items,
+          ...stacks,
+          ...bugs,
+        ]);
+        const overlappingItem =
+          overlappingEntity && isItem(overlappingEntity) ? overlappingEntity : undefined;
+        const overlappingStack =
+          overlappingEntity && isStack(overlappingEntity) ? overlappingEntity : undefined;
+        const overlappingBug =
+          overlappingEntity && isBug(overlappingEntity) ? overlappingEntity : undefined;
+        const overlappingStructure =
+          overlappingEntity &&
+          isStructure(overlappingEntity) &&
+          overlappingEntity?.id !== structureToDrop?.id
+            ? overlappingEntity
+            : undefined;
 
         if (!entityToDrop) {
           throw new Error("No entity to drop found on cell: " + gridCol + "," + gridRow);
@@ -152,20 +167,19 @@ export function GroundGridInteractionLayer({
             const sameTypeItems = overlappingItem?.itemType === itemToDrop.itemType;
             const sameTypeAsStack = overlappingStack?.itemType === itemToDrop.itemType;
             const typeAllowed = sameTypeItems || sameTypeAsStack;
-            const stackNotAllowed = wouldCreateOrJoinStack && (!itemToDrop.stackable || !typeAllowed);
+            const stackNotAllowed =
+              wouldCreateOrJoinStack && (!itemToDrop.stackable || !typeAllowed);
+            const canDropLeafOnBeetle =
+              itemToDrop.itemType === "leaf_part" && overlappingBug?.bugType === "beetle";
             const shouldCancel =
               !!overlappingStructure ||
               stackNotAllowed ||
-              !!overlappingBug;
+              (!!overlappingBug && !canDropLeafOnBeetle);
 
             if (shouldCancel) {
               onItemDropCancelled(itemToDrop.id, target);
             } else {
-              onItemDropped(
-                itemToDrop.id,
-                target,
-                overlappingEntity,
-              );
+              onItemDropped(itemToDrop.id, target, overlappingEntity);
             }
           }
 
@@ -186,7 +200,12 @@ export function GroundGridInteractionLayer({
               { x: target.x, y: target.y, span: structureToDrop.span },
               cols,
               rows,
-              [...structures.filter((s) => s.id !== structureToDrop.id), ...items, ...stacks, ...bugs],
+              [
+                ...structures.filter((s) => s.id !== structureToDrop.id),
+                ...items,
+                ...stacks,
+                ...bugs,
+              ],
             );
 
             if (fits) {

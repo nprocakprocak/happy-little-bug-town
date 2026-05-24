@@ -6,4 +6,5 @@ import { WithId } from "./withId";
 
 export interface Bug extends WithId, Position, GridAnimatable {
   bugType: BugType;
+  itemIds: string[];
 }

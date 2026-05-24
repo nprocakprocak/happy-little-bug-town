@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Position, Positionable } from "@happy-little-park/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
@@ -21,13 +22,12 @@ import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
+import { isBug, isItem, isStack } from "../utils/typeGuards";
 import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { pickRandomNearestStructureCenterCell } from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
-import { Position, Positionable } from "@happy-little-park/utils";
-import { isStack } from "../utils/typeGuards";
 
 interface GroundGridProps {
   rows: number;
@@ -53,7 +53,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     isError: firstStructureCreateFailed,
   } = useCreateFirstStructureMutation();
 
-  const animatables = useMemo(() => [...items, ...stacks, ...bugs, ...structures], [items, stacks, bugs, structures]);
+  const animatables = useMemo(
+    () => [...items, ...stacks, ...bugs, ...structures],
+    [items, stacks, bugs, structures],
+  );
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
 
@@ -116,10 +119,16 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         ),
       );
       setStacksCache((prev) =>
-        prev.map((stack) => (stack.id === entityId ? { ...stack, fromX: undefined, fromY: undefined } : stack)),
+        prev.map((stack) =>
+          stack.id === entityId ? { ...stack, fromX: undefined, fromY: undefined } : stack,
+        ),
       );
       setStructuresCache((prev) =>
-        prev.map((structure) => (structure.id === entityId ? { ...structure, fromX: undefined, fromY: undefined } : structure)),
+        prev.map((structure) =>
+          structure.id === entityId
+            ? { ...structure, fromX: undefined, fromY: undefined }
+            : structure,
+        ),
       );
     },
     [setItemsCache, setBugsCache, setStructuresCache, setStacksCache],
@@ -128,10 +137,14 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const handleItemDropCancelled = useCallback(
     (itemId: string, position: Position) => {
       setItemsCache((prev) =>
-        prev.map((item) => (item.id === itemId ? { ...item, fromX: position.x, fromY: position.y } : item)),
+        prev.map((item) =>
+          item.id === itemId ? { ...item, fromX: position.x, fromY: position.y } : item,
+        ),
       );
       setBugsCache((prev) =>
-        prev.map((bug) => (bug.id === itemId ? { ...bug, fromX: position.x, fromY: position.y } : bug)),
+        prev.map((bug) =>
+          bug.id === itemId ? { ...bug, fromX: position.x, fromY: position.y } : bug,
+        ),
       );
       setStacksCache((prev) =>
         prev.map((stack) =>
@@ -139,7 +152,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         ),
       );
       setStructuresCache((prev) =>
-        prev.map((structure) => (structure.id === itemId ? { ...structure, fromX: position.x, fromY: position.y } : structure)),
+        prev.map((structure) =>
+          structure.id === itemId
+            ? { ...structure, fromX: position.x, fromY: position.y }
+            : structure,
+        ),
       );
     },
     [setItemsCache],
@@ -147,11 +164,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   // todo: either { x, y } or targetEntity (or separate handlers)
   const handleItemDropped = useCallback(
-    (
-      itemId: string,
-      { x, y }: Position,
-      targetEntity?: Positionable,
-    ) => {
+    (itemId: string, { x, y }: Position, targetEntity?: Positionable) => {
       (async () => {
         const originalItem = items.find((item) => item.id === itemId);
         const originalStack = stacks.find((stack) => stack.id === itemId);
@@ -191,6 +204,21 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
         }
 
+        // drop an item onto a bug to add it to its items, assume optimistic update
+        if (originalItem && targetEntity && isBug(targetEntity)) {
+          setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
+          setBugsCache((prev) =>
+            prev.map((bug) =>
+              bug.id === targetEntity.id
+                ? {
+                    ...bug,
+                    itemIds: [...bug.itemIds, originalItem.id],
+                  }
+                : bug,
+            ),
+          );
+        }
+
         // drop a stack onto another stack to merge them, assume optimistic update
         if (originalStack && targetEntity && isStack(targetEntity)) {
           setStacksCache((prev) => {
@@ -208,7 +236,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           });
         }
 
-        const { items: newItems, stacks: newStacks, bugs: newBugs, structures: newStructures } = await dropAction(
+        const {
+          items: newItems,
+          stacks: newStacks,
+          bugs: newBugs,
+          structures: newStructures,
+        } = await dropAction(
           { x, y },
           items,
           stacks,
@@ -224,7 +257,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         queryClient.setQueryData(queryKeys.structures, newStructures);
       })();
     },
-    [items, stacks, bugs, structures, queryClient, setItemsCache, setStacksCache],
+    [items, stacks, bugs, structures, queryClient, setItemsCache, setStacksCache, setBugsCache],
   );
 
   const onStackClick = useCallback(
@@ -242,7 +275,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         const itemOrBug = await dig.mutateAsync();
         const origin = pickRandomNearestStructureCenterCell(structure);
 
-        if ("itemType" in itemOrBug) {
+        if (isItem(itemOrBug)) {
           setItemsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
         } else {
           setBugsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);

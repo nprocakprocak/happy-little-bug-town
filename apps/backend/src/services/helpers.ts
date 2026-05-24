@@ -33,7 +33,7 @@ export function toItemOnGridDto(item: ItemDto): ItemOnGridDto {
   };
 }
 
-export function toBugDto(bug: Bug): BugDto {
+export function toBugDto(bug: Bug & { items: Item[] }): BugDto {
   return {
     id: bug.id,
     bugType: bug.bugType,
@@ -41,6 +41,7 @@ export function toBugDto(bug: Bug): BugDto {
     y: bug.y,
     authorId: bug.authorId,
     structureId: bug.structureId,
+    itemIds: bug.items.map((item) => item.id),
   };
 }
 
@@ -54,5 +55,6 @@ export function toBugOnGridDto(bug: BugDto): BugOnGridDto {
     bugType: bug.bugType,
     x: bug.x,
     y: bug.y,
+    itemIds: bug.itemIds,
   };
 }

@@ -4,7 +4,7 @@ export type CreateItemData = Pick<Item, "itemType" | "x" | "y" | "authorId"> & {
   stackable: boolean;
 };
 
-export type UpdateItemData = Partial<Pick<Item, "x" | "y" | "stackId">>;
+export type UpdateItemData = Partial<Pick<Item, "x" | "y" | "stackId" | "bugId">>;
 
 // todo: create StackDto
 export type ItemDto = Pick<Item, "id" | "itemType" | "x" | "y" | "authorId" | "stackId"> & { stackable: boolean };
