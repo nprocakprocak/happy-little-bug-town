@@ -23,6 +23,7 @@ import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
 import { isBug, isItem, isStack } from "../utils/typeGuards";
+import { BeetlePopup } from "./BeetlePopup";
 import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
@@ -60,6 +61,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   );
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
+  const [beetlePopupOpen, setBeetlePopupOpen] = useState(false);
 
   useEffect(() => {
     if (
@@ -232,7 +234,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
               .map((s) =>
                 s.id === targetEntity.id
                   ? { ...s, itemsCount: s.itemsCount + source.itemsCount }
-                : s,
+                  : s,
               );
           });
         }
@@ -286,6 +288,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [dig, setItemsCache, setBugsCache],
   );
 
+  const onBeetleClick = useCallback((_bug: Bug) => {
+    setBeetlePopupOpen(true);
+  }, []);
+
   return (
     <div
       className="w-full"
@@ -326,10 +332,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           bugs={bugs}
           onStructureClick={onStructureClick}
           onStackClick={onStackClick}
+          onBeetleClick={onBeetleClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
         />
+        {beetlePopupOpen && <BeetlePopup onClose={() => setBeetlePopupOpen(false)} />}
       </div>
     </div>
   );

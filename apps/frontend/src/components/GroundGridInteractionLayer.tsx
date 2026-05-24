@@ -30,6 +30,7 @@ interface GroundGridInteractionLayerProps {
   bugs: Bug[];
   onStructureClick: (structure: Structure) => void;
   onStackClick: (stack: Stack) => void;
+  onBeetleClick: (bug: Bug) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
   onItemDropped: (itemId: string, position: Position, targetEntity?: Positionable) => void;
@@ -44,6 +45,7 @@ export function GroundGridInteractionLayer({
   bugs,
   onStructureClick,
   onStackClick,
+  onBeetleClick,
   onDragChange,
   onItemDropCancelled,
   onItemDropped,
@@ -109,6 +111,7 @@ export function GroundGridInteractionLayer({
   function handlePointerUp(
     structure: Structure | undefined,
     stack: Stack | undefined,
+    bug: Bug | undefined,
     gridCol: number,
     gridRow: number,
     event: ReactPointerEvent<HTMLDivElement>,
@@ -232,6 +235,8 @@ export function GroundGridInteractionLayer({
       onStructureClick(structure);
     } else if (stack) {
       onStackClick(stack);
+    } else if (bug?.bugType === "beetle") {
+      onBeetleClick(bug);
     } else {
       setSelectedPosition({ x: gridCol, y: gridRow });
     }
@@ -263,6 +268,7 @@ export function GroundGridInteractionLayer({
         const gridCol = (index % cols) + 1;
         const structure = structures.find((s) => s.x === gridCol && s.y === gridRow);
         const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
+        const bug = bugs.find((b) => b.x === gridCol && b.y === gridRow);
 
         if (!structure && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structures)) {
           return null;
@@ -300,7 +306,7 @@ export function GroundGridInteractionLayer({
             style={{ ...placementStyle, ...dragStyle }}
             onPointerDown={(event) => handlePointerDown(canDrag, event)}
             onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
-            onPointerUp={(event) => handlePointerUp(structure, stack, gridCol, gridRow, event)}
+            onPointerUp={(event) => handlePointerUp(structure, stack, bug, gridCol, gridRow, event)}
             onPointerCancel={handlePointerCancel}
           />
         );
