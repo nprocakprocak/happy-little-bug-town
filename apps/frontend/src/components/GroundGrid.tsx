@@ -33,6 +33,7 @@ import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { findFirstStructurePlacement } from "./helpers/findFirstStructurePlacement";
 import { pickRandomNearestStructureCenterCell } from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
+import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
 
 interface GroundGridProps {
   rows: number;
@@ -362,6 +363,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onFlightComplete={handleFlightComplete}
         />
         <GridCountersLayer cols={cols} rows={rows} stacks={stacks} gridDrag={gridDrag} />
+        <StructureBuildProgressLayer
+          cols={cols}
+          rows={rows}
+          structures={structures}
+          gridDrag={gridDrag}
+        />
         <BugsProgressLayer cols={cols} rows={rows} bugs={bugs} gridDrag={gridDrag} />
         <GroundGridInteractionLayer
           cols={cols}

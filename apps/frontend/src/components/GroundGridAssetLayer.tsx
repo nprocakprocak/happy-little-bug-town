@@ -73,18 +73,14 @@ export function GroundGridAssetLayer({
         return (
           <div
             key={structure.id}
-            className={`relative min-h-0 min-w-0 rounded-sm ${
-              isIncomplete
-                ? "overflow-visible ring-2 ring-red-500 ring-offset-1"
-                : "overflow-hidden"
-            }`}
+            className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
             style={{
               gridColumn: `${structure.x} / span ${structure.span}`,
               gridRow: `${structure.y} / span ${structure.span}`,
               ...dragStyle,
             }}
           >
-            <div className="relative h-full w-full overflow-hidden rounded-sm">
+            <div className="relative h-full w-full">
               <Image
                 src={structureTypeToImage(structure.structureType)}
                 alt=""
@@ -92,6 +88,9 @@ export function GroundGridAssetLayer({
                 className="object-cover"
                 sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
               />
+              {isIncomplete && (
+                <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
+              )}
             </div>
           </div>
         );

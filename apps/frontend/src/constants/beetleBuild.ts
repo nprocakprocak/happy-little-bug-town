@@ -1,3 +1,4 @@
+import { ItemType } from "../types/itemType";
 import { Structure } from "../types/structure";
 
 export const BEETLE_HOUSE_SPAN = 2;
@@ -34,4 +35,23 @@ export function isBeetleHouseBuilt(structure: Structure): boolean {
 
 export function isBeetleHouseIncomplete(structure: Structure): boolean {
   return structure.structureType === "beetle_house" && !isBeetleHouseBuilt(structure);
+}
+
+export interface BeetleHouseResourceProgress {
+  itemType: ItemType;
+  supplied: number;
+  required: number;
+  missing: number;
+}
+
+export function getBeetleHouseBuildProgress(structure: Structure): BeetleHouseResourceProgress[] {
+  if (structure.structureType !== "beetle_house") {
+    return [];
+  }
+
+  return BEETLE_BUILD_RESOURCE_COSTS.map(({ itemType, count: required }) => {
+    const supplied = structure.items.filter((item) => item.itemType === itemType).length;
+    const missing = Math.max(0, required - supplied);
+    return { itemType, supplied, required, missing };
+  });
 }
