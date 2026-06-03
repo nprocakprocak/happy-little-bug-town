@@ -1,7 +1,12 @@
 import { Position, Positionable } from "@happy-little-park/utils";
 
 import { updateBugPosition } from "../../api/bugs";
-import { addItemToBug, addItemToStack, updateItemPosition } from "../../api/items";
+import {
+  addItemToBug,
+  addItemToStack,
+  addItemToStructure,
+  updateItemPosition,
+} from "../../api/items";
 import { createStack, mergeStacks, updateStack } from "../../api/stacks";
 import { updateStructurePosition } from "../../api/structures";
 import { BEETLE_MAX_LEAF_PARTS } from "../../constants";
@@ -28,6 +33,11 @@ export async function dropAction(
   const targetItem = targetEntity ? (isItem(targetEntity) ? targetEntity : undefined) : undefined;
   const targetStack = targetEntity ? (isStack(targetEntity) ? targetEntity : undefined) : undefined;
   const targetBug = targetEntity ? (isBug(targetEntity) ? targetEntity : undefined) : undefined;
+  const targetStructure = targetEntity
+    ? isStructure(targetEntity)
+      ? targetEntity
+      : undefined
+    : undefined;
 
   // drop one item onto another to create a stack
   if (originalItem && targetItem) {
@@ -78,6 +88,17 @@ export async function dropAction(
       stacks: stacks,
       bugs: bugs.map((b) => (b.id === targetBug.id ? bug : b)),
       structures: structures,
+    };
+  }
+
+  if (originalItem && targetStructure) {
+    const structure = await addItemToStructure(originalItem.id, targetStructure.id);
+
+    return {
+      items: items.filter((it) => it.id !== originalItem.id),
+      stacks: stacks,
+      bugs: bugs,
+      structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
     };
   }
 

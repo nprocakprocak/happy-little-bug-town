@@ -8,11 +8,13 @@ export type CreateStructureData = {
   y: number;
 };
 
+export type ItemOnStructure = Pick<Item, "id" | "itemType">;
+
 export type StructureDto = Pick<
   Structure,
   "id" | "structureType" | "x" | "y" | "span" | "authorId"
 > & {
-  items: ItemDto[];
+  items: ItemOnStructure[];
 };
 
 export type StructureWithItems = Structure & { items: Item[] };

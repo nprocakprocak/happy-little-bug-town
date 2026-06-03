@@ -55,3 +55,18 @@ export function getBeetleHouseBuildProgress(structure: Structure): BeetleHouseRe
     return { itemType, supplied, required, missing };
   });
 }
+
+export function canDropItemOnStructure(
+  item: { itemType: ItemType },
+  structure: Structure,
+): boolean {
+  if (!isBeetleHouseIncomplete(structure)) {
+    return false;
+  }
+
+  const resourceProgress = getBeetleHouseBuildProgress(structure).find(
+    (progress) => progress.itemType === item.itemType,
+  );
+
+  return resourceProgress !== undefined && resourceProgress.missing > 0;
+}

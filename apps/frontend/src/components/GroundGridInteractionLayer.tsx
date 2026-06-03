@@ -10,6 +10,7 @@ import {
 } from "@happy-little-park/utils";
 
 import { BEETLE_MAX_LEAF_PARTS } from "../constants";
+import { canDropItemOnStructure } from "../constants/beetleBuild";
 import { useGridVisibility } from "../context/GridVisibilityContext";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Bug } from "../types/bug";
@@ -177,8 +178,10 @@ export function GroundGridInteractionLayer({
               itemToDrop.itemType === "leaf_part" &&
               overlappingBug?.bugType === "beetle" &&
               overlappingBug.itemIds.length < BEETLE_MAX_LEAF_PARTS;
+            const canDropOnStructure =
+              !!overlappingStructure && canDropItemOnStructure(itemToDrop, overlappingStructure);
             const shouldCancel =
-              !!overlappingStructure ||
+              (!!overlappingStructure && !canDropOnStructure) ||
               stackNotAllowed ||
               (!!overlappingBug && !canDropLeafOnBeetle);
 

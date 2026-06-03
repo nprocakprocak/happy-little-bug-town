@@ -24,7 +24,7 @@ import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
-import { isBug, isItem, isStack } from "../utils/typeGuards";
+import { isBug, isItem, isStack, isStructure } from "../utils/typeGuards";
 import { BeetlePopup } from "./BeetlePopup";
 import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
@@ -223,6 +223,24 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
                     itemIds: [...bug.itemIds, originalItem.id],
                   }
                 : bug,
+            ),
+          );
+        }
+
+        // drop an item onto a structure to add it to its items, assume optimistic update
+        if (originalItem && targetEntity && isStructure(targetEntity)) {
+          setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
+          setStructuresCache((prev) =>
+            prev.map((structure) =>
+              structure.id === targetEntity.id
+                ? {
+                    ...structure,
+                    items: [
+                      ...structure.items,
+                      { id: originalItem.id, itemType: originalItem.itemType },
+                    ],
+                  }
+                : structure,
             ),
           );
         }

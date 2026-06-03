@@ -1,7 +1,8 @@
 import { Router, type RequestHandler } from "express";
 import { requireAid } from "../middleware/requireAid.js";
-import { BEETLE_MAX_LEAF_PARTS } from "../services/constants.js";
+import { canAcceptItemForBuild } from "../services/beetleBuild.js";
 import { getBug } from "../services/bugsService.js";
+import { BEETLE_MAX_LEAF_PARTS } from "../services/constants.js";
 import { toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
 import {
   getItem as getItemService,
@@ -9,7 +10,7 @@ import {
   updateItem as updateItemService
 } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
-import { getStructures } from "../services/structuresService.js";
+import { getStructure, getStructures } from "../services/structuresService.js";
 import { UpdateItemData } from "../types/itemDto.js";
 
 export const itemsRouter = Router();
@@ -26,8 +27,43 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   res,
 ) => {
   const { id } = req.params;
-  const { x, y, stackId, bugId } = req.body;
+  const { x, y, stackId, bugId, structureId } = req.body;
   const authorId = req.authorId!;
+
+  if (structureId) {
+    const existingItem = await getItemService(id);
+    if (!existingItem) {
+      res.status(400).json({ error: "Item not found when updating" });
+      return;
+    }
+    if (existingItem.authorId !== authorId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    const existingStructure = await getStructure(structureId);
+    if (!existingStructure) {
+      res.status(400).json({ error: "Structure not found when updating item" });
+      return;
+    }
+    if (existingStructure.authorId !== authorId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    if (!canAcceptItemForBuild(existingStructure, existingItem.itemType)) {
+      res.status(400).json({ error: "Item cannot be added to structure" });
+      return;
+    }
+
+    await updateItemService(id, { structureId });
+    const structure = await getStructure(structureId);
+    if (!structure) {
+      res.status(500).json({ error: "Structure not found after updating item" });
+      return;
+    }
+    res.status(200).json(structure);
+    return;
+  }
 
   if (bugId) {
     const existingItem = await getItemService(id);

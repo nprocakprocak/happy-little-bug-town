@@ -2,6 +2,7 @@ import { Position } from "@happy-little-park/utils";
 
 import { Bug } from "../types/bug";
 import { Item } from "../types/item";
+import { Structure } from "../types/structure";
 import { apiFetch } from "./client";
 
 export function fetchItems(): Promise<Item[]> {
@@ -26,5 +27,12 @@ export function addItemToBug(itemId: string, bugId: string): Promise<Bug> {
   return apiFetch<Bug>(`/api/items/${itemId}`, {
     method: "PUT",
     body: JSON.stringify({ bugId }),
+  });
+}
+
+export function addItemToStructure(itemId: string, structureId: string): Promise<Structure> {
+  return apiFetch<Structure>(`/api/items/${itemId}`, {
+    method: "PUT",
+    body: JSON.stringify({ structureId }),
   });
 }
