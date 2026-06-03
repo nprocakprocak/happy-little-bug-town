@@ -19,7 +19,7 @@ export const BEETLE_BUILDING_OPTIONS: Structure[] = Array.from({ length: 5 }, (_
 export const BEETLE_BUILD_RESOURCE_COSTS = [
   { itemType: "leaf_part" as const, count: 20 },
   { itemType: "little_rock" as const, count: 15 },
-  { itemType: "stick" as const, count: 10 },
+  { itemType: "root" as const, count: 10 },
 ];
 
 export function isBeetleHouseBuilt(structure: Structure): boolean {

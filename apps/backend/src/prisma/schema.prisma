@@ -10,6 +10,7 @@ datasource db {
 enum ItemType {
   leaf_part
   little_rock
+  root
   stick
 }
 

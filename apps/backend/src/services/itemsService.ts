@@ -4,12 +4,12 @@ import { BugType, ItemType } from "../prisma/prisma/client.js";
 import { CreateItemData, ItemDto, UpdateItemData } from "../types/itemDto.js";
 import { toItemDto } from "./helpers.js";
 
-const ITEM_TYPES = ["beetle", "leaf_part", "little_rock", "stick"] as const;
+const ITEM_TYPES = ["beetle", "leaf_part", "little_rock", "root"] as const;
 const ITEM_TYPES_WEIGHTS = {
   beetle: 0.1,
   leaf_part: 0.5,
   little_rock: 0.8,
-  stick: 1,
+  root: 1,
 };
 
 export const getItemsOnGrid = async (authorId: string): Promise<ItemDto[]> => {

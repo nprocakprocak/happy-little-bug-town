@@ -8,6 +8,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/leaf-part.webp";
     case "little_rock":
       return "/items/little-rock.webp";
+    case "root":
+      return "/items/root.webp";
     case "stick":
       return "/items/stick.webp";
     default:
@@ -21,6 +23,8 @@ export function itemTypeToImageForStack(itemType: ItemType): string {
       return "/stacks/leaf-parts.webp";
     case "little_rock":
       return "/stacks/little-rocks.webp";
+    case "root":
+      return "/stacks/root-pile.webp";
     case "stick":
       return "/items/stick.webp";
     default:
