@@ -56,22 +56,37 @@ export const createItem = async (item: CreateItemData): Promise<ItemDto> => {
 }
 
 export const updateItem = async (id: string, item: UpdateItemData): Promise<ItemDto> => {
-  const data = item.bugId ? {
-    bugId: item.bugId,
-    x: null,
-    y: null,
-    stackId: null,
-  } : item.stackId ? {
-    bugId: null,
-    x: null,
-    y: null,
-    stackId: item.stackId,
-  } : {
-    x: item.x,
-    y: item.y,
-    stackId: null,
-    bugId: null,
-  }
+  const data = item.bugId
+    ? {
+        bugId: item.bugId,
+        x: null,
+        y: null,
+        stackId: null,
+        structureId: null,
+      }
+    : item.structureId
+      ? {
+          structureId: item.structureId,
+          x: null,
+          y: null,
+          stackId: null,
+          bugId: null,
+        }
+      : item.stackId
+        ? {
+            bugId: null,
+            structureId: null,
+            x: null,
+            y: null,
+            stackId: item.stackId,
+          }
+        : {
+            x: item.x,
+            y: item.y,
+            stackId: null,
+            bugId: null,
+            structureId: null,
+          };
 
   const updatedItem = await prisma.item.update({
     where: { id },

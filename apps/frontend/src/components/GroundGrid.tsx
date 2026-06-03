@@ -353,6 +353,14 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         />
         <GridCountersLayer cols={cols} rows={rows} stacks={stacks} gridDrag={gridDrag} />
         <BugsProgressLayer cols={cols} rows={rows} bugs={bugs} gridDrag={gridDrag} />
+        {pendingStructure && (
+          <PendingStructureLayer
+            cols={cols}
+            rows={rows}
+            structure={pendingStructure}
+            onCancel={onPendingStructureCancel}
+          />
+        )}
         <GroundGridInteractionLayer
           cols={cols}
           rows={rows}
@@ -367,14 +375,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
         />
-        {pendingStructure && (
-          <PendingStructureLayer
-            cols={cols}
-            rows={rows}
-            structure={pendingStructure}
-            onCancel={onPendingStructureCancel}
-          />
-        )}
         {selectedBeetle && (
           <BeetlePopup
             beetle={selectedBeetle}

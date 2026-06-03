@@ -42,16 +42,19 @@ model Item {
   authorId String
   stackId String?
   bugId String?
+  structureId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author User @relation(fields: [authorId], references: [id])
   stack Stack? @relation(fields: [stackId], references: [id])
   bug Bug? @relation(fields: [bugId], references: [id])
+  structure Structure? @relation(fields: [structureId], references: [id])
 }
 
 model Structure {
   id String @id @default(uuid())
   bugs Bug[]
+  items Item[]
   structureType StructureType
   x Int
   y Int
