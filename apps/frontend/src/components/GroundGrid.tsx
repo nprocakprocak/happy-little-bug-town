@@ -5,6 +5,7 @@ import { Position, Positionable } from "@happy-little-park/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
+import { PENDING_STRUCTURE_ID } from "../constants/beetleBuild";
 import { queryKeys } from "../constants/queryKeys";
 import { useAnonymousId } from "../context/AnonymousIdContext";
 import { DragPayload } from "../domain/drag-n-drop/dragPayload";
@@ -28,8 +29,10 @@ import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
+import { findFirstStructurePlacement } from "./helpers/findFirstStructurePlacement";
 import { pickRandomNearestStructureCenterCell } from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
+import { PendingStructureLayer } from "./PendingStructureLayer";
 
 interface GroundGridProps {
   rows: number;
@@ -62,6 +65,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBeetle, setSelectedBeetle] = useState<Bug | null>(null);
+  const [pendingStructure, setPendingStructure] = useState<Structure | null>(null);
 
   useEffect(() => {
     if (
@@ -292,6 +296,32 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     setSelectedBeetle(bug);
   }, []);
 
+  const onBeetleBuild = useCallback(
+    (structure: Structure) => {
+      const position = findFirstStructurePlacement(structure.span, cols, rows, [
+        ...structures,
+        ...items,
+        ...stacks,
+        ...bugs,
+      ]);
+      if (!position) {
+        return;
+      }
+      setPendingStructure({
+        id: PENDING_STRUCTURE_ID,
+        ...position,
+        span: structure.span,
+        structureType: structure.structureType,
+      });
+      setSelectedBeetle(null);
+    },
+    [cols, rows, structures, items, stacks, bugs],
+  );
+
+  const onPendingStructureCancel = useCallback(() => {
+    setPendingStructure(null);
+  }, []);
+
   return (
     <div
       className="w-full"
@@ -337,10 +367,19 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
         />
+        {pendingStructure && (
+          <PendingStructureLayer
+            cols={cols}
+            rows={rows}
+            structure={pendingStructure}
+            onCancel={onPendingStructureCancel}
+          />
+        )}
         {selectedBeetle && (
           <BeetlePopup
             beetle={selectedBeetle}
             onClose={() => setSelectedBeetle(null)}
+            onBuild={onBeetleBuild}
           />
         )}
       </div>

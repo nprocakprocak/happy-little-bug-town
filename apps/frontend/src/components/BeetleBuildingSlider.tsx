@@ -1,21 +1,29 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 
 import { BEETLE_BUILDING_OPTIONS } from "../constants/beetleBuild";
+import { getStructureName } from "./helpers/getStructureName";
+import { structureTypeToImage } from "./helpers/itemTypeToImage";
 
-export function BeetleBuildingSlider() {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+interface BeetleBuildingSliderProps {
+  selectedIndex: number;
+  onSelectedIndexChange: (index: number) => void;
+}
+
+export function BeetleBuildingSlider({
+  selectedIndex,
+  onSelectedIndexChange,
+}: BeetleBuildingSliderProps) {
   const selectedBuilding = BEETLE_BUILDING_OPTIONS[selectedIndex];
   const lastIndex = BEETLE_BUILDING_OPTIONS.length - 1;
 
   function goToPrevious() {
-    setSelectedIndex((index) => (index === 0 ? lastIndex : index - 1));
+    onSelectedIndexChange(selectedIndex === 0 ? lastIndex : selectedIndex - 1);
   }
 
   function goToNext() {
-    setSelectedIndex((index) => (index === lastIndex ? 0 : index + 1));
+    onSelectedIndexChange(selectedIndex === lastIndex ? 0 : selectedIndex + 1);
   }
 
   return (
@@ -31,7 +39,7 @@ export function BeetleBuildingSlider() {
         </button>
         <div className="relative h-[24cqi] min-w-0 flex-1">
           <Image
-            src={selectedBuilding.imageSrc}
+            src={structureTypeToImage(selectedBuilding.structureType)}
             alt=""
             fill
             className="object-contain"
@@ -48,14 +56,14 @@ export function BeetleBuildingSlider() {
         </button>
       </div>
       <p className="text-center text-[clamp(0.875rem,4cqi,1.5rem)] font-semibold text-stone-800">
-        {selectedBuilding.name}
+        {getStructureName(selectedBuilding)}
       </p>
       <div className="flex items-center gap-[1.5cqi]">
-        {BEETLE_BUILDING_OPTIONS.map((_, index) => (
+        {BEETLE_BUILDING_OPTIONS.map((structure, index) => (
           <button
-            key={index}
+            key={structure.id}
             type="button"
-            onClick={() => setSelectedIndex(index)}
+            onClick={() => onSelectedIndexChange(index)}
             aria-label={`Select building ${index + 1}`}
             className={`h-[1.5cqi] w-[1.5cqi] rounded-full transition-colors ${
               index === selectedIndex ? "bg-sky-500" : "bg-stone-300 hover:bg-stone-400"

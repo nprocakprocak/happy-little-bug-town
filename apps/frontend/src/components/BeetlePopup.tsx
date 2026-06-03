@@ -2,15 +2,17 @@
 
 import { BEETLE_MAX_LEAF_PARTS } from "../constants";
 import { Bug } from "../types/bug";
+import { Structure } from "../types/structure";
 import { BeetleBuildPopupContent } from "./BeetleBuildPopupContent";
 import { BeetleHungryPopupContent } from "./BeetleHungryPopupContent";
 
 interface BeetlePopupProps {
   beetle: Bug;
   onClose: () => void;
+  onBuild: (structure: Structure) => void;
 }
 
-export function BeetlePopup({ beetle, onClose }: BeetlePopupProps) {
+export function BeetlePopup({ beetle, onClose, onBuild }: BeetlePopupProps) {
   const isFed = beetle.itemIds.length >= BEETLE_MAX_LEAF_PARTS;
 
   return (
@@ -21,7 +23,7 @@ export function BeetlePopup({ beetle, onClose }: BeetlePopupProps) {
         aria-modal="true"
       >
         {isFed ? (
-          <BeetleBuildPopupContent onClose={onClose} />
+          <BeetleBuildPopupContent onClose={onClose} onBuild={onBuild} />
         ) : (
           <BeetleHungryPopupContent beetle={beetle} onClose={onClose} />
         )}
