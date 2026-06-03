@@ -15,6 +15,15 @@ export function createFirstStructure(): Promise<Structure> {
   });
 }
 
+export function createStructure(
+  data: Pick<Structure, "structureType" | "x" | "y">,
+): Promise<Structure> {
+  return apiFetch<Structure>("/api/structures", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
 export function updateStructurePosition(
   structureId: string,
   position: Position,

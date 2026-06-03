@@ -9,10 +9,12 @@ import { isItemStackable, toBugOnGridDto, toItemOnGridDto } from "../services/he
 import { createItem, generateRandomItemType } from "../services/itemsService.js";
 import {
   createFirstStructure as createFirstStructureService,
+  createStructure as createStructureService,
   getStructure,
   getStructures,
   updateStructurePosition as updateStructurePositionService,
 } from "../services/structuresService.js";
+import { BEETLE_HOUSE_SPAN } from "../services/constants.js";
 
 export const structuresRouter = Router();
 
@@ -21,6 +23,42 @@ structuresRouter.use(requireAid);
 const listStructures: RequestHandler = async (req, res) => {
   const structures = await getStructures(req.authorId!);
   res.status(200).json(structures);
+};
+
+const createStructure: RequestHandler = async (req, res) => {
+  const authorId = req.authorId!;
+  const { structureType, x, y } = req.body;
+
+  if (structureType !== "beetle_house") {
+    res.status(400).json({ error: "Only beetle houses can be built" });
+    return;
+  }
+  if (typeof x !== "number" || typeof y !== "number") {
+    res.status(400).json({ error: "x and y are required" });
+    return;
+  }
+
+  const entities = await getAllEntitiesOnGrid(authorId);
+
+  const fits = structureFootprintFits(
+    { x, y, span: BEETLE_HOUSE_SPAN },
+    GROUND_WIDTH,
+    GROUND_HEIGHT,
+    entities,
+  );
+
+  if (!fits) {
+    res.status(400).json({ error: "Position is not free for structure" });
+    return;
+  }
+
+  const structure = await createStructureService({
+    authorId,
+    structureType: "beetle_house",
+    x,
+    y,
+  });
+  res.status(201).json(structure);
 };
 
 const createFirstStructure: RequestHandler = async (req, res) => {
@@ -95,6 +133,7 @@ const dig: RequestHandler = async (req, res) => {
 };
 
 structuresRouter.get("/", listStructures);
+structuresRouter.post("/", createStructure);
 structuresRouter.post("/create", createFirstStructure);
 structuresRouter.put("/:id", updateStructure);
 structuresRouter.post("/dig", dig);

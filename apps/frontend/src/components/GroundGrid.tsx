@@ -5,7 +5,7 @@ import { Position, Positionable } from "@happy-little-park/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
-import { PENDING_STRUCTURE_ID } from "../constants/beetleBuild";
+import { BEETLE_HOUSE_SPAN } from "../constants/beetleBuild";
 import { queryKeys } from "../constants/queryKeys";
 import { useAnonymousId } from "../context/AnonymousIdContext";
 import { DragPayload } from "../domain/drag-n-drop/dragPayload";
@@ -16,6 +16,7 @@ import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "
 import {
   updateStructuresCache,
   useCreateFirstStructureMutation,
+  useCreateStructureMutation,
   useDigMutation,
   useStructuresQuery,
 } from "../hooks/useStructures";
@@ -32,7 +33,6 @@ import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { findFirstStructurePlacement } from "./helpers/findFirstStructurePlacement";
 import { pickRandomNearestStructureCenterCell } from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
-import { PendingStructureLayer } from "./PendingStructureLayer";
 
 interface GroundGridProps {
   rows: number;
@@ -57,6 +57,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     isPending: isCreatingFirstStructure,
     isError: firstStructureCreateFailed,
   } = useCreateFirstStructureMutation();
+  const createStructure = useCreateStructureMutation();
 
   const animatables = useMemo(
     () => [...items, ...stacks, ...bugs, ...structures],
@@ -65,7 +66,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBeetle, setSelectedBeetle] = useState<Bug | null>(null);
-  const [pendingStructure, setPendingStructure] = useState<Structure | null>(null);
 
   useEffect(() => {
     if (
@@ -264,7 +264,17 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         queryClient.setQueryData(queryKeys.structures, newStructures);
       })();
     },
-    [items, stacks, bugs, structures, queryClient, setItemsCache, setStacksCache, setBugsCache],
+    [
+      items,
+      stacks,
+      bugs,
+      structures,
+      queryClient,
+      setItemsCache,
+      setStacksCache,
+      setBugsCache,
+      setStructuresCache,
+    ],
   );
 
   const onStackClick = useCallback(
@@ -278,6 +288,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onStructureClick = useCallback(
     (structure: Structure) => {
+      if (structure.structureType !== "hole") {
+        return;
+      }
       (async () => {
         const itemOrBug = await dig.mutateAsync();
         const origin = pickRandomNearestStructureCenterCell(structure);
@@ -297,8 +310,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   }, []);
 
   const onBeetleBuild = useCallback(
-    (structure: Structure) => {
-      const position = findFirstStructurePlacement(structure.span, cols, rows, [
+    (_structure: Structure) => {
+      const position = findFirstStructurePlacement(BEETLE_HOUSE_SPAN, cols, rows, [
         ...structures,
         ...items,
         ...stacks,
@@ -307,20 +320,14 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       if (!position) {
         return;
       }
-      setPendingStructure({
-        id: PENDING_STRUCTURE_ID,
+      createStructure.mutate({
+        structureType: "beetle_house",
         ...position,
-        span: structure.span,
-        structureType: structure.structureType,
       });
       setSelectedBeetle(null);
     },
-    [cols, rows, structures, items, stacks, bugs],
+    [cols, rows, structures, items, stacks, bugs, createStructure],
   );
-
-  const onPendingStructureCancel = useCallback(() => {
-    setPendingStructure(null);
-  }, []);
 
   return (
     <div
@@ -353,14 +360,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         />
         <GridCountersLayer cols={cols} rows={rows} stacks={stacks} gridDrag={gridDrag} />
         <BugsProgressLayer cols={cols} rows={rows} bugs={bugs} gridDrag={gridDrag} />
-        {pendingStructure && (
-          <PendingStructureLayer
-            cols={cols}
-            rows={rows}
-            structure={pendingStructure}
-            onCancel={onPendingStructureCancel}
-          />
-        )}
         <GroundGridInteractionLayer
           cols={cols}
           rows={rows}

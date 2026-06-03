@@ -1,11 +1,7 @@
 import { Position } from "@happy-little-park/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import {
-  createFirstStructure,
-  dig,
-  fetchStructures,
-} from "../api/structures";
+import { createFirstStructure, createStructure, dig, fetchStructures } from "../api/structures";
 import { queryKeys } from "../constants/queryKeys";
 import { Structure } from "../types/structure";
 
@@ -29,6 +25,17 @@ export function useCreateFirstStructureMutation() {
 
   return useMutation({
     mutationFn: createFirstStructure,
+    onSuccess: (structure) => {
+      updateStructuresCache(queryClient, (structures) => [...structures, structure]);
+    },
+  });
+}
+
+export function useCreateStructureMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createStructure,
     onSuccess: (structure) => {
       updateStructuresCache(queryClient, (structures) => [...structures, structure]);
     },

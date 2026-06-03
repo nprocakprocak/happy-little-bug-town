@@ -1,13 +1,13 @@
 import { Structure } from "../types/structure";
 
-export const PENDING_STRUCTURE_ID = "pending-structure";
+export const BEETLE_HOUSE_SPAN = 2;
 
 export const BEETLE_BUILDING_OPTIONS: Structure[] = Array.from({ length: 5 }, (_, index) => ({
   id: `beetle-build-option-${index}`,
   x: 0,
   y: 0,
-  span: 2,
-  structureType: "beetle-house",
+  span: BEETLE_HOUSE_SPAN,
+  structureType: "beetle_house",
 }));
 
 export const BEETLE_BUILD_RESOURCE_COSTS = [

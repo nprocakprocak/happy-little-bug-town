@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma.js";
-import { StructureDto } from "../types/structureDto.js";
+import { CreateStructureData, StructureDto } from "../types/structureDto.js";
+import { BEETLE_HOUSE_SPAN } from "./constants.js";
 import { toStructureDto } from "./helpers.js";
 
 const structureInclude = { items: true } as const;
@@ -12,6 +13,20 @@ export const getStructures = async (authorId: string): Promise<StructureDto[]> =
     include: structureInclude,
   });
   return structures.map(toStructureDto);
+};
+
+export const createStructure = async (data: CreateStructureData): Promise<StructureDto> => {
+  const structure = await prisma.structure.create({
+    data: {
+      authorId: data.authorId,
+      structureType: data.structureType,
+      x: data.x,
+      y: data.y,
+      span: BEETLE_HOUSE_SPAN,
+    },
+    include: structureInclude,
+  });
+  return toStructureDto(structure);
 };
 
 export const createFirstStructure = async (authorId: string): Promise<StructureDto> => {

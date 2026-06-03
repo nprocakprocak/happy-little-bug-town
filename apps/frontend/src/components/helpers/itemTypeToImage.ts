@@ -41,7 +41,7 @@ export function structureTypeToImage(structureType: StructureType): string {
   switch (structureType) {
     case "hole":
       return "/structures/hole.webp";
-    case "beetle-house":
+    case "beetle_house":
       return "/structures/beetle-house.webp";
     default:
       throw new Error(`Unknown structure type: ${structureType}`);

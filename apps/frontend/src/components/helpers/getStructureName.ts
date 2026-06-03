@@ -5,7 +5,7 @@ export function structureTypeToName(structureType: StructureType): string {
   switch (structureType) {
     case "hole":
       return "Hole in the ground";
-    case "beetle-house":
+    case "beetle_house":
       return "Beetle house";
     default:
       throw new Error(`Unknown structure type: ${structureType}`);

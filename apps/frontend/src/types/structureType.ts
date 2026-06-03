@@ -1,1 +1,1 @@
-export type StructureType = "hole" | "beetle-house";
+export type StructureType = "hole" | "beetle_house";
