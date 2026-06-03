@@ -18,15 +18,10 @@ interface StructureBuildProgressLayerProps {
 
 interface StructureBuildResourceCounterProps {
   itemType: ItemType;
-  applied: number;
-  required: number;
+  missing: number;
 }
 
-function StructureBuildResourceCounter({
-  itemType,
-  applied,
-  required,
-}: StructureBuildResourceCounterProps) {
+function StructureBuildResourceCounter({ itemType, missing }: StructureBuildResourceCounterProps) {
   return (
     <div className="flex min-h-0 min-w-0 flex-col items-center justify-center gap-[0.35cqi]">
       <div className="relative h-[5cqi] w-[5cqi] shrink-0">
@@ -39,7 +34,7 @@ function StructureBuildResourceCounter({
         />
       </div>
       <span className="rounded-sm bg-stone-900/80 px-[0.75cqi] py-[0.15cqi] text-[clamp(0.625rem,2.5cqi,0.875rem)] font-bold tabular-nums text-white shadow-sm">
-        {applied} / {required}
+        {missing}
       </span>
     </div>
   );
@@ -73,7 +68,7 @@ export function StructureBuildProgressLayer({
             : {};
         const progress = getBeetleHouseBuildProgress(structure);
 
-        return progress.map(({ itemType, supplied, required }, index) => {
+        return progress.map(({ itemType, missing }, index) => {
           const colOffset = index % structure.span;
           const rowOffset = Math.floor(index / structure.span);
 
@@ -87,11 +82,7 @@ export function StructureBuildProgressLayer({
                 ...dragStyle,
               }}
             >
-              <StructureBuildResourceCounter
-                itemType={itemType}
-                applied={supplied}
-                required={required}
-              />
+              <StructureBuildResourceCounter itemType={itemType} missing={missing} />
             </div>
           );
         });
