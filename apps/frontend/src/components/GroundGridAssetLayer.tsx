@@ -8,6 +8,7 @@ import {
   GROUND_MUD_BG_TILE_HEIGHT_PX,
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../constants";
+import { isBeetleHouseIncomplete } from "../constants/beetleBuild";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Bug } from "../types/bug";
 import { Item } from "../types/item";
@@ -67,23 +68,31 @@ export function GroundGridAssetLayer({
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
 
+        const isIncomplete = isBeetleHouseIncomplete(structure);
+
         return (
           <div
             key={structure.id}
-            className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
+            className={`relative min-h-0 min-w-0 rounded-sm ${
+              isIncomplete
+                ? "overflow-visible ring-2 ring-red-500 ring-offset-1"
+                : "overflow-hidden"
+            }`}
             style={{
               gridColumn: `${structure.x} / span ${structure.span}`,
               gridRow: `${structure.y} / span ${structure.span}`,
               ...dragStyle,
             }}
           >
-            <Image
-              src={structureTypeToImage(structure.structureType)}
-              alt=""
-              fill
-              className="object-cover"
-              sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
-            />
+            <div className="relative h-full w-full overflow-hidden rounded-sm">
+              <Image
+                src={structureTypeToImage(structure.structureType)}
+                alt=""
+                fill
+                className="object-cover"
+                sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
+              />
+            </div>
           </div>
         );
       })}

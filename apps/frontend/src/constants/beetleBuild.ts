@@ -12,6 +12,7 @@ export const BEETLE_BUILDING_OPTIONS: Structure[] = Array.from({ length: 5 }, (_
   y: 0,
   span: BEETLE_HOUSE_SPAN,
   structureType: "beetle_house",
+  items: [],
 }));
 
 export const BEETLE_BUILD_RESOURCE_COSTS = [
@@ -19,3 +20,18 @@ export const BEETLE_BUILD_RESOURCE_COSTS = [
   { itemType: "little_rock" as const, count: 15 },
   { itemType: "stick" as const, count: 10 },
 ];
+
+export function isBeetleHouseBuilt(structure: Structure): boolean {
+  if (structure.structureType !== "beetle_house") {
+    return false;
+  }
+
+  return BEETLE_BUILD_RESOURCE_COSTS.every(({ itemType, count }) => {
+    const supplied = structure.items.filter((item) => item.itemType === itemType).length;
+    return supplied >= count;
+  });
+}
+
+export function isBeetleHouseIncomplete(structure: Structure): boolean {
+  return structure.structureType === "beetle_house" && !isBeetleHouseBuilt(structure);
+}
