@@ -5,7 +5,7 @@ import { Position, Positionable } from "@happy-little-park/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
-import { BEETLE_HOUSE_SPAN } from "../constants/beetleBuild";
+import { BEETLE_HOUSE_SPAN, hasBeetleHouse } from "../constants/beetleBuild";
 import { queryKeys } from "../constants/queryKeys";
 import { useAnonymousId } from "../context/AnonymousIdContext";
 import { DragPayload } from "../domain/drag-n-drop/dragPayload";
@@ -311,6 +311,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onBeetleBuild = useCallback(
     (_structure: Structure) => {
+      if (hasBeetleHouse(structures)) {
+        return;
+      }
       const position = findFirstStructurePlacement(BEETLE_HOUSE_SPAN, cols, rows, [
         ...structures,
         ...items,
@@ -377,6 +380,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         {selectedBeetle && (
           <BeetlePopup
             beetle={selectedBeetle}
+            canBuild={!hasBeetleHouse(structures)}
             onClose={() => setSelectedBeetle(null)}
             onBuild={onBeetleBuild}
           />

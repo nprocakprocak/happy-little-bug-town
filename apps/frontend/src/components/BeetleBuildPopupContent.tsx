@@ -9,15 +9,23 @@ import { BeetleBuildingSlider } from "./BeetleBuildingSlider";
 import { itemTypeToImageForItem } from "./helpers/itemTypeToImage";
 
 interface BeetleBuildPopupContentProps {
+  canBuild: boolean;
   onClose: () => void;
   onBuild: (structure: Structure) => void;
 }
 
-export function BeetleBuildPopupContent({ onClose, onBuild }: BeetleBuildPopupContentProps) {
+export function BeetleBuildPopupContent({
+  canBuild,
+  onClose,
+  onBuild,
+}: BeetleBuildPopupContentProps) {
   const [selectedBuildingIndex, setSelectedBuildingIndex] = useState(0);
   const selectedStructure = BEETLE_BUILDING_OPTIONS[selectedBuildingIndex];
 
   function handleBuildClick() {
+    if (!canBuild) {
+      return;
+    }
     onBuild(selectedStructure);
   }
 
@@ -51,7 +59,12 @@ export function BeetleBuildPopupContent({ onClose, onBuild }: BeetleBuildPopupCo
         <button
           type="button"
           onClick={handleBuildClick}
-          className="min-w-[28%] rounded-md bg-sky-500 px-[5cqi] py-[2cqi] text-[clamp(0.875rem,3.5cqi,1.25rem)] font-medium text-white shadow-sm transition-colors hover:bg-sky-600"
+          disabled={!canBuild}
+          className={`min-w-[28%] rounded-md px-[5cqi] py-[2cqi] text-[clamp(0.875rem,3.5cqi,1.25rem)] font-medium shadow-sm transition-colors ${
+            canBuild
+              ? "bg-sky-500 text-white hover:bg-sky-600"
+              : "cursor-not-allowed bg-stone-300 text-stone-500"
+          }`}
         >
           Build
         </button>

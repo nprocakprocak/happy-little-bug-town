@@ -5,6 +5,16 @@ import { toStructureDto } from "./helpers.js";
 
 const structureInclude = { items: true } as const;
 
+export const hasBeetleHouse = async (authorId: string): Promise<boolean> => {
+  const count = await prisma.structure.count({
+    where: {
+      authorId,
+      structureType: "beetle_house",
+    },
+  });
+  return count > 0;
+};
+
 export const getStructures = async (authorId: string): Promise<StructureDto[]> => {
   const structures = await prisma.structure.findMany({
     where: {

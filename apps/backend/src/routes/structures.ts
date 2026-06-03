@@ -12,6 +12,7 @@ import {
   createStructure as createStructureService,
   getStructure,
   getStructures,
+  hasBeetleHouse,
   updateStructurePosition as updateStructurePositionService,
 } from "../services/structuresService.js";
 import { BEETLE_HOUSE_SPAN } from "../services/constants.js";
@@ -35,6 +36,11 @@ const createStructure: RequestHandler = async (req, res) => {
   }
   if (typeof x !== "number" || typeof y !== "number") {
     res.status(400).json({ error: "x and y are required" });
+    return;
+  }
+
+  if (await hasBeetleHouse(authorId)) {
+    res.status(400).json({ error: "Beetle house already built" });
     return;
   }
 
