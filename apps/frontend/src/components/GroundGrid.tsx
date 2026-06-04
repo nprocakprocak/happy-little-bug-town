@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getStructureSpan,
   isBuildableStructureType,
+  isStructurePowered,
   Position,
   Positionable,
 } from "@happy-little-park/utils";
@@ -44,6 +45,7 @@ import {
 import { ItemFlightLayer } from "./ItemFlightLayer";
 import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
 import { StructurePowerProgressLayer } from "./StructurePowerProgressLayer";
+import { WorkshopPopup } from "./WorkshopPopup";
 
 interface GroundGridProps {
   rows: number;
@@ -78,6 +80,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBeetle, setSelectedBeetle] = useState<Bug | null>(null);
+  const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
 
   useEffect(() => {
     if (
@@ -350,6 +353,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         return;
       }
 
+      if (structure.structureType === "workshop" && isStructurePowered(structure)) {
+        setWorkshopPopupOpen(true);
+        return;
+      }
+
       if (structure.structureType !== "beetle_house") {
         return;
       }
@@ -481,6 +489,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             onBuild={onBeetleBuild}
           />
         )}
+        {workshopPopupOpen && <WorkshopPopup onClose={() => setWorkshopPopupOpen(false)} />}
       </div>
     </div>
   );
