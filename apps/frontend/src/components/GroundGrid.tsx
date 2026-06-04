@@ -1,11 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { isBuildableStructureType, Position, Positionable } from "@happy-little-park/utils";
+import {
+  getStructureSpan,
+  isBuildableStructureType,
+  Position,
+  Positionable,
+} from "@happy-little-park/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
-import { getStructureSpan } from "../constants/beetleBuild";
 import { queryKeys } from "../constants/queryKeys";
 import { useAnonymousId } from "../context/AnonymousIdContext";
 import { DragPayload } from "../domain/drag-n-drop/dragPayload";

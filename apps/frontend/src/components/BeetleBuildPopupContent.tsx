@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { BuildableStructureType } from "@happy-little-park/utils";
-
 import {
-  BUILDING_OPTIONS,
+  BuildableStructureType,
   getBuildResourceCostsForType,
   hasStructureType,
-} from "../constants/beetleBuild";
+} from "@happy-little-park/utils";
+
+import { BUILDING_OPTIONS } from "../constants/beetleBuild";
 import { Structure } from "../types/structure";
 import { BeetleBuildingSlider } from "./BeetleBuildingSlider";
 import { itemTypeToImageForItem } from "./helpers/itemTypeToImage";

@@ -2,8 +2,6 @@ export const APP_LOCALE = "en" as const;
 
 export const GROUND_GRID_MAX_WIDTH_PX = 450;
 
-export const BEETLE_MAX_LEAF_PARTS = 5;
-
 const ASSET_SCALE_FACTOR = 0.7;
 
 export const GROUND_MUD_BG_TILE_WIDTH_PX = 512 * ASSET_SCALE_FACTOR;

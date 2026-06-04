@@ -1,4 +1,9 @@
-import { Position, Positionable } from "@happy-little-park/utils";
+import {
+  BEETLE_MAX_LEAF_PARTS,
+  canDropItemOnStructure,
+  Position,
+  Positionable,
+} from "@happy-little-park/utils";
 
 import { addBeetleToStructure, updateBugPosition } from "../../api/bugs";
 import {
@@ -9,8 +14,6 @@ import {
 } from "../../api/items";
 import { createStack, mergeStacks, updateStack } from "../../api/stacks";
 import { updateStructurePosition } from "../../api/structures";
-import { BEETLE_MAX_LEAF_PARTS } from "../../constants";
-import { canDropItemOnStructure } from "../../constants/beetleBuild";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";

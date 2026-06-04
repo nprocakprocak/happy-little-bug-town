@@ -2,7 +2,7 @@ import { Position } from "@happy-little-park/utils";
 
 import { Structure } from "../../types/structure";
 
-const EVEN_CENTER_OFFSETS: ReadonlyArray<readonly [number, number]> = [
+const EVEN_CENTER_OFFSETS: ReadonlyArray<[number, number]> = [
   [0, 0],
   [1, 0],
   [0, 1],

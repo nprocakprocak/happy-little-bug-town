@@ -1,8 +1,8 @@
 import { Router, type RequestHandler } from "express";
 import { requireAid } from "../middleware/requireAid.js";
-import { canAcceptItemForBuild } from "../services/beetleBuild.js";
+import { canAcceptItemForBuild } from "@happy-little-park/utils";
 import { getBug } from "../services/bugsService.js";
-import { BEETLE_MAX_LEAF_PARTS } from "../services/constants.js";
+import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-park/utils";
 import { toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
 import {
   getItem as getItemService,

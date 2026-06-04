@@ -1,4 +1,4 @@
-import { BEETLE_MAX_LEAF_PARTS } from "../constants";
+import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-park/utils";
 
 interface BugsProgressBarProps {
   leafCount: number;

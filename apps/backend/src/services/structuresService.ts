@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
-import { BEETLE_HOUSE_SPAN, WORKSHOP_SPAN } from "./constants.js";
+import { getStructureSpan } from "@happy-little-park/utils";
 import { toStructureDto } from "./helpers.js";
 
 const structureInclude = { items: true, bugs: true } as const;
@@ -40,8 +40,7 @@ export const getStructures = async (
 export const createStructure = async (
   data: CreateStructureData,
 ): Promise<StructureDto> => {
-  const span =
-    data.structureType === "workshop" ? WORKSHOP_SPAN : BEETLE_HOUSE_SPAN;
+  const span = getStructureSpan(data.structureType);
   const structure = await prisma.structure.create({
     data: {
       authorId: data.authorId,

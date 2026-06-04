@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-park/utils";
 
-import { BEETLE_MAX_LEAF_PARTS } from "../constants";
 import { Bug } from "../types/bug";
 import { bugTypeToImage, itemTypeToImageForItem } from "./helpers/itemTypeToImage";
 

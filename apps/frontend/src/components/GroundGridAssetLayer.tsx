@@ -2,13 +2,13 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
+import { isStructureIncomplete } from "@happy-little-park/utils";
 
 import {
   GROUND_GRID_MAX_WIDTH_PX,
   GROUND_MUD_BG_TILE_HEIGHT_PX,
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../constants";
-import { isStructureIncomplete } from "../constants/beetleBuild";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Bug } from "../types/bug";
 import { Item } from "../types/item";

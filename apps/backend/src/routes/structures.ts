@@ -1,4 +1,9 @@
-import { structureFootprintFits } from "@happy-little-park/utils";
+import {
+  GROUND_HEIGHT,
+  GROUND_WIDTH,
+  getStructureSpan,
+  structureFootprintFits,
+} from "@happy-little-park/utils";
 import { Router, type RequestHandler } from "express";
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
@@ -8,12 +13,6 @@ import {
   getBug,
   updateBug as updateBugService,
 } from "../services/bugsService.js";
-import {
-  BEETLE_HOUSE_SPAN,
-  GROUND_HEIGHT,
-  GROUND_WIDTH,
-  WORKSHOP_SPAN,
-} from "../services/constants.js";
 import {
   isItemStackable,
   toBugOnGridDto,
@@ -65,7 +64,7 @@ const createStructure: RequestHandler = async (req, res) => {
     return;
   }
 
-  const span = structureType === "workshop" ? WORKSHOP_SPAN : BEETLE_HOUSE_SPAN;
+  const span = getStructureSpan(structureType);
   const entities = await getAllEntitiesOnGrid(authorId);
 
   const fits = structureFootprintFits(

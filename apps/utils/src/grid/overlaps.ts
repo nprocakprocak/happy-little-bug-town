@@ -1,6 +1,5 @@
-import { Position } from "@happy-little-park/utils";
+import { Position } from "../types/position.js";
 import { Positionable } from "../types/positionable.js";
-
 function positionOverlaps(position: Position, structure: Positionable): boolean {
   return (
     position.x >= structure.x &&

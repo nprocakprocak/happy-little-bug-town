@@ -1,6 +1,7 @@
 "use client";
 
-import { BEETLE_MAX_LEAF_PARTS } from "../constants";
+import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-park/utils";
+
 import { Bug } from "../types/bug";
 import { Structure } from "../types/structure";
 import { BeetleBuildPopupContent } from "./BeetleBuildPopupContent";
