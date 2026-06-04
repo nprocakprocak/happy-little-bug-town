@@ -5,12 +5,9 @@ export interface WorkshopToolOption {
   toolType: ToolType;
 }
 
-const WORKSHOP_TOOL_SLOT_COUNT = 5;
+const WORKSHOP_TOOL_TYPES: ToolType[] = ["leaf_rake", "shovel"];
 
-export const WORKSHOP_TOOL_OPTIONS: WorkshopToolOption[] = Array.from(
-  { length: WORKSHOP_TOOL_SLOT_COUNT },
-  (_, index) => ({
-    id: `workshop-tool-option-${index}`,
-    toolType: "leaf_rake",
-  }),
-);
+export const WORKSHOP_TOOL_OPTIONS: WorkshopToolOption[] = WORKSHOP_TOOL_TYPES.map((toolType) => ({
+  id: `workshop-tool-option-${toolType}`,
+  toolType,
+}));
