@@ -5,7 +5,7 @@ import { ItemType } from "../types/itemType";
 import { Structure } from "../types/structure";
 
 export const BEETLE_HOUSE_SPAN = 2;
-export const WORKSHOP_SPAN = 2;
+export const WORKSHOP_SPAN = 3;
 
 export function hasStructureType(structures: Structure[], structureType: StructureType): boolean {
   return structures.some((structure) => structure.structureType === structureType);
