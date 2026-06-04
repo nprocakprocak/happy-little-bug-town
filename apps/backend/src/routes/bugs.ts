@@ -2,7 +2,7 @@ import { positionOverlapsAnyEntity } from "@happy-little-park/utils";
 import { Router, type RequestHandler } from "express";
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireAid } from "../middleware/requireAid.js";
-import { canAcceptBeetleInHouse } from "../services/beetleBuild.js";
+import { isStructureBuilt } from "../services/beetleBuild.js";
 import { getBug, getBugs, updateBug as updateBugService } from "../services/bugsService.js";
 import { toBugOnGridDto } from "../services/helpers.js";
 import { getStructure } from "../services/structuresService.js";
@@ -47,7 +47,7 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
 
   if (structureId) {
     if (existingBug.bugType !== "beetle") {
-      res.status(400).json({ error: "Only beetles can be placed in a beetle house" });
+      res.status(400).json({ error: "Only beetles can be placed in a structure" });
       return;
     }
 
@@ -60,8 +60,12 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
-    if (!canAcceptBeetleInHouse(existingStructure)) {
-      res.status(400).json({ error: "Beetle cannot be added to structure" });
+    if (existingStructure.structureType !== "beetle_house") {
+      res.status(400).json({ error: "Only beetle houses can accept bugs" });
+      return;
+    }
+    if (!isStructureBuilt(existingStructure)) {
+      res.status(400).json({ error: "Structure is not built" });
       return;
     }
 

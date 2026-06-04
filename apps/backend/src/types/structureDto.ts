@@ -1,9 +1,9 @@
+import { BuildableStructureType } from "@happy-little-park/utils";
 import { Bug, Item, Structure } from "../prisma/prisma/client.js";
-import { ItemDto } from "./itemDto.js";
 
 export type CreateStructureData = {
   authorId: string;
-  structureType: "beetle_house";
+  structureType: BuildableStructureType;
   x: number;
   y: number;
 };

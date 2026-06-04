@@ -1,6 +1,7 @@
+import { StructureType } from "@happy-little-park/utils";
+
 import { BugType } from "../../types/bugType";
 import { ItemType } from "../../types/itemType";
-import { StructureType } from "../../types/structureType";
 
 export function itemTypeToImageForItem(itemType: ItemType): string {
   switch (itemType) {
@@ -47,6 +48,8 @@ export function structureTypeToImage(structureType: StructureType): string {
       return "/structures/hole.webp";
     case "beetle_house":
       return "/structures/beetle-house.webp";
+    case "workshop":
+      return "/structures/workshop.webp";
     default:
       throw new Error(`Unknown structure type: ${structureType}`);
   }

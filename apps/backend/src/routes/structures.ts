@@ -3,19 +3,35 @@ import { Router, type RequestHandler } from "express";
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
-import { createBug, getBug, updateBug as updateBugService } from "../services/bugsService.js";
-import { GROUND_HEIGHT, GROUND_WIDTH } from "../services/constants.js";
-import { isItemStackable, toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
-import { createItem, generateRandomItemType } from "../services/itemsService.js";
+import {
+  createBug,
+  getBug,
+  updateBug as updateBugService,
+} from "../services/bugsService.js";
+import {
+  BEETLE_HOUSE_SPAN,
+  GROUND_HEIGHT,
+  GROUND_WIDTH,
+  WORKSHOP_SPAN,
+} from "../services/constants.js";
+import {
+  isItemStackable,
+  toBugOnGridDto,
+  toItemOnGridDto,
+} from "../services/helpers.js";
+import {
+  createItem,
+  generateRandomItemType,
+} from "../services/itemsService.js";
 import {
   createFirstStructure as createFirstStructureService,
   createStructure as createStructureService,
   getStructure,
   getStructures,
   hasBeetleHouse,
+  hasWorkshop,
   updateStructurePosition as updateStructurePositionService,
 } from "../services/structuresService.js";
-import { BEETLE_HOUSE_SPAN } from "../services/constants.js";
 
 export const structuresRouter = Router();
 
@@ -30,8 +46,8 @@ const createStructure: RequestHandler = async (req, res) => {
   const authorId = req.authorId!;
   const { structureType, x, y } = req.body;
 
-  if (structureType !== "beetle_house") {
-    res.status(400).json({ error: "Only beetle houses can be built" });
+  if (structureType !== "beetle_house" && structureType !== "workshop") {
+    res.status(400).json({ error: "Invalid structure type" });
     return;
   }
   if (typeof x !== "number" || typeof y !== "number") {
@@ -39,15 +55,21 @@ const createStructure: RequestHandler = async (req, res) => {
     return;
   }
 
-  if (await hasBeetleHouse(authorId)) {
+  if (structureType === "beetle_house" && (await hasBeetleHouse(authorId))) {
     res.status(400).json({ error: "Beetle house already built" });
     return;
   }
 
+  if (structureType === "workshop" && (await hasWorkshop(authorId))) {
+    res.status(400).json({ error: "Workshop already built" });
+    return;
+  }
+
+  const span = structureType === "workshop" ? WORKSHOP_SPAN : BEETLE_HOUSE_SPAN;
   const entities = await getAllEntitiesOnGrid(authorId);
 
   const fits = structureFootprintFits(
-    { x, y, span: BEETLE_HOUSE_SPAN },
+    { x, y, span },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entities,
@@ -60,7 +82,7 @@ const createStructure: RequestHandler = async (req, res) => {
 
   const structure = await createStructureService({
     authorId,
-    structureType: "beetle_house",
+    structureType,
     x,
     y,
   });
@@ -104,7 +126,9 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
     { x, y, span: existingStructure.span },
     GROUND_WIDTH,
     GROUND_HEIGHT,
-    entities.filter((e) => e.x !== existingStructure.x || e.y !== existingStructure.y),
+    entities.filter(
+      (e) => e.x !== existingStructure.x || e.y !== existingStructure.y,
+    ),
   );
 
   if (!fits) {
@@ -122,7 +146,9 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
 
   const existingStructure = await getStructure(id);
   if (!existingStructure) {
-    res.status(400).json({ error: "Structure not found when extracting occupant" });
+    res
+      .status(400)
+      .json({ error: "Structure not found when extracting occupant" });
     return;
   }
   if (existingStructure.authorId !== authorId) {
@@ -139,21 +165,32 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findRandomEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities);
+  const emptyPosition = findRandomEmptyPosition(
+    GROUND_HEIGHT,
+    GROUND_WIDTH,
+    entities,
+  );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
   }
 
   const occupantToExtract =
-    existingStructure.bugs[Math.floor(Math.random() * existingStructure.bugs.length)];
+    existingStructure.bugs[
+      Math.floor(Math.random() * existingStructure.bugs.length)
+    ];
 
-  await updateBugService(occupantToExtract.id, { x: emptyPosition.x, y: emptyPosition.y });
+  await updateBugService(occupantToExtract.id, {
+    x: emptyPosition.x,
+    y: emptyPosition.y,
+  });
 
   const bug = await getBug(occupantToExtract.id);
   const structure = await getStructure(id);
   if (!bug || !structure) {
-    res.status(500).json({ error: "Failed to extract occupant from structure" });
+    res
+      .status(500)
+      .json({ error: "Failed to extract occupant from structure" });
     return;
   }
 
@@ -177,11 +214,22 @@ const dig: RequestHandler = async (req, res) => {
   }
   const itemOrBug = generateRandomItemType();
   if (itemOrBug === "beetle") {
-    const createdBug = await createBug({ bugType: itemOrBug, x: emptyPosition.x, y: emptyPosition.y, authorId });
+    const createdBug = await createBug({
+      bugType: itemOrBug,
+      x: emptyPosition.x,
+      y: emptyPosition.y,
+      authorId,
+    });
     res.status(201).json(toBugOnGridDto(createdBug));
     return;
   }
-  const createdItem = await createItem({ itemType: itemOrBug, stackable: isItemStackable(itemOrBug), x: emptyPosition.x, y: emptyPosition.y, authorId });
+  const createdItem = await createItem({
+    itemType: itemOrBug,
+    stackable: isItemStackable(itemOrBug),
+    x: emptyPosition.x,
+    y: emptyPosition.y,
+    authorId,
+  });
   res.status(201).json(toItemOnGridDto(createdItem));
 };
 

@@ -10,7 +10,7 @@ import {
 import { createStack, mergeStacks, updateStack } from "../../api/stacks";
 import { updateStructurePosition } from "../../api/structures";
 import { BEETLE_MAX_LEAF_PARTS } from "../../constants";
-import { canDropBeetleOnStructure, canDropItemOnStructure } from "../../constants/beetleBuild";
+import { canDropItemOnStructure } from "../../constants/beetleBuild";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
@@ -107,9 +107,6 @@ export async function dropAction(
   }
 
   if (originalBug && targetStructure) {
-    if (!canDropBeetleOnStructure(originalBug, targetStructure)) {
-      throw new Error("Beetle cannot be added to structure");
-    }
     const structure = await addBeetleToStructure(originalBug.id, targetStructure.id);
 
     return {

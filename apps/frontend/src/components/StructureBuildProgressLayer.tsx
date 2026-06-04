@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Image from "next/image";
 
-import { getBeetleHouseBuildProgress, isBeetleHouseIncomplete } from "../constants/beetleBuild";
+import { getStructureBuildProgress, isStructureIncomplete } from "../constants/beetleBuild";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { ItemType } from "../types/itemType";
 import { Structure } from "../types/structure";
@@ -47,7 +47,7 @@ export function StructureBuildProgressLayer({
   gridDrag,
 }: StructureBuildProgressLayerProps) {
   const structuresUnderConstruction = useMemo(
-    () => structures.filter(isBeetleHouseIncomplete),
+    () => structures.filter(isStructureIncomplete),
     [structures],
   );
 
@@ -66,7 +66,7 @@ export function StructureBuildProgressLayer({
           isDragged && gridDrag
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
-        const progress = getBeetleHouseBuildProgress(structure);
+        const progress = getStructureBuildProgress(structure);
 
         return progress.map(({ itemType, missing }, index) => {
           const colOffset = index % structure.span;

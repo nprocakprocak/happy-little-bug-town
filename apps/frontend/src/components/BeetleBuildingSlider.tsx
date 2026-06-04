@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-import { BEETLE_BUILDING_OPTIONS } from "../constants/beetleBuild";
+import { BUILDING_OPTIONS } from "../constants/beetleBuild";
 import { getStructureName } from "./helpers/getStructureName";
 import { structureTypeToImage } from "./helpers/itemTypeToImage";
 
@@ -15,8 +15,8 @@ export function BeetleBuildingSlider({
   selectedIndex,
   onSelectedIndexChange,
 }: BeetleBuildingSliderProps) {
-  const selectedBuilding = BEETLE_BUILDING_OPTIONS[selectedIndex];
-  const lastIndex = BEETLE_BUILDING_OPTIONS.length - 1;
+  const selectedBuilding = BUILDING_OPTIONS[selectedIndex];
+  const lastIndex = BUILDING_OPTIONS.length - 1;
 
   function goToPrevious() {
     onSelectedIndexChange(selectedIndex === 0 ? lastIndex : selectedIndex - 1);
@@ -59,7 +59,7 @@ export function BeetleBuildingSlider({
         {getStructureName(selectedBuilding)}
       </p>
       <div className="flex items-center gap-[1.5cqi]">
-        {BEETLE_BUILDING_OPTIONS.map((structure, index) => (
+        {BUILDING_OPTIONS.map((structure, index) => (
           <button
             key={structure.id}
             type="button"

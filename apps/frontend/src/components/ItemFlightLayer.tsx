@@ -1,22 +1,25 @@
 "use client";
 
-import { Positionable } from "@happy-little-park/utils";
-import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
+import Image from "next/image";
+import { Positionable } from "@happy-little-park/utils";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { GridAnimatable } from "../types/gridAnimatable";
 import { WithId } from "../types/withId";
 import { isBug, isItem, isStack, isStructure } from "../utils/typeGuards";
 import { isFlyingItem } from "./helpers/isFlyingItem";
-import { bugTypeToImage, itemTypeToImageForItem, itemTypeToImageForStack, structureTypeToImage } from "./helpers/itemTypeToImage";
+import {
+  bugTypeToImage,
+  itemTypeToImageForItem,
+  itemTypeToImageForStack,
+  structureTypeToImage,
+} from "./helpers/itemTypeToImage";
 
 const FLIGHT_DURATION_MS = 550;
 const FLIGHT_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
-type Animatable = GridAnimatable &
-  WithId &
-  Positionable;
+type Animatable = GridAnimatable & WithId & Positionable;
 
 function animatableImageSrc(animatable: Animatable): string {
   if (isBug(animatable)) {

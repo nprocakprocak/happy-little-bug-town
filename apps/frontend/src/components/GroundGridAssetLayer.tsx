@@ -8,7 +8,7 @@ import {
   GROUND_MUD_BG_TILE_HEIGHT_PX,
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../constants";
-import { isBeetleHouseIncomplete } from "../constants/beetleBuild";
+import { isStructureIncomplete } from "../constants/beetleBuild";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Bug } from "../types/bug";
 import { Item } from "../types/item";
@@ -68,7 +68,7 @@ export function GroundGridAssetLayer({
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
 
-        const isIncomplete = isBeetleHouseIncomplete(structure);
+        const isIncomplete = isStructureIncomplete(structure);
         const firstHouseBug = (structure.bugs ?? [])[0];
 
         return (

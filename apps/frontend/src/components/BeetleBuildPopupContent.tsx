@@ -2,25 +2,34 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { BuildableStructureType } from "@happy-little-park/utils";
 
-import { BEETLE_BUILD_RESOURCE_COSTS, BEETLE_BUILDING_OPTIONS } from "../constants/beetleBuild";
+import {
+  BUILDING_OPTIONS,
+  getBuildResourceCostsForType,
+  hasStructureType,
+} from "../constants/beetleBuild";
 import { Structure } from "../types/structure";
 import { BeetleBuildingSlider } from "./BeetleBuildingSlider";
 import { itemTypeToImageForItem } from "./helpers/itemTypeToImage";
 
 interface BeetleBuildPopupContentProps {
-  canBuild: boolean;
+  structures: Structure[];
   onClose: () => void;
   onBuild: (structure: Structure) => void;
 }
 
 export function BeetleBuildPopupContent({
-  canBuild,
+  structures,
   onClose,
   onBuild,
 }: BeetleBuildPopupContentProps) {
   const [selectedBuildingIndex, setSelectedBuildingIndex] = useState(0);
-  const selectedStructure = BEETLE_BUILDING_OPTIONS[selectedBuildingIndex];
+  const selectedStructure = BUILDING_OPTIONS[selectedBuildingIndex];
+  const selectedResourceCosts = getBuildResourceCostsForType(
+    selectedStructure.structureType as BuildableStructureType,
+  );
+  const canBuild = !hasStructureType(structures, selectedStructure.structureType);
 
   function handleBuildClick() {
     if (!canBuild) {
@@ -37,7 +46,7 @@ export function BeetleBuildPopupContent({
           onSelectedIndexChange={setSelectedBuildingIndex}
         />
         <div className="flex w-full flex-wrap items-center justify-center gap-[3cqi]">
-          {BEETLE_BUILD_RESOURCE_COSTS.map(({ itemType, count }) => (
+          {selectedResourceCosts.map(({ itemType, count }) => (
             <div key={itemType} className="flex items-center gap-[1.5cqi]">
               <div className="relative h-[7cqi] w-[7cqi]">
                 <Image

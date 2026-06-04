@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Position, Positionable } from "@happy-little-park/utils";
+import { isBuildableStructureType, Position, Positionable } from "@happy-little-park/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
-import { BEETLE_HOUSE_SPAN, hasBeetleHouse } from "../constants/beetleBuild";
+import { getStructureSpan } from "../constants/beetleBuild";
 import { queryKeys } from "../constants/queryKeys";
 import { useAnonymousId } from "../context/AnonymousIdContext";
 import { DragPayload } from "../domain/drag-n-drop/dragPayload";
@@ -382,11 +382,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   }, []);
 
   const onBeetleBuild = useCallback(
-    (_structure: Structure) => {
-      if (hasBeetleHouse(structures)) {
+    (structure: Structure) => {
+      if (!isBuildableStructureType(structure.structureType)) {
         return;
       }
-      const position = findFirstStructurePlacement(BEETLE_HOUSE_SPAN, cols, rows, [
+      const span = getStructureSpan(structure.structureType);
+      const position = findFirstStructurePlacement(span, cols, rows, [
         ...structures,
         ...items,
         ...stacks,
@@ -396,7 +397,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         return;
       }
       createStructure.mutate({
-        structureType: "beetle_house",
+        structureType: structure.structureType,
         ...position,
       });
       setSelectedBeetle(null);
@@ -464,7 +465,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         {selectedBeetle && (
           <BeetlePopup
             beetle={selectedBeetle}
-            canBuild={!hasBeetleHouse(structures)}
+            structures={structures}
             onClose={() => setSelectedBeetle(null)}
             onBuild={onBeetleBuild}
           />
