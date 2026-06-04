@@ -1,7 +1,4 @@
-import { StructureType } from "@happy-little-park/utils";
-
-import { BugType } from "../../types/bugType";
-import { ItemType } from "../../types/itemType";
+import { BugType, ItemType, StructureType } from "@happy-little-park/utils";
 
 export function itemTypeToImageForItem(itemType: ItemType): string {
   switch (itemType) {

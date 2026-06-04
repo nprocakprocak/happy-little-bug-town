@@ -1,16 +1,20 @@
 import cors from "cors";
+
 import { AID_HEADER } from "./constants/aid.js";
+
 import "dotenv/config";
-import express from "express";
+
 import { createServer } from "http";
+import express from "express";
 import { Server } from "socket.io";
+
 import { loadServerEnv } from "./config/serverEnv.js";
+import { bugsRouter } from "./routes/bugs.js";
 import { gridRouter } from "./routes/grid.js";
 import { itemsRouter } from "./routes/items.js";
-import { usersRouter } from "./routes/users.js";
-import { structuresRouter } from "./routes/structures.js";
 import { stacksRouter } from "./routes/stacks.js";
-import { bugsRouter } from "./routes/bugs.js";
+import { structuresRouter } from "./routes/structures.js";
+import { usersRouter } from "./routes/users.js";
 
 const { railwayPublicDomain, corsOrigin, port } = loadServerEnv();
 

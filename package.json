@@ -14,6 +14,9 @@
     "build": "npm run build:utils && npm run build:backend && npm run build:frontend",
     "start:backend": "npm --workspace @happy-little-park/backend run start",
     "start:frontend": "npm --workspace @happy-little-park/frontend run start",
+    "format:backend": "npm --workspace @happy-little-park/backend run format",
+    "format:frontend": "npm --workspace @happy-little-park/frontend run format",
+    "format": "npm run format:backend && npm run format:frontend",
     "dev": "npx concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "test": "npm run test --workspaces --if-present"
   },

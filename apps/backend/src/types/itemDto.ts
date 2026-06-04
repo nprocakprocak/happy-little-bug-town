@@ -12,4 +12,8 @@ export type ItemDto = Pick<
   "id" | "itemType" | "x" | "y" | "authorId" | "stackId" | "bugId" | "structureId"
 > & { stackable: boolean };
 
-export type ItemOnGridDto = Pick<Item, "id" | "itemType"> & { x: number, y: number, stackable: boolean };
+export type ItemOnGridDto = Pick<Item, "id" | "itemType"> & {
+  x: number;
+  y: number;
+  stackable: boolean;
+};

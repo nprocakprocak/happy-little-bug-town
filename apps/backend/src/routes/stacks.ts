@@ -1,5 +1,7 @@
-import { GROUND_HEIGHT, GROUND_WIDTH } from "@happy-little-park/utils";
 import { Router, type RequestHandler } from "express";
+
+import { GROUND_HEIGHT, GROUND_WIDTH } from "@happy-little-park/utils";
+
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
@@ -49,12 +51,15 @@ const createStack: RequestHandler = async (req, res) => {
     return;
   }
 
-  const stack = await createStackWithItems({
-    itemType,
-    x,
-    y,
-    authorId,
-  }, itemIds);
+  const stack = await createStackWithItems(
+    {
+      itemType,
+      x,
+      y,
+      authorId,
+    },
+    itemIds,
+  );
 
   res.status(201).json(stack);
 };
@@ -82,7 +87,7 @@ const updateStack: RequestHandler = async (req, res) => {
     return;
   }
 
-  const stack = await updateStackService(id, {x, y});
+  const stack = await updateStackService(id, { x, y });
   res.status(200).json(stack);
 };
 
@@ -133,7 +138,7 @@ const mergeStacks: RequestHandler = async (req, res) => {
 const extractItemFromStack: RequestHandler = async (req, res) => {
   const { id } = req.params;
   const authorId = req.authorId!;
-  
+
   const existingStack = await getStack(id);
   if (!existingStack) {
     res.status(400).json({ error: "Stack not found when extracting item" });
@@ -145,11 +150,7 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findRandomEmptyPosition(
-    GROUND_HEIGHT,
-    GROUND_WIDTH,
-    entities,
-  );
+  const emptyPosition = findRandomEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities);
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
@@ -158,11 +159,7 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
   const stackPosition = { x: existingStack.x, y: existingStack.y };
 
   if (existingStack.itemsCount === 2) {
-    const { extractedItem, remainingItem } = await dissolveStack(
-      id,
-      stackPosition,
-      emptyPosition,
-    );
+    const { extractedItem, remainingItem } = await dissolveStack(id, stackPosition, emptyPosition);
     res.status(200).json({
       extractedItem,
       remainingItem,
@@ -176,7 +173,7 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
     extractedItem: item,
     stackDissolved: false,
   });
-}
+};
 
 stacksRouter.get("/", listStacks);
 stacksRouter.post("/create", createStack);

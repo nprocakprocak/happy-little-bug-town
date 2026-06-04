@@ -1,4 +1,5 @@
 import { BuildableStructureType } from "@happy-little-park/utils";
+
 import { Bug, Item, Structure } from "../prisma/prisma/client.js";
 
 export type CreateStructureData = {

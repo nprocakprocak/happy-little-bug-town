@@ -1,6 +1,7 @@
+import { getStructureSpan } from "@happy-little-park/utils";
+
 import { prisma } from "../lib/prisma.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
-import { getStructureSpan } from "@happy-little-park/utils";
 import { toStructureDto } from "./helpers.js";
 
 const structureInclude = { items: true, bugs: true } as const;
@@ -25,9 +26,7 @@ export const hasWorkshop = async (authorId: string): Promise<boolean> => {
   return count > 0;
 };
 
-export const getStructures = async (
-  authorId: string,
-): Promise<StructureDto[]> => {
+export const getStructures = async (authorId: string): Promise<StructureDto[]> => {
   const structures = await prisma.structure.findMany({
     where: {
       authorId,
@@ -37,9 +36,7 @@ export const getStructures = async (
   return structures.map(toStructureDto);
 };
 
-export const createStructure = async (
-  data: CreateStructureData,
-): Promise<StructureDto> => {
+export const createStructure = async (data: CreateStructureData): Promise<StructureDto> => {
   const span = getStructureSpan(data.structureType);
   const structure = await prisma.structure.create({
     data: {
@@ -54,9 +51,7 @@ export const createStructure = async (
   return toStructureDto(structure);
 };
 
-export const createFirstStructure = async (
-  authorId: string,
-): Promise<StructureDto> => {
+export const createFirstStructure = async (authorId: string): Promise<StructureDto> => {
   const structure = await prisma.structure.create({
     data: {
       authorId,
@@ -70,9 +65,7 @@ export const createFirstStructure = async (
   return toStructureDto(structure);
 };
 
-export const getStructure = async (
-  id: string,
-): Promise<StructureDto | null> => {
+export const getStructure = async (id: string): Promise<StructureDto | null> => {
   const structure = await prisma.structure.findUnique({
     where: { id },
     include: structureInclude,

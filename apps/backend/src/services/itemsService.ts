@@ -1,4 +1,5 @@
 import { Position } from "@happy-little-park/utils";
+
 import { prisma } from "../lib/prisma.js";
 import { BugType, ItemType } from "../prisma/prisma/client.js";
 import { CreateItemData, ItemDto, UpdateItemData } from "../types/itemDto.js";
@@ -21,7 +22,7 @@ export const getItemsOnGrid = async (authorId: string): Promise<ItemDto[]> => {
     },
   });
   return items.map(toItemDto);
-}
+};
 
 export const getItemsByIds = async (authorId: string, itemIds: string[]): Promise<ItemDto[]> => {
   const items = await prisma.item.findMany({
@@ -31,7 +32,7 @@ export const getItemsByIds = async (authorId: string, itemIds: string[]): Promis
     },
   });
   return items.map(toItemDto);
-}
+};
 
 export const getItem = async (id: string): Promise<ItemDto | null> => {
   const item = await prisma.item.findUnique({
@@ -41,7 +42,7 @@ export const getItem = async (id: string): Promise<ItemDto | null> => {
     return null;
   }
   return toItemDto(item);
-}
+};
 
 export const createItem = async (item: CreateItemData): Promise<ItemDto> => {
   const createdItem = await prisma.item.create({
@@ -53,7 +54,7 @@ export const createItem = async (item: CreateItemData): Promise<ItemDto> => {
     },
   });
   return toItemDto(createdItem);
-}
+};
 
 export const updateItem = async (id: string, item: UpdateItemData): Promise<ItemDto> => {
   const data = item.bugId
@@ -93,7 +94,7 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
     data,
   });
   return toItemDto(updatedItem);
-}
+};
 
 export function generateRandomItemType(): ItemType | BugType {
   const seed = Math.random();
@@ -134,7 +135,7 @@ export async function dissolveStack(
     if (stackItems.length !== 2) {
       throw new Error(`Expected 2 items in stack ${stackId} when dissolving`);
     }
-    
+
     const itemToExtract = stackItems[0];
     const itemToKeep = stackItems[1];
 

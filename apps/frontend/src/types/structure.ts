@@ -1,7 +1,5 @@
-import { Position, StructureType } from "@happy-little-park/utils";
+import { BugType, ItemType, Position, StructureType } from "@happy-little-park/utils";
 
-import { BugType } from "./bugType";
-import { ItemType } from "./itemType";
 import { WithId } from "./withId";
 
 export interface StructureItem {

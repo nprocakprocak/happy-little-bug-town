@@ -1,7 +1,6 @@
-import { Position } from "@happy-little-park/utils";
+import { ItemType, Position } from "@happy-little-park/utils";
 
 import { GridAnimatable } from "./gridAnimatable";
-import { ItemType } from "./itemType";
 import { WithId } from "./withId";
 
 export interface Item extends WithId, Position, GridAnimatable {

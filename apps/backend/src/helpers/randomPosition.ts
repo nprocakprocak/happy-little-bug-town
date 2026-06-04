@@ -1,10 +1,6 @@
 import { Positionable, positionOverlapsAnyEntity } from "@happy-little-park/utils";
 
-export function findRandomEmptyPosition(
-  rows: number,
-  cols: number,
-  entities: Positionable[],
-) {
+export function findRandomEmptyPosition(rows: number, cols: number, entities: Positionable[]) {
   const emptyPositions = [];
 
   for (let y = 1; y <= rows; y++) {

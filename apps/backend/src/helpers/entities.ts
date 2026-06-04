@@ -1,4 +1,5 @@
 import { Positionable } from "@happy-little-park/utils";
+
 import { getBugs } from "../services/bugsService.js";
 import { getItemsOnGrid } from "../services/itemsService.js";
 import { getStacks } from "../services/stacksService.js";
@@ -12,6 +13,6 @@ export async function getAllEntitiesOnGrid(authorId: string): Promise<Positionab
     getStacks(authorId),
     getBugs(authorId),
   ]);
-  
+
   return [...structures, ...items, ...stacks, ...bugs].filter(isPositioned) as Positionable[];
 }

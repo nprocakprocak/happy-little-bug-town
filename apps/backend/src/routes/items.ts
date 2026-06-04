@@ -1,13 +1,14 @@
 import { Router, type RequestHandler } from "express";
+
+import { BEETLE_MAX_LEAF_PARTS, canAcceptItemForBuild } from "@happy-little-park/utils";
+
 import { requireAid } from "../middleware/requireAid.js";
-import { canAcceptItemForBuild } from "@happy-little-park/utils";
 import { getBug } from "../services/bugsService.js";
-import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-park/utils";
 import { toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
 import {
   getItem as getItemService,
   getItemsOnGrid,
-  updateItem as updateItemService
+  updateItem as updateItemService,
 } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
 import { getStructure, getStructures } from "../services/structuresService.js";
@@ -22,10 +23,7 @@ const listItems: RequestHandler = async (req, res) => {
   res.status(200).json(items.map(toItemOnGridDto));
 };
 
-const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = async (
-  req,
-  res,
-) => {
+const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = async (req, res) => {
   const { id } = req.params;
   const { x, y, stackId, bugId, structureId } = req.body;
   const authorId = req.authorId!;

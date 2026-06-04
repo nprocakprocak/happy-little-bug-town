@@ -1,27 +1,18 @@
+import { Router, type RequestHandler } from "express";
+
 import {
+  getStructureSpan,
   GROUND_HEIGHT,
   GROUND_WIDTH,
-  getStructureSpan,
   structureFootprintFits,
 } from "@happy-little-park/utils";
-import { Router, type RequestHandler } from "express";
+
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
-import {
-  createBug,
-  getBug,
-  updateBug as updateBugService,
-} from "../services/bugsService.js";
-import {
-  isItemStackable,
-  toBugOnGridDto,
-  toItemOnGridDto,
-} from "../services/helpers.js";
-import {
-  createItem,
-  generateRandomItemType,
-} from "../services/itemsService.js";
+import { createBug, getBug, updateBug as updateBugService } from "../services/bugsService.js";
+import { isItemStackable, toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
+import { createItem, generateRandomItemType } from "../services/itemsService.js";
 import {
   createFirstStructure as createFirstStructureService,
   createStructure as createStructureService,
@@ -67,12 +58,7 @@ const createStructure: RequestHandler = async (req, res) => {
   const span = getStructureSpan(structureType);
   const entities = await getAllEntitiesOnGrid(authorId);
 
-  const fits = structureFootprintFits(
-    { x, y, span },
-    GROUND_WIDTH,
-    GROUND_HEIGHT,
-    entities,
-  );
+  const fits = structureFootprintFits({ x, y, span }, GROUND_WIDTH, GROUND_HEIGHT, entities);
 
   if (!fits) {
     res.status(400).json({ error: "Position is not free for structure" });
@@ -125,9 +111,7 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
     { x, y, span: existingStructure.span },
     GROUND_WIDTH,
     GROUND_HEIGHT,
-    entities.filter(
-      (e) => e.x !== existingStructure.x || e.y !== existingStructure.y,
-    ),
+    entities.filter((e) => e.x !== existingStructure.x || e.y !== existingStructure.y),
   );
 
   if (!fits) {
@@ -145,9 +129,7 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
 
   const existingStructure = await getStructure(id);
   if (!existingStructure) {
-    res
-      .status(400)
-      .json({ error: "Structure not found when extracting occupant" });
+    res.status(400).json({ error: "Structure not found when extracting occupant" });
     return;
   }
   if (existingStructure.authorId !== authorId) {
@@ -164,20 +146,14 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findRandomEmptyPosition(
-    GROUND_HEIGHT,
-    GROUND_WIDTH,
-    entities,
-  );
+  const emptyPosition = findRandomEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities);
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
   }
 
   const occupantToExtract =
-    existingStructure.bugs[
-      Math.floor(Math.random() * existingStructure.bugs.length)
-    ];
+    existingStructure.bugs[Math.floor(Math.random() * existingStructure.bugs.length)];
 
   await updateBugService(occupantToExtract.id, {
     x: emptyPosition.x,
@@ -187,9 +163,7 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
   const bug = await getBug(occupantToExtract.id);
   const structure = await getStructure(id);
   if (!bug || !structure) {
-    res
-      .status(500)
-      .json({ error: "Failed to extract occupant from structure" });
+    res.status(500).json({ error: "Failed to extract occupant from structure" });
     return;
   }
 
@@ -202,11 +176,7 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
 const dig: RequestHandler = async (req, res) => {
   const authorId = req.authorId!;
   const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findRandomEmptyPosition(
-    GROUND_HEIGHT,
-    GROUND_WIDTH,
-    entities,
-  );
+  const emptyPosition = findRandomEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities);
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;

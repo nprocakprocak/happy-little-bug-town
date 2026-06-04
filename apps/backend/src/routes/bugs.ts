@@ -1,8 +1,9 @@
-import { positionOverlapsAnyEntity } from "@happy-little-park/utils";
 import { Router, type RequestHandler } from "express";
+
+import { isStructureBuilt, positionOverlapsAnyEntity } from "@happy-little-park/utils";
+
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireAid } from "../middleware/requireAid.js";
-import { isStructureBuilt } from "@happy-little-park/utils";
 import { getBug, getBugs, updateBug as updateBugService } from "../services/bugsService.js";
 import { toBugOnGridDto } from "../services/helpers.js";
 import { getStructure } from "../services/structuresService.js";

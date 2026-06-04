@@ -2,7 +2,11 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
-import { getStructureBuildProgress, isStructureIncomplete, ItemType } from "@happy-little-park/utils";
+import {
+  getStructureBuildProgress,
+  isStructureIncomplete,
+  ItemType,
+} from "@happy-little-park/utils";
 
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Structure } from "../types/structure";

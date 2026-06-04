@@ -1,6 +1,5 @@
-import { Position } from "@happy-little-park/utils";
+import { BugType, Position } from "@happy-little-park/utils";
 
-import { BugType } from "./bugType";
 import { GridAnimatable } from "./gridAnimatable";
 import { WithId } from "./withId";
 

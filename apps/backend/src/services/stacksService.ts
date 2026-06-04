@@ -3,7 +3,7 @@ import { ItemType, Stack } from "../prisma/prisma/client.js";
 
 type CreateStackData = Pick<Stack, "itemType" | "x" | "y" | "authorId">;
 type ReturnStackData = Stack & { itemsCount: number };
-type UpdateStackData = Pick<Stack,  "x" | "y">;
+type UpdateStackData = Pick<Stack, "x" | "y">;
 
 export const getStacks = async (authorId: string): Promise<ReturnStackData[]> => {
   const stacks = await prisma.stack.findMany({
@@ -18,7 +18,7 @@ export const getStacks = async (authorId: string): Promise<ReturnStackData[]> =>
     ...stack,
     itemsCount: stack.items.length,
   }));
-}
+};
 
 export const getStack = async (id: string): Promise<ReturnStackData | null> => {
   const stack = await prisma.stack.findUnique({
@@ -28,7 +28,7 @@ export const getStack = async (id: string): Promise<ReturnStackData | null> => {
     },
   });
   return stack ? { ...stack, itemsCount: stack.items.length } : null;
-}
+};
 
 export const createStack = async (stack: CreateStackData): Promise<ReturnStackData> => {
   const createdStack = await prisma.stack.create({
@@ -40,7 +40,7 @@ export const createStack = async (stack: CreateStackData): Promise<ReturnStackDa
     ...createdStack,
     itemsCount: 0,
   };
-}
+};
 
 export const updateStack = async (id: string, stack: UpdateStackData): Promise<ReturnStackData> => {
   const updatedStack = await prisma.stack.update({
@@ -54,9 +54,12 @@ export const updateStack = async (id: string, stack: UpdateStackData): Promise<R
     ...updatedStack,
     itemsCount: updatedStack.items.length,
   };
-}
+};
 
-export const createStackWithItems = async (stack: CreateStackData, itemIds: string[]): Promise<ReturnStackData> => {
+export const createStackWithItems = async (
+  stack: CreateStackData,
+  itemIds: string[],
+): Promise<ReturnStackData> => {
   return await prisma.$transaction(async (tx) => {
     const createdStack = await tx.stack.create({
       data: stack,
@@ -78,7 +81,7 @@ export const createStackWithItems = async (stack: CreateStackData, itemIds: stri
       itemsCount: itemIds.length,
     };
   });
-}
+};
 
 export const mergeStacks = async (
   sourceStackId: string,
@@ -108,4 +111,4 @@ export const mergeStacks = async (
       itemsCount: mergedStack.items.length,
     };
   });
-}
+};
