@@ -164,7 +164,7 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
       emptyPosition,
     );
     res.status(200).json({
-      extractedItem: { ...extractedItem, fromX: existingStack.x, fromY: existingStack.y },
+      extractedItem,
       remainingItem,
       stackDissolved: true,
     });
@@ -173,7 +173,7 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
 
   const item = await takeItemFromStack(id, emptyPosition);
   res.status(200).json({
-    extractedItem: { ...item, fromX: existingStack.x, fromY: existingStack.y },
+    extractedItem: item,
     stackDissolved: false,
   });
 }

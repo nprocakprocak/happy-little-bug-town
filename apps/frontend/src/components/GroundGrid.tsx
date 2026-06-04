@@ -18,6 +18,7 @@ import {
   useCreateFirstStructureMutation,
   useCreateStructureMutation,
   useDigMutation,
+  useExtractOccupantMutation,
   useStructuresQuery,
 } from "../hooks/useStructures";
 import { Bug } from "../types/bug";
@@ -31,7 +32,11 @@ import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { findFirstStructurePlacement } from "./helpers/findFirstStructurePlacement";
-import { pickRandomNearestStructureCenterCell } from "./helpers/structureCenterCell";
+import { hasEmptyGridCell } from "./helpers/hasEmptyGridCell";
+import {
+  getBeetleHouseExtractOrigin,
+  pickRandomNearestStructureCenterCell,
+} from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
 import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
 
@@ -53,6 +58,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { data: stacks = [] } = useStacksQuery(canLoadGridData);
   const extractFromStack = useExtractFromStackMutation();
   const dig = useDigMutation();
+  const extractOccupantMutation = useExtractOccupantMutation();
   const {
     mutate: createFirstStructureMutate,
     isPending: isCreatingFirstStructure,
@@ -317,7 +323,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const onStackClick = useCallback(
     (stack: Stack) => {
       (async () => {
-        await extractFromStack.mutateAsync(stack.id);
+        await extractFromStack.mutateAsync(stack);
       })();
     },
     [extractFromStack],
@@ -325,21 +331,50 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onStructureClick = useCallback(
     (structure: Structure) => {
-      if (structure.structureType !== "hole") {
+      if (structure.structureType === "hole") {
+        (async () => {
+          const itemOrBug = await dig.mutateAsync();
+          const origin = pickRandomNearestStructureCenterCell(structure);
+
+          if (isItem(itemOrBug)) {
+            setItemsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
+          } else {
+            setBugsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
+          }
+        })();
         return;
       }
-      (async () => {
-        const itemOrBug = await dig.mutateAsync();
-        const origin = pickRandomNearestStructureCenterCell(structure);
 
-        if (isItem(itemOrBug)) {
-          setItemsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
-        } else {
-          setBugsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
-        }
+      if (structure.structureType !== "beetle_house") {
+        return;
+      }
+
+      if ((structure.bugs ?? []).length === 0 || !hasEmptyGridCell(rows, cols, animatables)) {
+        return;
+      }
+
+      (async () => {
+        const result = await extractOccupantMutation.mutateAsync(structure.id);
+        const origin = getBeetleHouseExtractOrigin(structure);
+        setStructuresCache((prev) =>
+          prev.map((s) => (s.id === result.structure.id ? result.structure : s)),
+        );
+        setBugsCache((prev) => [
+          ...prev,
+          { ...result.extractedOccupant, fromX: origin.x, fromY: origin.y },
+        ]);
       })();
     },
-    [dig, setItemsCache, setBugsCache],
+    [
+      dig,
+      extractOccupantMutation,
+      animatables,
+      rows,
+      cols,
+      setItemsCache,
+      setBugsCache,
+      setStructuresCache,
+    ],
   );
 
   const onBeetleClick = useCallback((bug: Bug) => {

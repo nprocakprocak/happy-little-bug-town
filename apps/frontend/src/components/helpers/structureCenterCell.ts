@@ -27,3 +27,10 @@ export function pickRandomNearestStructureCenterCell(structure: Structure): Posi
   const pick = EVEN_CENTER_OFFSETS[Math.floor(Math.random() * EVEN_CENTER_OFFSETS.length)];
   return { x: baseX + pick[0], y: baseY + pick[1] };
 }
+
+export function getBeetleHouseExtractOrigin(structure: Structure): Position {
+  return {
+    x: structure.x + structure.span - 1,
+    y: structure.y + structure.span - 1,
+  };
+}

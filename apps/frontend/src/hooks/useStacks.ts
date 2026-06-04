@@ -50,10 +50,15 @@ export function useExtractFromStackMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (stackId: string) => extractItemFromStack(stackId),
-    onSuccess: (result, stackId) => {
+    mutationFn: (stack: Stack) => extractItemFromStack(stack.id),
+    onSuccess: (result, stack) => {
       updateItemsCache(queryClient, (items) => {
-        const next = [...items, result.extractedItem];
+        const flyingItem = {
+          ...result.extractedItem,
+          fromX: stack.x,
+          fromY: stack.y,
+        };
+        const next = [...items, flyingItem];
         if (result.remainingItem) {
           next.push(result.remainingItem);
         }
@@ -61,9 +66,9 @@ export function useExtractFromStackMutation() {
       });
       updateStacksCache(queryClient, (stacks) => {
         if (result.stackDissolved) {
-          return stacks.filter((s) => s.id !== stackId);
+          return stacks.filter((s) => s.id !== stack.id);
         }
-        return stacks.map((s) => (s.id === stackId ? { ...s, itemsCount: s.itemsCount - 1 } : s));
+        return stacks.map((s) => (s.id === stack.id ? { ...s, itemsCount: s.itemsCount - 1 } : s));
       });
     },
   });

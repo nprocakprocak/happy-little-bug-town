@@ -1,6 +1,7 @@
 import { Position } from "@happy-little-park/utils";
 
 import { Bug } from "../types/bug";
+import { ExtractOccupantResult } from "../types/extractOccupantResult";
 import { Item } from "../types/item";
 import { Structure } from "../types/structure";
 import { apiFetch } from "./client";
@@ -36,6 +37,12 @@ export function updateStructurePosition(
 
 export function dig(): Promise<Item | Bug> {
   return apiFetch<Item | Bug>("/api/structures/dig", {
+    method: "POST",
+  });
+}
+
+export function extractOccupant(structureId: string): Promise<ExtractOccupantResult> {
+  return apiFetch<ExtractOccupantResult>(`/api/structures/${structureId}/extract-occupant`, {
     method: "POST",
   });
 }
