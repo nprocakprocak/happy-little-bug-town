@@ -2,8 +2,11 @@ import { positionOverlapsAnyEntity } from "@happy-little-park/utils";
 import { Router, type RequestHandler } from "express";
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireAid } from "../middleware/requireAid.js";
+import { canAcceptBeetleInHouse } from "../services/beetleBuild.js";
 import { getBug, getBugs, updateBug as updateBugService } from "../services/bugsService.js";
 import { toBugOnGridDto } from "../services/helpers.js";
+import { getStructure } from "../services/structuresService.js";
+import { isPositioned } from "../typeGuards/items.js";
 
 export const bugsRouter = Router();
 
@@ -11,7 +14,7 @@ bugsRouter.use(requireAid);
 
 const listBugs: RequestHandler = async (req, res) => {
   const bugs = await getBugs(req.authorId!);
-  res.status(200).json(bugs.map(toBugOnGridDto));
+  res.status(200).json(bugs.filter(isPositioned).map(toBugOnGridDto));
 };
 
 const getBugById: RequestHandler<{ id: string }> = async (req, res) => {
@@ -29,13 +32,8 @@ const getBugById: RequestHandler<{ id: string }> = async (req, res) => {
 
 const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
-  const { x, y } = req.body;
+  const { x, y, structureId } = req.body;
   const authorId = req.authorId!;
-
-  if (typeof x !== "number" || typeof y !== "number") {
-    res.status(400).json({ error: "x and y are required" });
-    return;
-  }
 
   const existingBug = await getBug(id);
   if (!existingBug) {
@@ -44,6 +42,41 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
   }
   if (existingBug.authorId !== authorId) {
     res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  if (structureId) {
+    if (existingBug.bugType !== "beetle") {
+      res.status(400).json({ error: "Only beetles can be placed in a beetle house" });
+      return;
+    }
+
+    const existingStructure = await getStructure(structureId);
+    if (!existingStructure) {
+      res.status(400).json({ error: "Structure not found when updating bug" });
+      return;
+    }
+    if (existingStructure.authorId !== authorId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    if (!canAcceptBeetleInHouse(existingStructure)) {
+      res.status(400).json({ error: "Beetle cannot be added to structure" });
+      return;
+    }
+
+    await updateBugService(id, { structureId });
+    const structure = await getStructure(structureId);
+    if (!structure) {
+      res.status(500).json({ error: "Structure not found after updating bug" });
+      return;
+    }
+    res.status(200).json(structure);
+    return;
+  }
+
+  if (typeof x !== "number" || typeof y !== "number") {
+    res.status(400).json({ error: "x and y are required" });
     return;
   }
 

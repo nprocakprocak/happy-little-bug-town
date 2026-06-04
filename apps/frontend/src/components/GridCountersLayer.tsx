@@ -4,17 +4,45 @@ import { useMemo } from "react";
 
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Stack } from "../types/stack";
+import { Structure } from "../types/structure";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 
 interface GridCountersLayerProps {
   cols: number;
   rows: number;
   stacks: Stack[];
+  structures: Structure[];
   gridDrag: DragPayload | null;
 }
 
-export function GridCountersLayer({ cols, rows, stacks, gridDrag }: GridCountersLayerProps) {
+function CounterBadge({ count }: { count: number }) {
+  return (
+    <span
+      className="absolute bottom-0 right-0 flex size-[clamp(18px,42%,34px)] min-w-[clamp(18px,42%,34px)] translate-x-1/4 translate-y-1/4 items-center justify-center rounded-full bg-orange-500 text-[clamp(11px,58%,16px)] font-bold leading-none text-white"
+      aria-hidden
+    >
+      {count}
+    </span>
+  );
+}
+
+export function GridCountersLayer({
+  cols,
+  rows,
+  stacks,
+  structures,
+  gridDrag,
+}: GridCountersLayerProps) {
   const groundedStacks = useMemo(() => stacks.filter((stack) => !isFlyingItem(stack)), [stacks]);
+
+  const beetleHousesWithOccupants = useMemo(
+    () =>
+      structures.filter(
+        (structure) =>
+          structure.structureType === "beetle_house" && (structure.bugs ?? []).length > 0,
+      ),
+    [structures],
+  );
 
   return (
     <div
@@ -41,12 +69,32 @@ export function GridCountersLayer({ cols, rows, stacks, gridDrag }: GridCounters
               ...dragStyle,
             }}
           >
-            <span
-              className="absolute bottom-0 right-0 flex size-[clamp(18px,42%,34px)] min-w-[clamp(18px,42%,34px)] translate-x-1/4 translate-y-1/4 items-center justify-center rounded-full bg-orange-500 text-[clamp(11px,58%,16px)] font-bold leading-none text-white"
-              aria-hidden
-            >
-              {stack.itemsCount}
-            </span>
+            <CounterBadge count={stack.itemsCount} />
+          </div>
+        );
+      })}
+      {beetleHousesWithOccupants.map((structure) => {
+        const isDragged =
+          gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+        const dragStyle =
+          isDragged && gridDrag
+            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
+            : {};
+
+        const bottomRightCol = structure.x + structure.span - 1;
+        const bottomRightRow = structure.y + structure.span - 1;
+
+        return (
+          <div
+            key={`beetle-house-count-${structure.id}`}
+            className="relative min-h-0 min-w-0"
+            style={{
+              gridColumn: bottomRightCol,
+              gridRow: bottomRightRow,
+              ...dragStyle,
+            }}
+          >
+            <CounterBadge count={(structure.bugs ?? []).length} />
           </div>
         );
       })}

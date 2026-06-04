@@ -35,9 +35,13 @@ export const createBug = async (bug: CreateBugData): Promise<BugDto> => {
 };
 
 export const updateBug = async (id: string, data: UpdateBugData): Promise<BugDto> => {
+  const updateData = data.structureId
+    ? { structureId: data.structureId, x: null, y: null }
+    : { x: data.x, y: data.y, structureId: null };
+
   const updatedBug = await prisma.bug.update({
     where: { id },
-    data: { x: data.x, y: data.y },
+    data: updateData,
     include: { items: true },
   });
   return toBugDto({ ...updatedBug, items: updatedBug.items });

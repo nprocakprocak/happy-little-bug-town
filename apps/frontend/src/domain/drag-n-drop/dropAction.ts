@@ -1,6 +1,6 @@
 import { Position, Positionable } from "@happy-little-park/utils";
 
-import { updateBugPosition } from "../../api/bugs";
+import { addBeetleToStructure, updateBugPosition } from "../../api/bugs";
 import {
   addItemToBug,
   addItemToStack,
@@ -10,6 +10,7 @@ import {
 import { createStack, mergeStacks, updateStack } from "../../api/stacks";
 import { updateStructurePosition } from "../../api/structures";
 import { BEETLE_MAX_LEAF_PARTS } from "../../constants";
+import { canDropBeetleOnStructure, canDropItemOnStructure } from "../../constants/beetleBuild";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
@@ -92,12 +93,29 @@ export async function dropAction(
   }
 
   if (originalItem && targetStructure) {
+    if (!canDropItemOnStructure(originalItem, targetStructure)) {
+      throw new Error("Item cannot be added to structure");
+    }
     const structure = await addItemToStructure(originalItem.id, targetStructure.id);
 
     return {
       items: items.filter((it) => it.id !== originalItem.id),
       stacks: stacks,
       bugs: bugs,
+      structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
+    };
+  }
+
+  if (originalBug && targetStructure) {
+    if (!canDropBeetleOnStructure(originalBug, targetStructure)) {
+      throw new Error("Beetle cannot be added to structure");
+    }
+    const structure = await addBeetleToStructure(originalBug.id, targetStructure.id);
+
+    return {
+      items: items,
+      stacks: stacks,
+      bugs: bugs.filter((b) => b.id !== originalBug.id),
       structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
     };
   }

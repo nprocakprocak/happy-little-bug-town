@@ -69,6 +69,7 @@ export function GroundGridAssetLayer({
             : {};
 
         const isIncomplete = isBeetleHouseIncomplete(structure);
+        const firstHouseBug = (structure.bugs ?? [])[0];
 
         return (
           <div
@@ -90,6 +91,25 @@ export function GroundGridAssetLayer({
               />
               {isIncomplete && (
                 <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
+              )}
+              {firstHouseBug && (
+                <div
+                  className="absolute min-h-0 min-w-0 overflow-hidden rounded-sm"
+                  style={{
+                    right: 0,
+                    bottom: 0,
+                    width: `${100 / structure.span}%`,
+                    height: `${100 / structure.span}%`,
+                  }}
+                >
+                  <Image
+                    src={bugTypeToImage(firstHouseBug.bugType)}
+                    alt=""
+                    fill
+                    className="object-contain p-[8%] drop-shadow-sm"
+                    sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
+                  />
+                </div>
               )}
             </div>
           </div>

@@ -245,6 +245,24 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
+        // drop a bug onto a structure to add it to its bugs, assume optimistic update
+        if (originalBug && targetEntity && isStructure(targetEntity)) {
+          setBugsCache((prev) => prev.filter((b) => b.id !== originalBug.id));
+          setStructuresCache((prev) =>
+            prev.map((structure) =>
+              structure.id === targetEntity.id
+                ? {
+                    ...structure,
+                    bugs: [
+                      ...(structure.bugs ?? []),
+                      { id: originalBug.id, bugType: originalBug.bugType },
+                    ],
+                  }
+                : structure,
+            ),
+          );
+        }
+
         // drop a stack onto another stack to merge them, assume optimistic update
         if (originalStack && targetEntity && isStack(targetEntity)) {
           setStacksCache((prev) => {
@@ -380,7 +398,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           animatables={animatables}
           onFlightComplete={handleFlightComplete}
         />
-        <GridCountersLayer cols={cols} rows={rows} stacks={stacks} gridDrag={gridDrag} />
+        <GridCountersLayer
+          cols={cols}
+          rows={rows}
+          stacks={stacks}
+          structures={structures}
+          gridDrag={gridDrag}
+        />
         <StructureBuildProgressLayer
           cols={cols}
           rows={rows}

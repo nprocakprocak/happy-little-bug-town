@@ -35,3 +35,7 @@ export function canAcceptItemForBuild(structure: StructureDto, itemType: ItemTyp
   const supplied = structure.items.filter((item) => item.itemType === itemType).length;
   return supplied < cost.count;
 }
+
+export function canAcceptBeetleInHouse(structure: StructureDto): boolean {
+  return structure.structureType === "beetle_house" && isBeetleHouseBuilt(structure);
+}

@@ -31,6 +31,7 @@ export function toStructureDto(structure: StructureWithItems): StructureDto {
     span: structure.span,
     authorId: structure.authorId,
     items: structure.items.map((item) => ({ id: item.id, itemType: item.itemType })),
+    bugs: structure.bugs.map((bug) => ({ id: bug.id, bugType: bug.bugType })),
   };
 }
 

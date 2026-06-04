@@ -1,3 +1,4 @@
+import { BugType } from "../types/bugType";
 import { ItemType } from "../types/itemType";
 import { Structure } from "../types/structure";
 
@@ -14,6 +15,7 @@ export const BEETLE_BUILDING_OPTIONS: Structure[] = Array.from({ length: 5 }, (_
   span: BEETLE_HOUSE_SPAN,
   structureType: "beetle_house",
   items: [],
+  bugs: [],
 }));
 
 export const BEETLE_BUILD_RESOURCE_COSTS = [
@@ -69,4 +71,8 @@ export function canDropItemOnStructure(
   );
 
   return resourceProgress !== undefined && resourceProgress.missing > 0;
+}
+
+export function canDropBeetleOnStructure(bug: { bugType: BugType }, structure: Structure): boolean {
+  return bug.bugType === "beetle" && isBeetleHouseBuilt(structure);
 }
