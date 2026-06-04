@@ -3,7 +3,6 @@ import {
   BUILD_RESOURCE_COSTS,
   BuildResourceCost,
 } from "../constants/structureBuildCosts.js";
-import { BugType } from "../types/bugType.js";
 import { ItemType } from "../types/itemType.js";
 import {
   BuildableStructureType,

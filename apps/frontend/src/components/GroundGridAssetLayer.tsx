@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
-import { isStructureIncomplete } from "@happy-little-park/utils";
+import { structureShowsActivationGlow } from "@happy-little-park/utils";
 
 import {
   GROUND_GRID_MAX_WIDTH_PX,
@@ -68,7 +68,7 @@ export function GroundGridAssetLayer({
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
 
-        const isIncomplete = isStructureIncomplete(structure);
+        const showActivationGlow = structureShowsActivationGlow(structure);
         const firstHouseBug = (structure.bugs ?? [])[0];
 
         return (
@@ -89,7 +89,7 @@ export function GroundGridAssetLayer({
                 className="object-cover"
                 sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
               />
-              {isIncomplete && (
+              {showActivationGlow && (
                 <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
               )}
               {firstHouseBug && (

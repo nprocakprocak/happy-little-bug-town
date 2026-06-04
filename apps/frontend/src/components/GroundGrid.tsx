@@ -43,6 +43,7 @@ import {
 } from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
 import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
+import { StructurePowerProgressLayer } from "./StructurePowerProgressLayer";
 
 interface GroundGridProps {
   rows: number;
@@ -446,6 +447,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           gridDrag={gridDrag}
         />
         <StructureBuildProgressLayer
+          cols={cols}
+          rows={rows}
+          structures={structures}
+          gridDrag={gridDrag}
+        />
+        <StructurePowerProgressLayer
           cols={cols}
           rows={rows}
           structures={structures}
