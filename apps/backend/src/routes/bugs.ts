@@ -1,6 +1,11 @@
 import { Router, type RequestHandler } from "express";
 
-import { isStructureBuilt, positionOverlapsAnyEntity } from "@happy-little-park/utils";
+import {
+  canStructureAcceptBugDrop,
+  isBugFed,
+  positionOverlapsAnyEntity,
+  structureDropRequiresFedBug,
+} from "@happy-little-park/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireAid } from "../middleware/requireAid.js";
@@ -61,12 +66,22 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
-    if (existingStructure.structureType !== "beetle_house") {
-      res.status(400).json({ error: "Only beetle houses can accept bugs" });
+    const structureForDrop = {
+      structureType: existingStructure.structureType,
+      items: existingStructure.items,
+      bugs: existingStructure.bugs,
+    };
+
+    if (!canStructureAcceptBugDrop(existingBug, structureForDrop)) {
+      res.status(400).json({ error: "Structure cannot accept this bug" });
       return;
     }
-    if (!isStructureBuilt(existingStructure)) {
-      res.status(400).json({ error: "Structure is not built" });
+
+    if (
+      structureDropRequiresFedBug(existingStructure.structureType) &&
+      !isBugFed(existingBug)
+    ) {
+      res.status(400).json({ error: "Bug must be fed before joining structure" });
       return;
     }
 

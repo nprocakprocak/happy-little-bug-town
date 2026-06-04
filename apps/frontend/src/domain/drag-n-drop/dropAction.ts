@@ -1,5 +1,6 @@
 import {
   BEETLE_MAX_LEAF_PARTS,
+  canDropBugOnStructure,
   canDropItemOnStructure,
   Position,
   Positionable,

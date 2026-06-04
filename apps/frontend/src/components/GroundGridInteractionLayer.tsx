@@ -4,11 +4,13 @@ import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react"
 import {
   BEETLE_MAX_LEAF_PARTS,
   canDropItemOnStructure,
+  canStructureAcceptBugDrop,
   findOverlappingEntity,
-  isStructureBuilt,
+  isBugFed,
   Position,
   Positionable,
   positionOverlapsAnyEntity,
+  structureDropRequiresFedBug,
   structureFootprintFits,
 } from "@happy-little-park/utils";
 
@@ -224,14 +226,17 @@ export function GroundGridInteractionLayer({
           }
 
           if (bugToDrop) {
-            const isBeetle = bugToDrop.bugType === "beetle";
-            const isDroppingOnBeetleHouse =
-              !!overlappingStructure && overlappingStructure.structureType === "beetle_house";
-            const canDropBeetleOnHouse =
-              isBeetle && isDroppingOnBeetleHouse && isStructureBuilt(overlappingStructure);
+            const canDropBeetleOnStructure =
+              !!overlappingStructure && canStructureAcceptBugDrop(bugToDrop, overlappingStructure);
 
-            if (canDropBeetleOnHouse) {
-              onItemDropped(bugToDrop.id, target, overlappingEntity);
+            if (canDropBeetleOnStructure) {
+              const mustBeFed = structureDropRequiresFedBug(overlappingStructure.structureType);
+              if (mustBeFed && !isBugFed(bugToDrop)) {
+                onBeetleClick(bugToDrop);
+                onItemDropCancelled(bugToDrop.id, target);
+              } else {
+                onItemDropped(bugToDrop.id, target, overlappingEntity);
+              }
             } else if (!!overlappingEntity) {
               onItemDropCancelled(bugToDrop.id, target);
             } else {

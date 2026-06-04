@@ -1,3 +1,4 @@
+import { BEETLE_MAX_LEAF_PARTS } from "../constants/game.js";
 import { STRUCTURE_POWER_REQUIREMENTS } from "../constants/structurePowerRequirements.js";
 import { BugType } from "../types/bugType.js";
 import { StructureType } from "../types/structureType.js";
@@ -6,6 +7,58 @@ import { isStructureBuilt, isStructureIncomplete, StructureForBuild } from "./bu
 export interface StructureForPower {
   structureType: StructureType;
   bugs: { bugType: BugType }[];
+}
+
+export interface BugForFedCheck {
+  itemIds: string[];
+}
+
+export interface BugForStructureDrop {
+  bugType: BugType;
+  itemIds: string[];
+}
+
+export function isBugFed(bug: BugForFedCheck): boolean {
+  return bug.itemIds.length >= BEETLE_MAX_LEAF_PARTS;
+}
+
+export function structureDropRequiresFedBug(structureType: StructureType): boolean {
+  return structureRequiresPower(structureType);
+}
+
+export function canStructureAcceptBugDrop(
+  bug: Pick<BugForStructureDrop, "bugType">,
+  structure: StructureForBuild & StructureForPower,
+): boolean {
+  if (structure.structureType === "beetle_house") {
+    return isStructureBuilt(structure) && bug.bugType === "beetle";
+  }
+
+  const requirement = getStructurePowerRequirement(structure.structureType);
+  if (!requirement) {
+    return false;
+  }
+
+  return (
+    isStructureBuilt(structure) &&
+    bug.bugType === requirement.occupantBugType &&
+    getStructurePowerSuppliedCount(structure) < requirement.requiredCount
+  );
+}
+
+export function canDropBugOnStructure(
+  bug: BugForStructureDrop,
+  structure: StructureForBuild & StructureForPower,
+): boolean {
+  if (!canStructureAcceptBugDrop(bug, structure)) {
+    return false;
+  }
+
+  if (structureDropRequiresFedBug(structure.structureType)) {
+    return isBugFed(bug);
+  }
+
+  return true;
 }
 
 export function getStructurePowerRequirement(
