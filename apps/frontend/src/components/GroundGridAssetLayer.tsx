@@ -69,7 +69,8 @@ export function GroundGridAssetLayer({
             : {};
 
         const showActivationGlow = structureShowsActivationGlow(structure);
-        const firstHouseBug = (structure.bugs ?? [])[0];
+        const firstHouseBug =
+          structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
 
         return (
           <div
