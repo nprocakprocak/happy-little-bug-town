@@ -39,10 +39,10 @@ export function useAddItemToStackMutation() {
   return useMutation({
     mutationFn: ({ itemId, stackId }: { itemId: string; stackId: string }) =>
       addItemToStack(itemId, stackId),
-    onSuccess: (_item, { itemId, stackId }) => {
+    onSuccess: (stack, { itemId }) => {
       updateItemsCache(queryClient, (items) => items.filter((it) => it.id !== itemId));
       updateStacksCache(queryClient, (stacks) =>
-        stacks.map((s) => (s.id === stackId ? { ...s, itemsCount: s.itemsCount + 1 } : s)),
+        stacks.map((s) => (s.id === stack.id ? stack : s)),
       );
     },
   });

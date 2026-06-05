@@ -67,13 +67,11 @@ export async function dropAction(
     if (!originalItem.stackable) {
       throw new Error("Item cannot be added to stack");
     }
-    await addItemToStack(originalItem.id, targetStack.id);
+    const stack = await addItemToStack(originalItem.id, targetStack.id);
 
     return {
       items: items.filter((it) => it.id !== originalItem.id),
-      stacks: stacks.map((s) =>
-        s.id === targetStack.id ? { ...s, itemsCount: s.itemsCount + 1 } : s,
-      ),
+      stacks: stacks.map((s) => (s.id === targetStack.id ? stack : s)),
       bugs: bugs,
       structures: structures,
     };

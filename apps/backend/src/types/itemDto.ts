@@ -6,7 +6,6 @@ export type CreateItemData = Pick<Item, "itemType" | "x" | "y" | "authorId"> & {
 
 export type UpdateItemData = Partial<Pick<Item, "x" | "y" | "stackId" | "bugId" | "structureId">>;
 
-// todo: create StackDto
 export type ItemDto = Pick<
   Item,
   "id" | "itemType" | "x" | "y" | "authorId" | "stackId" | "bugId" | "structureId"

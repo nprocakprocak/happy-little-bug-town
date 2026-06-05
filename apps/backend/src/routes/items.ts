@@ -4,7 +4,12 @@ import { BEETLE_MAX_LEAF_PARTS, canAcceptItemForBuild } from "@happy-little-park
 
 import { requireAid } from "../middleware/requireAid.js";
 import { getBug } from "../services/bugsService.js";
-import { toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
+import {
+  toBugOnGridDto,
+  toItemOnGridDto,
+  toStackOnGridDto,
+  toStructureOnGridDto,
+} from "../services/helpers.js";
 import {
   getItem as getItemService,
   getItemsOnGrid,
@@ -59,7 +64,8 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
       res.status(500).json({ error: "Structure not found after updating item" });
       return;
     }
-    res.status(200).json(structure);
+    // todo: move to structures router
+    res.status(200).json(toStructureOnGridDto(structure));
     return;
   }
 
@@ -140,9 +146,14 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
       return;
     }
 
-    const item = await updateItemService(id, { stackId });
-    // todo: don't return itemDto, return stackDto (move to stacks)
-    res.status(200).json(item);
+    await updateItemService(id, { stackId });
+    const stack = await getStack(stackId);
+    if (!stack) {
+      res.status(500).json({ error: "Stack not found after updating item" });
+      return;
+    }
+    // todo: move to stacks router
+    res.status(200).json(toStackOnGridDto(stack));
     return;
   }
 

@@ -1,65 +1,54 @@
 import { prisma } from "../lib/prisma.js";
-import { ItemType, Stack } from "../prisma/prisma/client.js";
+import { Stack } from "../prisma/prisma/client.js";
+import { StackDto } from "../types/stackDto.js";
+import { toStackDto } from "./helpers.js";
+
+const stackInclude = { items: true } as const;
 
 type CreateStackData = Pick<Stack, "itemType" | "x" | "y" | "authorId">;
-type ReturnStackData = Stack & { itemsCount: number };
 type UpdateStackData = Pick<Stack, "x" | "y">;
 
-export const getStacks = async (authorId: string): Promise<ReturnStackData[]> => {
+export const getStacks = async (authorId: string): Promise<StackDto[]> => {
   const stacks = await prisma.stack.findMany({
     where: {
       authorId,
     },
-    include: {
-      items: true,
-    },
+    include: stackInclude,
   });
-  return stacks.map((stack) => ({
-    ...stack,
-    itemsCount: stack.items.length,
-  }));
+  return stacks.map(toStackDto);
 };
 
-export const getStack = async (id: string): Promise<ReturnStackData | null> => {
+export const getStack = async (id: string): Promise<StackDto | null> => {
   const stack = await prisma.stack.findUnique({
     where: { id },
-    include: {
-      items: true,
-    },
+    include: stackInclude,
   });
-  return stack ? { ...stack, itemsCount: stack.items.length } : null;
+  return stack ? toStackDto(stack) : null;
 };
 
-export const createStack = async (stack: CreateStackData): Promise<ReturnStackData> => {
+export const createStack = async (stack: CreateStackData): Promise<StackDto> => {
   const createdStack = await prisma.stack.create({
     data: {
       ...stack,
     },
+    include: stackInclude,
   });
-  return {
-    ...createdStack,
-    itemsCount: 0,
-  };
+  return toStackDto(createdStack);
 };
 
-export const updateStack = async (id: string, stack: UpdateStackData): Promise<ReturnStackData> => {
+export const updateStack = async (id: string, stack: UpdateStackData): Promise<StackDto> => {
   const updatedStack = await prisma.stack.update({
     where: { id },
     data: stack,
-    include: {
-      items: true,
-    },
+    include: stackInclude,
   });
-  return {
-    ...updatedStack,
-    itemsCount: updatedStack.items.length,
-  };
+  return toStackDto(updatedStack);
 };
 
 export const createStackWithItems = async (
   stack: CreateStackData,
   itemIds: string[],
-): Promise<ReturnStackData> => {
+): Promise<StackDto> => {
   return await prisma.$transaction(async (tx) => {
     const createdStack = await tx.stack.create({
       data: stack,
@@ -76,17 +65,21 @@ export const createStackWithItems = async (
         y: null,
       },
     });
-    return {
-      ...createdStack,
-      itemsCount: itemIds.length,
-    };
+    const stackWithItems = await tx.stack.findUnique({
+      where: { id: createdStack.id },
+      include: stackInclude,
+    });
+    if (!stackWithItems) {
+      throw new Error("Stack not found after creating with items");
+    }
+    return toStackDto(stackWithItems);
   });
 };
 
 export const mergeStacks = async (
   sourceStackId: string,
   targetStackId: string,
-): Promise<ReturnStackData> => {
+): Promise<StackDto> => {
   return await prisma.$transaction(async (tx) => {
     await tx.item.updateMany({
       where: { stackId: sourceStackId },
@@ -99,16 +92,13 @@ export const mergeStacks = async (
 
     const mergedStack = await tx.stack.findUnique({
       where: { id: targetStackId },
-      include: { items: true },
+      include: stackInclude,
     });
 
     if (!mergedStack) {
       throw new Error("Target stack not found after merge");
     }
 
-    return {
-      ...mergedStack,
-      itemsCount: mergedStack.items.length,
-    };
+    return toStackDto(mergedStack);
   });
 };

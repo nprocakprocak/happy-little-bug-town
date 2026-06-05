@@ -224,6 +224,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         // drop an item onto a stack to add it to its items, assume optimistic update
         if (originalItem && targetEntity && isStack(targetEntity)) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
+          setStacksCache((prev) =>
+            prev.map((s) =>
+              s.id === targetEntity.id ? { ...s, itemsCount: s.itemsCount + 1 } : s,
+            ),
+          );
         }
 
         // drop an item onto a bug to add it to its items, assume optimistic update

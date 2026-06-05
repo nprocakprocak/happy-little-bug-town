@@ -11,7 +11,7 @@ import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { createBug, getBug, updateBug as updateBugService } from "../services/bugsService.js";
-import { isItemStackable, toBugOnGridDto, toItemOnGridDto } from "../services/helpers.js";
+import { isItemStackable, toBugOnGridDto, toItemOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
 import { createItem, generateRandomItemType } from "../services/itemsService.js";
 import {
   createFirstStructure as createFirstStructureService,
@@ -29,7 +29,7 @@ structuresRouter.use(requireAid);
 
 const listStructures: RequestHandler = async (req, res) => {
   const structures = await getStructures(req.authorId!);
-  res.status(200).json(structures);
+  res.status(200).json(structures.map(toStructureOnGridDto));
 };
 
 const createStructure: RequestHandler = async (req, res) => {
@@ -71,7 +71,7 @@ const createStructure: RequestHandler = async (req, res) => {
     x,
     y,
   });
-  res.status(201).json(structure);
+  res.status(201).json(toStructureOnGridDto(structure));
 };
 
 const createFirstStructure: RequestHandler = async (req, res) => {
@@ -82,7 +82,7 @@ const createFirstStructure: RequestHandler = async (req, res) => {
     return;
   }
   const structure = await createFirstStructureService(authorId);
-  res.status(201).json(structure);
+  res.status(201).json(toStructureOnGridDto(structure));
 };
 
 const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
@@ -120,7 +120,7 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const structure = await updateStructurePositionService(id, x, y);
-  res.status(200).json(structure);
+  res.status(200).json(toStructureOnGridDto(structure));
 };
 
 const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
@@ -169,7 +169,7 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
 
   res.status(200).json({
     extractedOccupant: toBugOnGridDto(bug),
-    structure,
+    structure: toStructureOnGridDto(structure),
   });
 };
 

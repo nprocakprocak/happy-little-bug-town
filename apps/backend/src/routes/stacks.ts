@@ -5,6 +5,7 @@ import { GROUND_HEIGHT, GROUND_WIDTH } from "@happy-little-park/utils";
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
+import { toStackOnGridDto } from "../services/helpers.js";
 import {
   dissolveStack,
   getItemsByIds,
@@ -26,7 +27,7 @@ stacksRouter.use(requireAid);
 
 const listStacks: RequestHandler = async (req, res) => {
   const stacks = await getStacks(req.authorId!);
-  res.status(200).json(stacks);
+  res.status(200).json(stacks.map(toStackOnGridDto));
 };
 
 const createStack: RequestHandler = async (req, res) => {
@@ -61,7 +62,7 @@ const createStack: RequestHandler = async (req, res) => {
     itemIds,
   );
 
-  res.status(201).json(stack);
+  res.status(201).json(toStackOnGridDto(stack));
 };
 
 const updateStack: RequestHandler = async (req, res) => {
@@ -88,7 +89,7 @@ const updateStack: RequestHandler = async (req, res) => {
   }
 
   const stack = await updateStackService(id, { x, y });
-  res.status(200).json(stack);
+  res.status(200).json(toStackOnGridDto(stack));
 };
 
 const mergeStacks: RequestHandler = async (req, res) => {
@@ -132,7 +133,7 @@ const mergeStacks: RequestHandler = async (req, res) => {
   }
 
   const stack = await mergeStacksService(id, targetStackId);
-  res.status(200).json(stack);
+  res.status(200).json(toStackOnGridDto(stack));
 };
 
 const extractItemFromStack: RequestHandler = async (req, res) => {

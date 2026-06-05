@@ -2,6 +2,7 @@ import { Position } from "@happy-little-park/utils";
 
 import { Bug } from "../types/bug";
 import { Item } from "../types/item";
+import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
 import { apiFetch } from "./client";
 
@@ -16,8 +17,8 @@ export function updateItemPosition(itemId: string, position: Position): Promise<
   });
 }
 
-export function addItemToStack(itemId: string, stackId: string): Promise<Item> {
-  return apiFetch<Item>(`/api/items/${itemId}`, {
+export function addItemToStack(itemId: string, stackId: string): Promise<Stack> {
+  return apiFetch<Stack>(`/api/items/${itemId}`, {
     method: "PUT",
     body: JSON.stringify({ stackId }),
   });

@@ -13,12 +13,11 @@ export type ItemOnStructure = Pick<Item, "id" | "itemType">;
 
 export type BugOnStructure = Pick<Bug, "id" | "bugType">;
 
-export type StructureDto = Pick<
-  Structure,
-  "id" | "structureType" | "x" | "y" | "span" | "authorId"
-> & {
+export type StructureOnGridDto = Pick<Structure, "id" | "structureType" | "x" | "y" | "span"> & {
   items: ItemOnStructure[];
   bugs: BugOnStructure[];
 };
+
+export type StructureDto = StructureOnGridDto & Pick<Structure, "authorId">;
 
 export type StructureWithItems = Structure & { items: Item[]; bugs: Bug[] };
