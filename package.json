@@ -10,6 +10,8 @@
     "dev:frontend": "npm --workspace @happy-little-park/frontend run dev",
     "build:utils": "npm --workspace @happy-little-park/utils run build",
     "build:backend": "npm --workspace @happy-little-park/backend run build",
+    "migrate:dev:backend": "npm --workspace @happy-little-park/backend run migrate:dev",
+    "migrate": "npm run migrate:dev:backend",
     "build:frontend": "npm --workspace @happy-little-park/frontend run build",
     "build": "npm run build:utils && npm run build:backend && npm run build:frontend",
     "start:backend": "npm --workspace @happy-little-park/backend run start",

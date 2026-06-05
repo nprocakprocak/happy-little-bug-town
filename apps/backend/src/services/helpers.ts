@@ -1,7 +1,8 @@
-import { Bug, Item, ItemType } from "../prisma/prisma/client.js";
+import { Bug, Item, ItemType, Tool } from "../prisma/prisma/client.js";
 import { BugDto, BugOnGridDto } from "../types/bugDto.js";
 import { ItemDto, ItemOnGridDto } from "../types/itemDto.js";
 import { StructureDto, StructureWithItems } from "../types/structureDto.js";
+import { ToolDto } from "../types/toolDto.js";
 
 export function isItemStackable(itemType: ItemType): boolean {
   // perhaps will be false for some items
@@ -72,5 +73,17 @@ export function toBugOnGridDto(bug: BugDto): BugOnGridDto {
     x: bug.x,
     y: bug.y,
     itemIds: bug.itemIds,
+  };
+}
+
+export function toToolDto(tool: Tool & { items: Item[] }): ToolDto {
+  return {
+    id: tool.id,
+    toolType: tool.toolType,
+    x: tool.x,
+    y: tool.y,
+    authorId: tool.authorId,
+    structureId: tool.structureId,
+    itemIds: tool.items.map((item) => item.id),
   };
 }
