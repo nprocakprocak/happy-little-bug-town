@@ -1,6 +1,6 @@
 import { Router, type RequestHandler } from "express";
 
-import { GROUND_HEIGHT, GROUND_WIDTH } from "@happy-little-park/utils";
+import { GROUND_HEIGHT, GROUND_WIDTH, positionOverlapsAnyEntity } from "@happy-little-park/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
@@ -9,7 +9,6 @@ import { toStackOnGridDto } from "../services/helpers.js";
 import {
   dissolveStack,
   getItemsByIds,
-  getItemsOnGrid,
   takeItemFromStack,
 } from "../services/itemsService.js";
 import {
@@ -19,7 +18,6 @@ import {
   mergeStacks as mergeStacksService,
   updateStack as updateStackService,
 } from "../services/stacksService.js";
-import { getStructures } from "../services/structuresService.js";
 
 export const stacksRouter = Router();
 
@@ -51,6 +49,16 @@ const createStack: RequestHandler = async (req, res) => {
     res.status(400).json({ error: "All items must be stackable to be in a stack" });
     return;
   }
+  if (typeof x !== "number" || typeof y !== "number") {
+    res.status(400).json({ error: "x and y are required" });
+    return;
+  }
+
+  const entities = await getAllEntitiesOnGrid(authorId);
+  if (positionOverlapsAnyEntity({ x, y }, entities)) {
+    res.status(400).json({ error: "Position is already occupied" });
+    return;
+  }
 
   const stack = await createStackWithItems(
     {
@@ -80,10 +88,13 @@ const updateStack: RequestHandler = async (req, res) => {
     return;
   }
 
-  const items = await getItemsOnGrid(authorId);
-  const structures = await getStructures(authorId);
+  if (typeof x !== "number" || typeof y !== "number") {
+    res.status(400).json({ error: "x and y are required" });
+    return;
+  }
 
-  if ([...items, ...structures].some((it) => it.x === x && it.y === y)) {
+  const entities = await getAllEntitiesOnGrid(authorId);
+  if (positionOverlapsAnyEntity({ x, y }, entities)) {
     res.status(400).json({ error: "Position is already occupied" });
     return;
   }

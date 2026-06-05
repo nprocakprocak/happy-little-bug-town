@@ -1,7 +1,8 @@
 import { Router, type RequestHandler } from "express";
 
-import { BEETLE_MAX_LEAF_PARTS, canAcceptItemForBuild } from "@happy-little-park/utils";
+import { BEETLE_MAX_LEAF_PARTS, canAcceptItemForBuild, positionOverlapsAnyEntity } from "@happy-little-park/utils";
 
+import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { getBug } from "../services/bugsService.js";
 import {
@@ -16,7 +17,7 @@ import {
   updateItem as updateItemService,
 } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
-import { getStructure, getStructures } from "../services/structuresService.js";
+import { getStructure } from "../services/structuresService.js";
 import { UpdateItemData } from "../types/itemDto.js";
 
 export const itemsRouter = Router();
@@ -172,10 +173,8 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
     return;
   }
 
-  const items = await getItemsOnGrid(authorId);
-  const structures = await getStructures(authorId);
-
-  if ([...items, ...structures].some((it) => it.x === x && it.y === y)) {
+  const entities = await getAllEntitiesOnGrid(authorId);
+  if (positionOverlapsAnyEntity({ x, y }, entities)) {
     res.status(400).json({ error: "Position is already occupied" });
     return;
   }
