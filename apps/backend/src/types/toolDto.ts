@@ -4,6 +4,12 @@ export type CreateToolData = Pick<Tool, "toolType" | "x" | "y" | "authorId">;
 
 export type UpdateToolData = Partial<Pick<Tool, "x" | "y" | "structureId">>;
 
-export type ToolDto = Pick<Tool, "id" | "toolType" | "x" | "y" | "authorId" | "structureId"> & {
-  itemIds: string[];
+export type ItemOnTool = Pick<Item, "id" | "itemType">;
+
+export type ToolOnGridDto = Pick<Tool, "id" | "toolType" | "x" | "y"> & {
+  items: ItemOnTool[];
 };
+
+export type ToolDto = ToolOnGridDto & Pick<Tool, "authorId" | "structureId">;
+
+export type ToolWithItems = Tool & { items: Item[] };

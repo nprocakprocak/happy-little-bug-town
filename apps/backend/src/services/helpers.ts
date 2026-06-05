@@ -1,9 +1,9 @@
-import { Bug, Item, ItemType, Tool } from "../prisma/prisma/client.js";
+import { Bug, Item, ItemType } from "../prisma/prisma/client.js";
 import { BugDto, BugOnGridDto } from "../types/bugDto.js";
 import { ItemDto, ItemOnGridDto } from "../types/itemDto.js";
 import { StackDto, StackOnGridDto, StackWithItems } from "../types/stackDto.js";
 import { StructureDto, StructureOnGridDto, StructureWithItems } from "../types/structureDto.js";
-import { ToolDto } from "../types/toolDto.js";
+import { ToolDto, ToolOnGridDto, ToolWithItems } from "../types/toolDto.js";
 
 export function isItemStackable(itemType: ItemType): boolean {
   // perhaps will be false for some items
@@ -110,7 +110,7 @@ export function toBugOnGridDto(bug: BugDto): BugOnGridDto {
   };
 }
 
-export function toToolDto(tool: Tool & { items: Item[] }): ToolDto {
+export function toToolDto(tool: ToolWithItems): ToolDto {
   return {
     id: tool.id,
     toolType: tool.toolType,
@@ -118,6 +118,20 @@ export function toToolDto(tool: Tool & { items: Item[] }): ToolDto {
     y: tool.y,
     authorId: tool.authorId,
     structureId: tool.structureId,
-    itemIds: tool.items.map((item) => item.id),
+    items: tool.items.map((item) => ({ id: item.id, itemType: item.itemType })),
+  };
+}
+
+export function toToolOnGridDto(tool: ToolDto): ToolOnGridDto {
+  if (!tool.x || !tool.y) {
+    throw new Error(`Tool ${tool.id} is not on a grid`);
+  }
+
+  return {
+    id: tool.id,
+    toolType: tool.toolType,
+    x: tool.x,
+    y: tool.y,
+    items: tool.items,
   };
 }
