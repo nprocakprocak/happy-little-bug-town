@@ -2,29 +2,25 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
-import {
-  getStructureBuildProgress,
-  isStructureIncomplete,
-  ItemType,
-} from "@happy-little-park/utils";
+import { getToolCraftProgress, isToolIncomplete, ItemType } from "@happy-little-park/utils";
 
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
-import { Structure } from "../types/structure";
+import { Tool } from "../types/tool";
 import { itemTypeToImageForItem } from "./helpers/itemTypeToImage";
 
-interface StructureBuildProgressLayerProps {
+interface ToolCraftProgressLayerProps {
   cols: number;
   rows: number;
-  structures: Structure[];
+  tools: Tool[];
   gridDrag: DragPayload | null;
 }
 
-interface StructureBuildResourceCounterProps {
+interface ToolCraftResourceCounterProps {
   itemType: ItemType;
   missing: number;
 }
 
-function StructureBuildResourceCounter({ itemType, missing }: StructureBuildResourceCounterProps) {
+function ToolCraftResourceCounter({ itemType, missing }: ToolCraftResourceCounterProps) {
   return (
     <div className="flex min-h-0 min-w-0 flex-col items-center justify-center gap-[0.35cqi]">
       <div className="relative h-[5cqi] w-[5cqi] shrink-0">
@@ -43,16 +39,13 @@ function StructureBuildResourceCounter({ itemType, missing }: StructureBuildReso
   );
 }
 
-export function StructureBuildProgressLayer({
+export function ToolCraftProgressLayer({
   cols,
   rows,
-  structures,
+  tools,
   gridDrag,
-}: StructureBuildProgressLayerProps) {
-  const structuresUnderConstruction = useMemo(
-    () => structures.filter(isStructureIncomplete),
-    [structures],
-  );
+}: ToolCraftProgressLayerProps) {
+  const toolsUnderCraft = useMemo(() => tools.filter(isToolIncomplete), [tools]);
 
   return (
     <div
@@ -62,30 +55,29 @@ export function StructureBuildProgressLayer({
         gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
       }}
     >
-      {structuresUnderConstruction.flatMap((structure) => {
-        const isDragged =
-          gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+      {toolsUnderCraft.flatMap((tool) => {
+        const isDragged = gridDrag?.target.kind === "tool" && gridDrag.target.toolId === tool.id;
         const dragStyle =
           isDragged && gridDrag
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
-        const progress = getStructureBuildProgress(structure);
+        const progress = getToolCraftProgress(tool);
 
         return progress.map(({ itemType, missing }, index) => {
-          const colOffset = index % structure.span;
-          const rowOffset = Math.floor(index / structure.span);
+          const colOffset = index % (tool.span ?? 1);
+          const rowOffset = Math.floor(index / (tool.span ?? 1));
 
           return (
             <div
-              key={`${structure.id}-${itemType}`}
+              key={`${tool.id}-${itemType}`}
               className="relative min-h-0 min-w-0"
               style={{
-                gridColumn: structure.x + colOffset,
-                gridRow: structure.y + rowOffset,
+                gridColumn: tool.x + colOffset,
+                gridRow: tool.y + rowOffset,
                 ...dragStyle,
               }}
             >
-              <StructureBuildResourceCounter itemType={itemType} missing={missing} />
+              <ToolCraftResourceCounter itemType={itemType} missing={missing} />
             </div>
           );
         });

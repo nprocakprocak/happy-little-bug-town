@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
-import { structureShowsActivationGlow } from "@happy-little-park/utils";
+import { structureShowsActivationGlow, toolShowsActivationGlow } from "@happy-little-park/utils";
 
 import {
   GROUND_GRID_MAX_WIDTH_PX,
@@ -14,6 +14,7 @@ import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
+import { Tool } from "../types/tool";
 import { isBug, isStack } from "../utils/typeGuards";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 import {
@@ -22,6 +23,7 @@ import {
   itemTypeToImageForStack,
   structureTypeToImage,
 } from "./helpers/itemTypeToImage";
+import { toolTypeToImage } from "./helpers/toolTypeToImage";
 
 interface GroundGridAssetLayerProps {
   cols: number;
@@ -30,6 +32,7 @@ interface GroundGridAssetLayerProps {
   items: Item[];
   stacks: Stack[];
   bugs: Bug[];
+  tools: Tool[];
   gridDrag: DragPayload | null;
 }
 
@@ -40,6 +43,7 @@ export function GroundGridAssetLayer({
   items,
   stacks,
   bugs,
+  tools,
   gridDrag,
 }: GroundGridAssetLayerProps) {
   const allGrounded = useMemo(() => {
@@ -111,6 +115,38 @@ export function GroundGridAssetLayer({
                     sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
                   />
                 </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {tools.map((tool) => {
+        const isDragged = gridDrag?.target.kind === "tool" && gridDrag.target.toolId === tool.id;
+        const dragStyle =
+          isDragged && gridDrag
+            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
+            : {};
+
+        return (
+          <div
+            key={tool.id}
+            className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
+            style={{
+              gridColumn: `${tool.x} / span ${tool.span ?? 1}`,
+              gridRow: `${tool.y} / span ${tool.span ?? 1}`,
+              ...dragStyle,
+            }}
+          >
+            <div className="relative h-full w-full">
+              <Image
+                src={toolTypeToImage(tool.toolType)}
+                alt=""
+                fill
+                className="object-cover"
+                sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * (tool.span ?? 1))}px`}
+              />
+              {toolShowsActivationGlow(tool) && (
+                <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
               )}
             </div>
           </div>

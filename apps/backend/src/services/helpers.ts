@@ -1,3 +1,5 @@
+import { getToolSpan } from "@happy-little-park/utils";
+
 import { Bug, Item, ItemType } from "../prisma/prisma/client.js";
 import { BugDto, BugOnGridDto } from "../types/bugDto.js";
 import { ItemDto, ItemOnGridDto } from "../types/itemDto.js";
@@ -132,6 +134,7 @@ export function toToolOnGridDto(tool: ToolDto): ToolOnGridDto {
     toolType: tool.toolType,
     x: tool.x,
     y: tool.y,
+    span: getToolSpan(),
     items: tool.items,
   };
 }

@@ -4,6 +4,7 @@ import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
+import { Tool } from "../types/tool";
 
 export function isStack(entity: Positionable): entity is Stack {
   return "itemsCount" in entity;
@@ -17,6 +18,10 @@ export function isStructure(entity: Positionable): entity is Structure {
   return "structureType" in entity;
 }
 
+export function isTool(entity: Positionable): entity is Tool {
+  return "toolType" in entity;
+}
+
 export function isItem(entity: Positionable): entity is Item {
-  return !isStack(entity) && !isBug(entity) && !isStructure(entity);
+  return !isStack(entity) && !isBug(entity) && !isStructure(entity) && !isTool(entity);
 }

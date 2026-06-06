@@ -20,6 +20,7 @@ import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
+import { Tool } from "../types/tool";
 import { isBug, isItem, isStack, isStructure } from "../utils/typeGuards";
 import { DRAG_THRESHOLD_PX } from "./constants";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
@@ -32,6 +33,7 @@ interface GroundGridInteractionLayerProps {
   items: Item[];
   stacks: Stack[];
   bugs: Bug[];
+  tools: Tool[];
   onStructureClick: (structure: Structure) => void;
   onStackClick: (stack: Stack) => void;
   onBeetleClick: (bug: Bug) => void;
@@ -47,6 +49,7 @@ export function GroundGridInteractionLayer({
   items,
   stacks,
   bugs,
+  tools,
   onStructureClick,
   onStackClick,
   onBeetleClick,
@@ -94,7 +97,17 @@ export function GroundGridInteractionLayer({
 
     if (hasDraggedRef.current) {
       setDragState({ index, dx, dy });
-      const payload = buildGridDragPayload(index, dx, dy, cols, structures, items, stacks, bugs);
+      const payload = buildGridDragPayload(
+        index,
+        dx,
+        dy,
+        cols,
+        structures,
+        tools,
+        items,
+        stacks,
+        bugs,
+      );
       if (payload !== null) {
         onDragChange(payload);
       }
@@ -105,7 +118,17 @@ export function GroundGridInteractionLayer({
     if (distance >= DRAG_THRESHOLD_PX) {
       hasDraggedRef.current = true;
       setDragState({ index, dx, dy });
-      const payload = buildGridDragPayload(index, dx, dy, cols, structures, items, stacks, bugs);
+      const payload = buildGridDragPayload(
+        index,
+        dx,
+        dy,
+        cols,
+        structures,
+        tools,
+        items,
+        stacks,
+        bugs,
+      );
       if (payload !== null) {
         onDragChange(payload);
       }
@@ -138,16 +161,20 @@ export function GroundGridInteractionLayer({
         const stackToDrop = stacks.find((s) => s.x === gridCol && s.y === gridRow);
         const bugToDrop = bugs.find((b) => b.x === gridCol && b.y === gridRow);
         const structureToDrop = structures.find((s) => s.x === gridCol && s.y === gridRow);
-        const entityToDrop = itemToDrop ?? stackToDrop ?? bugToDrop ?? structureToDrop;
+        const toolToDrop = tools.find((t) => t.x === gridCol && t.y === gridRow);
+        const entityToDrop =
+          itemToDrop ?? stackToDrop ?? bugToDrop ?? structureToDrop ?? toolToDrop;
 
+        const draggedSpan = structureToDrop?.span ?? toolToDrop?.span ?? 1;
         const bounds = event.currentTarget.getBoundingClientRect();
-        const centerX = bounds.left + bounds.width / (structureToDrop?.span ?? 1) / 2;
-        const centerY = bounds.top + bounds.height / (structureToDrop?.span ?? 1) / 2;
+        const centerX = bounds.left + bounds.width / draggedSpan / 2;
+        const centerY = bounds.top + bounds.height / draggedSpan / 2;
         const target = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
         const isOtherCell = target.x !== gridCol || target.y !== gridRow;
 
         const overlappingEntity = findOverlappingEntity({ x: target.x, y: target.y }, [
           ...structures,
+          ...tools,
           ...items,
           ...stacks,
           ...bugs,
@@ -214,6 +241,7 @@ export function GroundGridInteractionLayer({
               rows,
               [
                 ...structures.filter((s) => s.id !== structureToDrop.id),
+                ...tools,
                 ...items,
                 ...stacks,
                 ...bugs,
@@ -222,6 +250,25 @@ export function GroundGridInteractionLayer({
 
             if (fits) {
               onItemDropped(structureToDrop.id, target);
+            }
+          }
+
+          if (toolToDrop) {
+            const fits = structureFootprintFits(
+              { x: target.x, y: target.y, span: toolToDrop.span },
+              cols,
+              rows,
+              [
+                ...structures,
+                ...tools.filter((t) => t.id !== toolToDrop.id),
+                ...items,
+                ...stacks,
+                ...bugs,
+              ],
+            );
+
+            if (fits) {
+              onItemDropped(toolToDrop.id, target);
             }
           }
 
@@ -284,6 +331,7 @@ export function GroundGridInteractionLayer({
         const gridRow = Math.floor(index / cols) + 1;
         const gridCol = (index % cols) + 1;
         const structure = structures.find((s) => s.x === gridCol && s.y === gridRow);
+        const tool = tools.find((t) => t.x === gridCol && t.y === gridRow);
         const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
         const bug = bugs.find((b) => b.x === gridCol && b.y === gridRow);
 
@@ -291,8 +339,13 @@ export function GroundGridInteractionLayer({
           return null;
         }
 
+        if (!tool && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, tools)) {
+          return null;
+        }
+
         const canDrag =
           !!structure ||
+          !!tool ||
           positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, [...items, ...stacks, ...bugs]);
 
         const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
@@ -307,10 +360,15 @@ export function GroundGridInteractionLayer({
               gridColumn: `${structure.x} / span ${structure.span}`,
               gridRow: `${structure.y} / span ${structure.span}`,
             }
-          : {
-              gridColumn: gridCol,
-              gridRow: gridRow,
-            };
+          : tool
+            ? {
+                gridColumn: `${tool.x} / span ${tool.span}`,
+                gridRow: `${tool.y} / span ${tool.span}`,
+              }
+            : {
+                gridColumn: gridCol,
+                gridRow: gridRow,
+              };
         const dragStyle =
           isDragging && dragState
             ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }
@@ -323,7 +381,9 @@ export function GroundGridInteractionLayer({
             style={{ ...placementStyle, ...dragStyle }}
             onPointerDown={(event) => handlePointerDown(canDrag, event)}
             onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
-            onPointerUp={(event) => handlePointerUp(structure, stack, bug, gridCol, gridRow, event)}
+            onPointerUp={(event) =>
+              handlePointerUp(structure, stack, bug, gridCol, gridRow, event)
+            }
             onPointerCancel={handlePointerCancel}
           />
         );

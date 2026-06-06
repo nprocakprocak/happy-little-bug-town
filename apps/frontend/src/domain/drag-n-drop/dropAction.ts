@@ -15,11 +15,13 @@ import {
 } from "../../api/items";
 import { createStack, mergeStacks, updateStack } from "../../api/stacks";
 import { updateStructurePosition } from "../../api/structures";
+import { updateToolPosition } from "../../api/tools";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
-import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
+import { Tool } from "../../types/tool";
+import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGuards";
 
 export async function dropAction(
   targetPosition: Position,
@@ -27,13 +29,21 @@ export async function dropAction(
   stacks: Stack[],
   bugs: Bug[],
   structures: Structure[],
+  tools: Tool[],
   entity: Positionable,
   targetEntity?: Positionable,
-): Promise<{ items: Item[]; stacks: Stack[]; bugs: Bug[]; structures: Structure[] }> {
+): Promise<{
+  items: Item[];
+  stacks: Stack[];
+  bugs: Bug[];
+  structures: Structure[];
+  tools: Tool[];
+}> {
   const originalItem = isItem(entity) ? entity : undefined;
   const originalStack = isStack(entity) ? entity : undefined;
   const originalBug = isBug(entity) ? entity : undefined;
   const originalStructure = isStructure(entity) ? entity : undefined;
+  const originalTool = isTool(entity) ? entity : undefined;
 
   const targetItem = targetEntity ? (isItem(targetEntity) ? targetEntity : undefined) : undefined;
   const targetStack = targetEntity ? (isStack(targetEntity) ? targetEntity : undefined) : undefined;
@@ -59,6 +69,7 @@ export async function dropAction(
       stacks: [...stacks, stack],
       bugs: bugs,
       structures: structures,
+      tools,
     };
   }
 
@@ -74,6 +85,7 @@ export async function dropAction(
       stacks: stacks.map((s) => (s.id === targetStack.id ? stack : s)),
       bugs: bugs,
       structures: structures,
+      tools,
     };
   }
 
@@ -91,6 +103,7 @@ export async function dropAction(
       stacks: stacks,
       bugs: bugs.map((b) => (b.id === targetBug.id ? bug : b)),
       structures: structures,
+      tools,
     };
   }
 
@@ -105,6 +118,7 @@ export async function dropAction(
       stacks: stacks,
       bugs: bugs,
       structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
+      tools,
     };
   }
 
@@ -116,6 +130,7 @@ export async function dropAction(
       stacks: stacks,
       bugs: bugs.filter((b) => b.id !== originalBug.id),
       structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
+      tools,
     };
   }
 
@@ -130,6 +145,7 @@ export async function dropAction(
         .map((s) => (s.id === targetStack.id ? mergedStack : s)),
       bugs: bugs,
       structures: structures,
+      tools,
     };
   }
 
@@ -143,6 +159,7 @@ export async function dropAction(
       stacks: stacks.map((s) => (s.id === originalStack.id ? stack : s)),
       bugs: bugs,
       structures: structures,
+      tools,
     };
   }
 
@@ -154,6 +171,7 @@ export async function dropAction(
       stacks: stacks,
       bugs: bugs,
       structures: structures,
+      tools,
     };
   }
 
@@ -165,6 +183,7 @@ export async function dropAction(
       stacks: stacks,
       bugs: bugs.map((b) => (b.id === originalBug.id ? bug : b)),
       structures: structures,
+      tools,
     };
   }
 
@@ -176,6 +195,19 @@ export async function dropAction(
       stacks: stacks,
       bugs: bugs,
       structures: structures.map((s) => (s.id === originalStructure.id ? structure : s)),
+      tools,
+    };
+  }
+
+  if (originalTool) {
+    const tool = await updateToolPosition(originalTool.id, targetPosition);
+
+    return {
+      items: items,
+      stacks: stacks,
+      bugs: bugs,
+      structures: structures,
+      tools: tools.map((t) => (t.id === originalTool.id ? tool : t)),
     };
   }
 

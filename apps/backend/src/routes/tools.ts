@@ -1,6 +1,12 @@
 import { Router, type RequestHandler } from "express";
 
-import { positionOverlapsAnyEntity, ToolType } from "@happy-little-park/utils";
+import {
+  getToolSpan,
+  GROUND_HEIGHT,
+  GROUND_WIDTH,
+  structureFootprintFits,
+  ToolType,
+} from "@happy-little-park/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireAid } from "../middleware/requireAid.js";
@@ -55,8 +61,11 @@ const createTool: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  if (positionOverlapsAnyEntity({ x, y }, entities)) {
-    res.status(400).json({ error: "Position is already occupied" });
+  const span = getToolSpan();
+  const fits = structureFootprintFits({ x, y, span }, GROUND_WIDTH, GROUND_HEIGHT, entities);
+
+  if (!fits) {
+    res.status(400).json({ error: "Position is not free for tool" });
     return;
   }
 
@@ -116,8 +125,16 @@ const updateTool: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  if (positionOverlapsAnyEntity({ x, y }, entities)) {
-    res.status(400).json({ error: "Position is already occupied" });
+  const span = getToolSpan();
+  const fits = structureFootprintFits(
+    { x, y, span },
+    GROUND_WIDTH,
+    GROUND_HEIGHT,
+    entities.filter((entity) => entity.x !== existingTool.x || entity.y !== existingTool.y),
+  );
+
+  if (!fits) {
+    res.status(400).json({ error: "Position is not free for tool" });
     return;
   }
 

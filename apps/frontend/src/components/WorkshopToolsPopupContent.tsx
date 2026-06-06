@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { getToolCraftCosts } from "@happy-little-park/utils";
+import { getToolCraftCosts, ToolType } from "@happy-little-park/utils";
 
 import { WORKSHOP_TOOL_OPTIONS } from "../constants/workshopTools";
 import { CarouselSlider } from "./CarouselSlider";
@@ -11,9 +11,15 @@ import { SelectionPopupContent } from "./SelectionPopupContent";
 
 interface WorkshopToolsPopupContentProps {
   onClose: () => void;
+  onCreateTool: (toolType: ToolType) => void;
+  isCreating?: boolean;
 }
 
-export function WorkshopToolsPopupContent({ onClose }: WorkshopToolsPopupContentProps) {
+export function WorkshopToolsPopupContent({
+  onClose,
+  onCreateTool,
+  isCreating,
+}: WorkshopToolsPopupContentProps) {
   const [selectedToolIndex, setSelectedToolIndex] = useState(0);
   const carouselOptions = useMemo(
     () =>
@@ -27,7 +33,9 @@ export function WorkshopToolsPopupContent({ onClose }: WorkshopToolsPopupContent
   const selectedTool = WORKSHOP_TOOL_OPTIONS[selectedToolIndex];
   const selectedResourceCosts = getToolCraftCosts(selectedTool.toolType);
 
-  function handleCreateClick() {}
+  function handleCreateClick() {
+    onCreateTool(selectedTool.toolType);
+  }
 
   return (
     <SelectionPopupContent
@@ -45,6 +53,7 @@ export function WorkshopToolsPopupContent({ onClose }: WorkshopToolsPopupContent
       primaryLabel="Create"
       onPrimaryClick={handleCreateClick}
       onClose={onClose}
+      primaryDisabled={isCreating}
     />
   );
 }
