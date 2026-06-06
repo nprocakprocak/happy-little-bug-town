@@ -21,17 +21,6 @@ export function useStacksQuery(enabled = true) {
   });
 }
 
-export function useCreateStackMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createStack,
-    onSuccess: (stack) => {
-      updateStacksCache(queryClient, (stacks) => [...stacks, stack]);
-    },
-  });
-}
-
 export function useUpdateStackMutation() {
   const queryClient = useQueryClient();
 

@@ -58,7 +58,8 @@ const createStack: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  if (positionOverlapsAnyEntity({ x, y }, entities)) {
+  const entitiesWithoutItems = entities.filter((entity) => !items.some((item) => item.x === entity.x && item.y === entity.y));
+  if (positionOverlapsAnyEntity({ x, y }, entitiesWithoutItems)) {
     res.status(400).json({ error: "Position is already occupied" });
     return;
   }
