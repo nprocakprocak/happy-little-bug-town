@@ -77,10 +77,7 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
       return;
     }
 
-    if (
-      structureDropRequiresFedBug(existingStructure.structureType) &&
-      !isBugFed(existingBug)
-    ) {
+    if (structureDropRequiresFedBug(existingStructure.structureType) && !isBugFed(existingBug)) {
       res.status(400).json({ error: "Bug must be fed before joining structure" });
       return;
     }

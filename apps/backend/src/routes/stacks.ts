@@ -1,16 +1,17 @@
 import { Router, type RequestHandler } from "express";
 
-import { GROUND_HEIGHT, GROUND_WIDTH, canStackItemType, positionOverlapsAnyEntity } from "@happy-little-park/utils";
+import {
+  canStackItemType,
+  GROUND_HEIGHT,
+  GROUND_WIDTH,
+  positionOverlapsAnyEntity,
+} from "@happy-little-park/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { toStackOnGridDto } from "../services/helpers.js";
-import {
-  dissolveStack,
-  getItemsByIds,
-  takeItemFromStack,
-} from "../services/itemsService.js";
+import { dissolveStack, getItemsByIds, takeItemFromStack } from "../services/itemsService.js";
 import {
   createStackWithItems,
   getStack,
@@ -58,7 +59,9 @@ const createStack: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const entitiesWithoutItems = entities.filter((entity) => !items.some((item) => item.x === entity.x && item.y === entity.y));
+  const entitiesWithoutItems = entities.filter(
+    (entity) => !items.some((item) => item.x === entity.x && item.y === entity.y),
+  );
   if (positionOverlapsAnyEntity({ x, y }, entitiesWithoutItems)) {
     res.status(400).json({ error: "Position is already occupied" });
     return;

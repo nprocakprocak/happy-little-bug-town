@@ -12,7 +12,13 @@ import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { toStructureOnGridDto, toToolOnGridDto } from "../services/helpers.js";
 import { getStructure, hasWorkshop } from "../services/structuresService.js";
-import { createTool as createToolService, getTool as getToolService, getTools, hasTool, updateTool as updateToolService } from "../services/toolsService.js";
+import {
+  createTool as createToolService,
+  getTools,
+  getTool as getToolService,
+  hasTool,
+  updateTool as updateToolService,
+} from "../services/toolsService.js";
 import { isPositioned } from "../typeGuards/items.js";
 
 const TOOL_TYPES: ToolType[] = ["leaf_rake", "shovel"];
