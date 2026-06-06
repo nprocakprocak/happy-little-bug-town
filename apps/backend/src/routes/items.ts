@@ -4,6 +4,7 @@ import {
   BEETLE_MAX_LEAF_PARTS,
   canAcceptItemForBuild,
   canAcceptItemForToolCraft,
+  canStackItemType,
   positionOverlapsAnyEntity,
 } from "@happy-little-park/utils";
 
@@ -24,7 +25,7 @@ import {
 } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
 import { getStructure } from "../services/structuresService.js";
-import { getTool } from "../services/toolsService.js";
+import { getTool, getTools } from "../services/toolsService.js";
 import { UpdateItemData } from "../types/itemDto.js";
 
 export const itemsRouter = Router();
@@ -182,6 +183,12 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
     }
     if (existingItem.itemType !== existingStack.itemType) {
       res.status(400).json({ error: "Item type must match stack type" });
+      return;
+    }
+
+    const tools = await getTools(authorId);
+    if (!canStackItemType(existingItem.itemType, tools)) {
+      res.status(400).json({ error: "Item cannot be stacked" });
       return;
     }
 

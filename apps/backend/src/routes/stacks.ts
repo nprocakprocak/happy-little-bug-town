@@ -1,6 +1,6 @@
 import { Router, type RequestHandler } from "express";
 
-import { GROUND_HEIGHT, GROUND_WIDTH, positionOverlapsAnyEntity } from "@happy-little-park/utils";
+import { GROUND_HEIGHT, GROUND_WIDTH, canStackItemType, positionOverlapsAnyEntity } from "@happy-little-park/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
@@ -18,6 +18,7 @@ import {
   mergeStacks as mergeStacksService,
   updateStack as updateStackService,
 } from "../services/stacksService.js";
+import { getTools } from "../services/toolsService.js";
 
 export const stacksRouter = Router();
 
@@ -42,6 +43,12 @@ const createStack: RequestHandler = async (req, res) => {
 
   if (!items.every((item) => item.itemType === itemType)) {
     res.status(400).json({ error: "All items must be of the same type to be in a stack" });
+    return;
+  }
+
+  const tools = await getTools(authorId);
+  if (!canStackItemType(itemType, tools)) {
+    res.status(400).json({ error: "Items of this type cannot be stacked" });
     return;
   }
 
@@ -136,6 +143,12 @@ const mergeStacks: RequestHandler = async (req, res) => {
 
   if (sourceStack.itemType !== targetStack.itemType) {
     res.status(400).json({ error: "Stacks must be of the same type to merge" });
+    return;
+  }
+
+  const tools = await getTools(authorId);
+  if (!canStackItemType(sourceStack.itemType, tools)) {
+    res.status(400).json({ error: "Stacks of this type cannot be merged" });
     return;
   }
 

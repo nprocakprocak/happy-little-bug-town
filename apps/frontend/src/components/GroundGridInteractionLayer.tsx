@@ -5,6 +5,7 @@ import {
   BEETLE_MAX_LEAF_PARTS,
   canDropItemOnStructure,
   canDropItemOnTool,
+  canStackItemType,
   canStructureAcceptBugDrop,
   findOverlappingEntity,
   isBugFed,
@@ -207,7 +208,9 @@ export function GroundGridInteractionLayer({
             const sameTypeItems = overlappingItem?.itemType === itemToDrop.itemType;
             const sameTypeAsStack = overlappingStack?.itemType === itemToDrop.itemType;
             const typeAllowed = sameTypeItems || sameTypeAsStack;
-            const stackNotAllowed = wouldCreateOrJoinStack && !typeAllowed;
+            const stackNotAllowed =
+              wouldCreateOrJoinStack &&
+              (!canStackItemType(itemToDrop.itemType, tools) || !typeAllowed);
             const canDropLeafOnBeetle =
               itemToDrop.itemType === "leaf_part" &&
               overlappingBug?.bugType === "beetle" &&
@@ -232,7 +235,8 @@ export function GroundGridInteractionLayer({
           if (stackToDrop) {
             const shouldCancel =
               (!!overlappingEntity && !overlappingStack) ||
-              (overlappingStack && overlappingStack.itemType !== stackToDrop.itemType);
+              (overlappingStack && overlappingStack.itemType !== stackToDrop.itemType) ||
+              !canStackItemType(stackToDrop.itemType, tools);
 
             if (shouldCancel) {
               onItemDropCancelled(stackToDrop.id, target);

@@ -3,6 +3,7 @@ export * from "./constants/structureBuildCosts.js";
 export * from "./constants/structurePowerRequirements.js";
 export * from "./constants/toolCraftCosts.js";
 export * from "./grid/overlaps.js";
+export * from "./items/stacking.js";
 export * from "./structures/availability.js";
 export * from "./structures/build.js";
 export * from "./structures/power.js";
