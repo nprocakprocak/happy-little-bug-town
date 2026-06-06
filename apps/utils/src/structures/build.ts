@@ -26,13 +26,6 @@ export interface StructureBuildResourceProgress {
   missing: number;
 }
 
-export function hasStructureType<T extends { structureType: StructureType }>(
-  structures: T[],
-  structureType: StructureType,
-): boolean {
-  return structures.some((structure) => structure.structureType === structureType);
-}
-
 export function getBuildResourceCosts(
   structureType: StructureType,
 ): BuildResourceCost[] | undefined {

@@ -381,9 +381,7 @@ export function GroundGridInteractionLayer({
             style={{ ...placementStyle, ...dragStyle }}
             onPointerDown={(event) => handlePointerDown(canDrag, event)}
             onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
-            onPointerUp={(event) =>
-              handlePointerUp(structure, stack, bug, gridCol, gridRow, event)
-            }
+            onPointerUp={(event) => handlePointerUp(structure, stack, bug, gridCol, gridRow, event)}
             onPointerCancel={handlePointerCancel}
           />
         );

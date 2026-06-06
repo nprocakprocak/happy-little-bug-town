@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getStructureSpan,
   getToolSpan,
+  hasToolType,
   isBuildableStructureType,
   isStructurePowered,
   Position,
@@ -452,6 +453,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onWorkshopCreateTool = useCallback(
     (toolType: ToolType) => {
+      if (hasToolType(tools, toolType)) {
+        return;
+      }
       const span = getToolSpan();
       const position = findFirstStructurePlacement(span, cols, rows, [
         ...structures,
@@ -551,6 +555,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           <WorkshopPopup
             onClose={() => setWorkshopPopupOpen(false)}
             onCreateTool={onWorkshopCreateTool}
+            tools={tools}
             isCreating={createTool.isPending}
           />
         )}

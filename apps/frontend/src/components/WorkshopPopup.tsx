@@ -2,21 +2,24 @@
 
 import { ToolType } from "@happy-little-park/utils";
 
+import { Tool } from "../types/tool";
 import { GridPopup } from "./GridPopup";
 import { WorkshopToolsPopupContent } from "./WorkshopToolsPopupContent";
 
 interface WorkshopPopupProps {
   onClose: () => void;
   onCreateTool: (toolType: ToolType) => void;
+  tools: Tool[];
   isCreating?: boolean;
 }
 
-export function WorkshopPopup({ onClose, onCreateTool, isCreating }: WorkshopPopupProps) {
+export function WorkshopPopup({ onClose, onCreateTool, tools, isCreating }: WorkshopPopupProps) {
   return (
     <GridPopup>
       <WorkshopToolsPopupContent
         onClose={onClose}
         onCreateTool={onCreateTool}
+        tools={tools}
         isCreating={isCreating}
       />
     </GridPopup>

@@ -1,8 +1,20 @@
+import { ToolType } from "@happy-little-park/utils";
+
 import { prisma } from "../lib/prisma.js";
 import { CreateToolData, ToolDto, UpdateToolData } from "../types/toolDto.js";
 import { toToolDto } from "./helpers.js";
 
 const toolInclude = { items: true } as const;
+
+export const hasTool = async (authorId: string, toolType: ToolType): Promise<boolean> => {
+  const count = await prisma.tool.count({
+    where: {
+      authorId,
+      toolType,
+    },
+  });
+  return count > 0;
+};
 
 export const getTools = async (authorId: string): Promise<ToolDto[]> => {
   const tools = await prisma.tool.findMany({

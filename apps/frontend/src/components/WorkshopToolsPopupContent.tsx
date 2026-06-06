@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { getToolCraftCosts, ToolType } from "@happy-little-park/utils";
+import { getToolCraftCosts, hasToolType, ToolType } from "@happy-little-park/utils";
 
 import { WORKSHOP_TOOL_OPTIONS } from "../constants/workshopTools";
+import { Tool } from "../types/tool";
 import { CarouselSlider } from "./CarouselSlider";
 import { toolTypeToName } from "./helpers/getToolName";
 import { toolTypeToImage } from "./helpers/toolTypeToImage";
@@ -12,12 +13,14 @@ import { SelectionPopupContent } from "./SelectionPopupContent";
 interface WorkshopToolsPopupContentProps {
   onClose: () => void;
   onCreateTool: (toolType: ToolType) => void;
+  tools: Tool[];
   isCreating?: boolean;
 }
 
 export function WorkshopToolsPopupContent({
   onClose,
   onCreateTool,
+  tools,
   isCreating,
 }: WorkshopToolsPopupContentProps) {
   const [selectedToolIndex, setSelectedToolIndex] = useState(0);
@@ -32,8 +35,12 @@ export function WorkshopToolsPopupContent({
   );
   const selectedTool = WORKSHOP_TOOL_OPTIONS[selectedToolIndex];
   const selectedResourceCosts = getToolCraftCosts(selectedTool.toolType);
+  const canCreate = !hasToolType(tools, selectedTool.toolType);
 
   function handleCreateClick() {
+    if (!canCreate) {
+      return;
+    }
     onCreateTool(selectedTool.toolType);
   }
 
@@ -53,7 +60,7 @@ export function WorkshopToolsPopupContent({
       primaryLabel="Create"
       onPrimaryClick={handleCreateClick}
       onClose={onClose}
-      primaryDisabled={isCreating}
+      primaryDisabled={isCreating || !canCreate}
     />
   );
 }
