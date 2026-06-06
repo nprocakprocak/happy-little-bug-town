@@ -64,94 +64,98 @@ export function GroundGridAssetLayer({
         gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
       }}
     >
-      {structures.map((structure) => {
-        const isDragged =
-          gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
-        const dragStyle =
-          isDragged && gridDrag
-            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
-            : {};
+      {structures
+        .filter((structure) => !isFlyingItem(structure))
+        .map((structure) => {
+          const isDragged =
+            gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+          const dragStyle =
+            isDragged && gridDrag
+              ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
+              : {};
 
-        const showActivationGlow = structureShowsActivationGlow(structure);
-        const firstHouseBug =
-          structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
+          const showActivationGlow = structureShowsActivationGlow(structure);
+          const firstHouseBug =
+            structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
 
-        return (
-          <div
-            key={structure.id}
-            className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
-            style={{
-              gridColumn: `${structure.x} / span ${structure.span}`,
-              gridRow: `${structure.y} / span ${structure.span}`,
-              ...dragStyle,
-            }}
-          >
-            <div className="relative h-full w-full">
-              <Image
-                src={structureTypeToImage(structure.structureType)}
-                alt=""
-                fill
-                className="object-cover"
-                sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
-              />
-              {showActivationGlow && (
-                <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
-              )}
-              {firstHouseBug && (
-                <div
-                  className="absolute min-h-0 min-w-0 overflow-hidden rounded-sm"
-                  style={{
-                    right: 0,
-                    bottom: 0,
-                    width: `${100 / structure.span}%`,
-                    height: `${100 / structure.span}%`,
-                  }}
-                >
-                  <Image
-                    src={bugTypeToImage(firstHouseBug.bugType)}
-                    alt=""
-                    fill
-                    className="object-contain p-[8%] drop-shadow-sm"
-                    sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
-                  />
-                </div>
-              )}
+          return (
+            <div
+              key={structure.id}
+              className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
+              style={{
+                gridColumn: `${structure.x} / span ${structure.span}`,
+                gridRow: `${structure.y} / span ${structure.span}`,
+                ...dragStyle,
+              }}
+            >
+              <div className="relative h-full w-full">
+                <Image
+                  src={structureTypeToImage(structure.structureType)}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
+                />
+                {showActivationGlow && (
+                  <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
+                )}
+                {firstHouseBug && (
+                  <div
+                    className="absolute min-h-0 min-w-0 overflow-hidden rounded-sm"
+                    style={{
+                      right: 0,
+                      bottom: 0,
+                      width: `${100 / structure.span}%`,
+                      height: `${100 / structure.span}%`,
+                    }}
+                  >
+                    <Image
+                      src={bugTypeToImage(firstHouseBug.bugType)}
+                      alt=""
+                      fill
+                      className="object-contain p-[8%] drop-shadow-sm"
+                      sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
-      {tools.map((tool) => {
-        const isDragged = gridDrag?.target.kind === "tool" && gridDrag.target.toolId === tool.id;
-        const dragStyle =
-          isDragged && gridDrag
-            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
-            : {};
+          );
+        })}
+      {tools
+        .filter((tool) => !isFlyingItem(tool))
+        .map((tool) => {
+          const isDragged = gridDrag?.target.kind === "tool" && gridDrag.target.toolId === tool.id;
+          const dragStyle =
+            isDragged && gridDrag
+              ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
+              : {};
 
-        return (
-          <div
-            key={tool.id}
-            className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
-            style={{
-              gridColumn: `${tool.x} / span ${tool.span ?? 1}`,
-              gridRow: `${tool.y} / span ${tool.span ?? 1}`,
-              ...dragStyle,
-            }}
-          >
-            <div className="relative h-full w-full">
-              <Image
-                src={toolTypeToImage(tool.toolType)}
-                alt=""
-                fill
-                className="object-cover"
-                sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * (tool.span ?? 1))}px`}
-              />
-              {toolShowsActivationGlow(tool) && (
-                <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
-              )}
+          return (
+            <div
+              key={tool.id}
+              className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
+              style={{
+                gridColumn: `${tool.x} / span ${tool.span ?? 1}`,
+                gridRow: `${tool.y} / span ${tool.span ?? 1}`,
+                ...dragStyle,
+              }}
+            >
+              <div className="relative h-full w-full">
+                <Image
+                  src={toolTypeToImage(tool.toolType)}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * (tool.span ?? 1))}px`}
+                />
+                {toolShowsActivationGlow(tool) && (
+                  <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
       {allGrounded.map((item: Item | Stack | Bug) => {
         const isDragged =
           gridDrag !== null &&

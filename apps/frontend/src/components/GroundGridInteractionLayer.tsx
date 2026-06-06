@@ -261,6 +261,8 @@ export function GroundGridInteractionLayer({
 
             if (fits) {
               onItemDropped(structureToDrop.id, target);
+            } else {
+              onItemDropCancelled(structureToDrop.id, target);
             }
           }
 
@@ -280,6 +282,8 @@ export function GroundGridInteractionLayer({
 
             if (fits) {
               onItemDropped(toolToDrop.id, target);
+            } else {
+              onItemDropCancelled(toolToDrop.id, target);
             }
           }
 

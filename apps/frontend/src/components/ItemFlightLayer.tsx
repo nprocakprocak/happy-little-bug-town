@@ -7,7 +7,7 @@ import { Positionable } from "@happy-little-park/utils";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { GridAnimatable } from "../types/gridAnimatable";
 import { WithId } from "../types/withId";
-import { isBug, isItem, isStack, isStructure } from "../utils/typeGuards";
+import { isBug, isItem, isStack, isStructure, isTool } from "../utils/typeGuards";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 import {
   bugTypeToImage,
@@ -15,11 +15,35 @@ import {
   itemTypeToImageForStack,
   structureTypeToImage,
 } from "./helpers/itemTypeToImage";
+import { toolTypeToImage } from "./helpers/toolTypeToImage";
 
 const FLIGHT_DURATION_MS = 550;
 const FLIGHT_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 type Animatable = GridAnimatable & WithId & Positionable;
+
+function getAnimatableSpan(item: Animatable): number {
+  if (isStructure(item)) {
+    return item.span;
+  }
+  if (isTool(item)) {
+    return item.span ?? 1;
+  }
+  return 1;
+}
+
+function gridPlacementStyle(x: number, y: number, span: number) {
+  if (span > 1) {
+    return {
+      gridColumn: `${x} / span ${span}`,
+      gridRow: `${y} / span ${span}`,
+    };
+  }
+  return {
+    gridColumn: x,
+    gridRow: y,
+  };
+}
 
 function animatableImageSrc(animatable: Animatable): string {
   if (isBug(animatable)) {
@@ -33,6 +57,9 @@ function animatableImageSrc(animatable: Animatable): string {
   }
   if (isStructure(animatable)) {
     return structureTypeToImage(animatable.structureType);
+  }
+  if (isTool(animatable)) {
+    return toolTypeToImage(animatable.toolType);
   }
   throw new Error(`Unknown animatable type: ${animatable}`);
 }
@@ -52,6 +79,7 @@ interface FlyingItemAnimationProps {
 }
 
 function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimationProps) {
+  const span = getAnimatableSpan(item);
   const containerRef = useRef<HTMLDivElement>(null);
   const fromMarkerRef = useRef<HTMLDivElement>(null);
   const toMarkerRef = useRef<HTMLDivElement>(null);
@@ -119,7 +147,7 @@ function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimati
     return () => {
       animation?.cancel();
     };
-  }, [cols, rows, item.fromX, item.fromY, item.x, item.y]);
+  }, [cols, rows, item.fromX, item.fromY, item.x, item.y, span]);
 
   return (
     <div ref={containerRef} className="pointer-events-none absolute inset-0">
@@ -134,19 +162,13 @@ function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimati
           ref={fromMarkerRef}
           aria-hidden
           className="min-h-0 min-w-0 opacity-0"
-          style={{
-            gridColumn: item.fromX,
-            gridRow: item.fromY,
-          }}
+          style={gridPlacementStyle(item.fromX!, item.fromY!, span)}
         />
         <div
           ref={toMarkerRef}
           aria-hidden
           className="min-h-0 min-w-0 opacity-0"
-          style={{
-            gridColumn: item.x,
-            gridRow: item.y,
-          }}
+          style={gridPlacementStyle(item.x, item.y, span)}
         />
       </div>
       <div ref={flyerRef} className="pointer-events-none absolute overflow-hidden rounded-sm">
@@ -155,7 +177,7 @@ function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimati
           alt=""
           fill
           className="object-cover"
-          sizes={`${Math.ceil(GROUND_GRID_MAX_WIDTH_PX / cols)}px`}
+          sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
         />
       </div>
     </div>

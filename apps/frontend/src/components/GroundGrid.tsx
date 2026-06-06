@@ -167,8 +167,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             : structure,
         ),
       );
+      setToolsCache((prev) =>
+        prev.map((tool) =>
+          tool.id === entityId ? { ...tool, fromX: undefined, fromY: undefined } : tool,
+        ),
+      );
     },
-    [setItemsCache, setBugsCache, setStructuresCache, setStacksCache],
+    [setItemsCache, setBugsCache, setStructuresCache, setStacksCache, setToolsCache],
   );
 
   const handleItemDropCancelled = useCallback(
@@ -195,8 +200,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             : structure,
         ),
       );
+      setToolsCache((prev) =>
+        prev.map((tool) =>
+          tool.id === itemId ? { ...tool, fromX: position.x, fromY: position.y } : tool,
+        ),
+      );
     },
-    [setItemsCache, setBugsCache, setStacksCache, setStructuresCache],
+    [setItemsCache, setBugsCache, setStacksCache, setStructuresCache, setToolsCache],
   );
 
   // todo: either { x, y } or targetEntity (or separate handlers)
