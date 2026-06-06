@@ -41,6 +41,25 @@ export function getToolCraftProgress(tool: ToolForCraft): ToolCraftResourceProgr
   });
 }
 
+export function canAcceptItemForToolCraft(tool: ToolForCraft, itemType: ItemType): boolean {
+  if (!isToolIncomplete(tool)) {
+    return false;
+  }
+
+  const resourceProgress = getToolCraftProgress(tool).find(
+    (progress) => progress.itemType === itemType,
+  );
+
+  return resourceProgress !== undefined && resourceProgress.missing > 0;
+}
+
+export function canDropItemOnTool(
+  item: { itemType: ItemType },
+  tool: ToolForCraft,
+): boolean {
+  return canAcceptItemForToolCraft(tool, item.itemType);
+}
+
 export function toolShowsActivationGlow(tool: ToolForCraft): boolean {
   return isToolIncomplete(tool);
 }

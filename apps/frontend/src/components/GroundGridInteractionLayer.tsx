@@ -4,6 +4,7 @@ import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react"
 import {
   BEETLE_MAX_LEAF_PARTS,
   canDropItemOnStructure,
+  canDropItemOnTool,
   canStructureAcceptBugDrop,
   findOverlappingEntity,
   isBugFed,
@@ -21,7 +22,7 @@ import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
 import { Tool } from "../types/tool";
-import { isBug, isItem, isStack, isStructure } from "../utils/typeGuards";
+import { isBug, isItem, isStack, isStructure, isTool } from "../utils/typeGuards";
 import { DRAG_THRESHOLD_PX } from "./constants";
 import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
@@ -188,7 +189,11 @@ export function GroundGridInteractionLayer({
         const overlappingStructure =
           overlappingEntity &&
           isStructure(overlappingEntity) &&
-          overlappingEntity?.id !== structureToDrop?.id
+          overlappingEntity.id !== structureToDrop?.id
+            ? overlappingEntity
+            : undefined;
+        const overlappingTool =
+          overlappingEntity && isTool(overlappingEntity) && overlappingEntity.id !== toolToDrop?.id
             ? overlappingEntity
             : undefined;
 
@@ -210,8 +215,11 @@ export function GroundGridInteractionLayer({
               overlappingBug.itemIds.length < BEETLE_MAX_LEAF_PARTS;
             const canDropOnStructure =
               !!overlappingStructure && canDropItemOnStructure(itemToDrop, overlappingStructure);
+            const canDropOnTool =
+              !!overlappingTool && canDropItemOnTool(itemToDrop, overlappingTool);
             const shouldCancel =
               (!!overlappingStructure && !canDropOnStructure) ||
+              (!!overlappingTool && !canDropOnTool) ||
               stackNotAllowed ||
               (!!overlappingBug && !canDropLeafOnBeetle);
 

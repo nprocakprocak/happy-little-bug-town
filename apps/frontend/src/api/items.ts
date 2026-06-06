@@ -4,6 +4,7 @@ import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
+import { Tool } from "../types/tool";
 import { apiFetch } from "./client";
 
 export function fetchItems(): Promise<Item[]> {
@@ -35,5 +36,12 @@ export function addItemToStructure(itemId: string, structureId: string): Promise
   return apiFetch<Structure>(`/api/items/${itemId}`, {
     method: "PUT",
     body: JSON.stringify({ structureId }),
+  });
+}
+
+export function addItemToTool(itemId: string, toolId: string): Promise<Tool> {
+  return apiFetch<Tool>(`/api/items/${itemId}`, {
+    method: "PUT",
+    body: JSON.stringify({ toolId }),
   });
 }

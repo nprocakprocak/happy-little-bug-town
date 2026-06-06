@@ -2,6 +2,7 @@ import {
   BEETLE_MAX_LEAF_PARTS,
   canDropBugOnStructure,
   canDropItemOnStructure,
+  canDropItemOnTool,
   Position,
   Positionable,
 } from "@happy-little-park/utils";
@@ -11,6 +12,7 @@ import {
   addItemToBug,
   addItemToStack,
   addItemToStructure,
+  addItemToTool,
   updateItemPosition,
 } from "../../api/items";
 import { createStack, mergeStacks, updateStack } from "../../api/stacks";
@@ -53,6 +55,7 @@ export async function dropAction(
       ? targetEntity
       : undefined
     : undefined;
+  const targetTool = targetEntity ? (isTool(targetEntity) ? targetEntity : undefined) : undefined;
 
   // drop one item onto another to create a stack
   if (originalItem && targetItem) {
@@ -119,6 +122,21 @@ export async function dropAction(
       bugs: bugs,
       structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
       tools,
+    };
+  }
+
+  if (originalItem && targetTool) {
+    if (!canDropItemOnTool(originalItem, targetTool)) {
+      throw new Error("Item cannot be added to tool");
+    }
+    const tool = await addItemToTool(originalItem.id, targetTool.id);
+
+    return {
+      items: items.filter((it) => it.id !== originalItem.id),
+      stacks: stacks,
+      bugs: bugs,
+      structures: structures,
+      tools: tools.map((t) => (t.id === targetTool.id ? tool : t)),
     };
   }
 

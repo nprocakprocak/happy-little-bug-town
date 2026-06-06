@@ -57,37 +57,54 @@ export const createItem = async (item: CreateItemData): Promise<ItemDto> => {
 };
 
 export const updateItem = async (id: string, item: UpdateItemData): Promise<ItemDto> => {
-  const data = item.bugId
-    ? {
-        bugId: item.bugId,
-        x: null,
-        y: null,
-        stackId: null,
-        structureId: null,
-      }
-    : item.structureId
-      ? {
-          structureId: item.structureId,
-          x: null,
-          y: null,
-          stackId: null,
-          bugId: null,
-        }
-      : item.stackId
-        ? {
-            bugId: null,
-            structureId: null,
-            x: null,
-            y: null,
-            stackId: item.stackId,
-          }
-        : {
-            x: item.x,
-            y: item.y,
-            stackId: null,
-            bugId: null,
-            structureId: null,
-          };
+  let data;
+
+  if (item.bugId) {
+    data = {
+      bugId: item.bugId,
+      x: null,
+      y: null,
+      stackId: null,
+      structureId: null,
+      toolId: null,
+    };
+  } else if (item.toolId) {
+    data = {
+      toolId: item.toolId,
+      x: null,
+      y: null,
+      stackId: null,
+      bugId: null,
+      structureId: null,
+    };
+  } else if (item.structureId) {
+    data = {
+      structureId: item.structureId,
+      x: null,
+      y: null,
+      stackId: null,
+      bugId: null,
+      toolId: null,
+    };
+  } else if (item.stackId) {
+    data = {
+      bugId: null,
+      structureId: null,
+      toolId: null,
+      x: null,
+      y: null,
+      stackId: item.stackId,
+    };
+  } else {
+    data = {
+      x: item.x,
+      y: item.y,
+      stackId: null,
+      bugId: null,
+      structureId: null,
+      toolId: null,
+    };
+  }
 
   const updatedItem = await prisma.item.update({
     where: { id },

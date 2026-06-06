@@ -35,7 +35,7 @@ import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
 import { Tool } from "../types/tool";
-import { isBug, isItem, isStack, isStructure } from "../utils/typeGuards";
+import { isBug, isItem, isStack, isStructure, isTool } from "../utils/typeGuards";
 import { BeetlePopup } from "./BeetlePopup";
 import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
@@ -282,6 +282,23 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
                     ],
                   }
                 : structure,
+            ),
+          );
+        }
+
+        if (originalItem && targetEntity && isTool(targetEntity)) {
+          setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
+          setToolsCache((prev) =>
+            prev.map((tool) =>
+              tool.id === targetEntity.id
+                ? {
+                    ...tool,
+                    items: [
+                      ...tool.items,
+                      { id: originalItem.id, itemType: originalItem.itemType },
+                    ],
+                  }
+                : tool,
             ),
           );
         }
