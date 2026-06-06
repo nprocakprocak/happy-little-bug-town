@@ -207,8 +207,7 @@ export function GroundGridInteractionLayer({
             const sameTypeItems = overlappingItem?.itemType === itemToDrop.itemType;
             const sameTypeAsStack = overlappingStack?.itemType === itemToDrop.itemType;
             const typeAllowed = sameTypeItems || sameTypeAsStack;
-            const stackNotAllowed =
-              wouldCreateOrJoinStack && (!itemToDrop.stackable || !typeAllowed);
+            const stackNotAllowed = wouldCreateOrJoinStack && !typeAllowed;
             const canDropLeafOnBeetle =
               itemToDrop.itemType === "leaf_part" &&
               overlappingBug?.bugType === "beetle" &&

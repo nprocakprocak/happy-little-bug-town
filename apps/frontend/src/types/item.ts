@@ -5,5 +5,4 @@ import { WithId } from "./withId";
 
 export interface Item extends WithId, Position, GridAnimatable {
   itemType: ItemType;
-  stackable: boolean;
 }

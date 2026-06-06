@@ -11,7 +11,7 @@ import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { createBug, getBug, updateBug as updateBugService } from "../services/bugsService.js";
-import { isItemStackable, toBugOnGridDto, toItemOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
+import { toBugOnGridDto, toItemOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
 import { createItem, generateRandomItemType } from "../services/itemsService.js";
 import {
   createFirstStructure as createFirstStructureService,
@@ -194,7 +194,6 @@ const dig: RequestHandler = async (req, res) => {
   }
   const createdItem = await createItem({
     itemType: itemOrBug,
-    stackable: isItemStackable(itemOrBug),
     x: emptyPosition.x,
     y: emptyPosition.y,
     authorId,

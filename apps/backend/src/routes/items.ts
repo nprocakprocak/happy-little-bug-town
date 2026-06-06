@@ -170,10 +170,6 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
       res.status(403).json({ error: "Forbidden" });
       return;
     }
-    if (!existingItem.stackable) {
-      res.status(400).json({ error: "Item is not stackable" });
-      return;
-    }
 
     const existingStack = await getStack(stackId);
     if (!existingStack) {

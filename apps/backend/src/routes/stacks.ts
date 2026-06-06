@@ -45,10 +45,6 @@ const createStack: RequestHandler = async (req, res) => {
     return;
   }
 
-  if (!items.every((item) => item.stackable)) {
-    res.status(400).json({ error: "All items must be stackable to be in a stack" });
-    return;
-  }
   if (typeof x !== "number" || typeof y !== "number") {
     res.status(400).json({ error: "x and y are required" });
     return;

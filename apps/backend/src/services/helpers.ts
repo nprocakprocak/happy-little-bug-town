@@ -1,16 +1,11 @@
 import { getToolSpan } from "@happy-little-park/utils";
 
-import { Bug, Item, ItemType } from "../prisma/prisma/client.js";
+import { Bug, Item } from "../prisma/prisma/client.js";
 import { BugDto, BugOnGridDto } from "../types/bugDto.js";
 import { ItemDto, ItemOnGridDto } from "../types/itemDto.js";
 import { StackDto, StackOnGridDto, StackWithItems } from "../types/stackDto.js";
 import { StructureDto, StructureOnGridDto, StructureWithItems } from "../types/structureDto.js";
 import { ToolDto, ToolOnGridDto, ToolWithItems } from "../types/toolDto.js";
-
-export function isItemStackable(itemType: ItemType): boolean {
-  // perhaps will be false for some items
-  return true;
-}
 
 export function toItemDto(item: Item): ItemDto {
   return {
@@ -22,7 +17,6 @@ export function toItemDto(item: Item): ItemDto {
     bugId: item.bugId ?? null,
     structureId: item.structureId ?? null,
     authorId: item.authorId,
-    stackable: isItemStackable(item.itemType),
   };
 }
 
@@ -82,7 +76,6 @@ export function toItemOnGridDto(item: ItemDto): ItemOnGridDto {
     itemType: item.itemType,
     x: item.x,
     y: item.y,
-    stackable: item.stackable,
   };
 }
 
