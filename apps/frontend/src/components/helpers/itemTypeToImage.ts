@@ -24,7 +24,7 @@ export function itemTypeToImageForStack(itemType: ItemType): string {
     case "root":
       return "/stacks/root-pile.webp";
     case "stick":
-      return "/items/stick.webp";
+      return "/stacks/stick-pile.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }

@@ -57,7 +57,7 @@ export function GroundGridAssetLayer({
     <div
       className="pointer-events-none absolute inset-0 grid h-full w-full gap-1"
       style={{
-        backgroundImage: "url('/backgrounds/bg-mud.webp')",
+        backgroundImage: "url('/backgrounds/bg-sand.webp')",
         backgroundRepeat: "repeat",
         backgroundSize: `calc(100cqi * ${GROUND_MUD_BG_TILE_WIDTH_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px) calc(100cqi * ${GROUND_MUD_BG_TILE_HEIGHT_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px)`,
         gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
