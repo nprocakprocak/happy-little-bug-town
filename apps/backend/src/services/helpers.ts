@@ -1,4 +1,4 @@
-import { getToolSpan } from "@happy-little-park/utils";
+import { getStackSpan, getToolSpan } from "@happy-little-park/utils";
 
 import { Bug, Item } from "../prisma/prisma/client.js";
 import { BugDto, BugOnGridDto } from "../types/bugDto.js";
@@ -62,6 +62,7 @@ export function toStackOnGridDto(stack: StackDto): StackOnGridDto {
     itemType: stack.itemType,
     x: stack.x,
     y: stack.y,
+    span: getStackSpan(),
     itemsCount: stack.itemsCount,
   };
 }

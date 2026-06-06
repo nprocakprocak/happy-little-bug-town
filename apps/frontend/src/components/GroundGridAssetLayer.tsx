@@ -15,7 +15,7 @@ import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
 import { Tool } from "../types/tool";
-import { isBug, isStack } from "../utils/typeGuards";
+import { isBug } from "../utils/typeGuards";
 import { isFlyingItem } from "./helpers/isFlyingItem";
 import {
   bugTypeToImage,
@@ -48,10 +48,9 @@ export function GroundGridAssetLayer({
 }: GroundGridAssetLayerProps) {
   const allGrounded = useMemo(() => {
     const groundedItems = items.filter((it) => !isFlyingItem(it));
-    const groundedStacks = stacks.filter((it) => !isFlyingItem(it));
     const groundedBugs = bugs.filter((bug) => !isFlyingItem(bug));
-    return [...groundedItems, ...groundedStacks, ...groundedBugs];
-  }, [items, stacks, bugs]);
+    return [...groundedItems, ...groundedBugs];
+  }, [items, bugs]);
 
   return (
     <div
@@ -156,7 +155,37 @@ export function GroundGridAssetLayer({
             </div>
           );
         })}
-      {allGrounded.map((item: Item | Stack | Bug) => {
+      {stacks
+        .filter((stack) => !isFlyingItem(stack))
+        .map((stack) => {
+          const isDragged =
+            gridDrag?.target.kind === "stack" && gridDrag.target.stackId === stack.id;
+          const dragStyle =
+            isDragged && gridDrag
+              ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
+              : {};
+
+          return (
+            <div
+              key={stack.id}
+              className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
+              style={{
+                gridColumn: `${stack.x} / span ${stack.span ?? 1}`,
+                gridRow: `${stack.y} / span ${stack.span ?? 1}`,
+                ...dragStyle,
+              }}
+            >
+              <Image
+                src={itemTypeToImageForStack(stack.itemType)}
+                alt=""
+                fill
+                className="object-cover"
+                sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * (stack.span ?? 1))}px`}
+              />
+            </div>
+          );
+        })}
+      {allGrounded.map((item: Item | Bug) => {
         const isDragged =
           gridDrag !== null &&
           ((gridDrag.target.kind === "item" && gridDrag.target.itemId === item.id) ||
@@ -167,11 +196,9 @@ export function GroundGridAssetLayer({
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
 
-        const imageSource = isStack(item)
-          ? itemTypeToImageForStack(item.itemType)
-          : isBug(item)
-            ? bugTypeToImage(item.bugType)
-            : itemTypeToImageForItem(item.itemType);
+        const imageSource = isBug(item)
+          ? bugTypeToImage(item.bugType)
+          : itemTypeToImageForItem(item.itemType);
 
         return (
           <div

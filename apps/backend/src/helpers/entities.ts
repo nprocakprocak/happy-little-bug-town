@@ -1,4 +1,4 @@
-import { getToolSpan, Positionable } from "@happy-little-park/utils";
+import { getStackSpan, getToolSpan, Positionable } from "@happy-little-park/utils";
 
 import { getBugs } from "../services/bugsService.js";
 import { getItemsOnGrid } from "../services/itemsService.js";
@@ -19,7 +19,7 @@ export async function getAllEntitiesOnGrid(authorId: string): Promise<Positionab
   return [
     ...structures,
     ...items,
-    ...stacks,
+    ...stacks.map((stack) => ({ ...stack, span: getStackSpan() })),
     ...bugs,
     ...tools.map((tool) => ({ ...tool, span: getToolSpan() })),
   ].filter(isPositioned) as Positionable[];

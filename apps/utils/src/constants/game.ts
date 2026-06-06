@@ -4,3 +4,4 @@ export const BEETLE_MAX_LEAF_PARTS = 5;
 export const BEETLE_HOUSE_SPAN = 2;
 export const WORKSHOP_SPAN = 3;
 export const TOOL_SPAN = 2;
+export const STACK_SPAN = 2;

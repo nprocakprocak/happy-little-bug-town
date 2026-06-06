@@ -167,7 +167,7 @@ export function GroundGridInteractionLayer({
         const entityToDrop =
           itemToDrop ?? stackToDrop ?? bugToDrop ?? structureToDrop ?? toolToDrop;
 
-        const draggedSpan = structureToDrop?.span ?? toolToDrop?.span ?? 1;
+        const draggedSpan = structureToDrop?.span ?? toolToDrop?.span ?? stackToDrop?.span ?? 1;
         const bounds = event.currentTarget.getBoundingClientRect();
         const centerX = bounds.left + bounds.width / draggedSpan / 2;
         const centerY = bounds.top + bounds.height / draggedSpan / 2;
@@ -241,7 +241,24 @@ export function GroundGridInteractionLayer({
             if (shouldCancel) {
               onItemDropCancelled(stackToDrop.id, target);
             } else {
-              onItemDropped(stackToDrop.id, target, overlappingEntity);
+              const fits = structureFootprintFits(
+                { x: target.x, y: target.y, span: stackToDrop.span ?? 1 },
+                cols,
+                rows,
+                [
+                  ...structures,
+                  ...tools,
+                  ...items,
+                  ...stacks.filter((s) => s.id !== stackToDrop.id),
+                  ...bugs,
+                ],
+              );
+
+              if (fits) {
+                onItemDropped(stackToDrop.id, target, overlappingEntity);
+              } else {
+                onItemDropCancelled(stackToDrop.id, target);
+              }
             }
           }
 
@@ -358,10 +375,15 @@ export function GroundGridInteractionLayer({
           return null;
         }
 
+        if (!stack && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, stacks)) {
+          return null;
+        }
+
         const canDrag =
           !!structure ||
           !!tool ||
-          positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, [...items, ...stacks, ...bugs]);
+          !!stack ||
+          positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, [...items, ...bugs]);
 
         const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
         const isDragging = dragState?.index === index;
@@ -380,10 +402,15 @@ export function GroundGridInteractionLayer({
                 gridColumn: `${tool.x} / span ${tool.span}`,
                 gridRow: `${tool.y} / span ${tool.span}`,
               }
-            : {
-                gridColumn: gridCol,
-                gridRow: gridRow,
-              };
+            : stack
+              ? {
+                  gridColumn: `${stack.x} / span ${stack.span ?? 1}`,
+                  gridRow: `${stack.y} / span ${stack.span ?? 1}`,
+                }
+              : {
+                  gridColumn: gridCol,
+                  gridRow: gridRow,
+                };
         const dragStyle =
           isDragging && dragState
             ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }

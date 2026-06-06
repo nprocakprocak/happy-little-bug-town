@@ -10,6 +10,7 @@ export * from "./structures/power.js";
 export * from "./tools/availability.js";
 export * from "./tools/craft.js";
 export * from "./tools/span.js";
+export * from "./stacks/span.js";
 export * from "./typeGuards/buildable.js";
 export * from "./types/bugType.js";
 export * from "./types/itemType.js";

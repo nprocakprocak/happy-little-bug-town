@@ -2,9 +2,10 @@ import { Router, type RequestHandler } from "express";
 
 import {
   canStackItemType,
+  getStackSpan,
   GROUND_HEIGHT,
   GROUND_WIDTH,
-  positionOverlapsAnyEntity,
+  structureFootprintFits,
 } from "@happy-little-park/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
@@ -62,8 +63,10 @@ const createStack: RequestHandler = async (req, res) => {
   const entitiesWithoutItems = entities.filter(
     (entity) => !items.some((item) => item.x === entity.x && item.y === entity.y),
   );
-  if (positionOverlapsAnyEntity({ x, y }, entitiesWithoutItems)) {
-    res.status(400).json({ error: "Position is already occupied" });
+  const span = getStackSpan();
+  const fits = structureFootprintFits({ x, y, span }, GROUND_WIDTH, GROUND_HEIGHT, entitiesWithoutItems);
+  if (!fits) {
+    res.status(400).json({ error: "Position is not free for stack" });
     return;
   }
 
@@ -101,8 +104,15 @@ const updateStack: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  if (positionOverlapsAnyEntity({ x, y }, entities)) {
-    res.status(400).json({ error: "Position is already occupied" });
+  const span = getStackSpan();
+  const fits = structureFootprintFits(
+    { x, y, span },
+    GROUND_WIDTH,
+    GROUND_HEIGHT,
+    entities.filter((entity) => entity.x !== existingStack.x || entity.y !== existingStack.y),
+  );
+  if (!fits) {
+    res.status(400).json({ error: "Position is not free for stack" });
     return;
   }
 

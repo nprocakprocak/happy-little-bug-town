@@ -59,13 +59,16 @@ export function GridCountersLayer({
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
 
+        const bottomRightCol = stack.x + (stack.span ?? 1) - 1;
+        const bottomRightRow = stack.y + (stack.span ?? 1) - 1;
+
         return (
           <div
             key={stack.id}
             className="relative min-h-0 min-w-0"
             style={{
-              gridColumn: `${stack.x} / span 1`,
-              gridRow: `${stack.y} / span 1`,
+              gridColumn: bottomRightCol,
+              gridRow: bottomRightRow,
               ...dragStyle,
             }}
           >

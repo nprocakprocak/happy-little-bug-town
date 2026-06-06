@@ -29,6 +29,9 @@ function getAnimatableSpan(item: Animatable): number {
   if (isTool(item)) {
     return item.span ?? 1;
   }
+  if (isStack(item)) {
+    return item.span ?? 1;
+  }
   return 1;
 }
 
