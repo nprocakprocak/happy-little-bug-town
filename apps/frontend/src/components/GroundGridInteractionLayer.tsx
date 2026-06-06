@@ -8,6 +8,7 @@ import {
   canStackItemType,
   canStructureAcceptBugDrop,
   findOverlappingEntity,
+  getStackSpan,
   isBugFed,
   Position,
   Positionable,
@@ -184,7 +185,11 @@ export function GroundGridInteractionLayer({
         const overlappingItem =
           overlappingEntity && isItem(overlappingEntity) ? overlappingEntity : undefined;
         const overlappingStack =
-          overlappingEntity && isStack(overlappingEntity) ? overlappingEntity : undefined;
+          overlappingEntity &&
+          isStack(overlappingEntity) &&
+          overlappingEntity.id !== stackToDrop?.id
+            ? overlappingEntity
+            : undefined;
         const overlappingBug =
           overlappingEntity && isBug(overlappingEntity) ? overlappingEntity : undefined;
         const overlappingStructure =
@@ -219,10 +224,28 @@ export function GroundGridInteractionLayer({
               !!overlappingStructure && canDropItemOnStructure(itemToDrop, overlappingStructure);
             const canDropOnTool =
               !!overlappingTool && canDropItemOnTool(itemToDrop, overlappingTool);
+            const wouldCreateStack =
+              !!overlappingItem && sameTypeItems && canStackItemType(itemToDrop.itemType, tools);
+            const stackFootprintBlocked =
+              wouldCreateStack &&
+              overlappingItem !== undefined &&
+              !structureFootprintFits(
+                { x: target.x, y: target.y, span: getStackSpan() },
+                cols,
+                rows,
+                [
+                  ...structures,
+                  ...tools,
+                  ...items.filter((i) => i.id !== itemToDrop.id && i.id !== overlappingItem.id),
+                  ...stacks,
+                  ...bugs,
+                ],
+              );
             const shouldCancel =
               (!!overlappingStructure && !canDropOnStructure) ||
               (!!overlappingTool && !canDropOnTool) ||
               stackNotAllowed ||
+              stackFootprintBlocked ||
               (!!overlappingBug && !canDropLeafOnBeetle);
 
             if (shouldCancel) {
@@ -233,13 +256,21 @@ export function GroundGridInteractionLayer({
           }
 
           if (stackToDrop) {
+            const isMerge =
+              !!overlappingStack &&
+              overlappingStack.itemType === stackToDrop.itemType &&
+              canStackItemType(stackToDrop.itemType, tools);
+            const overlapsSelf =
+              overlappingEntity?.x === stackToDrop.x && overlappingEntity?.y === stackToDrop.y;
             const shouldCancel =
-              (!!overlappingEntity && !overlappingStack) ||
-              (overlappingStack && overlappingStack.itemType !== stackToDrop.itemType) ||
+              (!!overlappingEntity && !overlappingStack && !overlapsSelf) ||
+              (overlappingStack && !isMerge) ||
               !canStackItemType(stackToDrop.itemType, tools);
 
             if (shouldCancel) {
               onItemDropCancelled(stackToDrop.id, target);
+            } else if (isMerge) {
+              onItemDropped(stackToDrop.id, target, overlappingStack);
             } else {
               const fits = structureFootprintFits(
                 { x: target.x, y: target.y, span: stackToDrop.span ?? 1 },
@@ -255,7 +286,7 @@ export function GroundGridInteractionLayer({
               );
 
               if (fits) {
-                onItemDropped(stackToDrop.id, target, overlappingEntity);
+                onItemDropped(stackToDrop.id, target);
               } else {
                 onItemDropCancelled(stackToDrop.id, target);
               }
