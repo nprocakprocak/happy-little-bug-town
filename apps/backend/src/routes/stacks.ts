@@ -9,7 +9,7 @@ import {
 } from "@happy-little-park/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
-import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
+import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { toStackOnGridDto } from "../services/helpers.js";
 import { dissolveStack, getItemsByIds, takeItemFromStack } from "../services/itemsService.js";
@@ -190,13 +190,17 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findRandomEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities);
+  const stackPosition = { x: existingStack.x, y: existingStack.y, span: getStackSpan() };
+  const emptyPosition = findNearestEmptyPosition(
+    GROUND_HEIGHT,
+    GROUND_WIDTH,
+    entities,
+    stackPosition,
+  );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
   }
-
-  const stackPosition = { x: existingStack.x, y: existingStack.y };
 
   if (existingStack.itemsCount === 2) {
     const { extractedItem, remainingItem } = await dissolveStack(id, stackPosition, emptyPosition);

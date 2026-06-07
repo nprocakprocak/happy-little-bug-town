@@ -8,7 +8,7 @@ import {
 } from "@happy-little-park/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
-import { findNearestEmptyPosition, findRandomEmptyPosition } from "../helpers/randomPosition.js";
+import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { createBug, getBug, updateBug as updateBugService } from "../services/bugsService.js";
 import { toBugOnGridDto, toItemOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
@@ -156,7 +156,12 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findRandomEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities);
+  const emptyPosition = findNearestEmptyPosition(
+    GROUND_HEIGHT,
+    GROUND_WIDTH,
+    entities,
+    existingStructure,
+  );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
