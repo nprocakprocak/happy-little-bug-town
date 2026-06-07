@@ -483,7 +483,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       if (hasToolType(tools, toolType)) {
         return;
       }
-      const span = getToolSpan();
+      const span = getToolSpan(toolType);
       const position = findFirstStructurePlacement(span, cols, rows, [
         ...structures,
         ...items,

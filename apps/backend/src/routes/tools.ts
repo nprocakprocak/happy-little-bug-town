@@ -72,7 +72,7 @@ const createTool: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const span = getToolSpan();
+  const span = getToolSpan(toolType);
   const fits = structureFootprintFits({ x, y, span }, GROUND_WIDTH, GROUND_HEIGHT, entities);
 
   if (!fits) {
@@ -136,7 +136,7 @@ const updateTool: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const span = getToolSpan();
+  const span = getToolSpan(existingTool.toolType);
   const fits = structureFootprintFits(
     { x, y, span },
     GROUND_WIDTH,

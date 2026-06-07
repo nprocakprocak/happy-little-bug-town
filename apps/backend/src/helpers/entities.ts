@@ -21,6 +21,6 @@ export async function getAllEntitiesOnGrid(authorId: string): Promise<Positionab
     ...items,
     ...stacks.map((stack) => ({ ...stack, span: getStackSpan() })),
     ...bugs,
-    ...tools.map((tool) => ({ ...tool, span: getToolSpan() })),
+    ...tools.map((tool) => ({ ...tool, span: getToolSpan(tool.toolType) })),
   ].filter(isPositioned) as Positionable[];
 }

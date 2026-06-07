@@ -128,7 +128,7 @@ export function toToolOnGridDto(tool: ToolDto): ToolOnGridDto {
     toolType: tool.toolType,
     x: tool.x,
     y: tool.y,
-    span: getToolSpan(),
+    span: getToolSpan(tool.toolType),
     items: tool.items,
   };
 }
