@@ -1,6 +1,7 @@
 import { Router, type RequestHandler } from "express";
 
 import {
+  canStructureAcceptToolDrop,
   getToolSpan,
   GROUND_HEIGHT,
   GROUND_WIDTH,
@@ -66,7 +67,7 @@ const createTool: RequestHandler = async (req, res) => {
     return;
   }
 
-  if (await hasTool(authorId, toolType)) {
+  if (toolType !== "hammer_and_chisel" && (await hasTool(authorId, toolType))) {
     res.status(400).json({ error: "Tool already created" });
     return;
   }
@@ -114,19 +115,45 @@ const updateTool: RequestHandler<{ id: string }> = async (req, res) => {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
-    if (existingStructure.structureType !== "workshop") {
-      // actually not true, the structure accepting tools does not exist yet
-      res.status(400).json({ error: "Tools can only be placed in a workshop" });
+    if (existingStructure.structureType === "workshop") {
+      await updateToolService(id, { structureId });
+      const structure = await getStructure(structureId);
+      if (!structure) {
+        res.status(500).json({ error: "Structure not found after updating tool" });
+        return;
+      }
+      res.status(200).json(toStructureOnGridDto(structure));
       return;
     }
 
-    await updateToolService(id, { structureId });
-    const structure = await getStructure(structureId);
-    if (!structure) {
-      res.status(500).json({ error: "Structure not found after updating tool" });
+    if (existingStructure.structureType === "stonemason") {
+      const structureForDrop = {
+        structureType: existingStructure.structureType,
+        items: existingStructure.items,
+        bugs: existingStructure.bugs,
+        tools: existingStructure.tools,
+      };
+      const toolForDrop = {
+        toolType: existingTool.toolType,
+        items: existingTool.items,
+      };
+
+      if (!canStructureAcceptToolDrop(toolForDrop, structureForDrop)) {
+        res.status(400).json({ error: "Structure cannot accept this tool" });
+        return;
+      }
+
+      await updateToolService(id, { structureId });
+      const structure = await getStructure(structureId);
+      if (!structure) {
+        res.status(500).json({ error: "Structure not found after updating tool" });
+        return;
+      }
+      res.status(200).json(toStructureOnGridDto(structure));
       return;
     }
-    res.status(200).json(toStructureOnGridDto(structure));
+
+    res.status(400).json({ error: "Structure cannot accept tools" });
     return;
   }
 

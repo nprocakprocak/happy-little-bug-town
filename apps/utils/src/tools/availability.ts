@@ -6,3 +6,11 @@ export function hasToolType<T extends { toolType: ToolType }>(
 ): boolean {
   return tools.some((tool) => tool.toolType === toolType);
 }
+
+export function canCreateToolType(tools: { toolType: ToolType }[], toolType: ToolType): boolean {
+  if (toolType === "hammer_and_chisel") {
+    return true;
+  }
+
+  return !hasToolType(tools, toolType);
+}

@@ -1,8 +1,8 @@
 import {
   BEETLE_MAX_LEAF_PARTS,
-  canDropBugOnStructure,
   canDropItemOnStructure,
   canDropItemOnTool,
+  canDropToolOnStructure,
   canStackItemType,
   Position,
   Positionable,
@@ -18,7 +18,7 @@ import {
 } from "../../api/items";
 import { createStack, mergeStacks, updateStack } from "../../api/stacks";
 import { updateStructurePosition } from "../../api/structures";
-import { updateToolPosition } from "../../api/tools";
+import { addToolToStructure, updateToolPosition } from "../../api/tools";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
@@ -93,6 +93,7 @@ export async function dropAction(
     };
   }
 
+  // drop food onto a bug to feed it
   if (originalItem && targetBug) {
     if (originalItem.itemType !== "leaf_part" || targetBug.bugType !== "beetle") {
       throw new Error("Item cannot be given to bug");
@@ -111,6 +112,7 @@ export async function dropAction(
     };
   }
 
+  // drop an item onto a structure to add it to its items
   if (originalItem && targetStructure) {
     if (!canDropItemOnStructure(originalItem, targetStructure)) {
       throw new Error("Item cannot be added to structure");
@@ -126,6 +128,7 @@ export async function dropAction(
     };
   }
 
+  // drop an item onto a tool to craft it
   if (originalItem && targetTool) {
     if (!canDropItemOnTool(originalItem, targetTool)) {
       throw new Error("Item cannot be added to tool");
@@ -141,6 +144,7 @@ export async function dropAction(
     };
   }
 
+  // drop a bug onto a structure to add it to its habitat
   if (originalBug && targetStructure) {
     const structure = await addBeetleToStructure(originalBug.id, targetStructure.id);
 
@@ -150,6 +154,22 @@ export async function dropAction(
       bugs: bugs.filter((b) => b.id !== originalBug.id),
       structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
       tools,
+    };
+  }
+
+  // drop a tool onto a structure to add it to its tools list
+  if (originalTool && targetStructure) {
+    if (!canDropToolOnStructure(originalTool, targetStructure)) {
+      throw new Error("Tool cannot be placed in structure");
+    }
+    const structure = await addToolToStructure(originalTool.id, targetStructure.id);
+
+    return {
+      items: items,
+      stacks: stacks,
+      bugs: bugs,
+      structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
+      tools: tools.filter((t) => t.id !== originalTool.id),
     };
   }
 

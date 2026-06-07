@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
-import { getToolCraftProgress, isToolIncomplete, ItemType } from "@happy-little-park/utils";
+import { getVisibleToolCraftProgress, isToolIncomplete, ItemType } from "@happy-little-park/utils";
 
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Tool } from "../types/tool";
@@ -61,7 +61,7 @@ export function ToolCraftProgressLayer({
           isDragged && gridDrag
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
-        const progress = getToolCraftProgress(tool);
+        const progress = getVisibleToolCraftProgress(tool);
 
         return progress.map(({ itemType, missing }, index) => {
           const colOffset = index % (tool.span ?? 1);

@@ -64,7 +64,12 @@ const createStack: RequestHandler = async (req, res) => {
     (entity) => !items.some((item) => item.x === entity.x && item.y === entity.y),
   );
   const span = getStackSpan();
-  const fits = structureFootprintFits({ x, y, span }, GROUND_WIDTH, GROUND_HEIGHT, entitiesWithoutItems);
+  const fits = structureFootprintFits(
+    { x, y, span },
+    GROUND_WIDTH,
+    GROUND_HEIGHT,
+    entitiesWithoutItems,
+  );
   if (!fits) {
     res.status(400).json({ error: "Position is not free for stack" });
     return;

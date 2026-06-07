@@ -4,7 +4,7 @@ import { prisma } from "../lib/prisma.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
 import { toStructureDto } from "./helpers.js";
 
-const structureInclude = { items: true, bugs: true } as const;
+const structureInclude = { items: true, bugs: true, tools: true } as const;
 
 export const hasBeetleHouse = async (authorId: string): Promise<boolean> => {
   const count = await prisma.structure.count({

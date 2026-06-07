@@ -5,6 +5,7 @@ import {
   BEETLE_MAX_LEAF_PARTS,
   canDropItemOnStructure,
   canDropItemOnTool,
+  canDropToolOnStructure,
   canStackItemType,
   canStructureAcceptBugDrop,
   findOverlappingEntity,
@@ -315,6 +316,19 @@ export function GroundGridInteractionLayer({
           }
 
           if (toolToDrop) {
+            const canDropToolOnStructureTarget =
+              !!overlappingStructure && canDropToolOnStructure(toolToDrop, overlappingStructure);
+
+            if (canDropToolOnStructureTarget) {
+              onItemDropped(toolToDrop.id, target, overlappingStructure);
+              return;
+            }
+
+            if (overlappingStructure) {
+              onItemDropCancelled(toolToDrop.id, target);
+              return;
+            }
+
             const fits = structureFootprintFits(
               { x: target.x, y: target.y, span: toolToDrop.span },
               cols,

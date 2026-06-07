@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  canCreateToolType,
   getStructureSpan,
   getToolSpan,
-  hasToolType,
   isBuildableStructureType,
   isStructurePowered,
   Position,
@@ -263,7 +263,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
-        // drop an item onto a bug to add it to its items, assume optimistic update
+        // drop an item onto a bug to feed it, assume optimistic update
         if (originalItem && targetEntity && isBug(targetEntity)) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
           setBugsCache((prev) =>
@@ -278,7 +278,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
-        // drop an item onto a structure to add it to its items, assume optimistic update
+        // drop an item onto a structure to add it to its items or build it, assume optimistic update
         if (originalItem && targetEntity && isStructure(targetEntity)) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
           setStructuresCache((prev) =>
@@ -296,6 +296,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
+        // drop an item onto a tool to craft it, assume optimistic update
         if (originalItem && targetEntity && isTool(targetEntity)) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
           setToolsCache((prev) =>
@@ -313,7 +314,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
-        // drop a bug onto a structure to add it to its bugs, assume optimistic update
+        // drop a bug onto a structure to add it to its workforce, assume optimistic update
         if (originalBug && targetEntity && isStructure(targetEntity)) {
           setBugsCache((prev) => prev.filter((b) => b.id !== originalBug.id));
           setStructuresCache((prev) =>
@@ -324,6 +325,24 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
                     bugs: [
                       ...(structure.bugs ?? []),
                       { id: originalBug.id, bugType: originalBug.bugType },
+                    ],
+                  }
+                : structure,
+            ),
+          );
+        }
+
+        // drop a tool onto a structure to add it to its tools, assume optimistic update
+        if (originalTool && targetEntity && isStructure(targetEntity)) {
+          setToolsCache((prev) => prev.filter((t) => t.id !== originalTool.id));
+          setStructuresCache((prev) =>
+            prev.map((structure) =>
+              structure.id === targetEntity.id
+                ? {
+                    ...structure,
+                    tools: [
+                      ...(structure.tools ?? []),
+                      { id: originalTool.id, toolType: originalTool.toolType },
                     ],
                   }
                 : structure,
@@ -480,7 +499,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onWorkshopCreateTool = useCallback(
     (toolType: ToolType) => {
-      if (hasToolType(tools, toolType)) {
+      if (!canCreateToolType(tools, toolType)) {
         return;
       }
       const span = getToolSpan(toolType);

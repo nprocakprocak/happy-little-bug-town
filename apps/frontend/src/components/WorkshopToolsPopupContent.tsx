@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { getToolCraftCosts, hasToolType, ToolType } from "@happy-little-park/utils";
+import { canCreateToolType, getToolCraftCosts, ToolType } from "@happy-little-park/utils";
 
 import { WORKSHOP_TOOL_OPTIONS } from "../constants/workshopTools";
 import { Tool } from "../types/tool";
@@ -35,7 +35,7 @@ export function WorkshopToolsPopupContent({
   );
   const selectedTool = WORKSHOP_TOOL_OPTIONS[selectedToolIndex];
   const selectedResourceCosts = getToolCraftCosts(selectedTool.toolType);
-  const canCreate = !hasToolType(tools, selectedTool.toolType);
+  const canCreate = canCreateToolType(tools, selectedTool.toolType);
 
   function handleCreateClick() {
     if (!canCreate) {

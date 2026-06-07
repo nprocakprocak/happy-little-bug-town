@@ -1,6 +1,6 @@
 import { BuildableStructureType } from "@happy-little-park/utils";
 
-import { Bug, Item, Structure } from "../prisma/prisma/client.js";
+import { Bug, Item, Structure, Tool } from "../prisma/prisma/client.js";
 
 export type CreateStructureData = {
   authorId: string;
@@ -13,11 +13,14 @@ export type ItemOnStructure = Pick<Item, "id" | "itemType">;
 
 export type BugOnStructure = Pick<Bug, "id" | "bugType">;
 
+export type ToolOnStructure = Pick<Tool, "id" | "toolType">;
+
 export type StructureOnGridDto = Pick<Structure, "id" | "structureType" | "x" | "y" | "span"> & {
   items: ItemOnStructure[];
   bugs: BugOnStructure[];
+  tools: ToolOnStructure[];
 };
 
 export type StructureDto = StructureOnGridDto & Pick<Structure, "authorId">;
 
-export type StructureWithItems = Structure & { items: Item[]; bugs: Bug[] };
+export type StructureWithItems = Structure & { items: Item[]; bugs: Bug[]; tools: Tool[] };

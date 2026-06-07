@@ -30,6 +30,7 @@ export function toStructureDto(structure: StructureWithItems): StructureDto {
     authorId: structure.authorId,
     items: structure.items.map((item) => ({ id: item.id, itemType: item.itemType })),
     bugs: structure.bugs.map((bug) => ({ id: bug.id, bugType: bug.bugType })),
+    tools: structure.tools.map((tool) => ({ id: tool.id, toolType: tool.toolType })),
   };
 }
 
@@ -42,6 +43,7 @@ export function toStructureOnGridDto(structure: StructureDto): StructureOnGridDt
     span: structure.span,
     items: structure.items,
     bugs: structure.bugs,
+    tools: structure.tools,
   };
 }
 

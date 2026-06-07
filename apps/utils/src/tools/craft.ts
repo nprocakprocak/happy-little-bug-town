@@ -1,6 +1,7 @@
 import { getToolCraftCosts } from "../constants/toolCraftCosts.js";
 import { ItemType } from "../types/itemType.js";
 import { ToolType } from "../types/toolType.js";
+import { getToolSpan } from "./span.js";
 
 export interface ToolCraftItem {
   itemType: ItemType;
@@ -41,9 +42,31 @@ export function getToolCraftProgress(tool: ToolForCraft): ToolCraftResourceProgr
   });
 }
 
+export function getActiveToolCraftResource(
+  tool: ToolForCraft,
+): ToolCraftResourceProgress | undefined {
+  return getToolCraftProgress(tool).find(({ missing }) => missing > 0);
+}
+
+export function getVisibleToolCraftProgress(tool: ToolForCraft): ToolCraftResourceProgress[] {
+  const progress = getToolCraftProgress(tool);
+
+  if (getToolSpan(tool.toolType) === 1) {
+    const activeResource = getActiveToolCraftResource(tool);
+    return activeResource ? [activeResource] : [];
+  }
+
+  return progress;
+}
+
 export function canAcceptItemForToolCraft(tool: ToolForCraft, itemType: ItemType): boolean {
   if (!isToolIncomplete(tool)) {
     return false;
+  }
+
+  if (getToolSpan(tool.toolType) === 1) {
+    const activeResource = getActiveToolCraftResource(tool);
+    return activeResource !== undefined && activeResource.itemType === itemType;
   }
 
   const resourceProgress = getToolCraftProgress(tool).find(

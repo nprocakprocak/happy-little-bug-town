@@ -70,6 +70,7 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
       structureType: existingStructure.structureType,
       items: existingStructure.items,
       bugs: existingStructure.bugs,
+      tools: existingStructure.tools,
     };
 
     if (!canStructureAcceptBugDrop(existingBug, structureForDrop)) {

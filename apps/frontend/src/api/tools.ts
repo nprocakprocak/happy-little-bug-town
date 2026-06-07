@@ -1,5 +1,6 @@
 import { Position } from "@happy-little-park/utils";
 
+import { Structure } from "../types/structure";
 import { Tool } from "../types/tool";
 import { apiFetch } from "./client";
 
@@ -18,5 +19,12 @@ export function updateToolPosition(toolId: string, position: Position): Promise<
   return apiFetch<Tool>(`/api/tools/${toolId}`, {
     method: "PUT",
     body: JSON.stringify(position),
+  });
+}
+
+export function addToolToStructure(toolId: string, structureId: string): Promise<Structure> {
+  return apiFetch<Structure>(`/api/tools/${toolId}`, {
+    method: "PUT",
+    body: JSON.stringify({ structureId }),
   });
 }

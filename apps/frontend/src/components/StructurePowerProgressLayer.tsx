@@ -3,15 +3,17 @@
 import { useMemo } from "react";
 import Image from "next/image";
 import {
-  BugType,
   getStructurePowerMissing,
   getStructurePowerOccupantBugType,
+  getStructureToolPowerMissing,
+  getStructureToolPowerRequirements,
   isStructureAwaitingPower,
 } from "@happy-little-park/utils";
 
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Structure } from "../types/structure";
 import { bugTypeToImage } from "./helpers/itemTypeToImage";
+import { toolTypeToImage } from "./helpers/toolTypeToImage";
 
 interface StructurePowerProgressLayerProps {
   cols: number;
@@ -21,30 +23,54 @@ interface StructurePowerProgressLayerProps {
 }
 
 interface StructurePowerMissingCounterProps {
-  occupantBugType: BugType;
+  imageSrc: string;
   missing: number;
 }
 
-function StructurePowerMissingCounter({
-  occupantBugType,
-  missing,
-}: StructurePowerMissingCounterProps) {
+function StructurePowerMissingCounter({ imageSrc, missing }: StructurePowerMissingCounterProps) {
   return (
     <div className="flex min-h-0 min-w-0 flex-col items-center justify-center gap-[0.35cqi]">
       <div className="relative h-[5cqi] w-[5cqi] shrink-0">
-        <Image
-          src={bugTypeToImage(occupantBugType)}
-          alt=""
-          fill
-          className="object-contain drop-shadow-sm"
-          sizes="5cqi"
-        />
+        <Image src={imageSrc} alt="" fill className="object-contain drop-shadow-sm" sizes="5cqi" />
       </div>
       <span className="rounded-sm bg-stone-900/80 px-[0.75cqi] py-[0.15cqi] text-[clamp(0.625rem,2.5cqi,0.875rem)] font-bold tabular-nums text-white shadow-sm">
         {missing}
       </span>
     </div>
   );
+}
+
+interface StructurePowerCounterEntry {
+  key: string;
+  imageSrc: string;
+  missing: number;
+}
+
+function getStructurePowerCounters(structure: Structure): StructurePowerCounterEntry[] {
+  const occupantBugType = getStructurePowerOccupantBugType(structure.structureType);
+  const missingBeetles = getStructurePowerMissing(structure);
+  const counters: StructurePowerCounterEntry[] = [];
+
+  if (occupantBugType && missingBeetles > 0) {
+    counters.push({
+      key: `bug-${occupantBugType}`,
+      imageSrc: bugTypeToImage(occupantBugType),
+      missing: missingBeetles,
+    });
+  }
+
+  getStructureToolPowerRequirements(structure.structureType).forEach(({ toolType }) => {
+    const missing = getStructureToolPowerMissing(structure, toolType);
+    if (missing > 0) {
+      counters.push({
+        key: `tool-${toolType}`,
+        imageSrc: toolTypeToImage(toolType),
+        missing,
+      });
+    }
+  });
+
+  return counters;
 }
 
 export function StructurePowerProgressLayer({
@@ -66,34 +92,33 @@ export function StructurePowerProgressLayer({
         gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
       }}
     >
-      {structuresAwaitingPower.map((structure) => {
-        const occupantBugType = getStructurePowerOccupantBugType(structure.structureType);
-        if (!occupantBugType) {
-          return null;
-        }
-
+      {structuresAwaitingPower.flatMap((structure) => {
         const isDragged =
           gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
         const dragStyle =
           isDragged && gridDrag
             ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
             : {};
-        const missing = getStructurePowerMissing(structure);
-        const centerOffset = Math.floor(structure.span / 2);
+        const counters = getStructurePowerCounters(structure);
 
-        return (
-          <div
-            key={`structure-power-${structure.id}`}
-            className="relative min-h-0 min-w-0"
-            style={{
-              gridColumn: structure.x + centerOffset,
-              gridRow: structure.y + centerOffset,
-              ...dragStyle,
-            }}
-          >
-            <StructurePowerMissingCounter occupantBugType={occupantBugType} missing={missing} />
-          </div>
-        );
+        return counters.map(({ key, imageSrc, missing }, index) => {
+          const colOffset = index % structure.span;
+          const rowOffset = Math.floor(index / structure.span);
+
+          return (
+            <div
+              key={`${structure.id}-${key}`}
+              className="relative min-h-0 min-w-0"
+              style={{
+                gridColumn: structure.x + colOffset,
+                gridRow: structure.y + rowOffset,
+                ...dragStyle,
+              }}
+            >
+              <StructurePowerMissingCounter imageSrc={imageSrc} missing={missing} />
+            </div>
+          );
+        });
       })}
     </div>
   );

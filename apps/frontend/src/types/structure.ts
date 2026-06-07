@@ -1,4 +1,4 @@
-import { BugType, ItemType, Position, StructureType } from "@happy-little-park/utils";
+import { BugType, ItemType, Position, StructureType, ToolType } from "@happy-little-park/utils";
 
 import { GridAnimatable } from "./gridAnimatable";
 import { WithId } from "./withId";
@@ -13,9 +13,15 @@ export interface StructureBug {
   bugType: BugType;
 }
 
+export interface StructureTool {
+  id: string;
+  toolType: ToolType;
+}
+
 export interface Structure extends WithId, Position, GridAnimatable {
   structureType: StructureType;
   span: number;
   items: StructureItem[];
   bugs: StructureBug[];
+  tools: StructureTool[];
 }
