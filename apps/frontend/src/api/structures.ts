@@ -35,8 +35,8 @@ export function updateStructurePosition(
   });
 }
 
-export function dig(): Promise<Item | Bug> {
-  return apiFetch<Item | Bug>("/api/structures/dig", {
+export function dig(structureId: string): Promise<Item | Bug> {
+  return apiFetch<Item | Bug>(`/api/structures/${structureId}/dig`, {
     method: "POST",
   });
 }

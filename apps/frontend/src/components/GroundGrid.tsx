@@ -419,7 +419,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     (structure: Structure) => {
       if (structure.structureType === "hole") {
         (async () => {
-          const itemOrBug = await dig.mutateAsync();
+          const itemOrBug = await dig.mutateAsync(structure.id);
           const origin = pickRandomNearestStructureCenterCell(structure);
 
           if (isItem(itemOrBug)) {

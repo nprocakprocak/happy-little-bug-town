@@ -8,7 +8,7 @@ import {
 } from "@happy-little-park/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
-import { findRandomEmptyPosition } from "../helpers/randomPosition.js";
+import { findNearestEmptyPosition, findRandomEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { createBug, getBug, updateBug as updateBugService } from "../services/bugsService.js";
 import { toBugOnGridDto, toItemOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
@@ -183,10 +183,26 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
   });
 };
 
-const dig: RequestHandler = async (req, res) => {
+const dig: RequestHandler<{ id: string }> = async (req, res) => {
+  const { id } = req.params;
   const authorId = req.authorId!;
+
+  const hole = await getStructure(id);
+  if (!hole) {
+    res.status(400).json({ error: "Structure not found when digging" });
+    return;
+  }
+  if (hole.authorId !== authorId) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+  if (hole.structureType !== "hole") {
+    res.status(400).json({ error: "Only holes can be dug" });
+    return;
+  }
+
   const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findRandomEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities);
+  const emptyPosition = findNearestEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities, hole);
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
@@ -216,4 +232,4 @@ structuresRouter.post("/", createStructure);
 structuresRouter.post("/create", createFirstStructure);
 structuresRouter.put("/:id", updateStructure);
 structuresRouter.post("/:id/extract-occupant", extractOccupant);
-structuresRouter.post("/dig", dig);
+structuresRouter.post("/:id/dig", dig);
