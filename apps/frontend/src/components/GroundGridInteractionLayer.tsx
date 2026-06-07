@@ -68,19 +68,16 @@ export function GroundGridInteractionLayer({
   );
 
   const gridContainerRef = useRef<HTMLDivElement>(null);
-  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const pointerStartRef = useRef<{ x: number; y: number; index: number } | null>(null);
   const hasDraggedRef = useRef(false);
 
   const cellCount = rows * cols;
 
-  function handlePointerDown(canDrag: boolean, event: ReactPointerEvent<HTMLDivElement>) {
+  function handlePointerDown(index: number, event: ReactPointerEvent<HTMLDivElement>) {
     if (event.button !== 0) {
       return;
     }
-    if (!canDrag) {
-      return;
-    }
-    pointerStartRef.current = { x: event.clientX, y: event.clientY };
+    pointerStartRef.current = { x: event.clientX, y: event.clientY, index };
     hasDraggedRef.current = false;
     event.currentTarget.setPointerCapture(event.pointerId);
   }
@@ -94,6 +91,9 @@ export function GroundGridInteractionLayer({
       return;
     }
     if (!pointerStartRef.current) {
+      return;
+    }
+    if (pointerStartRef.current.index !== index) {
       return;
     }
     const dx = event.clientX - pointerStartRef.current.x;
@@ -145,8 +145,11 @@ export function GroundGridInteractionLayer({
     bug: Bug | undefined,
     gridCol: number,
     gridRow: number,
+    index: number,
     event: ReactPointerEvent<HTMLDivElement>,
   ) {
+    const startedOnThisCell = pointerStartRef.current?.index === index;
+
     try {
       event.currentTarget.releasePointerCapture(event.pointerId);
     } catch {
@@ -372,6 +375,10 @@ export function GroundGridInteractionLayer({
       return;
     }
 
+    if (!startedOnThisCell) {
+      return;
+    }
+
     if (structure) {
       onStructureClick(structure);
     } else if (stack) {
@@ -466,9 +473,11 @@ export function GroundGridInteractionLayer({
             key={index}
             className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${cellBackgroundClass}`}
             style={{ ...placementStyle, ...dragStyle }}
-            onPointerDown={(event) => handlePointerDown(canDrag, event)}
+            onPointerDown={(event) => handlePointerDown(index, event)}
             onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
-            onPointerUp={(event) => handlePointerUp(structure, stack, bug, gridCol, gridRow, event)}
+            onPointerUp={(event) =>
+              handlePointerUp(structure, stack, bug, gridCol, gridRow, index, event)
+            }
             onPointerCancel={handlePointerCancel}
           />
         );
