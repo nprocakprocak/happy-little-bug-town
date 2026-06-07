@@ -28,6 +28,16 @@ export function isBugFed(bug: BugForFedCheck): boolean {
   return bug.itemIds.length >= BEETLE_MAX_LEAF_PARTS;
 }
 
+export function pickMostFedBug<T extends BugForFedCheck>(bugs: readonly T[]): T {
+  if (bugs.length === 0) {
+    throw new Error("Cannot pick most fed bug from empty list");
+  }
+
+  return bugs.reduce((mostFed, bug) =>
+    bug.itemIds.length > mostFed.itemIds.length ? bug : mostFed,
+  );
+}
+
 export function structureDropRequiresFedBug(structureType: StructureType): boolean {
   return structureRequiresPower(structureType);
 }

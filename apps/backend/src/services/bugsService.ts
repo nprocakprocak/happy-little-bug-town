@@ -22,6 +22,18 @@ export const getBug = async (id: string): Promise<BugDto | null> => {
   return toBugDto(bug);
 };
 
+export const getBugsByIds = async (ids: string[]): Promise<BugDto[]> => {
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const bugs = await prisma.bug.findMany({
+    where: { id: { in: ids } },
+    include: { items: true },
+  });
+  return bugs.map(toBugDto);
+};
+
 export const createBug = async (bug: CreateBugData): Promise<BugDto> => {
   const createdBug = await prisma.bug.create({
     data: {

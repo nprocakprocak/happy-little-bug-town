@@ -4,13 +4,19 @@ import {
   getStructureSpan,
   GROUND_HEIGHT,
   GROUND_WIDTH,
+  pickMostFedBug,
   structureFootprintFits,
 } from "@happy-little-park/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
 import { requireAid } from "../middleware/requireAid.js";
-import { createBug, getBug, updateBug as updateBugService } from "../services/bugsService.js";
+import {
+  createBug,
+  getBug,
+  getBugsByIds,
+  updateBug as updateBugService,
+} from "../services/bugsService.js";
 import { toBugOnGridDto, toItemOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
 import { createItem, generateRandomItemType } from "../services/itemsService.js";
 import {
@@ -167,8 +173,8 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
     return;
   }
 
-  const occupantToExtract =
-    existingStructure.bugs[Math.floor(Math.random() * existingStructure.bugs.length)];
+  const occupants = await getBugsByIds(existingStructure.bugs.map((bug) => bug.id));
+  const occupantToExtract = pickMostFedBug(occupants);
 
   await updateBugService(occupantToExtract.id, {
     x: emptyPosition.x,
