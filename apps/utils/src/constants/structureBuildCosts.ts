@@ -7,15 +7,16 @@ export interface BuildResourceCost {
 }
 
 export const BEETLE_HOUSE_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "leaf_part", count: 20 },
-  { itemType: "little_rock", count: 15 },
-  { itemType: "root", count: 10 },
+  { itemType: "leaf_part", count: 10 },
+  { itemType: "little_rock", count: 10 },
+  { itemType: "stick", count: 5 },
 ];
 
 export const WORKSHOP_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "leaf_part", count: 30 },
-  { itemType: "little_rock", count: 30 },
-  { itemType: "root", count: 20 },
+  { itemType: "leaf_part", count: 20 },
+  { itemType: "little_rock", count: 10 },
+  { itemType: "stick", count: 10 },
+  { itemType: "root", count: 5 },
 ];
 
 export const BUILD_RESOURCE_COSTS: Record<BuildableStructureType, BuildResourceCost[]> = {
