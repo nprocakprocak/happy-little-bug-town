@@ -2,7 +2,12 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
-import { structureShowsActivationGlow, toolShowsActivationGlow } from "@happy-little-park/utils";
+import {
+  getStructureOperationalResourceCount,
+  getStructureOperationalResourceRequirement,
+  structureShowsActivationGlow,
+  toolShowsActivationGlow,
+} from "@happy-little-park/utils";
 
 import {
   GROUND_GRID_MAX_WIDTH_PX,
@@ -76,6 +81,10 @@ export function GroundGridAssetLayer({
           const showActivationGlow = structureShowsActivationGlow(structure);
           const firstHouseBug =
             structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
+          const operationalResourceRequirement = getStructureOperationalResourceRequirement(
+            structure.structureType,
+          );
+          const operationalResourceCount = getStructureOperationalResourceCount(structure);
 
           return (
             <div
@@ -110,6 +119,25 @@ export function GroundGridAssetLayer({
                   >
                     <Image
                       src={bugTypeToImage(firstHouseBug.bugType)}
+                      alt=""
+                      fill
+                      className="object-contain p-[8%] drop-shadow-sm"
+                      sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
+                    />
+                  </div>
+                )}
+                {operationalResourceRequirement && operationalResourceCount > 0 && (
+                  <div
+                    className="absolute min-h-0 min-w-0 overflow-hidden rounded-sm"
+                    style={{
+                      right: 0,
+                      bottom: 0,
+                      width: `${100 / structure.span}%`,
+                      height: `${100 / structure.span}%`,
+                    }}
+                  >
+                    <Image
+                      src={itemTypeToImageForItem(operationalResourceRequirement.itemType)}
                       alt=""
                       fill
                       className="object-contain p-[8%] drop-shadow-sm"

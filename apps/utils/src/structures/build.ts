@@ -102,9 +102,3 @@ export function canAcceptItemForBuild(
   return resourceProgress !== undefined && resourceProgress.missing > 0;
 }
 
-export function canDropItemOnStructure(
-  item: { itemType: ItemType },
-  structure: StructureForBuild,
-): boolean {
-  return canAcceptItemForBuild(structure, item.itemType);
-}

@@ -2,8 +2,8 @@ import { Router, type RequestHandler } from "express";
 
 import {
   BEETLE_MAX_LEAF_PARTS,
-  canAcceptItemForBuild,
   canAcceptItemForToolCraft,
+  canDropItemOnStructure,
   canStackItemType,
   positionOverlapsAnyEntity,
 } from "@happy-little-park/utils";
@@ -97,7 +97,7 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
       res.status(403).json({ error: "Forbidden" });
       return;
     }
-    if (!canAcceptItemForBuild(existingStructure, existingItem.itemType)) {
+    if (!canDropItemOnStructure(existingItem, existingStructure)) {
       res.status(400).json({ error: "Item cannot be added to structure" });
       return;
     }

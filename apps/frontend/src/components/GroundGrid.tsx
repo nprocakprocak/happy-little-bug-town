@@ -50,6 +50,7 @@ import {
 import { ItemFlightLayer } from "./ItemFlightLayer";
 import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
 import { StructurePowerProgressLayer } from "./StructurePowerProgressLayer";
+import { StructureResourceProgressLayer } from "./StructureResourceProgressLayer";
 import { ToolCraftProgressLayer } from "./ToolCraftProgressLayer";
 import { WorkshopPopup } from "./WorkshopPopup";
 
@@ -574,6 +575,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         />
         <ToolCraftProgressLayer cols={cols} rows={rows} tools={tools} gridDrag={gridDrag} />
         <BugsProgressLayer cols={cols} rows={rows} bugs={bugs} gridDrag={gridDrag} />
+        <StructureResourceProgressLayer
+          cols={cols}
+          rows={rows}
+          structures={structures}
+          gridDrag={gridDrag}
+        />
         <GroundGridInteractionLayer
           cols={cols}
           rows={rows}
