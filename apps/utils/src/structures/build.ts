@@ -1,4 +1,4 @@
-import { BEETLE_HOUSE_SPAN, WORKSHOP_SPAN } from "../constants/game.js";
+import { BEETLE_HOUSE_SPAN, STONEMASON_SPAN, WORKSHOP_SPAN } from "../constants/game.js";
 import {
   BUILD_RESOURCE_COSTS,
   BuildResourceCost,
@@ -42,7 +42,14 @@ export function getBuildResourceCostsForType(
 }
 
 export function getStructureSpan(structureType: BuildableStructureType): number {
-  return structureType === "workshop" ? WORKSHOP_SPAN : BEETLE_HOUSE_SPAN;
+  switch (structureType) {
+    case "workshop":
+      return WORKSHOP_SPAN;
+    case "stonemason":
+      return STONEMASON_SPAN;
+    case "beetle_house":
+      return BEETLE_HOUSE_SPAN;
+  }
 }
 
 export function isStructureBuilt(structure: StructureForBuild): boolean {

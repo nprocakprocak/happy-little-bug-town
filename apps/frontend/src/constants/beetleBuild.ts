@@ -2,7 +2,11 @@ import { BuildableStructureType } from "@happy-little-park/utils";
 
 import { Structure } from "../types/structure";
 
-const BUILDABLE_STRUCTURE_TYPES: BuildableStructureType[] = ["beetle_house", "workshop"];
+const BUILDABLE_STRUCTURE_TYPES: BuildableStructureType[] = [
+  "beetle_house",
+  "workshop",
+  "stonemason",
+];
 
 export const BUILDING_OPTIONS: Structure[] = BUILDABLE_STRUCTURE_TYPES.map<Structure>(
   (structureType) => ({

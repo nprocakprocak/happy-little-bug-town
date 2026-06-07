@@ -18,6 +18,7 @@ enum StructureType {
   hole
   beetle_house
   workshop
+  stonemason
 }
 
 enum BugType {

@@ -26,6 +26,16 @@ export const hasWorkshop = async (authorId: string): Promise<boolean> => {
   return count > 0;
 };
 
+export const hasStonemason = async (authorId: string): Promise<boolean> => {
+  const count = await prisma.structure.count({
+    where: {
+      authorId,
+      structureType: "stonemason",
+    },
+  });
+  return count > 0;
+};
+
 export const getStructures = async (authorId: string): Promise<StructureDto[]> => {
   const structures = await prisma.structure.findMany({
     where: {

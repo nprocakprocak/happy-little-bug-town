@@ -19,7 +19,15 @@ export const WORKSHOP_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "root", count: 5 },
 ];
 
+export const STONEMASON_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "leaf_part", count: 10 },
+  { itemType: "little_rock", count: 10 },
+  { itemType: "stick", count: 10 },
+  { itemType: "root", count: 5 },
+];
+
 export const BUILD_RESOURCE_COSTS: Record<BuildableStructureType, BuildResourceCost[]> = {
   beetle_house: BEETLE_HOUSE_BUILD_COSTS,
   workshop: WORKSHOP_BUILD_COSTS,
+  stonemason: STONEMASON_BUILD_COSTS,
 };

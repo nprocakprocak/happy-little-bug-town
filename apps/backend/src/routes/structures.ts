@@ -19,6 +19,7 @@ import {
   getStructure,
   getStructures,
   hasBeetleHouse,
+  hasStonemason,
   hasWorkshop,
   updateStructurePosition as updateStructurePositionService,
 } from "../services/structuresService.js";
@@ -36,7 +37,11 @@ const createStructure: RequestHandler = async (req, res) => {
   const authorId = req.authorId!;
   const { structureType, x, y } = req.body;
 
-  if (structureType !== "beetle_house" && structureType !== "workshop") {
+  if (
+    structureType !== "beetle_house" &&
+    structureType !== "workshop" &&
+    structureType !== "stonemason"
+  ) {
     res.status(400).json({ error: "Invalid structure type" });
     return;
   }
@@ -52,6 +57,11 @@ const createStructure: RequestHandler = async (req, res) => {
 
   if (structureType === "workshop" && (await hasWorkshop(authorId))) {
     res.status(400).json({ error: "Workshop already built" });
+    return;
+  }
+
+  if (structureType === "stonemason" && (await hasStonemason(authorId))) {
+    res.status(400).json({ error: "Stonemason already built" });
     return;
   }
 
