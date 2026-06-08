@@ -17,4 +17,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   stonemason: {
     brick: { itemType: "little_rock", maxCount: 3 },
   },
+  woodcutter: {
+    wood: { itemType: "stick", maxCount: 3 },
+  },
 };

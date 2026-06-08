@@ -12,6 +12,8 @@ export function toolTypeToImage(toolType: ToolType): string {
       return "/tools/brick.webp";
     case "axe":
       return "/items/axe.webp";
+    case "wood":
+      return "/tools/wood.webp";
     default:
       throw new Error(`Unknown tool type: ${toolType}`);
   }

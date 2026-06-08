@@ -9,4 +9,5 @@ export const TOOL_SPAN = 2;
 export const HAMMER_AND_CHISEL_TOOL_SPAN = 1;
 export const BRICK_TOOL_SPAN = 1;
 export const AXE_TOOL_SPAN = 1;
+export const WOOD_TOOL_SPAN = 1;
 export const STACK_SPAN = 2;
