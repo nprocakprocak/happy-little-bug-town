@@ -10,6 +10,8 @@ export function toolTypeToName(toolType: ToolType): string {
       return "Hammer and chisel";
     case "brick":
       return "Brick";
+    case "axe":
+      return "Axe";
     default:
       throw new Error(`Unknown tool type: ${toolType}`);
   }
