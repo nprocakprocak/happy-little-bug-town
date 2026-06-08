@@ -19,6 +19,11 @@ export interface StructureForBuild {
   items: StructureBuildItem[];
 }
 
+export interface StructureWithIdentifiableItems {
+  structureType: StructureType;
+  items: { id: string; itemType: ItemType }[];
+}
+
 export interface StructureBuildResourceProgress {
   itemType: ItemType;
   supplied: number;

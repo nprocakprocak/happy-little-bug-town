@@ -2,6 +2,7 @@ import { Position } from "@happy-little-park/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  craftOperationalResource,
   createFirstStructure,
   createStructure,
   dig,
@@ -57,5 +58,11 @@ export function useDigMutation() {
 export function useExtractOccupantMutation() {
   return useMutation({
     mutationFn: extractOccupant,
+  });
+}
+
+export function useCraftOperationalResourceMutation() {
+  return useMutation({
+    mutationFn: craftOperationalResource,
   });
 }

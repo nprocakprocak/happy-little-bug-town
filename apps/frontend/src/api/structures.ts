@@ -1,6 +1,7 @@
 import { Position } from "@happy-little-park/utils";
 
 import { Bug } from "../types/bug";
+import { CraftOperationalResourceResult } from "../types/craftOperationalResourceResult";
 import { ExtractOccupantResult } from "../types/extractOccupantResult";
 import { Item } from "../types/item";
 import { Structure } from "../types/structure";
@@ -45,4 +46,15 @@ export function extractOccupant(structureId: string): Promise<ExtractOccupantRes
   return apiFetch<ExtractOccupantResult>(`/api/structures/${structureId}/extract-occupant`, {
     method: "POST",
   });
+}
+
+export function craftOperationalResource(
+  structureId: string,
+): Promise<CraftOperationalResourceResult> {
+  return apiFetch<CraftOperationalResourceResult>(
+    `/api/structures/${structureId}/craft`,
+    {
+      method: "POST",
+    },
+  );
 }

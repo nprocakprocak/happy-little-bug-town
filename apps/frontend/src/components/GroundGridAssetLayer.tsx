@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import Image from "next/image";
 import {
   getStructureOperationalResourceCount,
-  getStructureOperationalResourceRequirement,
+  getStructureOperationalResourceDisplayRequirement,
   structureShowsActivationGlow,
   toolShowsActivationGlow,
 } from "@happy-little-park/utils";
@@ -81,7 +81,7 @@ export function GroundGridAssetLayer({
           const showActivationGlow = structureShowsActivationGlow(structure);
           const firstHouseBug =
             structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
-          const operationalResourceRequirement = getStructureOperationalResourceRequirement(
+          const operationalResourceRequirement = getStructureOperationalResourceDisplayRequirement(
             structure.structureType,
           );
           const operationalResourceCount = getStructureOperationalResourceCount(structure);

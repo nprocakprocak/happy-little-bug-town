@@ -59,10 +59,21 @@ export function StructureResourceProgressLayer({
               ...dragStyle,
             }}
           >
-            <ResourceProgressBar
-              collected={getStructureOperationalResourceCount(structure)}
-              max={getStructureOperationalResourceLimit(structure)}
-            />
+            <div
+              className="absolute min-h-0 min-w-0"
+              style={{
+                right: 0,
+                bottom: 0,
+                width: `${100 / structure.span}%`,
+                height: `${100 / structure.span}%`,
+              }}
+            >
+              <ResourceProgressBar
+                collected={getStructureOperationalResourceCount(structure)}
+                max={getStructureOperationalResourceLimit(structure)}
+                layout="corner"
+              />
+            </div>
           </div>
         );
       })}

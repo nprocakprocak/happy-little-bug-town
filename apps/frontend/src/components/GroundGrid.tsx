@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  canCraftFromStructureOperationalResources,
   canCreateToolType,
   getStructureSpan,
   getToolSpan,
@@ -23,6 +24,7 @@ import { updateItemsCache, useItemsQuery } from "../hooks/useItems";
 import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
 import {
   updateStructuresCache,
+  useCraftOperationalResourceMutation,
   useCreateFirstStructureMutation,
   useCreateStructureMutation,
   useDigMutation,
@@ -74,6 +76,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const extractFromStack = useExtractFromStackMutation();
   const dig = useDigMutation();
   const extractOccupantMutation = useExtractOccupantMutation();
+  const craftOperationalResourceMutation = useCraftOperationalResourceMutation();
   const {
     mutate: createFirstStructureMutate,
     isPending: isCreatingFirstStructure,
@@ -437,6 +440,22 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         return;
       }
 
+      if (canCraftFromStructureOperationalResources(structure)) {
+        if (!hasEmptyGridCell(rows, cols, animatables)) {
+          return;
+        }
+
+        (async () => {
+          const result = await craftOperationalResourceMutation.mutateAsync(structure.id);
+          const origin = pickRandomNearestStructureCenterCell(structure);
+          setStructuresCache((prev) =>
+            prev.map((s) => (s.id === result.structure.id ? result.structure : s)),
+          );
+          setToolsCache((prev) => [...prev, { ...result.tool, fromX: origin.x, fromY: origin.y }]);
+        })();
+        return;
+      }
+
       if (structure.structureType !== "beetle_house") {
         return;
       }
@@ -459,6 +478,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     },
     [
       dig,
+      craftOperationalResourceMutation,
       extractOccupantMutation,
       animatables,
       rows,
@@ -466,6 +486,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       setItemsCache,
       setBugsCache,
       setStructuresCache,
+      setToolsCache,
     ],
   );
 

@@ -1,8 +1,9 @@
-import { getStructureSpan } from "@happy-little-park/utils";
+import { getStructureSpan, Position, ToolType } from "@happy-little-park/utils";
 
 import { prisma } from "../lib/prisma.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
-import { toStructureDto } from "./helpers.js";
+import { ToolDto } from "../types/toolDto.js";
+import { toStructureDto, toToolDto } from "./helpers.js";
 
 const structureInclude = { items: true, bugs: true, tools: true } as const;
 
@@ -97,4 +98,52 @@ export const updateStructurePosition = async (
     include: structureInclude,
   });
   return toStructureDto(structure);
+};
+
+export const craftOperationalResourceAtStructure = async (
+  structureId: string,
+  authorId: string,
+  outputToolType: ToolType,
+  operationalItemIds: string[],
+  position: Position,
+): Promise<{ tool: ToolDto; structure: StructureDto }> => {
+  return prisma.$transaction(async (tx) => {
+    const tool = await tx.tool.create({
+      data: {
+        toolType: outputToolType,
+        x: position.x,
+        y: position.y,
+        authorId,
+      },
+      include: { items: true },
+    });
+
+    await tx.item.updateMany({
+      where: { id: { in: operationalItemIds } },
+      data: {
+        structureId: null,
+        toolId: tool.id,
+        x: null,
+        y: null,
+      },
+    });
+
+    const updatedStructure = await tx.structure.findUnique({
+      where: { id: structureId },
+      include: structureInclude,
+    });
+    const updatedTool = await tx.tool.findUnique({
+      where: { id: tool.id },
+      include: { items: true },
+    });
+
+    if (!updatedStructure || !updatedTool) {
+      throw new Error("Failed to craft operational resource at structure");
+    }
+
+    return {
+      tool: toToolDto(updatedTool),
+      structure: toStructureDto(updatedStructure),
+    };
+  });
 };

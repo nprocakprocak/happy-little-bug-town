@@ -23,6 +23,7 @@ export const TOOL_CRAFT_COSTS: Record<ToolType, ToolCraftResourceCost[]> = {
     { itemType: "stick", count: 10 },
     { itemType: "root", count: 5 },
   ],
+  brick: [{ itemType: "little_rock", count: 3 }],
 };
 
 export function getToolCraftCosts(toolType: ToolType): ToolCraftResourceCost[] {

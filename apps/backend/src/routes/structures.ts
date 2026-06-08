@@ -1,7 +1,10 @@
 import { Router, type RequestHandler } from "express";
 
 import {
+  getCraftableOperationalResourceOutput,
+  getStructureOperationalResourceItems,
   getStructureSpan,
+  getToolSpan,
   GROUND_HEIGHT,
   GROUND_WIDTH,
   pickMostFedBug,
@@ -17,11 +20,12 @@ import {
   getBugsByIds,
   updateBug as updateBugService,
 } from "../services/bugsService.js";
-import { toBugOnGridDto, toItemOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
+import { toBugOnGridDto, toItemOnGridDto, toStructureOnGridDto, toToolOnGridDto } from "../services/helpers.js";
 import { createItem, generateRandomItemType } from "../services/itemsService.js";
 import {
   createFirstStructure as createFirstStructureService,
   createStructure as createStructureService,
+  craftOperationalResourceAtStructure,
   getStructure,
   getStructures,
   hasBeetleHouse,
@@ -238,9 +242,82 @@ const dig: RequestHandler<{ id: string }> = async (req, res) => {
   res.status(201).json(toItemOnGridDto(createdItem));
 };
 
+const craft: RequestHandler<{ id: string }> = async (req, res) => {
+  const { id } = req.params;
+  const authorId = req.authorId!;
+
+  const existingStructure = await getStructure(id);
+  if (!existingStructure) {
+    res.status(400).json({ error: "Structure not found when crafting operational resource" });
+    return;
+  }
+  if (existingStructure.authorId !== authorId) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const structureForCraft = {
+    structureType: existingStructure.structureType,
+    items: existingStructure.items,
+    bugs: existingStructure.bugs,
+    tools: existingStructure.tools,
+  };
+
+  const craftableOutput = getCraftableOperationalResourceOutput(structureForCraft);
+  if (!craftableOutput) {
+    res.status(400).json({ error: "Structure is not ready to craft operational resource" });
+    return;
+  }
+
+  const { outputToolType, requirement } = craftableOutput;
+  const operationalItems = getStructureOperationalResourceItems(existingStructure, outputToolType);
+  if (operationalItems.length !== requirement.maxCount) {
+    res.status(400).json({ error: "Structure does not have enough operational resources to craft" });
+    return;
+  }
+
+  const entities = await getAllEntitiesOnGrid(authorId);
+  const emptyPosition = findNearestEmptyPosition(
+    GROUND_HEIGHT,
+    GROUND_WIDTH,
+    entities,
+    existingStructure,
+  );
+  if (!emptyPosition) {
+    res.status(400).json({ error: "No empty position found" });
+    return;
+  }
+
+  const toolSpan = getToolSpan(outputToolType);
+  const fits = structureFootprintFits(
+    { x: emptyPosition.x, y: emptyPosition.y, span: toolSpan },
+    GROUND_WIDTH,
+    GROUND_HEIGHT,
+    entities,
+  );
+  if (!fits) {
+    res.status(400).json({ error: "Position is not free for tool" });
+    return;
+  }
+
+  const result = await craftOperationalResourceAtStructure(
+    id,
+    authorId,
+    outputToolType,
+    operationalItems.map((item) => item.id),
+    emptyPosition,
+  );
+
+  res.status(201).json({
+    tool: toToolOnGridDto(result.tool),
+    structure: toStructureOnGridDto(result.structure),
+  });
+};
+
 structuresRouter.get("/", listStructures);
 structuresRouter.post("/", createStructure);
 structuresRouter.post("/create", createFirstStructure);
 structuresRouter.put("/:id", updateStructure);
 structuresRouter.post("/:id/extract-occupant", extractOccupant);
+structuresRouter.post("/:id/craft", craft);
 structuresRouter.post("/:id/dig", dig);
