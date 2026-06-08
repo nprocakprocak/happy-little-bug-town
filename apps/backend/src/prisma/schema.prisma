@@ -19,6 +19,7 @@ enum StructureType {
   beetle_house
   workshop
   stonemason
+  woodcutter
 }
 
 enum BugType {

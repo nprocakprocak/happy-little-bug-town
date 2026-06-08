@@ -1,8 +1,14 @@
 import { BuildableStructureType } from "../types/structureType.js";
 import { ItemType } from "../types/itemType.js";
+import { ToolType } from "../types/toolType.js";
 
 export interface BuildResourceCost {
   itemType: ItemType;
+  count: number;
+}
+
+export interface BuildToolCost {
+  toolType: ToolType;
   count: number;
 }
 
@@ -26,8 +32,23 @@ export const STONEMASON_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "root", count: 5 },
 ];
 
+export const WOODCUTTER_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "leaf_part", count: 10 },
+  { itemType: "root", count: 5 },
+  { itemType: "stick", count: 5 },
+];
+
+export const WOODCUTTER_BUILD_TOOL_COSTS: BuildToolCost[] = [
+  { toolType: "brick", count: 5 },
+];
+
 export const BUILD_RESOURCE_COSTS: Record<BuildableStructureType, BuildResourceCost[]> = {
   beetle_house: BEETLE_HOUSE_BUILD_COSTS,
   workshop: WORKSHOP_BUILD_COSTS,
   stonemason: STONEMASON_BUILD_COSTS,
+  woodcutter: WOODCUTTER_BUILD_COSTS,
+};
+
+export const BUILD_TOOL_COSTS: Partial<Record<BuildableStructureType, BuildToolCost[]>> = {
+  woodcutter: WOODCUTTER_BUILD_TOOL_COSTS,
 };

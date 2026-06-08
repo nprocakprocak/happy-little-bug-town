@@ -51,10 +51,7 @@ export function extractOccupant(structureId: string): Promise<ExtractOccupantRes
 export function craftOperationalResource(
   structureId: string,
 ): Promise<CraftOperationalResourceResult> {
-  return apiFetch<CraftOperationalResourceResult>(
-    `/api/structures/${structureId}/craft`,
-    {
-      method: "POST",
-    },
-  );
+  return apiFetch<CraftOperationalResourceResult>(`/api/structures/${structureId}/craft`, {
+    method: "POST",
+  });
 }

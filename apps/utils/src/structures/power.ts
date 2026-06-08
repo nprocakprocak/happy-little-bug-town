@@ -7,7 +7,12 @@ import { BugType } from "../types/bugType.js";
 import { StructureType } from "../types/structureType.js";
 import { ToolType } from "../types/toolType.js";
 import { isToolCrafted, ToolForCraft } from "../tools/craft.js";
-import { isStructureBuilt, isStructureIncomplete, StructureForBuild } from "./build.js";
+import {
+  canAcceptToolForBuild,
+  isStructureBuilt,
+  isStructureIncomplete,
+  StructureForBuild,
+} from "./build.js";
 
 export interface StructureForPower {
   structureType: StructureType;
@@ -192,6 +197,10 @@ export function canDropToolOnStructure(
   tool: ToolForCraft,
   structure: StructureForBuild & StructureForPower,
 ): boolean {
+  if (canAcceptToolForBuild(structure, tool)) {
+    return true;
+  }
+
   return canStructureAcceptToolDrop(tool, structure);
 }
 

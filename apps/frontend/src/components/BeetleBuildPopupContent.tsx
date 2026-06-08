@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import {
   BuildableStructureType,
   getBuildResourceCostsForType,
+  getBuildToolCostsForType,
   hasStructureType,
 } from "@happy-little-park/utils";
 
@@ -39,6 +40,9 @@ export function BeetleBuildPopupContent({
   const selectedResourceCosts = getBuildResourceCostsForType(
     selectedStructure.structureType as BuildableStructureType,
   );
+  const selectedToolCosts = getBuildToolCostsForType(
+    selectedStructure.structureType as BuildableStructureType,
+  );
   const canBuild = !hasStructureType(structures, selectedStructure.structureType);
 
   function handleBuildClick() {
@@ -60,7 +64,8 @@ export function BeetleBuildPopupContent({
           selectAriaLabelPrefix="Select building"
         />
       }
-      resourceCosts={selectedResourceCosts}
+      itemCosts={selectedResourceCosts}
+      toolCosts={selectedToolCosts}
       primaryLabel="Build"
       onPrimaryClick={handleBuildClick}
       onClose={onClose}

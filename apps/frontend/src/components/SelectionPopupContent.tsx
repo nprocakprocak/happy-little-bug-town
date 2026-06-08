@@ -1,14 +1,15 @@
 "use client";
 
 import { ReactNode } from "react";
-import { ItemType } from "@happy-little-park/utils";
+import { ItemType, ToolType } from "@happy-little-park/utils";
 
 import { PopupActionFooter } from "./PopupActionFooter";
 import { PopupResourceCosts } from "./PopupResourceCosts";
 
 interface SelectionPopupContentProps {
   slider: ReactNode;
-  resourceCosts: { itemType: ItemType; count: number }[];
+  itemCosts: { itemType: ItemType; count: number }[];
+  toolCosts?: { toolType: ToolType; count: number }[];
   primaryLabel: string;
   onPrimaryClick: () => void;
   onClose: () => void;
@@ -17,7 +18,8 @@ interface SelectionPopupContentProps {
 
 export function SelectionPopupContent({
   slider,
-  resourceCosts,
+  itemCosts,
+  toolCosts,
   primaryLabel,
   onPrimaryClick,
   onClose,
@@ -27,7 +29,7 @@ export function SelectionPopupContent({
     <>
       <div className="flex flex-col items-center gap-[3cqi] px-[4cqi] pt-[4cqi] pb-[2cqi]">
         {slider}
-        <PopupResourceCosts costs={resourceCosts} />
+        <PopupResourceCosts itemCosts={itemCosts} toolCosts={toolCosts} />
       </div>
       <PopupActionFooter
         primaryLabel={primaryLabel}

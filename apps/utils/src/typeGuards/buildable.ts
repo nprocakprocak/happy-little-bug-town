@@ -6,6 +6,7 @@ export function isBuildableStructureType(
   return (
     structureType === "beetle_house" ||
     structureType === "workshop" ||
-    structureType === "stonemason"
+    structureType === "stonemason" ||
+    structureType === "woodcutter"
   );
 }

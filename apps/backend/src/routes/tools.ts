@@ -1,7 +1,7 @@
 import { Router, type RequestHandler } from "express";
 
 import {
-  canStructureAcceptToolDrop,
+  canDropToolOnStructure,
   getToolSpan,
   GROUND_HEIGHT,
   GROUND_WIDTH,
@@ -126,7 +126,10 @@ const updateTool: RequestHandler<{ id: string }> = async (req, res) => {
       return;
     }
 
-    if (existingStructure.structureType === "stonemason") {
+    if (
+      existingStructure.structureType === "stonemason" ||
+      existingStructure.structureType === "woodcutter"
+    ) {
       const structureForDrop = {
         structureType: existingStructure.structureType,
         items: existingStructure.items,
@@ -138,7 +141,7 @@ const updateTool: RequestHandler<{ id: string }> = async (req, res) => {
         items: existingTool.items,
       };
 
-      if (!canStructureAcceptToolDrop(toolForDrop, structureForDrop)) {
+      if (!canDropToolOnStructure(toolForDrop, structureForDrop)) {
         res.status(400).json({ error: "Structure cannot accept this tool" });
         return;
       }

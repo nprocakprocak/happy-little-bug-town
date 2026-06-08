@@ -56,7 +56,7 @@ export function WorkshopToolsPopupContent({
           selectAriaLabelPrefix="Select tool"
         />
       }
-      resourceCosts={selectedResourceCosts}
+      itemCosts={selectedResourceCosts}
       primaryLabel="Create"
       onPrimaryClick={handleCreateClick}
       onClose={onClose}

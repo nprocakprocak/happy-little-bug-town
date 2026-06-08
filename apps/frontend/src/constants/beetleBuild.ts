@@ -6,6 +6,7 @@ const BUILDABLE_STRUCTURE_TYPES: BuildableStructureType[] = [
   "beetle_house",
   "workshop",
   "stonemason",
+  "woodcutter",
 ];
 
 export const BUILDING_OPTIONS: Structure[] = BUILDABLE_STRUCTURE_TYPES.map<Structure>(
