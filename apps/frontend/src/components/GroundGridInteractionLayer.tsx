@@ -268,8 +268,7 @@ export function GroundGridInteractionLayer({
               overlappingEntity?.x === stackToDrop.x && overlappingEntity?.y === stackToDrop.y;
             const shouldCancel =
               (!!overlappingEntity && !overlappingStack && !overlapsSelf) ||
-              (overlappingStack && !isMerge) ||
-              !canStackItemType(stackToDrop.itemType, tools);
+              (!!overlappingStack && !isMerge);
 
             if (shouldCancel) {
               onItemDropCancelled(stackToDrop.id, target);
