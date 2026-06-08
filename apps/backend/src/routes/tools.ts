@@ -1,6 +1,7 @@
 import { Router, type RequestHandler } from "express";
 
 import {
+  canCreateMultipleOfToolType,
   canDropToolOnStructure,
   getToolSpan,
   GROUND_HEIGHT,
@@ -67,7 +68,7 @@ const createTool: RequestHandler = async (req, res) => {
     return;
   }
 
-  if (toolType !== "hammer_and_chisel" && (await hasTool(authorId, toolType))) {
+  if (!canCreateMultipleOfToolType(toolType) && (await hasTool(authorId, toolType))) {
     res.status(400).json({ error: "Tool already created" });
     return;
   }

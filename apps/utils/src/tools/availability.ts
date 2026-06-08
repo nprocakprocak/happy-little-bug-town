@@ -1,5 +1,11 @@
 import { ToolType } from "../types/toolType.js";
 
+const MULTI_CREATE_TOOL_TYPES = new Set<ToolType>(["hammer_and_chisel", "axe"]);
+
+export function canCreateMultipleOfToolType(toolType: ToolType): boolean {
+  return MULTI_CREATE_TOOL_TYPES.has(toolType);
+}
+
 export function hasToolType<T extends { toolType: ToolType }>(
   tools: T[],
   toolType: ToolType,
@@ -8,7 +14,7 @@ export function hasToolType<T extends { toolType: ToolType }>(
 }
 
 export function canCreateToolType(tools: { toolType: ToolType }[], toolType: ToolType): boolean {
-  if (toolType === "hammer_and_chisel") {
+  if (canCreateMultipleOfToolType(toolType)) {
     return true;
   }
 

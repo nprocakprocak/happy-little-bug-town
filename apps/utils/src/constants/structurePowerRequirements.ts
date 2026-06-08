@@ -22,5 +22,9 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
     occupantBugType: "beetle",
     toolRequirements: [{ toolType: "hammer_and_chisel", requiredCount: 3 }],
   },
-  woodcutter: { requiredCount: 10, occupantBugType: "beetle" },
+  woodcutter: {
+    requiredCount: 10,
+    occupantBugType: "beetle",
+    toolRequirements: [{ toolType: "axe", requiredCount: 3 }],
+  },
 };
