@@ -7,6 +7,7 @@ export function isBuildableStructureType(
     structureType === "beetle_house" ||
     structureType === "workshop" ||
     structureType === "stonemason" ||
-    structureType === "woodcutter"
+    structureType === "woodcutter" ||
+    structureType === "kitchen"
   );
 }

@@ -20,6 +20,7 @@ enum StructureType {
   workshop
   stonemason
   woodcutter
+  kitchen
 }
 
 enum BugType {

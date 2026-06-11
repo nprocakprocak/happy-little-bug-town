@@ -129,7 +129,8 @@ const updateTool: RequestHandler<{ id: string }> = async (req, res) => {
 
     if (
       existingStructure.structureType === "stonemason" ||
-      existingStructure.structureType === "woodcutter"
+      existingStructure.structureType === "woodcutter" ||
+      existingStructure.structureType === "kitchen"
     ) {
       const structureForDrop = {
         structureType: existingStructure.structureType,

@@ -5,6 +5,7 @@ export const BEETLE_HOUSE_SPAN = 2;
 export const WORKSHOP_SPAN = 3;
 export const STONEMASON_SPAN = 3;
 export const WOODCUTTER_SPAN = 3;
+export const KITCHEN_SPAN = 3;
 export const TOOL_SPAN = 2;
 export const HAMMER_AND_CHISEL_TOOL_SPAN = 1;
 export const BRICK_TOOL_SPAN = 1;

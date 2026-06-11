@@ -29,6 +29,7 @@ import {
   getStructure,
   getStructures,
   hasBeetleHouse,
+  hasKitchen,
   hasStonemason,
   hasWoodcutter,
   hasWorkshop,
@@ -52,7 +53,8 @@ const createStructure: RequestHandler = async (req, res) => {
     structureType !== "beetle_house" &&
     structureType !== "workshop" &&
     structureType !== "stonemason" &&
-    structureType !== "woodcutter"
+    structureType !== "woodcutter" &&
+    structureType !== "kitchen"
   ) {
     res.status(400).json({ error: "Invalid structure type" });
     return;
@@ -79,6 +81,11 @@ const createStructure: RequestHandler = async (req, res) => {
 
   if (structureType === "woodcutter" && (await hasWoodcutter(authorId))) {
     res.status(400).json({ error: "Woodcutter already built" });
+    return;
+  }
+
+  if (structureType === "kitchen" && (await hasKitchen(authorId))) {
+    res.status(400).json({ error: "Kitchen already built" });
     return;
   }
 

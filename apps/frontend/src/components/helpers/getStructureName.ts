@@ -14,6 +14,8 @@ export function structureTypeToName(structureType: StructureType): string {
       return "Stonemason";
     case "woodcutter":
       return "Woodcutter";
+    case "kitchen":
+      return "Kitchen";
     default:
       throw new Error(`Unknown structure type: ${structureType}`);
   }

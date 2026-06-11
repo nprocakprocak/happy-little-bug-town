@@ -1,5 +1,6 @@
 import {
   BEETLE_HOUSE_SPAN,
+  KITCHEN_SPAN,
   STONEMASON_SPAN,
   WOODCUTTER_SPAN,
   WORKSHOP_SPAN,
@@ -90,6 +91,8 @@ export function getStructureSpan(structureType: BuildableStructureType): number 
       return STONEMASON_SPAN;
     case "woodcutter":
       return WOODCUTTER_SPAN;
+    case "kitchen":
+      return KITCHEN_SPAN;
     case "beetle_house":
       return BEETLE_HOUSE_SPAN;
   }
