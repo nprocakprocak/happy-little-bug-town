@@ -33,11 +33,18 @@ export function SettingsPopup({ onClose }: SettingsPopupProps) {
           aria-modal="true"
         >
           <p className="text-center text-lg font-medium text-stone-800">Settings</p>
-          <div className="mt-4 flex justify-center">
+          <p className="mt-3 text-center text-sm text-stone-600">Log in to save your progress</p>
+          <div className="mt-4 flex justify-center gap-3">
+            <button
+              type="button"
+              className="min-w-[20%] rounded-md bg-sky-500 px-6 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-600"
+            >
+              Log in
+            </button>
             <button
               type="button"
               onClick={onClose}
-              className="min-w-[20%] rounded-md bg-sky-500 px-6 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-600"
+              className="min-w-[20%] rounded-md bg-stone-200 px-6 py-2 text-sm font-medium text-stone-700 shadow-sm transition-colors hover:bg-stone-300"
             >
               Close
             </button>
