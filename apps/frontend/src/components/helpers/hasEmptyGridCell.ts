@@ -1,4 +1,4 @@
-import { Positionable, positionOverlapsAnyEntity } from "@happy-little-park/utils";
+import { Positionable, positionOverlapsAnyEntity } from "@happy-little-bug-town/utils";
 
 export function hasEmptyGridCell(rows: number, cols: number, entities: Positionable[]): boolean {
   for (let y = 1; y <= rows; y++) {

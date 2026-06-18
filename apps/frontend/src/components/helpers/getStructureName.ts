@@ -1,4 +1,4 @@
-import { StructureType } from "@happy-little-park/utils";
+import { StructureType } from "@happy-little-bug-town/utils";
 
 import { Structure } from "../../types/structure";
 

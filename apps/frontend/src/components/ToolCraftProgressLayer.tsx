@@ -2,7 +2,11 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
-import { getVisibleToolCraftProgress, isToolIncomplete, ItemType } from "@happy-little-park/utils";
+import {
+  getVisibleToolCraftProgress,
+  isToolIncomplete,
+  ItemType,
+} from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Tool } from "../types/tool";

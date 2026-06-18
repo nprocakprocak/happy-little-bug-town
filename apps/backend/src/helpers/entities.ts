@@ -1,4 +1,4 @@
-import { getStackSpan, getToolSpan, Positionable } from "@happy-little-park/utils";
+import { getStackSpan, getToolSpan, Positionable } from "@happy-little-bug-town/utils";
 
 import { getBugs } from "../services/bugsService.js";
 import { getItemsOnGrid } from "../services/itemsService.js";

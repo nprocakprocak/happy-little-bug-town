@@ -8,7 +8,7 @@ import {
   GROUND_WIDTH,
   structureFootprintFits,
   ToolType,
-} from "@happy-little-park/utils";
+} from "@happy-little-bug-town/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireAid } from "../middleware/requireAid.js";

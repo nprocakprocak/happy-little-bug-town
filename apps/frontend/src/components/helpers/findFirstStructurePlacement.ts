@@ -1,4 +1,4 @@
-import { Position, Positionable, structureFootprintFits } from "@happy-little-park/utils";
+import { Position, Positionable, structureFootprintFits } from "@happy-little-bug-town/utils";
 
 export function findFirstStructurePlacement(
   span: number,

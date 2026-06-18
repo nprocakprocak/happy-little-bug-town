@@ -1,4 +1,4 @@
-import { BugType, Position } from "@happy-little-park/utils";
+import { BugType, Position } from "@happy-little-bug-town/utils";
 
 import { GridAnimatable } from "./gridAnimatable";
 import { WithId } from "./withId";

@@ -6,7 +6,7 @@ import {
   getBuildResourceCostsForType,
   getBuildToolCostsForType,
   hasStructureType,
-} from "@happy-little-park/utils";
+} from "@happy-little-bug-town/utils";
 
 import { BUILDING_OPTIONS } from "../constants/beetleBuild";
 import { Structure } from "../types/structure";

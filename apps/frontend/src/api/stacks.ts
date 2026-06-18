@@ -1,4 +1,4 @@
-import { Position } from "@happy-little-park/utils";
+import { Position } from "@happy-little-bug-town/utils";
 
 import { ExtractFromStackResult } from "../types/extractFromStackResult";
 import { Stack } from "../types/stack";

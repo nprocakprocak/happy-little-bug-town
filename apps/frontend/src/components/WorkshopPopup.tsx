@@ -1,6 +1,6 @@
 "use client";
 
-import { ToolType } from "@happy-little-park/utils";
+import { ToolType } from "@happy-little-bug-town/utils";
 
 import { Tool } from "../types/tool";
 import { GridPopup } from "./GridPopup";

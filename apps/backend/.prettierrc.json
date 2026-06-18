@@ -10,7 +10,7 @@
     "<BUILTIN_MODULES>",
     "<THIRD_PARTY_MODULES>",
     "",
-    "^@happy-little-park/(.*)$",
+    "^@happy-little-bug-town/(.*)$",
     "",
     "^[./]"
   ],

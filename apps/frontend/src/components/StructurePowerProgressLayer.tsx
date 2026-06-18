@@ -8,7 +8,7 @@ import {
   getStructureToolPowerMissing,
   getStructureToolPowerRequirements,
   isStructureAwaitingPower,
-} from "@happy-little-park/utils";
+} from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { Structure } from "../types/structure";

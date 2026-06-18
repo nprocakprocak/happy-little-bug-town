@@ -1,4 +1,4 @@
-import { Position } from "@happy-little-park/utils";
+import { Position } from "@happy-little-bug-town/utils";
 
 import { Structure } from "../../types/structure";
 

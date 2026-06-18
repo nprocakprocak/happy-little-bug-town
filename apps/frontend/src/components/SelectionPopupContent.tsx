@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { ItemType, ToolType } from "@happy-little-park/utils";
+import { ItemType, ToolType } from "@happy-little-bug-town/utils";
 
 import { PopupActionFooter } from "./PopupActionFooter";
 import { PopupResourceCosts } from "./PopupResourceCosts";

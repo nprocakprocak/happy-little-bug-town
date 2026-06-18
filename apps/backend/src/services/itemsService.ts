@@ -1,4 +1,4 @@
-import { Position } from "@happy-little-park/utils";
+import { Position } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
 import { BugType, ItemType } from "../prisma/prisma/client.js";

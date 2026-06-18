@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ItemType, ToolType } from "@happy-little-park/utils";
+import { ItemType, ToolType } from "@happy-little-bug-town/utils";
 
 import { itemTypeToImageForItem } from "./helpers/itemTypeToImage";
 import { toolTypeToImage } from "./helpers/toolTypeToImage";

@@ -16,7 +16,7 @@ import {
   positionOverlapsAnyEntity,
   structureDropRequiresFedBug,
   structureFootprintFits,
-} from "@happy-little-park/utils";
+} from "@happy-little-bug-town/utils";
 
 import { useGridVisibility } from "../context/GridVisibilityContext";
 import type { DragPayload } from "../domain/drag-n-drop/dragPayload";

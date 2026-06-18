@@ -11,7 +11,7 @@ import {
   Position,
   Positionable,
   ToolType,
-} from "@happy-little-park/utils";
+} from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";

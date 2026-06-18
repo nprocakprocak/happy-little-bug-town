@@ -6,7 +6,7 @@ import {
   GROUND_HEIGHT,
   GROUND_WIDTH,
   structureFootprintFits,
-} from "@happy-little-park/utils";
+} from "@happy-little-bug-town/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";

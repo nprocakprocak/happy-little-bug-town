@@ -1,4 +1,4 @@
-import { getStructureSpan, Position, ToolType } from "@happy-little-park/utils";
+import { getStructureSpan, Position, ToolType } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";

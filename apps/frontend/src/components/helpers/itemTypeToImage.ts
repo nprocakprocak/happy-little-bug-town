@@ -1,4 +1,4 @@
-import { BugType, ItemType, StructureType } from "@happy-little-park/utils";
+import { BugType, ItemType, StructureType } from "@happy-little-bug-town/utils";
 
 export function itemTypeToImageForItem(itemType: ItemType): string {
   switch (itemType) {

@@ -9,7 +9,7 @@ import { GridVisibilityProvider } from "../context/GridVisibilityContext";
 import { QueryProvider } from "../providers/QueryProvider";
 
 export const metadata: Metadata = {
-  title: "Happy little park",
+  title: "Happy little bug town",
   description: "A demo game showing REST API architecture in Node.js.",
   openGraph: {
     locale: APP_LOCALE,

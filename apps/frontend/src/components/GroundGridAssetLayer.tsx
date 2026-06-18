@@ -7,7 +7,7 @@ import {
   getStructureOperationalResourceDisplayRequirement,
   structureShowsActivationGlow,
   toolShowsActivationGlow,
-} from "@happy-little-park/utils";
+} from "@happy-little-bug-town/utils";
 
 import {
   GROUND_GRID_MAX_WIDTH_PX,

@@ -1,4 +1,4 @@
-import { Positionable } from "@happy-little-park/utils";
+import { Positionable } from "@happy-little-bug-town/utils";
 
 import { Bug } from "../types/bug";
 import { Item } from "../types/item";

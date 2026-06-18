@@ -1,4 +1,4 @@
-import { getStackSpan, getToolSpan } from "@happy-little-park/utils";
+import { getStackSpan, getToolSpan } from "@happy-little-bug-town/utils";
 
 import { Bug, Item } from "../prisma/prisma/client.js";
 import { BugDto, BugOnGridDto } from "../types/bugDto.js";

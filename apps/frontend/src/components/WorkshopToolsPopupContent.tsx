@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { canCreateToolType, getToolCraftCosts, ToolType } from "@happy-little-park/utils";
+import { canCreateToolType, getToolCraftCosts, ToolType } from "@happy-little-bug-town/utils";
 
 import { WORKSHOP_TOOL_OPTIONS } from "../constants/workshopTools";
 import { Tool } from "../types/tool";

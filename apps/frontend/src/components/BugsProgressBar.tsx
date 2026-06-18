@@ -1,4 +1,4 @@
-import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-park/utils";
+import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-bug-town/utils";
 
 import { ResourceProgressBar } from "./ResourceProgressBar";
 

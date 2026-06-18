@@ -1,4 +1,4 @@
-import { BuildableStructureType } from "@happy-little-park/utils";
+import { BuildableStructureType } from "@happy-little-bug-town/utils";
 
 import { Bug, Item, Structure, Tool } from "../prisma/prisma/client.js";
 

@@ -1,4 +1,4 @@
-import { Position, Positionable, positionOverlapsAnyEntity } from "@happy-little-park/utils";
+import { Position, Positionable, positionOverlapsAnyEntity } from "@happy-little-bug-town/utils";
 
 function minManhattanDistanceToEntity(position: Position, entity: Positionable): number {
   const span = entity.span ?? 1;

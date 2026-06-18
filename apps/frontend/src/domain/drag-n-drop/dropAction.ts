@@ -6,7 +6,7 @@ import {
   canStackItemType,
   Position,
   Positionable,
-} from "@happy-little-park/utils";
+} from "@happy-little-bug-town/utils";
 
 import { addBeetleToStructure, updateBugPosition } from "../../api/bugs";
 import {

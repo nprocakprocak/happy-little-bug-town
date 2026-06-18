@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
-import { Positionable } from "@happy-little-park/utils";
+import { Positionable } from "@happy-little-bug-town/utils";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { GridAnimatable } from "../types/gridAnimatable";

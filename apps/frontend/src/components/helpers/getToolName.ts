@@ -1,4 +1,4 @@
-import { ToolType } from "@happy-little-park/utils";
+import { ToolType } from "@happy-little-bug-town/utils";
 
 export function toolTypeToName(toolType: ToolType): string {
   switch (toolType) {

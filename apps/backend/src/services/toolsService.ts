@@ -1,4 +1,4 @@
-import { ToolType } from "@happy-little-park/utils";
+import { ToolType } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
 import { CreateToolData, ToolDto, UpdateToolData } from "../types/toolDto.js";
