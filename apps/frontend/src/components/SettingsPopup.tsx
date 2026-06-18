@@ -21,24 +21,27 @@ export function SettingsPopup({ onClose }: SettingsPopupProps) {
   }
 
   return createPortal(
-    <div
-      className="fixed inset-x-0 z-30 flex justify-center"
-      style={{ top: HOME_BANNER_HEIGHT_PX }}
-    >
+    <div className="fixed inset-0 z-30">
+      <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
       <div
-        className="flex w-[84%] max-w-[380px] flex-col rounded-lg bg-stone-50 p-4 shadow-lg"
-        role="dialog"
-        aria-modal="true"
+        className="absolute inset-x-0 flex justify-center"
+        style={{ top: HOME_BANNER_HEIGHT_PX }}
       >
-        <p className="text-center text-lg font-medium text-stone-800">Settings</p>
-        <div className="mt-4 flex justify-center">
-          <button
-            type="button"
-            onClick={onClose}
-            className="min-w-[20%] rounded-md bg-sky-500 px-6 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-600"
-          >
-            Close
-          </button>
+        <div
+          className="flex w-[84%] max-w-[380px] flex-col rounded-lg bg-stone-50 p-4 shadow-lg"
+          role="dialog"
+          aria-modal="true"
+        >
+          <p className="text-center text-lg font-medium text-stone-800">Settings</p>
+          <div className="mt-4 flex justify-center">
+            <button
+              type="button"
+              onClick={onClose}
+              className="min-w-[20%] rounded-md bg-sky-500 px-6 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-600"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>,
