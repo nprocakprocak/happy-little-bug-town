@@ -11,7 +11,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
-import { requireAid } from "../middleware/requireAid.js";
+import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { toStructureOnGridDto, toToolOnGridDto } from "../services/helpers.js";
 import { getStructure, hasWorkshop } from "../services/structuresService.js";
 import {
@@ -31,7 +31,7 @@ function isToolType(value: unknown): value is ToolType {
 
 export const toolsRouter = Router();
 
-toolsRouter.use(requireAid);
+toolsRouter.use(...requireGameAccess);
 
 const listTools: RequestHandler = async (req, res) => {
   const tools = await getTools(req.authorId!);

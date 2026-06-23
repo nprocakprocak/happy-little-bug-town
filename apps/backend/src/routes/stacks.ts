@@ -10,7 +10,7 @@ import {
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
-import { requireAid } from "../middleware/requireAid.js";
+import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { toStackOnGridDto } from "../services/helpers.js";
 import { dissolveStack, getItemsByIds, takeItemFromStack } from "../services/itemsService.js";
 import {
@@ -24,7 +24,7 @@ import { getTools } from "../services/toolsService.js";
 
 export const stacksRouter = Router();
 
-stacksRouter.use(requireAid);
+stacksRouter.use(...requireGameAccess);
 
 const listStacks: RequestHandler = async (req, res) => {
   const stacks = await getStacks(req.authorId!);

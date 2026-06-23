@@ -9,7 +9,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
-import { requireAid } from "../middleware/requireAid.js";
+import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { getBug } from "../services/bugsService.js";
 import {
   toBugOnGridDto,
@@ -30,7 +30,7 @@ import { UpdateItemData } from "../types/itemDto.js";
 
 export const itemsRouter = Router();
 
-itemsRouter.use(requireAid);
+itemsRouter.use(...requireGameAccess);
 
 const listItems: RequestHandler = async (req, res) => {
   const items = await getItemsOnGrid(req.authorId!);

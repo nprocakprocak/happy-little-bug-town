@@ -8,7 +8,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
-import { requireAid } from "../middleware/requireAid.js";
+import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { getBug, getBugs, updateBug as updateBugService } from "../services/bugsService.js";
 import { toBugOnGridDto } from "../services/helpers.js";
 import { getStructure } from "../services/structuresService.js";
@@ -16,7 +16,7 @@ import { isPositioned } from "../typeGuards/items.js";
 
 export const bugsRouter = Router();
 
-bugsRouter.use(requireAid);
+bugsRouter.use(...requireGameAccess);
 
 const listBugs: RequestHandler = async (req, res) => {
   const bugs = await getBugs(req.authorId!);

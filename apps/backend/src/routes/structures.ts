@@ -13,7 +13,7 @@ import {
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
-import { requireAid } from "../middleware/requireAid.js";
+import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import {
   createBug,
   getBug,
@@ -38,7 +38,7 @@ import {
 
 export const structuresRouter = Router();
 
-structuresRouter.use(requireAid);
+structuresRouter.use(...requireGameAccess);
 
 const listStructures: RequestHandler = async (req, res) => {
   const structures = await getStructures(req.authorId!);
