@@ -37,89 +37,102 @@ enum ToolType {
 }
 
 model User {
-  id String @id
-  name String?
-  email String? @unique
-  password String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  items Item[]
+  id         String      @id
+  googleSub  String?     @unique
+  name       String?
+  email      String?     @unique
+  password   String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  sessions   Session[]
+  items      Item[]
   structures Structure[]
-  stacks Stack[]
-  bugs Bug[]
-  tools Tool[]
+  stacks     Stack[]
+  bugs       Bug[]
+  tools      Tool[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Item {
-  id String @id @default(uuid())
-  itemType ItemType
-  x Int?
-  y Int?
-  authorId String
-  stackId String?
-  bugId String?
+  id          String     @id @default(uuid())
+  itemType    ItemType
+  x           Int?
+  y           Int?
+  authorId    String
+  stackId     String?
+  bugId       String?
   structureId String?
-  toolId String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author User @relation(fields: [authorId], references: [id])
-  stack Stack? @relation(fields: [stackId], references: [id])
-  bug Bug? @relation(fields: [bugId], references: [id])
-  structure Structure? @relation(fields: [structureId], references: [id])
-  tool Tool? @relation(fields: [toolId], references: [id])
+  toolId      String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  author      User       @relation(fields: [authorId], references: [id])
+  stack       Stack?     @relation(fields: [stackId], references: [id])
+  bug         Bug?       @relation(fields: [bugId], references: [id])
+  structure   Structure? @relation(fields: [structureId], references: [id])
+  tool        Tool?      @relation(fields: [toolId], references: [id])
 }
 
 model Structure {
-  id String @id @default(uuid())
-  bugs Bug[]
-  items Item[]
-  tools Tool[]
+  id            String        @id @default(uuid())
+  bugs          Bug[]
+  items         Item[]
+  tools         Tool[]
   structureType StructureType
-  x Int
-  y Int
-  span Int
-  authorId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author User @relation(fields: [authorId], references: [id])
+  x             Int
+  y             Int
+  span          Int
+  authorId      String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  author        User          @relation(fields: [authorId], references: [id])
 }
 
 model Stack {
-  id String @id @default(uuid())
-  items Item[]
-  itemType ItemType
-  x Int
-  y Int
-  authorId String
+  id        String   @id @default(uuid())
+  items     Item[]
+  itemType  ItemType
+  x         Int
+  y         Int
+  authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  author User @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
 }
 
 model Bug {
-  id String @id @default(uuid())
-  items Item[]
-  bugType BugType
-  x Int?
-  y Int?
-  authorId String
+  id          String     @id @default(uuid())
+  items       Item[]
+  bugType     BugType
+  x           Int?
+  y           Int?
+  authorId    String
   structureId String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author User @relation(fields: [authorId], references: [id])
-  structure Structure? @relation(fields: [structureId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  author      User       @relation(fields: [authorId], references: [id])
+  structure   Structure? @relation(fields: [structureId], references: [id])
 }
 
 model Tool {
-  id String @id @default(uuid())
-  items Item[]
-  toolType ToolType
-  x Int?
-  y Int?
-  authorId String
+  id          String     @id @default(uuid())
+  items       Item[]
+  toolType    ToolType
+  x           Int?
+  y           Int?
+  authorId    String
   structureId String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author User @relation(fields: [authorId], references: [id])
-  structure Structure? @relation(fields: [structureId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  author      User       @relation(fields: [authorId], references: [id])
+  structure   Structure? @relation(fields: [structureId], references: [id])
 }
