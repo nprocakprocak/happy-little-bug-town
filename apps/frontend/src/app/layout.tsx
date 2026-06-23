@@ -6,7 +6,7 @@ import Script from "next/script";
 
 import { GoogleAuthCallbackRegistrar } from "../components/GoogleAuthCallbackRegistrar";
 import { APP_LOCALE } from "../constants";
-import { AnonymousIdProvider } from "../context/AnonymousIdContext";
+import { AuthProvider } from "../context/AuthContext";
 import { GridVisibilityProvider } from "../context/GridVisibilityContext";
 import { QueryProvider } from "../providers/QueryProvider";
 
@@ -26,9 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
         <QueryProvider>
           <GoogleAuthCallbackRegistrar />
-          <AnonymousIdProvider>
+          <AuthProvider>
             <GridVisibilityProvider>{children}</GridVisibilityProvider>
-          </AnonymousIdProvider>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

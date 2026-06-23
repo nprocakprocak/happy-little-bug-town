@@ -16,7 +16,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 import { queryKeys } from "../constants/queryKeys";
-import { useAnonymousId } from "../context/AnonymousIdContext";
+import { useAuth } from "../context/AuthContext";
 import { DragPayload } from "../domain/drag-n-drop/dragPayload";
 import { dropAction } from "../domain/drag-n-drop/dropAction";
 import { updateBugsCache, useBugsQuery } from "../hooks/useBugs";
@@ -62,7 +62,7 @@ interface GroundGridProps {
 }
 
 export function GroundGrid({ rows, cols }: GroundGridProps) {
-  const { anonymousId } = useAnonymousId();
+  const { anonymousId } = useAuth();
   const queryClient = useQueryClient();
   const isAuthenticated = Boolean(anonymousId);
 
