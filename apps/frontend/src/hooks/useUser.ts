@@ -1,21 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { fetchUser, updateUser } from "../api/users";
+import { registerUser } from "../api/users";
 import { queryKeys } from "../constants/queryKeys";
 
-export function useUserQuery(id: string) {
-  return useQuery({
-    queryKey: queryKeys.user(id),
-    queryFn: () => fetchUser(id),
-    enabled: Boolean(id),
-  });
-}
-
-export function useUpdateUserMutation() {
+export function useRegisterUserMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateUser,
+    mutationFn: registerUser,
     onSuccess: (user) => {
       queryClient.setQueryData(queryKeys.user(user.id), user);
     },

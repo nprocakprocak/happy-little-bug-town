@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import { AID_STORAGE_KEY } from "../constants/aid";
-import { useUpdateUserMutation } from "../hooks/useUser";
+import { useRegisterUserMutation } from "../hooks/useUser";
 
 interface AnonymousIdContextValue {
   anonymousId: string;
@@ -17,7 +17,7 @@ interface AnonymousIdProviderProps {
 
 export function AnonymousIdProvider({ children }: AnonymousIdProviderProps) {
   const [anonymousId, setAnonymousId] = useState("");
-  const { mutateAsync: registerUser } = useUpdateUserMutation();
+  const { mutateAsync: registerUser } = useRegisterUserMutation();
 
   useEffect(() => {
     (async () => {
@@ -25,7 +25,7 @@ export function AnonymousIdProvider({ children }: AnonymousIdProviderProps) {
       const anonId = stored ?? crypto.randomUUID();
       if (!stored) {
         localStorage.setItem(AID_STORAGE_KEY, anonId);
-        await registerUser(anonId);
+        await registerUser();
       }
       setAnonymousId(anonId);
     })();

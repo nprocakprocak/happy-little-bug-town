@@ -1,4 +1,3 @@
-import { updateUser } from "../api/users";
 import { AID_STORAGE_KEY } from "../constants/aid";
 import { parseGoogleJwtPayload } from "./parseGoogleJwtPayload";
 

@@ -6,12 +6,8 @@ export interface UserDto {
   email?: string;
 }
 
-export function fetchUser(id: string): Promise<UserDto> {
-  return apiFetch<UserDto>(`/api/users/${id}`);
-}
-
-export function updateUser(id: string): Promise<UserDto> {
-  return apiFetch<UserDto>(`/api/users/${id}`, {
-    method: "PUT",
+export function registerUser(): Promise<UserDto> {
+  return apiFetch<UserDto>(`/api/users/register`, {
+    method: "POST",
   });
 }

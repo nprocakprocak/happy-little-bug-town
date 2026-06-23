@@ -1,24 +1,18 @@
 import { Router, type RequestHandler } from "express";
 
+import { requireAid } from "../middleware/requireAid.js";
 import {
-  getUser as getUserService,
-  updateUser as updateUserService,
+  ensureUser
 } from "../services/usersService.js";
 
 export const usersRouter = Router();
 
-const getUser: RequestHandler = async (req, res) => {
-  const user = await getUserService(req.params.id);
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
+usersRouter.use(requireAid);
+
+const registerUser: RequestHandler = async (req, res) => {
+  const anonymousId = req.authorId!;
+  const user = await ensureUser(anonymousId);
   res.status(200).json(user);
 };
 
-const updateUser: RequestHandler = async (req, res) => {
-  const user = await updateUserService({ ...req.body, id: req.params.id });
-  res.status(200).json(user);
-};
-
-usersRouter.get("/:id", getUser);
-usersRouter.put("/:id", updateUser);
+usersRouter.post("/register", registerUser);
