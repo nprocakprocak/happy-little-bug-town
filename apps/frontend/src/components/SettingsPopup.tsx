@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { HOME_BANNER_HEIGHT_PX } from "../constants";
+import { useAuth } from "../context/AuthContext";
 import { waitForGoogleAccountsId } from "../lib/waitForGoogleAccountsId";
 
 interface SettingsPopupProps {
@@ -11,15 +12,20 @@ interface SettingsPopupProps {
 }
 
 export function SettingsPopup({ onClose }: SettingsPopupProps) {
+  const { authUser, requiresLogin, logout } = useAuth();
   const [mounted, setMounted] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const googleSignInButtonRef = useRef<HTMLDivElement>(null);
+
+  const isSignedIn = Boolean(authUser?.isLinked);
+  const showGoogleButton = !isSignedIn;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted) {
+    if (!mounted || !showGoogleButton) {
       return;
     }
 
@@ -29,6 +35,7 @@ export function SettingsPopup({ onClose }: SettingsPopupProps) {
         return;
       }
 
+      buttonContainer.replaceChildren();
       accountsId.renderButton(buttonContainer, {
         type: "standard",
         shape: "rectangular",
@@ -38,11 +45,26 @@ export function SettingsPopup({ onClose }: SettingsPopupProps) {
         logo_alignment: "left",
       });
     });
-  }, [mounted]);
+  }, [mounted, showGoogleButton]);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   if (!mounted) {
     return null;
   }
+
+  const statusMessage = isSignedIn
+    ? `Signed in as ${authUser?.name ?? authUser?.email ?? "Google user"}`
+    : requiresLogin
+      ? "This account requires Google login to save progress."
+      : "Log in to save your progress (we do not store your data)";
 
   return createPortal(
     <div className="fixed inset-0 z-30">
@@ -57,17 +79,32 @@ export function SettingsPopup({ onClose }: SettingsPopupProps) {
           aria-modal="true"
         >
           <p className="text-center text-lg font-medium text-stone-800">Settings</p>
-          <p className="mt-3 text-center text-sm text-stone-600">Log in to save your progress (we do not store your data)</p>
+          <p className="mt-3 text-center text-sm text-stone-600">{statusMessage}</p>
 
-          <div ref={googleSignInButtonRef} className="mt-3 flex justify-center" />
+          {showGoogleButton && (
+            <div ref={googleSignInButtonRef} className="mt-3 flex justify-center" />
+          )}
 
           <div className="mt-4 flex justify-center gap-3">
-            <button
-              type="button"
-              className="min-w-[20%] rounded-md bg-sky-500 px-6 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-600"
-            >
-              Log in
-            </button>
+            {isSignedIn ? (
+              <button
+                type="button"
+                onClick={() => void handleLogout()}
+                disabled={isLoggingOut}
+                className="min-w-[20%] rounded-md bg-sky-500 px-6 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-600 disabled:opacity-60"
+              >
+                {isLoggingOut ? "Logging out…" : "Log out"}
+              </button>
+            ) : (
+              !requiresLogin && (
+                <button
+                  type="button"
+                  className="min-w-[20%] rounded-md bg-sky-500 px-6 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-600"
+                >
+                  Log in
+                </button>
+              )
+            )}
             <button
               type="button"
               onClick={onClose}

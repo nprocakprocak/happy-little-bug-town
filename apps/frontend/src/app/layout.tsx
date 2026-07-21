@@ -25,8 +25,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
         <QueryProvider>
-          <GoogleAuthCallbackRegistrar />
           <AuthProvider>
+            <GoogleAuthCallbackRegistrar />
             <GridVisibilityProvider>{children}</GridVisibilityProvider>
           </AuthProvider>
         </QueryProvider>

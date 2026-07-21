@@ -1,15 +1,20 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
-import { fetchAuthMe, type AuthUser } from "../api/auth";
+import { fetchAuthMe, logout as logoutRequest, type AuthUser } from "../api/auth";
 import { AID_STORAGE_KEY } from "../constants/aid";
 import { useRegisterUserMutation } from "../hooks/useUser";
+import { setGoogleAuthHandlers } from "../lib/authReceiver";
 
 interface AuthContextValue {
   anonymousId: string;
   authUser: AuthUser | null;
   isSessionLoading: boolean;
+  requiresLogin: boolean;
+  setRequiresLogin: (value: boolean) => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -22,7 +27,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [anonymousId, setAnonymousId] = useState("");
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
+  const [requiresLogin, setRequiresLogin] = useState(false);
   const { mutateAsync: registerUser } = useRegisterUserMutation();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     let cancelled = false;
@@ -47,6 +54,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       setAuthUser(me);
+      if (me) {
+        setAnonymousId(me.id);
+        localStorage.setItem(AID_STORAGE_KEY, me.id);
+      }
       setIsSessionLoading(false);
     })();
 
@@ -55,9 +66,51 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, [registerUser]);
 
+  useEffect(() => {
+    setGoogleAuthHandlers({
+      onSuccess: async (user) => {
+        setAnonymousId(user.id);
+        setAuthUser(user);
+        setRequiresLogin(false);
+        queryClient.clear();
+        await queryClient.refetchQueries();
+      },
+      onError: (error) => {
+        console.error("Google auth failed:", error);
+      },
+    });
+
+    return () => {
+      setGoogleAuthHandlers(null);
+    };
+  }, [queryClient]);
+
+  const logout = useCallback(async () => {
+    await logoutRequest();
+
+    const newAid = crypto.randomUUID();
+    localStorage.setItem(AID_STORAGE_KEY, newAid);
+    await registerUser();
+
+    setAnonymousId(newAid);
+    setAuthUser(null);
+    setRequiresLogin(false);
+    queryClient.clear();
+    await queryClient.refetchQueries();
+
+    google?.accounts?.id?.disableAutoSelect();
+  }, [queryClient, registerUser]);
+
   const value = useMemo(
-    () => ({ anonymousId, authUser, isSessionLoading }),
-    [anonymousId, authUser, isSessionLoading],
+    () => ({
+      anonymousId,
+      authUser,
+      isSessionLoading,
+      requiresLogin,
+      setRequiresLogin,
+      logout,
+    }),
+    [anonymousId, authUser, isSessionLoading, requiresLogin, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

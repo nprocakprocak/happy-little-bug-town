@@ -21,5 +21,9 @@ export function logout(): Promise<{ ok: boolean }> {
 }
 
 export async function fetchAuthMe(): Promise<AuthUser | null> {
-  return apiFetch<AuthUser>("/api/auth/me");
+  try {
+    return await apiFetch<AuthUser>("/api/auth/me");
+  } catch {
+    return null;
+  }
 }
