@@ -1,16 +1,13 @@
 import { AID_HEADER, AID_STORAGE_KEY } from "../constants/aid";
 import { useMainStore } from "../stores/main";
+import { LoginRequiredError } from "../utils/loginRequiredError";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 
-export class LoginRequiredError extends Error {
-  readonly code = "LOGIN_REQUIRED" as const;
-
-  constructor(message = "Login required to save progress for this account.") {
-    super(message);
-    this.name = "LoginRequiredError";
-  }
-}
+type ApiErrorResponse = {
+  error?: string;
+  code?: string;
+};
 
 function getAid(): string | null {
   return localStorage.getItem(AID_STORAGE_KEY);
@@ -34,10 +31,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   });
 
   if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as {
-      error?: string;
-      code?: string;
-    } | null;
+    const body = (await response.json().catch(() => null)) as ApiErrorResponse | null;
 
     if (response.status === 403 && body?.code === "LOGIN_REQUIRED") {
       useMainStore.getState().setRequiresLogin(true);
