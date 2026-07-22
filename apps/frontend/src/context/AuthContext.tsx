@@ -4,17 +4,15 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useQueryClient } from "@tanstack/react-query";
 
 import { fetchAuthMe, logout as logoutRequest, type AuthUser } from "../api/auth";
-import { setLoginRequiredHandler } from "../api/client";
 import { AID_STORAGE_KEY } from "../constants/aid";
 import { useRegisterUserMutation } from "../hooks/useUser";
 import { setGoogleAuthHandlers } from "../lib/authReceiver";
+import { useMainStore } from "../stores/main";
 
 interface AuthContextValue {
   anonymousId: string;
   authUser: AuthUser | null;
   isSessionLoading: boolean;
-  requiresLogin: boolean;
-  setRequiresLogin: (value: boolean) => void;
   logout: () => Promise<void>;
 }
 
@@ -28,7 +26,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [anonymousId, setAnonymousId] = useState("");
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
-  const [requiresLogin, setRequiresLogin] = useState(false);
+  const setRequiresLogin = useMainStore((state) => state.setRequiresLogin);
   const { mutateAsync: registerUser } = useRegisterUserMutation();
   const queryClient = useQueryClient();
 
@@ -68,16 +66,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [registerUser]);
 
   useEffect(() => {
-    setLoginRequiredHandler(() => {
-      setRequiresLogin(true);
-    });
-
-    return () => {
-      setLoginRequiredHandler(null);
-    };
-  }, []);
-
-  useEffect(() => {
     setGoogleAuthHandlers({
       onSuccess: async (user) => {
         setAnonymousId(user.id);
@@ -94,7 +82,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => {
       setGoogleAuthHandlers(null);
     };
-  }, [queryClient]);
+  }, [queryClient, setRequiresLogin]);
 
   const logout = useCallback(async () => {
     await logoutRequest();
@@ -110,18 +98,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await queryClient.refetchQueries();
 
     google?.accounts?.id?.disableAutoSelect();
-  }, [queryClient, registerUser]);
+  }, [queryClient, registerUser, setRequiresLogin]);
 
   const value = useMemo(
     () => ({
       anonymousId,
       authUser,
       isSessionLoading,
-      requiresLogin,
-      setRequiresLogin,
       logout,
     }),
-    [anonymousId, authUser, isSessionLoading, requiresLogin, logout],
+    [anonymousId, authUser, isSessionLoading, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

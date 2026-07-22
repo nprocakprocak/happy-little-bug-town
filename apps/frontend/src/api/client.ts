@@ -1,4 +1,5 @@
 import { AID_HEADER, AID_STORAGE_KEY } from "../constants/aid";
+import { useMainStore } from "../stores/main";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 
@@ -9,14 +10,6 @@ export class LoginRequiredError extends Error {
     super(message);
     this.name = "LoginRequiredError";
   }
-}
-
-type LoginRequiredHandler = () => void;
-
-let loginRequiredHandler: LoginRequiredHandler | null = null;
-
-export function setLoginRequiredHandler(handler: LoginRequiredHandler | null): void {
-  loginRequiredHandler = handler;
 }
 
 function getAid(): string | null {
@@ -47,7 +40,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     } | null;
 
     if (response.status === 403 && body?.code === "LOGIN_REQUIRED") {
-      loginRequiredHandler?.();
+      useMainStore.getState().setRequiresLogin(true);
       throw new LoginRequiredError(body.error);
     }
 

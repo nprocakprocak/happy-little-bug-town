@@ -9,10 +9,12 @@ import {
   HOME_BANNER_HEIGHT_PX,
 } from "../constants";
 import { useAuth } from "../context/AuthContext";
+import { useMainStore } from "../stores/main";
 import { SettingsPopup } from "./SettingsPopup";
 
 export function HomeBanner() {
-  const { requiresLogin, logout } = useAuth();
+  const { logout } = useAuth();
+  const requiresLogin = useMainStore((state) => state.requiresLogin);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isStartingOver, setIsStartingOver] = useState(false);
 

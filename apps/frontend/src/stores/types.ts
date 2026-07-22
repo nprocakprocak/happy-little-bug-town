@@ -1,5 +1,4 @@
-import type { Item } from "../types/item";
-
 export interface MainState {
-  items: Item[];
+  requiresLogin: boolean;
+  setRequiresLogin: (value: boolean) => void;
 }
