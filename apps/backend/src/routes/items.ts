@@ -3,8 +3,12 @@ import { Router, type RequestHandler } from "express";
 import {
   BEETLE_MAX_LEAF_PARTS,
   canAcceptItemForToolCraft,
+  canCreateItemType,
+  canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
+  isCraftableItemType,
+  ItemType,
   positionOverlapsAnyEntity,
 } from "@happy-little-bug-town/utils";
 
@@ -19,14 +23,21 @@ import {
   toToolOnGridDto,
 } from "../services/helpers.js";
 import {
+  createItem as createItemService,
   getItem as getItemService,
   getItemsOnGrid,
   updateItem as updateItemService,
 } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
-import { getStructure } from "../services/structuresService.js";
+import { getStructure, hasWorkshop } from "../services/structuresService.js";
 import { getTool, getTools } from "../services/toolsService.js";
 import { UpdateItemData } from "../types/itemDto.js";
+
+const ITEM_TYPES: ItemType[] = ["leaf_part", "little_rock", "root", "stick"];
+
+function isItemType(value: unknown): value is ItemType {
+  return typeof value === "string" && ITEM_TYPES.includes(value as ItemType);
+}
 
 export const itemsRouter = Router();
 
@@ -37,10 +48,87 @@ const listItems: RequestHandler = async (req, res) => {
   res.status(200).json(items.map(toItemOnGridDto));
 };
 
+const createItem: RequestHandler = async (req, res) => {
+  const { itemType, x, y } = req.body;
+  const authorId = req.authorId!;
+
+  if (!isItemType(itemType) || !isCraftableItemType(itemType)) {
+    res.status(400).json({ error: "Invalid item type" });
+    return;
+  }
+  if (typeof x !== "number" || typeof y !== "number") {
+    res.status(400).json({ error: "x and y are required" });
+    return;
+  }
+  if (!(await hasWorkshop(authorId))) {
+    res.status(400).json({ error: "Workshop is required to create items" });
+    return;
+  }
+
+  const itemsOnGrid = await getItemsOnGrid(authorId);
+  if (!canCreateItemType(itemsOnGrid, itemType)) {
+    res.status(400).json({ error: "Item already created" });
+    return;
+  }
+
+  const entities = await getAllEntitiesOnGrid(authorId);
+  if (positionOverlapsAnyEntity({ x, y }, entities)) {
+    res.status(400).json({ error: "Position is already occupied" });
+    return;
+  }
+
+  const item = await createItemService({
+    itemType,
+    x,
+    y,
+    authorId,
+  });
+  res.status(201).json(toItemOnGridDto(item));
+};
+
 const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = async (req, res) => {
   const { id } = req.params;
-  const { x, y, stackId, bugId, structureId, toolId } = req.body;
+  const { x, y, stackId, bugId, structureId, toolId, parentItemId } = req.body;
   const authorId = req.authorId!;
+
+  if (parentItemId) {
+    const existingItem = await getItemService(id);
+    if (!existingItem) {
+      res.status(400).json({ error: "Item not found when updating" });
+      return;
+    }
+    if (existingItem.authorId !== authorId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    if (id === parentItemId) {
+      res.status(400).json({ error: "Item cannot be added to itself" });
+      return;
+    }
+
+    const parentItem = await getItemService(parentItemId);
+    if (!parentItem) {
+      res.status(400).json({ error: "Parent item not found when updating item" });
+      return;
+    }
+    if (parentItem.authorId !== authorId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    if (!canDropItemOnItem(existingItem, parentItem)) {
+      res.status(400).json({ error: "Item cannot be added to item" });
+      return;
+    }
+
+    await updateItemService(id, { parentItemId });
+    const updatedParentItem = await getItemService(parentItemId);
+    if (!updatedParentItem) {
+      res.status(500).json({ error: "Parent item not found after updating item" });
+      return;
+    }
+    res.status(200).json(toItemOnGridDto(updatedParentItem));
+    return;
+  }
 
   if (toolId) {
     const existingItem = await getItemService(id);
@@ -229,4 +317,5 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
 };
 
 itemsRouter.get("/", listItems);
+itemsRouter.post("/create", createItem);
 itemsRouter.put("/:id", updateItem);

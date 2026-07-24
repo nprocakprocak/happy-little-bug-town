@@ -14,6 +14,8 @@ const ITEM_TYPES_WEIGHTS = {
 } as const;
 const ITEM_TYPES = Object.keys(ITEM_TYPES_WEIGHTS) as ItemType[];
 
+const itemInclude = { items: true } as const;
+
 export const getItemsOnGrid = async (authorId: string): Promise<ItemDto[]> => {
   const items = await prisma.item.findMany({
     where: {
@@ -21,6 +23,7 @@ export const getItemsOnGrid = async (authorId: string): Promise<ItemDto[]> => {
       x: { not: null },
       y: { not: null },
     },
+    include: itemInclude,
   });
   return items.map(toItemDto);
 };
@@ -31,6 +34,7 @@ export const getItemsByIds = async (authorId: string, itemIds: string[]): Promis
       authorId,
       id: { in: itemIds },
     },
+    include: itemInclude,
   });
   return items.map(toItemDto);
 };
@@ -38,6 +42,7 @@ export const getItemsByIds = async (authorId: string, itemIds: string[]): Promis
 export const getItem = async (id: string): Promise<ItemDto | null> => {
   const item = await prisma.item.findUnique({
     where: { id },
+    include: itemInclude,
   });
   if (!item) {
     return null;
@@ -53,6 +58,7 @@ export const createItem = async (item: CreateItemData): Promise<ItemDto> => {
       y: item.y,
       authorId: item.authorId,
     },
+    include: itemInclude,
   });
   return toItemDto(createdItem);
 };
@@ -68,6 +74,7 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
       stackId: null,
       structureId: null,
       toolId: null,
+      parentItemId: null,
     };
   } else if (item.toolId) {
     data = {
@@ -77,6 +84,7 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
       stackId: null,
       bugId: null,
       structureId: null,
+      parentItemId: null,
     };
   } else if (item.structureId) {
     data = {
@@ -86,15 +94,27 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
       stackId: null,
       bugId: null,
       toolId: null,
+      parentItemId: null,
     };
   } else if (item.stackId) {
     data = {
       bugId: null,
       structureId: null,
       toolId: null,
+      parentItemId: null,
       x: null,
       y: null,
       stackId: item.stackId,
+    };
+  } else if (item.parentItemId) {
+    data = {
+      parentItemId: item.parentItemId,
+      x: null,
+      y: null,
+      stackId: null,
+      bugId: null,
+      structureId: null,
+      toolId: null,
     };
   } else {
     data = {
@@ -104,12 +124,14 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
       bugId: null,
       structureId: null,
       toolId: null,
+      parentItemId: null,
     };
   }
 
   const updatedItem = await prisma.item.update({
     where: { id },
     data,
+    include: itemInclude,
   });
   return toItemDto(updatedItem);
 };
@@ -136,6 +158,7 @@ export async function takeItemFromStack(stackId: string, position: Position): Pr
         x: position.x,
         y: position.y,
       },
+      include: itemInclude,
     });
     return toItemDto(updatedItem);
   });
@@ -164,6 +187,7 @@ export async function dissolveStack(
         x: randomPosition.x,
         y: randomPosition.y,
       },
+      include: itemInclude,
     });
     const remainingItem = await tx.item.update({
       where: { id: itemToKeep.id },
@@ -172,6 +196,7 @@ export async function dissolveStack(
         x: stackPosition.x,
         y: stackPosition.y,
       },
+      include: itemInclude,
     });
     await tx.stack.delete({
       where: { id: stackId },

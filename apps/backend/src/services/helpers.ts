@@ -1,11 +1,11 @@
 import { Bug, Item } from "../prisma/prisma/client.js";
 import { BugDto, BugOnGridDto } from "../types/bugDto.js";
-import { ItemDto, ItemOnGridDto } from "../types/itemDto.js";
+import { ItemDto, ItemOnGridDto, ItemWithItems } from "../types/itemDto.js";
 import { StackDto, StackOnGridDto, StackWithItems } from "../types/stackDto.js";
 import { StructureDto, StructureOnGridDto, StructureWithItems } from "../types/structureDto.js";
 import { ToolDto, ToolOnGridDto, ToolWithItems } from "../types/toolDto.js";
 
-export function toItemDto(item: Item): ItemDto {
+export function toItemDto(item: ItemWithItems): ItemDto {
   return {
     id: item.id,
     itemType: item.itemType,
@@ -15,6 +15,7 @@ export function toItemDto(item: Item): ItemDto {
     bugId: item.bugId ?? null,
     structureId: item.structureId ?? null,
     authorId: item.authorId,
+    items: item.items.map((craftItem) => ({ id: craftItem.id, itemType: craftItem.itemType })),
   };
 }
 
@@ -74,6 +75,7 @@ export function toItemOnGridDto(item: ItemDto): ItemOnGridDto {
     itemType: item.itemType,
     x: item.x,
     y: item.y,
+    items: item.items,
   };
 }
 
