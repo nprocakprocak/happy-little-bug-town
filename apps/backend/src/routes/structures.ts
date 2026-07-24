@@ -142,7 +142,7 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   const entities = await getAllEntitiesOnGrid(authorId);
 
   const fits = structureFootprintFits(
-    { x, y, span: existingStructure.span },
+    { x, y, span: getStructureSpan(existingStructure.structureType) },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entities.filter((e) => e.x !== existingStructure.x || e.y !== existingStructure.y),
@@ -184,7 +184,10 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
     GROUND_HEIGHT,
     GROUND_WIDTH,
     entities,
-    existingStructure,
+    {
+      ...existingStructure,
+      span: getStructureSpan(existingStructure.structureType),
+    },
   );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
@@ -231,7 +234,10 @@ const dig: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findNearestEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities, hole);
+  const emptyPosition = findNearestEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities, {
+    ...hole,
+    span: getStructureSpan(hole.structureType),
+  });
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
@@ -295,7 +301,10 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
     GROUND_HEIGHT,
     GROUND_WIDTH,
     entities,
-    existingStructure,
+    {
+      ...existingStructure,
+      span: getStructureSpan(existingStructure.structureType),
+    },
   );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });

@@ -17,8 +17,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { queryKeys } from "../../constants/queryKeys";
 import { useAuth } from "../../context/AuthContext";
-import { DragPayload } from "../../types/dragPayload";
-import { dropAction } from "../../utils/dropAction";
 import { updateBugsCache, useBugsQuery } from "../../hooks/useBugs";
 import { updateItemsCache, useItemsQuery } from "../../hooks/useItems";
 import {
@@ -37,10 +35,12 @@ import {
 } from "../../hooks/useStructures";
 import { updateToolsCache, useCreateToolMutation, useToolsQuery } from "../../hooks/useTools";
 import { Bug } from "../../types/bug";
+import { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
 import { Tool } from "../../types/tool";
+import { dropAction } from "../../utils/dropAction";
 import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGuards";
 import { findFirstStructurePlacement } from "../helpers/findFirstStructurePlacement";
 import { hasEmptyGridCell } from "../helpers/hasEmptyGridCell";
@@ -48,6 +48,7 @@ import {
   getBeetleHouseExtractOrigin,
   pickRandomNearestStructureCenterCell,
 } from "../helpers/structureCenterCell";
+import { withStructureSpan } from "../helpers/withStructureSpan";
 import { BeetlePopup } from "../popups/beetle/BeetlePopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { BugsProgressLayer } from "./BugsProgressLayer";
@@ -90,7 +91,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const createTool = useCreateToolMutation();
 
   const animatables = useMemo(
-    () => [...items, ...stacks, ...bugs, ...structures, ...tools],
+    () => [...items, ...stacks, ...bugs, ...structures.map(withStructureSpan), ...tools],
     [items, stacks, bugs, structures, tools],
   );
 
@@ -505,7 +506,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       }
       const span = getStructureSpan(structure.structureType);
       const position = findFirstStructurePlacement(span, cols, rows, [
-        ...structures,
+        ...structures.map(withStructureSpan),
         ...items,
         ...stacks,
         ...bugs,
@@ -530,7 +531,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       }
       const span = getToolSpan(toolType);
       const position = findFirstStructurePlacement(span, cols, rows, [
-        ...structures,
+        ...structures.map(withStructureSpan),
         ...items,
         ...stacks,
         ...bugs,

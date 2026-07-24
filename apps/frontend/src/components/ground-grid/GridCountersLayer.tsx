@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { getStructureSpan } from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../../types/dragPayload";
 import { Stack } from "../../types/stack";
@@ -75,7 +76,11 @@ export function GridCountersLayer({
       {beetleHousesWithOccupants.map((structure) => {
         const isDragged =
           gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
-        const { col, row } = footprintBottomRightCell(structure.x, structure.y, structure.span);
+        const { col, row } = footprintBottomRightCell(
+          structure.x,
+          structure.y,
+          getStructureSpan(structure.structureType),
+        );
 
         return (
           <div

@@ -20,7 +20,6 @@ export interface StructureTool {
 
 export interface Structure extends WithId, Position, GridAnimatable {
   structureType: StructureType;
-  span: number;
   items: StructureItem[];
   bugs: StructureBug[];
   tools: StructureTool[];

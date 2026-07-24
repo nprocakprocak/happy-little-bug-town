@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   getStructureBuildProgress,
   getStructureBuildToolProgress,
+  getStructureSpan,
   isStructureIncomplete,
 } from "@happy-little-bug-town/utils";
 
@@ -65,7 +66,12 @@ export function StructureBuildProgressLayer({
             key={`${structure.id}-${key}`}
             className="relative min-h-0 min-w-0"
             style={{
-              ...spanCellGridPosition(structure.x, structure.y, structure.span, index),
+              ...spanCellGridPosition(
+                structure.x,
+                structure.y,
+                getStructureSpan(structure.structureType),
+                index,
+              ),
               ...dragStyle,
             }}
           >

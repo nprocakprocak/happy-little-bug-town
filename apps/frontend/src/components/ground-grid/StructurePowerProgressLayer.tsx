@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   getStructurePowerMissing,
   getStructurePowerOccupantBugType,
+  getStructureSpan,
   getStructureToolPowerMissing,
   getStructureToolPowerRequirements,
   isStructureAwaitingPower,
@@ -87,7 +88,12 @@ export function StructurePowerProgressLayer({
             key={`${structure.id}-${key}`}
             className="relative min-h-0 min-w-0"
             style={{
-              ...spanCellGridPosition(structure.x, structure.y, structure.span, index),
+              ...spanCellGridPosition(
+                structure.x,
+                structure.y,
+                getStructureSpan(structure.structureType),
+                index,
+              ),
               ...dragStyle,
             }}
           >

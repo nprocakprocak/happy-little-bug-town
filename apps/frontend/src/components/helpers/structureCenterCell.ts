@@ -1,4 +1,4 @@
-import { Position } from "@happy-little-bug-town/utils";
+import { getStructureSpan, Position } from "@happy-little-bug-town/utils";
 
 import { Structure } from "../../types/structure";
 
@@ -10,7 +10,8 @@ const EVEN_CENTER_OFFSETS: ReadonlyArray<[number, number]> = [
 ];
 
 export function pickRandomNearestStructureCenterCell(structure: Structure): Position {
-  const { span, x: originX, y: originY } = structure;
+  const span = getStructureSpan(structure.structureType);
+  const { x: originX, y: originY } = structure;
 
   if (span < 1) {
     return { x: originX, y: originY };
@@ -29,8 +30,9 @@ export function pickRandomNearestStructureCenterCell(structure: Structure): Posi
 }
 
 export function getBeetleHouseExtractOrigin(structure: Structure): Position {
+  const span = getStructureSpan(structure.structureType);
   return {
-    x: structure.x + structure.span - 1,
-    y: structure.y + structure.span - 1,
+    x: structure.x + span - 1,
+    y: structure.y + span - 1,
   };
 }

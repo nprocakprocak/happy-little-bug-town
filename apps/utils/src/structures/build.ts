@@ -1,11 +1,4 @@
 import {
-  BEETLE_HOUSE_SPAN,
-  KITCHEN_SPAN,
-  STONEMASON_SPAN,
-  WOODCUTTER_SPAN,
-  WORKSHOP_SPAN,
-} from "../constants/game.js";
-import {
   BUILD_RESOURCE_COSTS,
   BUILD_TOOL_COSTS,
   BuildResourceCost,
@@ -81,21 +74,6 @@ export function getBuildToolCostsForType(
   structureType: BuildableStructureType,
 ): BuildToolCost[] {
   return BUILD_TOOL_COSTS[structureType] ?? [];
-}
-
-export function getStructureSpan(structureType: BuildableStructureType): number {
-  switch (structureType) {
-    case "workshop":
-      return WORKSHOP_SPAN;
-    case "stonemason":
-      return STONEMASON_SPAN;
-    case "woodcutter":
-      return WOODCUTTER_SPAN;
-    case "kitchen":
-      return KITCHEN_SPAN;
-    case "beetle_house":
-      return BEETLE_HOUSE_SPAN;
-  }
 }
 
 function areBuildItemsSupplied(structure: StructureForBuild, costs: BuildResourceCost[]): boolean {

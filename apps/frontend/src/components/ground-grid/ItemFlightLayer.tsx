@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
-import { Positionable } from "@happy-little-bug-town/utils";
+import { getStructureSpan, Positionable } from "@happy-little-bug-town/utils";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { GridAnimatable } from "../../types/gridAnimatable";
@@ -23,7 +23,7 @@ type Animatable = GridAnimatable & WithId & Positionable;
 
 function getAnimatableSpan(item: Animatable): number {
   if (isStructure(item)) {
-    return item.span;
+    return getStructureSpan(item.structureType);
   }
   if (isTool(item)) {
     return item.span ?? 1;

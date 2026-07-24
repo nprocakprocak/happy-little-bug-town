@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   getStructureOperationalResourceCount,
   getStructureOperationalResourceLimit,
+  getStructureSpan,
 } from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../../types/dragPayload";
@@ -46,13 +47,14 @@ export function StructureResourceProgressLayer({
       {structuresWithResources.map((structure) => {
         const isDragged =
           gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+        const span = getStructureSpan(structure.structureType);
 
         return (
           <div
             key={`structure-resource-${structure.id}`}
             className="relative min-h-0 min-w-0"
             style={{
-              ...gridPlacementStyle(structure.x, structure.y, structure.span),
+              ...gridPlacementStyle(structure.x, structure.y, span),
               ...gridDragStyle(gridDrag, isDragged),
             }}
           >
@@ -61,8 +63,8 @@ export function StructureResourceProgressLayer({
               style={{
                 right: 0,
                 bottom: 0,
-                width: `${100 / structure.span}%`,
-                height: `${100 / structure.span}%`,
+                width: `${100 / span}%`,
+                height: `${100 / span}%`,
               }}
             >
               <ResourceProgressBar

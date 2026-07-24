@@ -15,7 +15,7 @@ export type BugOnStructure = Pick<Bug, "id" | "bugType">;
 
 export type ToolOnStructure = Pick<Tool, "id" | "toolType">;
 
-export type StructureOnGridDto = Pick<Structure, "id" | "structureType" | "x" | "y" | "span"> & {
+export type StructureOnGridDto = Pick<Structure, "id" | "structureType" | "x" | "y"> & {
   items: ItemOnStructure[];
   bugs: BugOnStructure[];
   tools: ToolOnStructure[];

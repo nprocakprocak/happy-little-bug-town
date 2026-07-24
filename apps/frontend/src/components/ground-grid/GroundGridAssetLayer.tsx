@@ -5,6 +5,7 @@ import Image from "next/image";
 import {
   getStructureOperationalResourceCount,
   getStructureOperationalResourceDisplayRequirement,
+  getStructureSpan,
   structureShowsActivationGlow,
   toolShowsActivationGlow,
 } from "@happy-little-bug-town/utils";
@@ -14,8 +15,8 @@ import {
   GROUND_MUD_BG_TILE_HEIGHT_PX,
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../../constants";
-import type { DragPayload } from "../../types/dragPayload";
 import { Bug } from "../../types/bug";
+import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
@@ -84,13 +85,14 @@ export function GroundGridAssetLayer({
             structure.structureType,
           );
           const operationalResourceCount = getStructureOperationalResourceCount(structure);
+          const span = getStructureSpan(structure.structureType);
 
           return (
             <div
               key={structure.id}
               className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
               style={{
-                ...gridPlacementStyle(structure.x, structure.y, structure.span),
+                ...gridPlacementStyle(structure.x, structure.y, span),
                 ...gridDragStyle(gridDrag, isDragged),
               }}
             >
@@ -100,7 +102,7 @@ export function GroundGridAssetLayer({
                   alt=""
                   fill
                   className="object-cover"
-                  sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
+                  sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
                 />
                 {showActivationGlow && (
                   <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
@@ -111,8 +113,8 @@ export function GroundGridAssetLayer({
                     style={{
                       right: 0,
                       bottom: 0,
-                      width: `${100 / structure.span}%`,
-                      height: `${100 / structure.span}%`,
+                      width: `${100 / span}%`,
+                      height: `${100 / span}%`,
                     }}
                   >
                     <Image
@@ -120,7 +122,7 @@ export function GroundGridAssetLayer({
                       alt=""
                       fill
                       className="object-contain p-[8%] drop-shadow-sm"
-                      sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
+                      sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
                     />
                   </div>
                 )}
@@ -130,8 +132,8 @@ export function GroundGridAssetLayer({
                     style={{
                       right: 0,
                       bottom: 0,
-                      width: `${100 / structure.span}%`,
-                      height: `${100 / structure.span}%`,
+                      width: `${100 / span}%`,
+                      height: `${100 / span}%`,
                     }}
                   >
                     <Image
@@ -139,7 +141,7 @@ export function GroundGridAssetLayer({
                       alt=""
                       fill
                       className="object-contain p-[8%] drop-shadow-sm"
-                      sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * structure.span)}px`}
+                      sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
                     />
                   </div>
                 )}

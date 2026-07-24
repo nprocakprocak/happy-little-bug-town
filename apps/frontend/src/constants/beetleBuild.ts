@@ -15,7 +15,6 @@ export const BUILDING_OPTIONS: Structure[] = BUILDABLE_STRUCTURE_TYPES.map<Struc
     id: `build-option-${structureType}`,
     x: 0,
     y: 0,
-    span: 1,
     structureType,
     items: [],
     bugs: [],

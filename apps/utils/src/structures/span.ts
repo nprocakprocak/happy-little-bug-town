@@ -1,0 +1,26 @@
+import {
+  BEETLE_HOUSE_SPAN,
+  HOLE_SPAN,
+  KITCHEN_SPAN,
+  STONEMASON_SPAN,
+  WOODCUTTER_SPAN,
+  WORKSHOP_SPAN,
+} from "../constants/game.js";
+import { StructureType } from "../types/structureType.js";
+
+export function getStructureSpan(structureType: StructureType): number {
+  switch (structureType) {
+    case "hole":
+      return HOLE_SPAN;
+    case "workshop":
+      return WORKSHOP_SPAN;
+    case "stonemason":
+      return STONEMASON_SPAN;
+    case "woodcutter":
+      return WOODCUTTER_SPAN;
+    case "kitchen":
+      return KITCHEN_SPAN;
+    case "beetle_house":
+      return BEETLE_HOUSE_SPAN;
+  }
+}

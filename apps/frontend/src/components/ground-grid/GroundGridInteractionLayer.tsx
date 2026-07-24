@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   BEETLE_MAX_LEAF_PARTS,
   canDropItemOnStructure,
@@ -10,6 +10,7 @@ import {
   canStructureAcceptBugDrop,
   findOverlappingEntity,
   getStackSpan,
+  getStructureSpan,
   isBugFed,
   Position,
   Positionable,
@@ -19,8 +20,8 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { useGridVisibility } from "../../context/GridVisibilityContext";
-import type { DragPayload } from "../../types/dragPayload";
 import { Bug } from "../../types/bug";
+import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
@@ -29,6 +30,7 @@ import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGua
 import { buildGridDragPayload } from "../helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
 import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
+import { withStructureSpan } from "../helpers/withStructureSpan";
 import { DRAG_THRESHOLD_PX } from "./constants";
 
 interface GroundGridInteractionLayerProps {
@@ -73,6 +75,7 @@ export function GroundGridInteractionLayer({
   const hasDraggedRef = useRef(false);
 
   const cellCount = rows * cols;
+  const structuresWithSpan = useMemo(() => structures.map(withStructureSpan), [structures]);
 
   function handlePointerDown(index: number, event: ReactPointerEvent<HTMLDivElement>) {
     if (event.button !== 0) {
@@ -173,7 +176,11 @@ export function GroundGridInteractionLayer({
         const entityToDrop =
           itemToDrop ?? stackToDrop ?? bugToDrop ?? structureToDrop ?? toolToDrop;
 
-        const draggedSpan = structureToDrop?.span ?? toolToDrop?.span ?? stackToDrop?.span ?? 1;
+        const draggedSpan =
+          (structureToDrop ? getStructureSpan(structureToDrop.structureType) : undefined) ??
+          toolToDrop?.span ??
+          stackToDrop?.span ??
+          1;
         const bounds = event.currentTarget.getBoundingClientRect();
         const centerX = bounds.left + bounds.width / draggedSpan / 2;
         const centerY = bounds.top + bounds.height / draggedSpan / 2;
@@ -181,7 +188,7 @@ export function GroundGridInteractionLayer({
         const isOtherCell = target.x !== gridCol || target.y !== gridRow;
 
         const overlappingEntity = findOverlappingEntity({ x: target.x, y: target.y }, [
-          ...structures,
+          ...structuresWithSpan,
           ...tools,
           ...items,
           ...stacks,
@@ -239,7 +246,7 @@ export function GroundGridInteractionLayer({
                 cols,
                 rows,
                 [
-                  ...structures,
+                  ...structuresWithSpan,
                   ...tools,
                   ...items.filter((i) => i.id !== itemToDrop.id && i.id !== overlappingItem.id),
                   ...stacks,
@@ -281,7 +288,7 @@ export function GroundGridInteractionLayer({
                 cols,
                 rows,
                 [
-                  ...structures,
+                  ...structuresWithSpan,
                   ...tools,
                   ...items,
                   ...stacks.filter((s) => s.id !== stackToDrop.id),
@@ -299,11 +306,15 @@ export function GroundGridInteractionLayer({
 
           if (structureToDrop) {
             const fits = structureFootprintFits(
-              { x: target.x, y: target.y, span: structureToDrop.span },
+              {
+                x: target.x,
+                y: target.y,
+                span: getStructureSpan(structureToDrop.structureType),
+              },
               cols,
               rows,
               [
-                ...structures.filter((s) => s.id !== structureToDrop.id),
+                ...structuresWithSpan.filter((s) => s.id !== structureToDrop.id),
                 ...tools,
                 ...items,
                 ...stacks,
@@ -337,7 +348,7 @@ export function GroundGridInteractionLayer({
               cols,
               rows,
               [
-                ...structures,
+                ...structuresWithSpan,
                 ...tools.filter((t) => t.id !== toolToDrop.id),
                 ...items,
                 ...stacks,
@@ -416,7 +427,10 @@ export function GroundGridInteractionLayer({
         const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
         const bug = bugs.find((b) => b.x === gridCol && b.y === gridRow);
 
-        if (!structure && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structures)) {
+        if (
+          !structure &&
+          positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structuresWithSpan)
+        ) {
           return null;
         }
 
@@ -442,7 +456,7 @@ export function GroundGridInteractionLayer({
             ? "bg-zinc-200/20"
             : "bg-transparent";
         const placementStyle = structure
-          ? gridPlacementStyle(structure.x, structure.y, structure.span)
+          ? gridPlacementStyle(structure.x, structure.y, getStructureSpan(structure.structureType))
           : tool
             ? gridPlacementStyle(tool.x, tool.y, tool.span)
             : stack

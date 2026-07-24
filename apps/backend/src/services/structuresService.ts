@@ -1,4 +1,4 @@
-import { getStructureSpan, Position, ToolType } from "@happy-little-bug-town/utils";
+import { Position, ToolType } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
@@ -68,14 +68,12 @@ export const getStructures = async (authorId: string): Promise<StructureDto[]> =
 };
 
 export const createStructure = async (data: CreateStructureData): Promise<StructureDto> => {
-  const span = getStructureSpan(data.structureType);
   const structure = await prisma.structure.create({
     data: {
       authorId: data.authorId,
       structureType: data.structureType,
       x: data.x,
       y: data.y,
-      span,
     },
     include: structureInclude,
   });
@@ -89,7 +87,6 @@ export const createFirstStructure = async (authorId: string): Promise<StructureD
       structureType: "hole",
       x: 5,
       y: 8,
-      span: 2,
     },
     include: structureInclude,
   });
