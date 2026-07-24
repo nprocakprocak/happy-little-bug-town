@@ -4,8 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   canCraftFromStructureOperationalResources,
   canCreateToolType,
-  getStructureSpan,
-  getToolSpan,
   isBuildableStructureType,
   isStructurePowered,
   Position,
@@ -48,7 +46,6 @@ import {
   getBeetleHouseExtractOrigin,
   pickRandomNearestStructureCenterCell,
 } from "../helpers/structureCenterCell";
-import { withStructureSpan } from "../helpers/withStructureSpan";
 import { BeetlePopup } from "../popups/beetle/BeetlePopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { BugsProgressLayer } from "./BugsProgressLayer";
@@ -91,7 +88,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const createTool = useCreateToolMutation();
 
   const animatables = useMemo(
-    () => [...items, ...stacks, ...bugs, ...structures.map(withStructureSpan), ...tools],
+    () => [...items, ...stacks, ...bugs, ...structures, ...tools],
     [items, stacks, bugs, structures, tools],
   );
 
@@ -504,14 +501,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       if (!isBuildableStructureType(structure.structureType)) {
         return;
       }
-      const span = getStructureSpan(structure.structureType);
-      const position = findFirstStructurePlacement(span, cols, rows, [
-        ...structures.map(withStructureSpan),
-        ...items,
-        ...stacks,
-        ...bugs,
-        ...tools,
-      ]);
+      const position = findFirstStructurePlacement(
+        { structureType: structure.structureType },
+        cols,
+        rows,
+        [...structures, ...items, ...stacks, ...bugs, ...tools],
+      );
       if (!position) {
         return;
       }
@@ -529,9 +524,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       if (!canCreateToolType(tools, toolType)) {
         return;
       }
-      const span = getToolSpan(toolType);
-      const position = findFirstStructurePlacement(span, cols, rows, [
-        ...structures.map(withStructureSpan),
+      const position = findFirstStructurePlacement({ toolType }, cols, rows, [
+        ...structures,
         ...items,
         ...stacks,
         ...bugs,

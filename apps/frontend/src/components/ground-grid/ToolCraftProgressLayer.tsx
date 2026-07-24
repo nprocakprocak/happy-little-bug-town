@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { getVisibleToolCraftProgress, isToolIncomplete } from "@happy-little-bug-town/utils";
+import {
+  getToolSpan,
+  getVisibleToolCraftProgress,
+  isToolIncomplete,
+} from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../../types/dragPayload";
 import { Tool } from "../../types/tool";
@@ -37,7 +41,7 @@ export function ToolCraftProgressLayer({
         const isDragged = gridDrag?.target.kind === "tool" && gridDrag.target.toolId === tool.id;
         const dragStyle = gridDragStyle(gridDrag, isDragged);
         const progress = getVisibleToolCraftProgress(tool);
-        const span = tool.span ?? 1;
+        const span = getToolSpan(tool.toolType);
 
         return progress.map(({ itemType, missing }, index) => (
           <div

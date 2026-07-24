@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   BEETLE_MAX_LEAF_PARTS,
   canDropItemOnStructure,
@@ -11,6 +11,7 @@ import {
   findOverlappingEntity,
   getStackSpan,
   getStructureSpan,
+  getToolSpan,
   isBugFed,
   Position,
   Positionable,
@@ -30,7 +31,6 @@ import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGua
 import { buildGridDragPayload } from "../helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
 import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
-import { withStructureSpan } from "../helpers/withStructureSpan";
 import { DRAG_THRESHOLD_PX } from "./constants";
 
 interface GroundGridInteractionLayerProps {
@@ -75,7 +75,6 @@ export function GroundGridInteractionLayer({
   const hasDraggedRef = useRef(false);
 
   const cellCount = rows * cols;
-  const structuresWithSpan = useMemo(() => structures.map(withStructureSpan), [structures]);
 
   function handlePointerDown(index: number, event: ReactPointerEvent<HTMLDivElement>) {
     if (event.button !== 0) {
@@ -178,8 +177,8 @@ export function GroundGridInteractionLayer({
 
         const draggedSpan =
           (structureToDrop ? getStructureSpan(structureToDrop.structureType) : undefined) ??
-          toolToDrop?.span ??
-          stackToDrop?.span ??
+          (toolToDrop ? getToolSpan(toolToDrop.toolType) : undefined) ??
+          (stackToDrop ? getStackSpan() : undefined) ??
           1;
         const bounds = event.currentTarget.getBoundingClientRect();
         const centerX = bounds.left + bounds.width / draggedSpan / 2;
@@ -188,7 +187,7 @@ export function GroundGridInteractionLayer({
         const isOtherCell = target.x !== gridCol || target.y !== gridRow;
 
         const overlappingEntity = findOverlappingEntity({ x: target.x, y: target.y }, [
-          ...structuresWithSpan,
+          ...structures,
           ...tools,
           ...items,
           ...stacks,
@@ -241,18 +240,13 @@ export function GroundGridInteractionLayer({
             const stackFootprintBlocked =
               wouldCreateStack &&
               overlappingItem !== undefined &&
-              !structureFootprintFits(
-                { x: target.x, y: target.y, span: getStackSpan() },
-                cols,
-                rows,
-                [
-                  ...structuresWithSpan,
-                  ...tools,
-                  ...items.filter((i) => i.id !== itemToDrop.id && i.id !== overlappingItem.id),
-                  ...stacks,
-                  ...bugs,
-                ],
-              );
+              !structureFootprintFits({ x: target.x, y: target.y, itemsCount: 2 }, cols, rows, [
+                ...structures,
+                ...tools,
+                ...items.filter((i) => i.id !== itemToDrop.id && i.id !== overlappingItem.id),
+                ...stacks,
+                ...bugs,
+              ]);
             const shouldCancel =
               (!!overlappingStructure && !canDropOnStructure) ||
               (!!overlappingTool && !canDropOnTool) ||
@@ -284,11 +278,11 @@ export function GroundGridInteractionLayer({
               onItemDropped(stackToDrop.id, target, overlappingStack);
             } else {
               const fits = structureFootprintFits(
-                { x: target.x, y: target.y, span: stackToDrop.span ?? 1 },
+                { x: target.x, y: target.y, itemsCount: stackToDrop.itemsCount },
                 cols,
                 rows,
                 [
-                  ...structuresWithSpan,
+                  ...structures,
                   ...tools,
                   ...items,
                   ...stacks.filter((s) => s.id !== stackToDrop.id),
@@ -309,12 +303,12 @@ export function GroundGridInteractionLayer({
               {
                 x: target.x,
                 y: target.y,
-                span: getStructureSpan(structureToDrop.structureType),
+                structureType: structureToDrop.structureType,
               },
               cols,
               rows,
               [
-                ...structuresWithSpan.filter((s) => s.id !== structureToDrop.id),
+                ...structures.filter((s) => s.id !== structureToDrop.id),
                 ...tools,
                 ...items,
                 ...stacks,
@@ -344,11 +338,11 @@ export function GroundGridInteractionLayer({
             }
 
             const fits = structureFootprintFits(
-              { x: target.x, y: target.y, span: toolToDrop.span },
+              { x: target.x, y: target.y, toolType: toolToDrop.toolType },
               cols,
               rows,
               [
-                ...structuresWithSpan,
+                ...structures,
                 ...tools.filter((t) => t.id !== toolToDrop.id),
                 ...items,
                 ...stacks,
@@ -427,10 +421,7 @@ export function GroundGridInteractionLayer({
         const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
         const bug = bugs.find((b) => b.x === gridCol && b.y === gridRow);
 
-        if (
-          !structure &&
-          positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structuresWithSpan)
-        ) {
+        if (!structure && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structures)) {
           return null;
         }
 
@@ -458,9 +449,9 @@ export function GroundGridInteractionLayer({
         const placementStyle = structure
           ? gridPlacementStyle(structure.x, structure.y, getStructureSpan(structure.structureType))
           : tool
-            ? gridPlacementStyle(tool.x, tool.y, tool.span)
+            ? gridPlacementStyle(tool.x, tool.y, getToolSpan(tool.toolType))
             : stack
-              ? gridPlacementStyle(stack.x, stack.y, stack.span ?? 1)
+              ? gridPlacementStyle(stack.x, stack.y, getStackSpan())
               : gridPlacementStyle(gridCol, gridRow);
         const dragStyle =
           isDragging && dragState

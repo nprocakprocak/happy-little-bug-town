@@ -7,7 +7,6 @@ export type UpdateToolData = Partial<Pick<Tool, "x" | "y" | "structureId">>;
 export type ItemOnTool = Pick<Item, "id" | "itemType">;
 
 export type ToolOnGridDto = Pick<Tool, "id" | "toolType" | "x" | "y"> & {
-  span: number;
   items: ItemOnTool[];
 };
 

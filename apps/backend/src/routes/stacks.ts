@@ -2,7 +2,6 @@ import { Router, type RequestHandler } from "express";
 
 import {
   canStackItemType,
-  getStackSpan,
   GROUND_HEIGHT,
   GROUND_WIDTH,
   structureFootprintFits,
@@ -63,9 +62,8 @@ const createStack: RequestHandler = async (req, res) => {
   const entitiesWithoutItems = entities.filter(
     (entity) => !items.some((item) => item.x === entity.x && item.y === entity.y),
   );
-  const span = getStackSpan();
   const fits = structureFootprintFits(
-    { x, y, span },
+    { x, y, itemsCount: items.length },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entitiesWithoutItems,
@@ -109,9 +107,8 @@ const updateStack: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const span = getStackSpan();
   const fits = structureFootprintFits(
-    { x, y, span },
+    { x, y, itemsCount: existingStack.itemsCount },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entities.filter((entity) => entity.x !== existingStack.x || entity.y !== existingStack.y),
@@ -190,12 +187,11 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const stackPosition = { x: existingStack.x, y: existingStack.y, span: getStackSpan() };
   const emptyPosition = findNearestEmptyPosition(
     GROUND_HEIGHT,
     GROUND_WIDTH,
     entities,
-    stackPosition,
+    existingStack,
   );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
@@ -203,7 +199,11 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
   }
 
   if (existingStack.itemsCount === 2) {
-    const { extractedItem, remainingItem } = await dissolveStack(id, stackPosition, emptyPosition);
+    const { extractedItem, remainingItem } = await dissolveStack(
+      id,
+      { x: existingStack.x, y: existingStack.y },
+      emptyPosition,
+    );
     res.status(200).json({
       extractedItem,
       remainingItem,

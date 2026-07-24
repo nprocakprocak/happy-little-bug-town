@@ -3,8 +3,6 @@ import { Router, type RequestHandler } from "express";
 import {
   getCraftableOperationalResourceOutput,
   getStructureOperationalResourceItems,
-  getStructureSpan,
-  getToolSpan,
   GROUND_HEIGHT,
   GROUND_WIDTH,
   pickMostFedBug,
@@ -89,10 +87,14 @@ const createStructure: RequestHandler = async (req, res) => {
     return;
   }
 
-  const span = getStructureSpan(structureType);
   const entities = await getAllEntitiesOnGrid(authorId);
 
-  const fits = structureFootprintFits({ x, y, span }, GROUND_WIDTH, GROUND_HEIGHT, entities);
+  const fits = structureFootprintFits(
+    { x, y, structureType },
+    GROUND_WIDTH,
+    GROUND_HEIGHT,
+    entities,
+  );
 
   if (!fits) {
     res.status(400).json({ error: "Position is not free for structure" });
@@ -142,7 +144,7 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   const entities = await getAllEntitiesOnGrid(authorId);
 
   const fits = structureFootprintFits(
-    { x, y, span: getStructureSpan(existingStructure.structureType) },
+    { x, y, structureType: existingStructure.structureType },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entities.filter((e) => e.x !== existingStructure.x || e.y !== existingStructure.y),
@@ -184,10 +186,7 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
     GROUND_HEIGHT,
     GROUND_WIDTH,
     entities,
-    {
-      ...existingStructure,
-      span: getStructureSpan(existingStructure.structureType),
-    },
+    existingStructure,
   );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
@@ -234,10 +233,7 @@ const dig: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findNearestEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities, {
-    ...hole,
-    span: getStructureSpan(hole.structureType),
-  });
+  const emptyPosition = findNearestEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities, hole);
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
@@ -301,19 +297,15 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
     GROUND_HEIGHT,
     GROUND_WIDTH,
     entities,
-    {
-      ...existingStructure,
-      span: getStructureSpan(existingStructure.structureType),
-    },
+    existingStructure,
   );
   if (!emptyPosition) {
     res.status(400).json({ error: "No empty position found" });
     return;
   }
 
-  const toolSpan = getToolSpan(outputToolType);
   const fits = structureFootprintFits(
-    { x: emptyPosition.x, y: emptyPosition.y, span: toolSpan },
+    { x: emptyPosition.x, y: emptyPosition.y, toolType: outputToolType },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entities,

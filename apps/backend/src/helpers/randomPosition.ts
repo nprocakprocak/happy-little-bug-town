@@ -1,7 +1,12 @@
-import { Position, Positionable, positionOverlapsAnyEntity } from "@happy-little-bug-town/utils";
+import {
+  getSpannableSpan,
+  Position,
+  Positionable,
+  positionOverlapsAnyEntity,
+} from "@happy-little-bug-town/utils";
 
 function minManhattanDistanceToEntity(position: Position, entity: Positionable): number {
-  const span = entity.span ?? 1;
+  const span = getSpannableSpan(entity);
   let minDistance = Infinity;
 
   for (let dx = 0; dx < span; dx++) {

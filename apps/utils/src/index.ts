@@ -20,6 +20,6 @@ export * from "./types/bugType.js";
 export * from "./types/itemType.js";
 export * from "./types/position.js";
 export * from "./types/positionable.js";
-export * from "./types/span.js";
+export * from "./types/spannable.js";
 export * from "./types/structureType.js";
 export * from "./types/toolType.js";

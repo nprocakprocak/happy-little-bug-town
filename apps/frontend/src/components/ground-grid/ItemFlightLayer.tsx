@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
-import { getStructureSpan, Positionable } from "@happy-little-bug-town/utils";
+import { getSpannableSpan, Positionable } from "@happy-little-bug-town/utils";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { GridAnimatable } from "../../types/gridAnimatable";
@@ -20,19 +20,6 @@ import { toolTypeToImage } from "../helpers/toolTypeToImage";
 import { FLIGHT_DURATION_MS, FLIGHT_EASING } from "./constants";
 
 type Animatable = GridAnimatable & WithId & Positionable;
-
-function getAnimatableSpan(item: Animatable): number {
-  if (isStructure(item)) {
-    return getStructureSpan(item.structureType);
-  }
-  if (isTool(item)) {
-    return item.span ?? 1;
-  }
-  if (isStack(item)) {
-    return item.span ?? 1;
-  }
-  return 1;
-}
 
 function animatableImageSrc(animatable: Animatable): string {
   if (isBug(animatable)) {
@@ -68,7 +55,7 @@ interface FlyingItemAnimationProps {
 }
 
 function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimationProps) {
-  const span = getAnimatableSpan(item);
+  const span = getSpannableSpan(item);
   const containerRef = useRef<HTMLDivElement>(null);
   const fromMarkerRef = useRef<HTMLDivElement>(null);
   const toMarkerRef = useRef<HTMLDivElement>(null);

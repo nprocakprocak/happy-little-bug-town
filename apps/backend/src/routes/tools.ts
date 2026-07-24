@@ -3,7 +3,6 @@ import { Router, type RequestHandler } from "express";
 import {
   canCreateMultipleOfToolType,
   canDropToolOnStructure,
-  getToolSpan,
   GROUND_HEIGHT,
   GROUND_WIDTH,
   structureFootprintFits,
@@ -74,8 +73,12 @@ const createTool: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const span = getToolSpan(toolType);
-  const fits = structureFootprintFits({ x, y, span }, GROUND_WIDTH, GROUND_HEIGHT, entities);
+  const fits = structureFootprintFits(
+    { x, y, toolType },
+    GROUND_WIDTH,
+    GROUND_HEIGHT,
+    entities,
+  );
 
   if (!fits) {
     res.status(400).json({ error: "Position is not free for tool" });
@@ -168,9 +171,8 @@ const updateTool: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const span = getToolSpan(existingTool.toolType);
   const fits = structureFootprintFits(
-    { x, y, span },
+    { x, y, toolType: existingTool.toolType },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entities.filter((entity) => entity.x !== existingTool.x || entity.y !== existingTool.y),

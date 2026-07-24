@@ -1,14 +1,19 @@
-import { Position, Positionable, structureFootprintFits } from "@happy-little-bug-town/utils";
+import {
+  Position,
+  Positionable,
+  Spannable,
+  structureFootprintFits,
+} from "@happy-little-bug-town/utils";
 
 export function findFirstStructurePlacement(
-  span: number,
+  spannable: Spannable,
   cols: number,
   rows: number,
   entities: Positionable[],
 ): Position | null {
   for (let y = 1; y <= rows; y++) {
     for (let x = 1; x <= cols; x++) {
-      if (structureFootprintFits({ x, y, span }, cols, rows, entities)) {
+      if (structureFootprintFits({ x, y, ...spannable }, cols, rows, entities)) {
         return { x, y };
       }
     }

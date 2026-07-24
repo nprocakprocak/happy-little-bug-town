@@ -3,9 +3,11 @@
 import { useMemo } from "react";
 import Image from "next/image";
 import {
+  getStackSpan,
   getStructureOperationalResourceCount,
   getStructureOperationalResourceDisplayRequirement,
   getStructureSpan,
+  getToolSpan,
   structureShowsActivationGlow,
   toolShowsActivationGlow,
 } from "@happy-little-bug-town/utils";
@@ -153,7 +155,7 @@ export function GroundGridAssetLayer({
         .filter((tool) => !isFlyingItem(tool))
         .map((tool) => {
           const isDragged = gridDrag?.target.kind === "tool" && gridDrag.target.toolId === tool.id;
-          const span = tool.span ?? 1;
+          const span = getToolSpan(tool.toolType);
 
           return (
             <div
@@ -184,7 +186,7 @@ export function GroundGridAssetLayer({
         .map((stack) => {
           const isDragged =
             gridDrag?.target.kind === "stack" && gridDrag.target.stackId === stack.id;
-          const span = stack.span ?? 1;
+          const span = getStackSpan();
 
           return (
             <div

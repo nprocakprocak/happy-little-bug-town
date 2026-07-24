@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { getStructureSpan } from "@happy-little-bug-town/utils";
+import { getStackSpan, getStructureSpan } from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../../types/dragPayload";
 import { Stack } from "../../types/stack";
@@ -57,7 +57,7 @@ export function GridCountersLayer({
     >
       {groundedStacks.map((stack) => {
         const isDragged = gridDrag?.target.kind === "stack" && gridDrag.target.stackId === stack.id;
-        const { col, row } = footprintBottomRightCell(stack.x, stack.y, stack.span ?? 1);
+        const { col, row } = footprintBottomRightCell(stack.x, stack.y, getStackSpan());
 
         return (
           <div

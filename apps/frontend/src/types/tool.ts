@@ -1,4 +1,4 @@
-import { ItemType, Position, Span, ToolType } from "@happy-little-bug-town/utils";
+import { ItemType, Position, ToolType } from "@happy-little-bug-town/utils";
 
 import { GridAnimatable } from "./gridAnimatable";
 import { WithId } from "./withId";
@@ -8,7 +8,7 @@ export interface ToolItem {
   itemType: ItemType;
 }
 
-export interface Tool extends WithId, Position, Span, GridAnimatable {
+export interface Tool extends WithId, Position, GridAnimatable {
   toolType: ToolType;
   items: ToolItem[];
 }

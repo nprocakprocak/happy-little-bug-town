@@ -5,24 +5,24 @@ import { Position } from "../types/position.js";
 import { Positionable } from "../types/positionable.js";
 import { Spannable } from "../types/spannable.js";
 
-function getSpan(spannable: Spannable): number {
-  if ("structureType" in spannable) {
-    return getStructureSpan(spannable.structureType!);
+export function getSpannableSpan(spannable: Spannable): number {
+  if ("structureType" in spannable && spannable.structureType !== undefined) {
+    return getStructureSpan(spannable.structureType);
   }
 
-  if ("itemsCount" in spannable) {
+  if ("itemsCount" in spannable && spannable.itemsCount !== undefined) {
     return getStackSpan();
   }
 
-  if ("toolType" in spannable) {
-    return getToolSpan(spannable.toolType!);
+  if ("toolType" in spannable && spannable.toolType !== undefined) {
+    return getToolSpan(spannable.toolType);
   }
 
   return 1;
 }
 
 function positionOverlaps(position: Position, entity: Positionable): boolean {
-  const span = getSpan(entity);
+  const span = getSpannableSpan(entity);
 
   return (
     position.x >= entity.x &&
@@ -36,7 +36,10 @@ export function positionOverlapsAnyEntity(position: Position, entities: Position
   return entities.some((entity) => positionOverlaps(position, entity));
 }
 
-export function findOverlappingEntity(position: Position, entities: Positionable[]): Positionable | undefined {
+export function findOverlappingEntity(
+  position: Position,
+  entities: Positionable[],
+): Positionable | undefined {
   return entities.find((entity) => positionOverlaps(position, entity));
 }
 
@@ -46,12 +49,12 @@ export function structureFootprintFits(
   gridHeight: number,
   entities: Positionable[],
 ): boolean {
-  const span = getSpan(origin);
+  const span = getSpannableSpan(origin);
 
   if (origin.x < 1 || origin.y < 1) {
     return false;
   }
-  
+
   if (origin.x + span - 1 > gridWidth || origin.y + span - 1 > gridHeight) {
     return false;
   }
