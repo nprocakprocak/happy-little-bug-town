@@ -8,9 +8,9 @@ import {
   ItemType,
 } from "@happy-little-bug-town/utils";
 
-import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
-import { Tool } from "../types/tool";
-import { itemTypeToImageForItem } from "./helpers/itemTypeToImage";
+import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import { Tool } from "../../types/tool";
+import { itemTypeToImageForItem } from "../helpers/itemTypeToImage";
 
 interface ToolCraftProgressLayerProps {
   cols: number;

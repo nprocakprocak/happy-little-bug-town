@@ -2,8 +2,8 @@
 
 import { ToolType } from "@happy-little-bug-town/utils";
 
-import { Tool } from "../types/tool";
-import { GridPopup } from "./GridPopup";
+import { Tool } from "../../../types/tool";
+import { GridPopup } from "../shared/GridPopup";
 import { WorkshopToolsPopupContent } from "./WorkshopToolsPopupContent";
 
 interface WorkshopPopupProps {

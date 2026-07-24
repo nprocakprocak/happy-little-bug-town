@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { HOME_BANNER_HEIGHT_PX } from "../constants";
-import { useAuth } from "../context/AuthContext";
-import { waitForGoogleAccountsId } from "../lib/waitForGoogleAccountsId";
-import { useMainStore } from "../stores/main";
+import { HOME_BANNER_HEIGHT_PX } from "../../constants";
+import { useAuth } from "../../context/AuthContext";
+import { waitForGoogleAccountsId } from "../../lib/waitForGoogleAccountsId";
+import { useMainStore } from "../../stores/main";
 
 interface SettingsPopupProps {
   onClose: () => void;

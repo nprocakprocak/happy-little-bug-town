@@ -8,12 +8,12 @@ import {
   hasStructureType,
 } from "@happy-little-bug-town/utils";
 
-import { BUILDING_OPTIONS } from "../constants/beetleBuild";
-import { Structure } from "../types/structure";
-import { CarouselSlider } from "./CarouselSlider";
-import { getStructureName } from "./helpers/getStructureName";
-import { structureTypeToImage } from "./helpers/itemTypeToImage";
-import { SelectionPopupContent } from "./SelectionPopupContent";
+import { BUILDING_OPTIONS } from "../../../constants/beetleBuild";
+import { Structure } from "../../../types/structure";
+import { getStructureName } from "../../helpers/getStructureName";
+import { structureTypeToImage } from "../../helpers/itemTypeToImage";
+import { CarouselSlider } from "../../ui/CarouselSlider";
+import { SelectionPopupContent } from "../shared/SelectionPopupContent";
 
 interface BeetleBuildPopupContentProps {
   structures: Structure[];

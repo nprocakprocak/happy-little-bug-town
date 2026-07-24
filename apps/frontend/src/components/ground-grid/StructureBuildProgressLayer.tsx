@@ -10,10 +10,10 @@ import {
   ToolType,
 } from "@happy-little-bug-town/utils";
 
-import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
-import { Structure } from "../types/structure";
-import { itemTypeToImageForItem } from "./helpers/itemTypeToImage";
-import { toolTypeToImage } from "./helpers/toolTypeToImage";
+import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import { Structure } from "../../types/structure";
+import { itemTypeToImageForItem } from "../helpers/itemTypeToImage";
+import { toolTypeToImage } from "../helpers/toolTypeToImage";
 
 interface StructureBuildProgressLayerProps {
   cols: number;

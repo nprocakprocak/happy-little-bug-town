@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-bug-town/utils";
 
-import { Bug } from "../types/bug";
-import { bugTypeToImage, itemTypeToImageForItem } from "./helpers/itemTypeToImage";
+import { Bug } from "../../../types/bug";
+import { bugTypeToImage, itemTypeToImageForItem } from "../../helpers/itemTypeToImage";
 
 interface BeetleHungryPopupContentProps {
   beetle: Bug;

@@ -2,10 +2,10 @@
 
 import { useMemo } from "react";
 
-import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
-import { Bug } from "../types/bug";
-import { BugsProgressBar } from "./BugsProgressBar";
-import { isFlyingItem } from "./helpers/isFlyingItem";
+import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import { Bug } from "../../types/bug";
+import { isFlyingItem } from "../helpers/isFlyingItem";
+import { BugsProgressBar } from "../ui/BugsProgressBar";
 
 interface BugsProgressLayerProps {
   cols: number;

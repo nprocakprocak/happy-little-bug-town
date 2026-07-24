@@ -1,5 +1,5 @@
-import { GroundGrid } from "../components/GroundGrid";
-import { HomeBanner } from "../components/HomeBanner";
+import { GroundGrid } from "../components/ground-grid/GroundGrid";
+import { HomeBanner } from "../components/home/HomeBanner";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
 
 export default async function HomePage() {

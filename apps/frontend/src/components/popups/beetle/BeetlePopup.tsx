@@ -2,11 +2,11 @@
 
 import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-bug-town/utils";
 
-import { Bug } from "../types/bug";
-import { Structure } from "../types/structure";
+import { Bug } from "../../../types/bug";
+import { Structure } from "../../../types/structure";
+import { GridPopup } from "../shared/GridPopup";
 import { BeetleBuildPopupContent } from "./BeetleBuildPopupContent";
 import { BeetleHungryPopupContent } from "./BeetleHungryPopupContent";
-import { GridPopup } from "./GridPopup";
 
 interface BeetlePopupProps {
   beetle: Bug;

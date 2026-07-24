@@ -13,22 +13,22 @@ import {
   GROUND_GRID_MAX_WIDTH_PX,
   GROUND_MUD_BG_TILE_HEIGHT_PX,
   GROUND_MUD_BG_TILE_WIDTH_PX,
-} from "../constants";
-import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
-import { Bug } from "../types/bug";
-import { Item } from "../types/item";
-import { Stack } from "../types/stack";
-import { Structure } from "../types/structure";
-import { Tool } from "../types/tool";
-import { isBug } from "../utils/typeGuards";
-import { isFlyingItem } from "./helpers/isFlyingItem";
+} from "../../constants";
+import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import { Bug } from "../../types/bug";
+import { Item } from "../../types/item";
+import { Stack } from "../../types/stack";
+import { Structure } from "../../types/structure";
+import { Tool } from "../../types/tool";
+import { isBug } from "../../utils/typeGuards";
+import { isFlyingItem } from "../helpers/isFlyingItem";
 import {
   bugTypeToImage,
   itemTypeToImageForItem,
   itemTypeToImageForStack,
   structureTypeToImage,
-} from "./helpers/itemTypeToImage";
-import { toolTypeToImage } from "./helpers/toolTypeToImage";
+} from "../helpers/itemTypeToImage";
+import { toolTypeToImage } from "../helpers/toolTypeToImage";
 
 interface GroundGridAssetLayerProps {
   cols: number;

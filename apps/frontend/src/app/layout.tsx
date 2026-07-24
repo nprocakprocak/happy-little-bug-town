@@ -4,7 +4,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
 
-import { GoogleAuthCallbackRegistrar } from "../components/GoogleAuthCallbackRegistrar";
+import { GoogleAuthCallbackRegistrar } from "../components/home/GoogleAuthCallbackRegistrar";
 import { APP_LOCALE } from "../constants";
 import { AuthProvider } from "../context/AuthContext";
 import { GridVisibilityProvider } from "../context/GridVisibilityContext";

@@ -18,17 +18,17 @@ import {
   structureFootprintFits,
 } from "@happy-little-bug-town/utils";
 
-import { useGridVisibility } from "../context/GridVisibilityContext";
-import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
-import { Bug } from "../types/bug";
-import { Item } from "../types/item";
-import { Stack } from "../types/stack";
-import { Structure } from "../types/structure";
-import { Tool } from "../types/tool";
-import { isBug, isItem, isStack, isStructure, isTool } from "../utils/typeGuards";
+import { useGridVisibility } from "../../context/GridVisibilityContext";
+import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import { Bug } from "../../types/bug";
+import { Item } from "../../types/item";
+import { Stack } from "../../types/stack";
+import { Structure } from "../../types/structure";
+import { Tool } from "../../types/tool";
+import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGuards";
+import { buildGridDragPayload } from "../helpers/buildGridDragPayload";
+import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
 import { DRAG_THRESHOLD_PX } from "./constants";
-import { buildGridDragPayload } from "./helpers/buildGridDragPayload";
-import { gridCellFromClientPoint } from "./helpers/gridCellFromClientPoint";
 
 interface GroundGridInteractionLayerProps {
   cols: number;

@@ -6,10 +6,10 @@ import {
   getStructureOperationalResourceLimit,
 } from "@happy-little-bug-town/utils";
 
-import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
-import { Structure } from "../types/structure";
-import { isFlyingItem } from "./helpers/isFlyingItem";
-import { ResourceProgressBar } from "./ResourceProgressBar";
+import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import { Structure } from "../../types/structure";
+import { isFlyingItem } from "../helpers/isFlyingItem";
+import { ResourceProgressBar } from "../ui/ResourceProgressBar";
 
 interface StructureResourceProgressLayerProps {
   cols: number;

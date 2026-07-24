@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 
-import { handleAuthReceiver } from "../lib/authReceiver";
-import { waitForGoogleAccountsId } from "../lib/waitForGoogleAccountsId";
+import { handleAuthReceiver } from "../../lib/authReceiver";
+import { waitForGoogleAccountsId } from "../../lib/waitForGoogleAccountsId";
 
 export function GoogleAuthCallbackRegistrar() {
   useEffect(() => {

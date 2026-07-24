@@ -10,10 +10,10 @@ import {
   isStructureAwaitingPower,
 } from "@happy-little-bug-town/utils";
 
-import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
-import { Structure } from "../types/structure";
-import { bugTypeToImage } from "./helpers/itemTypeToImage";
-import { toolTypeToImage } from "./helpers/toolTypeToImage";
+import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import { Structure } from "../../types/structure";
+import { bugTypeToImage } from "../helpers/itemTypeToImage";
+import { toolTypeToImage } from "../helpers/toolTypeToImage";
 
 interface StructurePowerProgressLayerProps {
   cols: number;

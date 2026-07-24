@@ -3,12 +3,12 @@
 import { useMemo, useState } from "react";
 import { canCreateToolType, getToolCraftCosts, ToolType } from "@happy-little-bug-town/utils";
 
-import { WORKSHOP_TOOL_OPTIONS } from "../constants/workshopTools";
-import { Tool } from "../types/tool";
-import { CarouselSlider } from "./CarouselSlider";
-import { toolTypeToName } from "./helpers/getToolName";
-import { toolTypeToImage } from "./helpers/toolTypeToImage";
-import { SelectionPopupContent } from "./SelectionPopupContent";
+import { WORKSHOP_TOOL_OPTIONS } from "../../../constants/workshopTools";
+import { Tool } from "../../../types/tool";
+import { toolTypeToName } from "../../helpers/getToolName";
+import { toolTypeToImage } from "../../helpers/toolTypeToImage";
+import { CarouselSlider } from "../../ui/CarouselSlider";
+import { SelectionPopupContent } from "../shared/SelectionPopupContent";
 
 interface WorkshopToolsPopupContentProps {
   onClose: () => void;

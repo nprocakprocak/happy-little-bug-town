@@ -14,14 +14,18 @@ import {
 } from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
-import { queryKeys } from "../constants/queryKeys";
-import { useAuth } from "../context/AuthContext";
-import { DragPayload } from "../domain/drag-n-drop/dragPayload";
-import { dropAction } from "../domain/drag-n-drop/dropAction";
-import { updateBugsCache, useBugsQuery } from "../hooks/useBugs";
-import { updateItemsCache, useItemsQuery } from "../hooks/useItems";
-import { updateStacksCache, useExtractFromStackMutation, useStacksQuery } from "../hooks/useStacks";
+import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
+import { queryKeys } from "../../constants/queryKeys";
+import { useAuth } from "../../context/AuthContext";
+import { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import { dropAction } from "../../domain/drag-n-drop/dropAction";
+import { updateBugsCache, useBugsQuery } from "../../hooks/useBugs";
+import { updateItemsCache, useItemsQuery } from "../../hooks/useItems";
+import {
+  updateStacksCache,
+  useExtractFromStackMutation,
+  useStacksQuery,
+} from "../../hooks/useStacks";
 import {
   updateStructuresCache,
   useCraftOperationalResourceMutation,
@@ -30,31 +34,31 @@ import {
   useDigMutation,
   useExtractOccupantMutation,
   useStructuresQuery,
-} from "../hooks/useStructures";
-import { updateToolsCache, useCreateToolMutation, useToolsQuery } from "../hooks/useTools";
-import { Bug } from "../types/bug";
-import { Item } from "../types/item";
-import { Stack } from "../types/stack";
-import { Structure } from "../types/structure";
-import { Tool } from "../types/tool";
-import { isBug, isItem, isStack, isStructure, isTool } from "../utils/typeGuards";
-import { BeetlePopup } from "./BeetlePopup";
+} from "../../hooks/useStructures";
+import { updateToolsCache, useCreateToolMutation, useToolsQuery } from "../../hooks/useTools";
+import { Bug } from "../../types/bug";
+import { Item } from "../../types/item";
+import { Stack } from "../../types/stack";
+import { Structure } from "../../types/structure";
+import { Tool } from "../../types/tool";
+import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGuards";
+import { findFirstStructurePlacement } from "../helpers/findFirstStructurePlacement";
+import { hasEmptyGridCell } from "../helpers/hasEmptyGridCell";
+import {
+  getBeetleHouseExtractOrigin,
+  pickRandomNearestStructureCenterCell,
+} from "../helpers/structureCenterCell";
+import { BeetlePopup } from "../popups/beetle/BeetlePopup";
+import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
-import { findFirstStructurePlacement } from "./helpers/findFirstStructurePlacement";
-import { hasEmptyGridCell } from "./helpers/hasEmptyGridCell";
-import {
-  getBeetleHouseExtractOrigin,
-  pickRandomNearestStructureCenterCell,
-} from "./helpers/structureCenterCell";
 import { ItemFlightLayer } from "./ItemFlightLayer";
 import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
 import { StructurePowerProgressLayer } from "./StructurePowerProgressLayer";
 import { StructureResourceProgressLayer } from "./StructureResourceProgressLayer";
 import { ToolCraftProgressLayer } from "./ToolCraftProgressLayer";
-import { WorkshopPopup } from "./WorkshopPopup";
 
 interface GroundGridProps {
   rows: number;

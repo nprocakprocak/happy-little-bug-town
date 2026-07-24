@@ -7,9 +7,9 @@ import {
   GROUND_GRID_MAX_WIDTH_PX,
   GROUND_SAND_BG_TILE_WIDTH_RATIO,
   HOME_BANNER_HEIGHT_PX,
-} from "../constants";
-import { useAuth } from "../context/AuthContext";
-import { useMainStore } from "../stores/main";
+} from "../../constants";
+import { useAuth } from "../../context/AuthContext";
+import { useMainStore } from "../../stores/main";
 import { SettingsPopup } from "./SettingsPopup";
 
 export function HomeBanner() {

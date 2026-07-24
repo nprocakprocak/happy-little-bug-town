@@ -2,10 +2,10 @@
 
 import { useMemo } from "react";
 
-import type { DragPayload } from "../domain/drag-n-drop/dragPayload";
-import { Stack } from "../types/stack";
-import { Structure } from "../types/structure";
-import { isFlyingItem } from "./helpers/isFlyingItem";
+import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import { Stack } from "../../types/stack";
+import { Structure } from "../../types/structure";
+import { isFlyingItem } from "../helpers/isFlyingItem";
 
 interface GridCountersLayerProps {
   cols: number;
