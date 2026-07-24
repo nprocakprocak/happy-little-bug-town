@@ -21,6 +21,11 @@ import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
 import { Tool } from "../../types/tool";
 import { isBug } from "../../utils/typeGuards";
+import {
+  gridDragStyle,
+  gridPlacementStyle,
+  groundGridTemplateStyle,
+} from "../helpers/groundGridStyles";
 import { isFlyingItem } from "../helpers/isFlyingItem";
 import {
   bugTypeToImage,
@@ -64,8 +69,7 @@ export function GroundGridAssetLayer({
         backgroundImage: "url('/backgrounds/bg-sand.webp')",
         backgroundRepeat: "repeat",
         backgroundSize: `calc(100cqi * ${GROUND_MUD_BG_TILE_WIDTH_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px) calc(100cqi * ${GROUND_MUD_BG_TILE_HEIGHT_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px)`,
-        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+        ...groundGridTemplateStyle(cols, rows),
       }}
     >
       {structures
@@ -73,11 +77,6 @@ export function GroundGridAssetLayer({
         .map((structure) => {
           const isDragged =
             gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
-          const dragStyle =
-            isDragged && gridDrag
-              ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
-              : {};
-
           const showActivationGlow = structureShowsActivationGlow(structure);
           const firstHouseBug =
             structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
@@ -91,9 +90,8 @@ export function GroundGridAssetLayer({
               key={structure.id}
               className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
               style={{
-                gridColumn: `${structure.x} / span ${structure.span}`,
-                gridRow: `${structure.y} / span ${structure.span}`,
-                ...dragStyle,
+                ...gridPlacementStyle(structure.x, structure.y, structure.span),
+                ...gridDragStyle(gridDrag, isDragged),
               }}
             >
               <div className="relative h-full w-full">
@@ -153,19 +151,15 @@ export function GroundGridAssetLayer({
         .filter((tool) => !isFlyingItem(tool))
         .map((tool) => {
           const isDragged = gridDrag?.target.kind === "tool" && gridDrag.target.toolId === tool.id;
-          const dragStyle =
-            isDragged && gridDrag
-              ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
-              : {};
+          const span = tool.span ?? 1;
 
           return (
             <div
               key={tool.id}
               className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
               style={{
-                gridColumn: `${tool.x} / span ${tool.span ?? 1}`,
-                gridRow: `${tool.y} / span ${tool.span ?? 1}`,
-                ...dragStyle,
+                ...gridPlacementStyle(tool.x, tool.y, span),
+                ...gridDragStyle(gridDrag, isDragged),
               }}
             >
               <div className="relative h-full w-full">
@@ -174,7 +168,7 @@ export function GroundGridAssetLayer({
                   alt=""
                   fill
                   className="object-cover"
-                  sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * (tool.span ?? 1))}px`}
+                  sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
                 />
                 {toolShowsActivationGlow(tool) && (
                   <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
@@ -188,19 +182,15 @@ export function GroundGridAssetLayer({
         .map((stack) => {
           const isDragged =
             gridDrag?.target.kind === "stack" && gridDrag.target.stackId === stack.id;
-          const dragStyle =
-            isDragged && gridDrag
-              ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
-              : {};
+          const span = stack.span ?? 1;
 
           return (
             <div
               key={stack.id}
               className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
               style={{
-                gridColumn: `${stack.x} / span ${stack.span ?? 1}`,
-                gridRow: `${stack.y} / span ${stack.span ?? 1}`,
-                ...dragStyle,
+                ...gridPlacementStyle(stack.x, stack.y, span),
+                ...gridDragStyle(gridDrag, isDragged),
               }}
             >
               <Image
@@ -208,7 +198,7 @@ export function GroundGridAssetLayer({
                 alt=""
                 fill
                 className="object-cover"
-                sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * (stack.span ?? 1))}px`}
+                sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
               />
             </div>
           );
@@ -219,11 +209,6 @@ export function GroundGridAssetLayer({
           ((gridDrag.target.kind === "item" && gridDrag.target.itemId === item.id) ||
             (gridDrag.target.kind === "stack" && gridDrag.target.stackId === item.id) ||
             (gridDrag.target.kind === "bug" && gridDrag.target.bugId === item.id));
-        const dragStyle =
-          isDragged && gridDrag
-            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
-            : {};
-
         const imageSource = isBug(item)
           ? bugTypeToImage(item.bugType)
           : itemTypeToImageForItem(item.itemType);
@@ -233,9 +218,8 @@ export function GroundGridAssetLayer({
             key={item.id}
             className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
             style={{
-              gridColumn: `${item.x} / span 1`,
-              gridRow: `${item.y} / span 1`,
-              ...dragStyle,
+              ...gridPlacementStyle(item.x, item.y),
+              ...gridDragStyle(gridDrag, isDragged),
             }}
           >
             <Image

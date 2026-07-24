@@ -8,6 +8,11 @@ import {
 
 import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
 import { Structure } from "../../types/structure";
+import {
+  gridDragStyle,
+  gridPlacementStyle,
+  groundGridTemplateStyle,
+} from "../helpers/groundGridStyles";
 import { isFlyingItem } from "../helpers/isFlyingItem";
 import { ResourceProgressBar } from "../ui/ResourceProgressBar";
 
@@ -36,27 +41,19 @@ export function StructureResourceProgressLayer({
   return (
     <div
       className="pointer-events-none absolute inset-0 z-10 grid h-full w-full gap-1"
-      style={{
-        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-      }}
+      style={groundGridTemplateStyle(cols, rows)}
     >
       {structuresWithResources.map((structure) => {
         const isDragged =
           gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
-        const dragStyle =
-          isDragged && gridDrag
-            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
-            : {};
 
         return (
           <div
             key={`structure-resource-${structure.id}`}
             className="relative min-h-0 min-w-0"
             style={{
-              gridColumn: `${structure.x} / span ${structure.span}`,
-              gridRow: `${structure.y} / span ${structure.span}`,
-              ...dragStyle,
+              ...gridPlacementStyle(structure.x, structure.y, structure.span),
+              ...gridDragStyle(gridDrag, isDragged),
             }}
           >
             <div

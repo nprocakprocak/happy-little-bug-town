@@ -28,6 +28,7 @@ import { Tool } from "../../types/tool";
 import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGuards";
 import { buildGridDragPayload } from "../helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
+import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
 import { DRAG_THRESHOLD_PX } from "./constants";
 
 interface GroundGridInteractionLayerProps {
@@ -405,10 +406,7 @@ export function GroundGridInteractionLayer({
     <div
       ref={gridContainerRef}
       className="absolute inset-0 grid h-full w-full gap-1"
-      style={{
-        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-      }}
+      style={groundGridTemplateStyle(cols, rows)}
     >
       {Array.from({ length: cellCount }, (_, index) => {
         const gridRow = Math.floor(index / cols) + 1;
@@ -444,24 +442,12 @@ export function GroundGridInteractionLayer({
             ? "bg-zinc-200/20"
             : "bg-transparent";
         const placementStyle = structure
-          ? {
-              gridColumn: `${structure.x} / span ${structure.span}`,
-              gridRow: `${structure.y} / span ${structure.span}`,
-            }
+          ? gridPlacementStyle(structure.x, structure.y, structure.span)
           : tool
-            ? {
-                gridColumn: `${tool.x} / span ${tool.span}`,
-                gridRow: `${tool.y} / span ${tool.span}`,
-              }
+            ? gridPlacementStyle(tool.x, tool.y, tool.span)
             : stack
-              ? {
-                  gridColumn: `${stack.x} / span ${stack.span ?? 1}`,
-                  gridRow: `${stack.y} / span ${stack.span ?? 1}`,
-                }
-              : {
-                  gridColumn: gridCol,
-                  gridRow: gridRow,
-                };
+              ? gridPlacementStyle(stack.x, stack.y, stack.span ?? 1)
+              : gridPlacementStyle(gridCol, gridRow);
         const dragStyle =
           isDragging && dragState
             ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }

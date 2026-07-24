@@ -5,6 +5,11 @@ import { useMemo } from "react";
 import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
+import {
+  footprintBottomRightCell,
+  gridDragStyle,
+  groundGridTemplateStyle,
+} from "../helpers/groundGridStyles";
 import { isFlyingItem } from "../helpers/isFlyingItem";
 
 interface GridCountersLayerProps {
@@ -47,29 +52,20 @@ export function GridCountersLayer({
   return (
     <div
       className="pointer-events-none absolute inset-0 z-10 grid h-full w-full gap-1"
-      style={{
-        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-      }}
+      style={groundGridTemplateStyle(cols, rows)}
     >
       {groundedStacks.map((stack) => {
         const isDragged = gridDrag?.target.kind === "stack" && gridDrag.target.stackId === stack.id;
-        const dragStyle =
-          isDragged && gridDrag
-            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
-            : {};
-
-        const bottomRightCol = stack.x + (stack.span ?? 1) - 1;
-        const bottomRightRow = stack.y + (stack.span ?? 1) - 1;
+        const { col, row } = footprintBottomRightCell(stack.x, stack.y, stack.span ?? 1);
 
         return (
           <div
             key={stack.id}
             className="relative min-h-0 min-w-0"
             style={{
-              gridColumn: bottomRightCol,
-              gridRow: bottomRightRow,
-              ...dragStyle,
+              gridColumn: col,
+              gridRow: row,
+              ...gridDragStyle(gridDrag, isDragged),
             }}
           >
             <CounterBadge count={stack.itemsCount} />
@@ -79,22 +75,16 @@ export function GridCountersLayer({
       {beetleHousesWithOccupants.map((structure) => {
         const isDragged =
           gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
-        const dragStyle =
-          isDragged && gridDrag
-            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
-            : {};
-
-        const bottomRightCol = structure.x + structure.span - 1;
-        const bottomRightRow = structure.y + structure.span - 1;
+        const { col, row } = footprintBottomRightCell(structure.x, structure.y, structure.span);
 
         return (
           <div
             key={`beetle-house-count-${structure.id}`}
             className="relative min-h-0 min-w-0"
             style={{
-              gridColumn: bottomRightCol,
-              gridRow: bottomRightRow,
-              ...dragStyle,
+              gridColumn: col,
+              gridRow: row,
+              ...gridDragStyle(gridDrag, isDragged),
             }}
           >
             <CounterBadge count={(structure.bugs ?? []).length} />

@@ -76,7 +76,7 @@ export function SettingsPopup({ onClose }: SettingsPopupProps) {
         style={{ top: HOME_BANNER_HEIGHT_PX }}
       >
         <div
-          className="flex w-[84%] max-w-[380px] flex-col rounded-lg bg-stone-50 p-4 shadow-lg"
+          className="flex w-[84%] max-w-95 flex-col rounded-lg bg-stone-50 p-4 shadow-lg"
           role="dialog"
           aria-modal="true"
         >

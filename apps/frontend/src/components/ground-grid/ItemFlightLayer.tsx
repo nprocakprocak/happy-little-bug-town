@@ -8,6 +8,7 @@ import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { GridAnimatable } from "../../types/gridAnimatable";
 import { WithId } from "../../types/withId";
 import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGuards";
+import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
 import { isFlyingItem } from "../helpers/isFlyingItem";
 import {
   bugTypeToImage,
@@ -16,9 +17,7 @@ import {
   structureTypeToImage,
 } from "../helpers/itemTypeToImage";
 import { toolTypeToImage } from "../helpers/toolTypeToImage";
-
-const FLIGHT_DURATION_MS = 550;
-const FLIGHT_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+import { FLIGHT_DURATION_MS, FLIGHT_EASING } from "./constants";
 
 type Animatable = GridAnimatable & WithId & Positionable;
 
@@ -33,19 +32,6 @@ function getAnimatableSpan(item: Animatable): number {
     return item.span ?? 1;
   }
   return 1;
-}
-
-function gridPlacementStyle(x: number, y: number, span: number) {
-  if (span > 1) {
-    return {
-      gridColumn: `${x} / span ${span}`,
-      gridRow: `${y} / span ${span}`,
-    };
-  }
-  return {
-    gridColumn: x,
-    gridRow: y,
-  };
 }
 
 function animatableImageSrc(animatable: Animatable): string {
@@ -154,13 +140,7 @@ function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimati
 
   return (
     <div ref={containerRef} className="pointer-events-none absolute inset-0">
-      <div
-        className="grid h-full w-full gap-1"
-        style={{
-          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-          gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-        }}
-      >
+      <div className="grid h-full w-full gap-1" style={groundGridTemplateStyle(cols, rows)}>
         <div
           ref={fromMarkerRef}
           aria-hidden

@@ -4,6 +4,11 @@ import { useMemo } from "react";
 
 import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
 import { Bug } from "../../types/bug";
+import {
+  gridDragStyle,
+  gridPlacementStyle,
+  groundGridTemplateStyle,
+} from "../helpers/groundGridStyles";
 import { isFlyingItem } from "../helpers/isFlyingItem";
 import { BugsProgressBar } from "../ui/BugsProgressBar";
 
@@ -23,26 +28,18 @@ export function BugsProgressLayer({ cols, rows, bugs, gridDrag }: BugsProgressLa
   return (
     <div
       className="pointer-events-none absolute inset-0 z-10 grid h-full w-full gap-1"
-      style={{
-        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-      }}
+      style={groundGridTemplateStyle(cols, rows)}
     >
       {beetlesWithLeaves.map((bug) => {
         const isDragged = gridDrag?.target.kind === "bug" && gridDrag.target.bugId === bug.id;
-        const dragStyle =
-          isDragged && gridDrag
-            ? { transform: `translate(${gridDrag.dx}px, ${gridDrag.dy}px)`, zIndex: 5 }
-            : {};
 
         return (
           <div
             key={bug.id}
             className="relative min-h-0 min-w-0"
             style={{
-              gridColumn: `${bug.x} / span 1`,
-              gridRow: `${bug.y} / span 1`,
-              ...dragStyle,
+              ...gridPlacementStyle(bug.x, bug.y),
+              ...gridDragStyle(gridDrag, isDragged),
             }}
           >
             <BugsProgressBar leafCount={bug.itemIds.length} />
