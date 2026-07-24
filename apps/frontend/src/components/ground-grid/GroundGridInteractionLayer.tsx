@@ -19,7 +19,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { useGridVisibility } from "../../context/GridVisibilityContext";
-import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import type { DragPayload } from "../../types/dragPayload";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";

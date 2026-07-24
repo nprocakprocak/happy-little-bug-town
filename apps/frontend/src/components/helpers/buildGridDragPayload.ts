@@ -1,4 +1,4 @@
-import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import type { DragPayload } from "../../types/dragPayload";
 import type { Bug } from "../../types/bug";
 import type { Item } from "../../types/item";
 import type { Stack } from "../../types/stack";

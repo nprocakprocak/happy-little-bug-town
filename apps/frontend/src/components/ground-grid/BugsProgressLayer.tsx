@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import type { DragPayload } from "../../types/dragPayload";
 import { Bug } from "../../types/bug";
 import {
   gridDragStyle,

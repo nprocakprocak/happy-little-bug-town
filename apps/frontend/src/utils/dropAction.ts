@@ -8,23 +8,23 @@ import {
   Positionable,
 } from "@happy-little-bug-town/utils";
 
-import { addBeetleToStructure, updateBugPosition } from "../../api/bugs";
+import { addBeetleToStructure, updateBugPosition } from "../api/bugs";
 import {
   addItemToBug,
   addItemToStack,
   addItemToStructure,
   addItemToTool,
   updateItemPosition,
-} from "../../api/items";
-import { createStack, mergeStacks, updateStack } from "../../api/stacks";
-import { updateStructurePosition } from "../../api/structures";
-import { addToolToStructure, updateToolPosition } from "../../api/tools";
-import { Bug } from "../../types/bug";
-import { Item } from "../../types/item";
-import { Stack } from "../../types/stack";
-import { Structure } from "../../types/structure";
-import { Tool } from "../../types/tool";
-import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGuards";
+} from "../api/items";
+import { createStack, mergeStacks, updateStack } from "../api/stacks";
+import { updateStructurePosition } from "../api/structures";
+import { addToolToStructure, updateToolPosition } from "../api/tools";
+import { Bug } from "../types/bug";
+import { Item } from "../types/item";
+import { Stack } from "../types/stack";
+import { Structure } from "../types/structure";
+import { Tool } from "../types/tool";
+import { isBug, isItem, isStack, isStructure, isTool } from "./typeGuards";
 
 export async function dropAction(
   targetPosition: Position,

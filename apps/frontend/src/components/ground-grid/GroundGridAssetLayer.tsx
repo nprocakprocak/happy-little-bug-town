@@ -14,7 +14,7 @@ import {
   GROUND_MUD_BG_TILE_HEIGHT_PX,
   GROUND_MUD_BG_TILE_WIDTH_PX,
 } from "../../constants";
-import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import type { DragPayload } from "../../types/dragPayload";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";

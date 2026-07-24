@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { getVisibleToolCraftProgress, isToolIncomplete } from "@happy-little-bug-town/utils";
 
-import type { DragPayload } from "../../domain/drag-n-drop/dragPayload";
+import type { DragPayload } from "../../types/dragPayload";
 import { Tool } from "../../types/tool";
 import {
   gridDragStyle,

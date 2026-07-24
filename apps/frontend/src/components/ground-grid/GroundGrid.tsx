@@ -17,8 +17,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { queryKeys } from "../../constants/queryKeys";
 import { useAuth } from "../../context/AuthContext";
-import { DragPayload } from "../../domain/drag-n-drop/dragPayload";
-import { dropAction } from "../../domain/drag-n-drop/dropAction";
+import { DragPayload } from "../../types/dragPayload";
+import { dropAction } from "../../utils/dropAction";
 import { updateBugsCache, useBugsQuery } from "../../hooks/useBugs";
 import { updateItemsCache, useItemsQuery } from "../../hooks/useItems";
 import {
