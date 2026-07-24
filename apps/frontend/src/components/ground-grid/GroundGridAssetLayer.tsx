@@ -10,6 +10,7 @@ import {
   getToolSpan,
   structureShowsActivationGlow,
   toolShowsActivationGlow,
+  itemShowsActivationGlow,
 } from "@happy-little-bug-town/utils";
 
 import {
@@ -226,13 +227,18 @@ export function GroundGridAssetLayer({
               ...gridDragStyle(gridDrag, isDragged),
             }}
           >
-            <Image
-              src={imageSource}
-              alt=""
-              fill
-              className="object-cover"
-              sizes={`${Math.ceil(GROUND_GRID_MAX_WIDTH_PX / cols)}px`}
-            />
+            <div className="relative h-full w-full">
+              <Image
+                src={imageSource}
+                alt=""
+                fill
+                className="object-cover"
+                sizes={`${Math.ceil(GROUND_GRID_MAX_WIDTH_PX / cols)}px`}
+              />
+              {!isBug(item) && itemShowsActivationGlow(item) && (
+                <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
+              )}
+            </div>
           </div>
         );
       })}

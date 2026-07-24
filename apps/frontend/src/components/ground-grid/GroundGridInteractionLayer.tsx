@@ -3,6 +3,7 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   BEETLE_MAX_LEAF_PARTS,
+  canDropItemOnItem,
   canDropItemOnStructure,
   canDropItemOnTool,
   canDropToolOnStructure,
@@ -220,7 +221,10 @@ export function GroundGridInteractionLayer({
 
         if (isOtherCell) {
           if (itemToDrop) {
-            const wouldCreateOrJoinStack = !!overlappingItem || !!overlappingStack;
+            const canDropOnItemCraft =
+              !!overlappingItem && canDropItemOnItem(itemToDrop, overlappingItem);
+            const wouldCreateOrJoinStack =
+              (!!overlappingItem && !canDropOnItemCraft) || !!overlappingStack;
             const sameTypeItems = overlappingItem?.itemType === itemToDrop.itemType;
             const sameTypeAsStack = overlappingStack?.itemType === itemToDrop.itemType;
             const typeAllowed = sameTypeItems || sameTypeAsStack;
@@ -236,7 +240,10 @@ export function GroundGridInteractionLayer({
             const canDropOnTool =
               !!overlappingTool && canDropItemOnTool(itemToDrop, overlappingTool);
             const wouldCreateStack =
-              !!overlappingItem && sameTypeItems && canStackItemType(itemToDrop.itemType, tools);
+              !!overlappingItem &&
+              !canDropOnItemCraft &&
+              sameTypeItems &&
+              canStackItemType(itemToDrop.itemType, tools);
             const stackFootprintBlocked =
               wouldCreateStack &&
               overlappingItem !== undefined &&

@@ -45,3 +45,10 @@ export function addItemToTool(itemId: string, toolId: string): Promise<Tool> {
     body: JSON.stringify({ toolId }),
   });
 }
+
+export function addItemToItem(itemId: string, parentItemId: string): Promise<Item> {
+  return apiFetch<Item>(`/api/items/${itemId}`, {
+    method: "PUT",
+    body: JSON.stringify({ parentItemId }),
+  });
+}

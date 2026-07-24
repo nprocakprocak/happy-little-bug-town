@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   canCraftFromStructureOperationalResources,
   canCreateToolType,
+  canDropItemOnItem,
   isBuildableStructureType,
   isStructurePowered,
   Position,
@@ -52,6 +53,7 @@ import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
+import { ItemCraftProgressLayer } from "./ItemCraftProgressLayer";
 import { ItemFlightLayer } from "./ItemFlightLayer";
 import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
 import { StructurePowerProgressLayer } from "./StructurePowerProgressLayer";
@@ -317,6 +319,30 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
                   }
                 : tool,
             ),
+          );
+        }
+
+        // drop an item onto another item to craft it, assume optimistic update
+        if (
+          originalItem &&
+          targetEntity &&
+          isItem(targetEntity) &&
+          canDropItemOnItem(originalItem, targetEntity)
+        ) {
+          setItemsCache((prev) =>
+            prev
+              .filter((it) => it.id !== originalItem.id)
+              .map((it) =>
+                it.id === targetEntity.id
+                  ? {
+                      ...it,
+                      items: [
+                        ...it.items,
+                        { id: originalItem.id, itemType: originalItem.itemType },
+                      ],
+                    }
+                  : it,
+              ),
           );
         }
 
@@ -594,6 +620,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           gridDrag={gridDrag}
         />
         <ToolCraftProgressLayer cols={cols} rows={rows} tools={tools} gridDrag={gridDrag} />
+        <ItemCraftProgressLayer cols={cols} rows={rows} items={items} gridDrag={gridDrag} />
         <BugsProgressLayer cols={cols} rows={rows} bugs={bugs} gridDrag={gridDrag} />
         <StructureResourceProgressLayer
           cols={cols}

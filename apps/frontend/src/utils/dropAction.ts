@@ -1,5 +1,6 @@
 import {
   BEETLE_MAX_LEAF_PARTS,
+  canDropItemOnItem,
   canDropItemOnStructure,
   canDropItemOnTool,
   canDropToolOnStructure,
@@ -11,6 +12,7 @@ import {
 import { addBeetleToStructure, updateBugPosition } from "../api/bugs";
 import {
   addItemToBug,
+  addItemToItem,
   addItemToStack,
   addItemToStructure,
   addItemToTool,
@@ -57,6 +59,21 @@ export async function dropAction(
       : undefined
     : undefined;
   const targetTool = targetEntity ? (isTool(targetEntity) ? targetEntity : undefined) : undefined;
+
+  // drop an item onto another item to craft it
+  if (originalItem && targetItem && canDropItemOnItem(originalItem, targetItem)) {
+    const parentItem = await addItemToItem(originalItem.id, targetItem.id);
+
+    return {
+      items: items
+        .filter((it) => it.id !== originalItem.id)
+        .map((it) => (it.id === targetItem.id ? parentItem : it)),
+      stacks: stacks,
+      bugs: bugs,
+      structures: structures,
+      tools,
+    };
+  }
 
   // drop one item onto another to create a stack
   if (originalItem && targetItem) {
