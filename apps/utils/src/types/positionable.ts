@@ -1,4 +1,4 @@
 import { Position } from "./position.js";
-import { Span } from "./span.js";
+import { Spannable } from "./spannable.js";
 
-export interface Positionable extends Position, Span {}
+export type Positionable = Position & Spannable;

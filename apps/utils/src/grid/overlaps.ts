@@ -1,11 +1,34 @@
+import { getStackSpan } from "../stacks/span.js";
+import { getStructureSpan } from "../structures/span.js";
+import { getToolSpan } from "../tools/span.js";
 import { Position } from "../types/position.js";
 import { Positionable } from "../types/positionable.js";
-function positionOverlaps(position: Position, structure: Positionable): boolean {
+import { Spannable } from "../types/spannable.js";
+
+function getSpan(spannable: Spannable): number {
+  if ("structureType" in spannable) {
+    return getStructureSpan(spannable.structureType!);
+  }
+
+  if ("itemsCount" in spannable) {
+    return getStackSpan();
+  }
+
+  if ("toolType" in spannable) {
+    return getToolSpan(spannable.toolType!);
+  }
+
+  return 1;
+}
+
+function positionOverlaps(position: Position, entity: Positionable): boolean {
+  const span = getSpan(entity);
+
   return (
-    position.x >= structure.x &&
-    position.x < structure.x + (structure.span ?? 1) &&
-    position.y >= structure.y &&
-    position.y < structure.y + (structure.span ?? 1)
+    position.x >= entity.x &&
+    position.x < entity.x + span &&
+    position.y >= entity.y &&
+    position.y < entity.y + span
   );
 }
 
@@ -23,7 +46,7 @@ export function structureFootprintFits(
   gridHeight: number,
   entities: Positionable[],
 ): boolean {
-  const span = origin.span ?? 1;
+  const span = getSpan(origin);
 
   if (origin.x < 1 || origin.y < 1) {
     return false;
