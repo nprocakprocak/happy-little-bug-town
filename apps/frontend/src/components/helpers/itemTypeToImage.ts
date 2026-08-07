@@ -10,6 +10,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/root.webp";
     case "stick":
       return "/items/stick.webp";
+    case "brick":
+      return "/items/brick.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
@@ -26,7 +28,7 @@ export function itemTypeToImageForStack(itemType: ItemType): string {
     case "stick":
       return "/stacks/stick-pile.webp";
     default:
-      throw new Error(`Unknown item type: ${itemType}`);
+      throw new Error(`Unstackable item type: ${itemType}`);
   }
 }
 

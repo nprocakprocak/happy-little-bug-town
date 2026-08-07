@@ -12,7 +12,8 @@ const ITEM_TYPES_WEIGHTS = {
   little_rock: 0.8,
   stick: 1,
 } as const;
-const ITEM_TYPES = Object.keys(ITEM_TYPES_WEIGHTS) as ItemType[];
+type DiggableItemOrBugType = keyof typeof ITEM_TYPES_WEIGHTS;
+const DIGGABLE_TYPES = Object.keys(ITEM_TYPES_WEIGHTS) as DiggableItemOrBugType[];
 
 const itemInclude = { items: true } as const;
 
@@ -138,7 +139,7 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
 
 export function generateRandomItemType(): ItemType | BugType {
   const seed = Math.random();
-  return ITEM_TYPES.find((itemType) => seed < ITEM_TYPES_WEIGHTS[itemType]) ?? "leaf_part";
+  return DIGGABLE_TYPES.find((itemType) => seed < ITEM_TYPES_WEIGHTS[itemType]) ?? "leaf_part";
 }
 
 export async function takeItemFromStack(stackId: string, position: Position): Promise<ItemDto> {

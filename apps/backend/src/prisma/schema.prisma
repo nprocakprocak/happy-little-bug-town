@@ -12,6 +12,7 @@ enum ItemType {
   little_rock
   root
   stick
+  brick
 }
 
 enum StructureType {
