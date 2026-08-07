@@ -8,9 +8,9 @@ import {
   getStructureOperationalResourceDisplayRequirement,
   getStructureSpan,
   getToolSpan,
+  itemShowsActivationGlow,
   structureShowsActivationGlow,
   toolShowsActivationGlow,
-  itemShowsActivationGlow,
 } from "@happy-little-bug-town/utils";
 
 import {

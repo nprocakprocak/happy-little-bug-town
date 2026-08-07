@@ -1,7 +1,7 @@
 import { Position } from "@happy-little-bug-town/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { addItemToStack, fetchItems, updateItemPosition } from "../api/items";
+import { addItemToStack, createCraftableItem, fetchItems, updateItemPosition } from "../api/items";
 import { queryKeys } from "../constants/queryKeys";
 import { Item } from "../types/item";
 import { updateStacksCache } from "./useStacks";
@@ -18,6 +18,17 @@ export function useItemsQuery(enabled = true) {
     queryKey: queryKeys.items,
     queryFn: fetchItems,
     enabled,
+  });
+}
+
+export function useCreateItemMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createCraftableItem,
+    onSuccess: (item) => {
+      updateItemsCache(queryClient, (items) => [...items, item]);
+    },
   });
 }
 

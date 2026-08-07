@@ -1,10 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  getVisibleItemCraftProgress,
-  isItemIncomplete,
-} from "@happy-little-bug-town/utils";
+import { getVisibleItemCraftProgress, isItemIncomplete } from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";

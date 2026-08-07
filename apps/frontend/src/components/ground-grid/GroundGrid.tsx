@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   canCraftFromStructureOperationalResources,
+  canCreateItemType,
   canCreateToolType,
   canDropItemOnItem,
   isBuildableStructureType,
   isStructurePowered,
+  ItemType,
   Position,
   Positionable,
   ToolType,
@@ -17,7 +19,7 @@ import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { queryKeys } from "../../constants/queryKeys";
 import { useAuth } from "../../context/AuthContext";
 import { updateBugsCache, useBugsQuery } from "../../hooks/useBugs";
-import { updateItemsCache, useItemsQuery } from "../../hooks/useItems";
+import { updateItemsCache, useCreateItemMutation, useItemsQuery } from "../../hooks/useItems";
 import {
   updateStacksCache,
   useExtractFromStackMutation,
@@ -88,6 +90,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   } = useCreateFirstStructureMutation();
   const createStructure = useCreateStructureMutation();
   const createTool = useCreateToolMutation();
+  const createItem = useCreateItemMutation();
 
   const animatables = useMemo(
     () => [...items, ...stacks, ...bugs, ...structures, ...tools],
@@ -570,6 +573,31 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [cols, rows, structures, items, stacks, bugs, tools, createTool],
   );
 
+  const onWorkshopCreateItem = useCallback(
+    (itemType: ItemType) => {
+      if (!canCreateItemType(items, itemType)) {
+        return;
+      }
+      const position = findFirstStructurePlacement({}, cols, rows, [
+        ...structures,
+        ...items,
+        ...stacks,
+        ...bugs,
+        ...tools,
+      ]);
+      if (!position) {
+        return;
+      }
+      createItem.mutate(
+        { itemType, ...position },
+        {
+          onSuccess: () => setWorkshopPopupOpen(false),
+        },
+      );
+    },
+    [cols, rows, structures, items, stacks, bugs, tools, createItem],
+  );
+
   return (
     <div
       className="w-full"
@@ -655,8 +683,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           <WorkshopPopup
             onClose={() => setWorkshopPopupOpen(false)}
             onCreateTool={onWorkshopCreateTool}
+            onCreateItem={onWorkshopCreateItem}
             tools={tools}
-            isCreating={createTool.isPending}
+            items={items}
+            isCreating={createTool.isPending || createItem.isPending}
           />
         )}
       </div>

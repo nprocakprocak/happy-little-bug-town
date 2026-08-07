@@ -6,8 +6,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { fetchAuthMe, logout as logoutRequest, type AuthUser } from "../api/auth";
 import { AID_STORAGE_KEY } from "../constants/aid";
 import { useRegisterUserMutation } from "../hooks/useUser";
-import { setGoogleAuthHandlers } from "../utils/authReceiver";
 import { useMainStore } from "../stores/main";
+import { setGoogleAuthHandlers } from "../utils/authReceiver";
 
 interface AuthContextValue {
   anonymousId: string;
