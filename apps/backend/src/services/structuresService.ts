@@ -1,11 +1,13 @@
-import { Position, ToolType } from "@happy-little-bug-town/utils";
+import { ItemType, Position, ToolType } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
+import { ItemDto } from "../types/itemDto.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
 import { ToolDto } from "../types/toolDto.js";
-import { toStructureDto, toToolDto } from "./helpers.js";
+import { toItemDto, toStructureDto, toToolDto } from "./helpers.js";
 
 const structureInclude = { items: true, bugs: true, tools: true } as const;
+const itemInclude = { items: true } as const;
 
 export const hasBeetleHouse = async (authorId: string): Promise<boolean> => {
   const count = await prisma.structure.count({
@@ -160,6 +162,55 @@ export const craftOperationalResourceAtStructure = async (
 
     return {
       tool: toToolDto(updatedTool),
+      structure: toStructureDto(updatedStructure),
+    };
+  });
+};
+
+export const craftOperationalItemAtStructure = async (
+  structureId: string,
+  authorId: string,
+  outputItemType: ItemType,
+  operationalItemIds: string[],
+  position: Position,
+): Promise<{ item: ItemDto; structure: StructureDto }> => {
+  return prisma.$transaction(async (tx) => {
+    const craftedItem = await tx.item.create({
+      data: {
+        itemType: outputItemType,
+        x: position.x,
+        y: position.y,
+        authorId,
+      },
+      include: itemInclude,
+    });
+
+    await tx.item.updateMany({
+      where: { id: { in: operationalItemIds } },
+      data: {
+        structureId: null,
+        parentItemId: craftedItem.id,
+        toolId: null,
+        x: null,
+        y: null,
+      },
+    });
+
+    const updatedStructure = await tx.structure.findUnique({
+      where: { id: structureId },
+      include: structureInclude,
+    });
+    const updatedItem = await tx.item.findUnique({
+      where: { id: craftedItem.id },
+      include: itemInclude,
+    });
+
+    if (!updatedStructure || !updatedItem) {
+      throw new Error("Failed to craft operational item at structure");
+    }
+
+    return {
+      item: toItemDto(updatedItem),
       structure: toStructureDto(updatedStructure),
     };
   });

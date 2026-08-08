@@ -23,6 +23,7 @@ import { createItem, generateRandomItemType } from "../services/itemsService.js"
 import {
   createFirstStructure as createFirstStructureService,
   createStructure as createStructureService,
+  craftOperationalItemAtStructure,
   craftOperationalResourceAtStructure,
   getStructure,
   getStructures,
@@ -285,8 +286,8 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
     return;
   }
 
-  const { outputToolType, requirement } = craftableOutput;
-  const operationalItems = getStructureOperationalResourceItems(existingStructure, outputToolType);
+  const { requirement } = craftableOutput;
+  const operationalItems = getStructureOperationalResourceItems(existingStructure, requirement);
   if (operationalItems.length !== requirement.maxCount) {
     res.status(400).json({ error: "Structure does not have enough operational resources to craft" });
     return;
@@ -304,27 +305,45 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
     return;
   }
 
-  const fits = structureFootprintFits(
-    { x: emptyPosition.x, y: emptyPosition.y, toolType: outputToolType },
-    GROUND_WIDTH,
-    GROUND_HEIGHT,
-    entities,
-  );
+  const footprintOrigin =
+    craftableOutput.kind === "tool"
+      ? { x: emptyPosition.x, y: emptyPosition.y, toolType: craftableOutput.outputToolType }
+      : { x: emptyPosition.x, y: emptyPosition.y };
+
+  const fits = structureFootprintFits(footprintOrigin, GROUND_WIDTH, GROUND_HEIGHT, entities);
   if (!fits) {
-    res.status(400).json({ error: "Position is not free for tool" });
+    res.status(400).json({ error: "Position is not free for crafted resource" });
     return;
   }
 
-  const result = await craftOperationalResourceAtStructure(
+  if (craftableOutput.kind === "tool") {
+    const result = await craftOperationalResourceAtStructure(
+      id,
+      authorId,
+      craftableOutput.outputToolType,
+      operationalItems.map((item) => item.id),
+      emptyPosition,
+    );
+
+    res.status(201).json({
+      kind: "tool",
+      tool: toToolOnGridDto(result.tool),
+      structure: toStructureOnGridDto(result.structure),
+    });
+    return;
+  }
+
+  const result = await craftOperationalItemAtStructure(
     id,
     authorId,
-    outputToolType,
+    craftableOutput.outputItemType,
     operationalItems.map((item) => item.id),
     emptyPosition,
   );
 
   res.status(201).json({
-    tool: toToolOnGridDto(result.tool),
+    kind: "item",
+    item: toItemOnGridDto(result.item),
     structure: toStructureOnGridDto(result.structure),
   });
 };

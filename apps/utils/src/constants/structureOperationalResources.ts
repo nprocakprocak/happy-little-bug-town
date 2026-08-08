@@ -7,17 +7,22 @@ export interface StructureOperationalResourceRequirement {
   maxCount: number;
 }
 
-export type StructureOperationalResourceOutputs = Partial<
-  Record<ToolType, StructureOperationalResourceRequirement>
->;
+export interface StructureOperationalResourceOutputs {
+  tools?: Partial<Record<ToolType, StructureOperationalResourceRequirement>>;
+  items?: Partial<Record<ItemType, StructureOperationalResourceRequirement>>;
+}
 
 export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   Record<StructureType, StructureOperationalResourceOutputs>
 > = {
   stonemason: {
-    brick: { itemType: "little_rock", maxCount: 3 },
+    items: {
+      brick: { itemType: "little_rock", maxCount: 3 },
+    },
   },
   woodcutter: {
-    wood: { itemType: "stick", maxCount: 3 },
+    tools: {
+      wood: { itemType: "stick", maxCount: 3 },
+    },
   },
 };

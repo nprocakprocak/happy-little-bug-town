@@ -14,9 +14,22 @@ import {
 } from "./build.js";
 import { isStructurePowered, StructureForPower } from "./power.js";
 
-export interface CraftableOperationalResourceOutput {
-  outputToolType: ToolType;
-  requirement: StructureOperationalResourceRequirement;
+export type CraftableOperationalResourceOutput =
+  | {
+      kind: "tool";
+      outputToolType: ToolType;
+      requirement: StructureOperationalResourceRequirement;
+    }
+  | {
+      kind: "item";
+      outputItemType: ItemType;
+      requirement: StructureOperationalResourceRequirement;
+    };
+
+function getAllOperationalRequirements(
+  outputs: StructureOperationalResourceOutputs,
+): StructureOperationalResourceRequirement[] {
+  return [...Object.values(outputs.tools ?? {}), ...Object.values(outputs.items ?? {})];
 }
 
 function getStructureItemCount(structure: StructureForBuild, itemType: ItemType): number {
@@ -47,20 +60,13 @@ export function getStructureOperationalResourceOutputs(
   return STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS[structureType];
 }
 
-export function getStructureOperationalResourceRequirement(
-  structureType: StructureType,
-  outputToolType: ToolType,
-): StructureOperationalResourceRequirement | undefined {
-  return getStructureOperationalResourceOutputs(structureType)?.[outputToolType];
-}
-
 export function getStructureOperationalResourceCount(structure: StructureForBuild): number {
   const outputs = getStructureOperationalResourceOutputs(structure.structureType);
   if (!outputs) {
     return 0;
   }
 
-  return Object.values(outputs).reduce(
+  return getAllOperationalRequirements(outputs).reduce(
     (maxCount, requirement) =>
       Math.max(maxCount, getOperationalResourceCountForRequirement(structure, requirement)),
     0,
@@ -73,7 +79,7 @@ export function getStructureOperationalResourceLimit(structure: StructureForBuil
     return 0;
   }
 
-  return Object.values(outputs).reduce(
+  return getAllOperationalRequirements(outputs).reduce(
     (maxLimit, requirement) => Math.max(maxLimit, requirement.maxCount),
     0,
   );
@@ -88,7 +94,7 @@ export function canAcceptOperationalResourceForStructure(
     return false;
   }
 
-  return Object.values(outputs).some(
+  return getAllOperationalRequirements(outputs).some(
     (requirement) =>
       requirement.itemType === itemType &&
       getOperationalResourceCountForRequirement(structure, requirement) < requirement.maxCount,
@@ -97,13 +103,9 @@ export function canAcceptOperationalResourceForStructure(
 
 export function getStructureOperationalResourceItems(
   structure: StructureWithIdentifiableItems,
-  outputToolType: ToolType,
+  requirement: StructureOperationalResourceRequirement,
 ): { id: string; itemType: ItemType }[] {
-  const requirement = getStructureOperationalResourceRequirement(
-    structure.structureType,
-    outputToolType,
-  );
-  if (!requirement || !isStructureBuilt(structure)) {
+  if (!isStructureBuilt(structure)) {
     return [];
   }
 
@@ -120,12 +122,21 @@ export function getCraftableOperationalResourceOutput(
     return undefined;
   }
 
-  for (const [outputToolType, requirement] of Object.entries(outputs) as [
+  for (const [outputToolType, requirement] of Object.entries(outputs.tools ?? {}) as [
     ToolType,
     StructureOperationalResourceRequirement,
   ][]) {
     if (getOperationalResourceCountForRequirement(structure, requirement) >= requirement.maxCount) {
-      return { outputToolType, requirement };
+      return { kind: "tool", outputToolType, requirement };
+    }
+  }
+
+  for (const [outputItemType, requirement] of Object.entries(outputs.items ?? {}) as [
+    ItemType,
+    StructureOperationalResourceRequirement,
+  ][]) {
+    if (getOperationalResourceCountForRequirement(structure, requirement) >= requirement.maxCount) {
+      return { kind: "item", outputItemType, requirement };
     }
   }
 
@@ -146,5 +157,5 @@ export function getStructureOperationalResourceDisplayRequirement(
     return undefined;
   }
 
-  return Object.values(outputs)[0];
+  return getAllOperationalRequirements(outputs)[0];
 }

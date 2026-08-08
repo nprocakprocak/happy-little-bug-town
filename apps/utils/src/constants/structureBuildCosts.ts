@@ -36,20 +36,15 @@ export const WOODCUTTER_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 10 },
   { itemType: "root", count: 5 },
   { itemType: "stick", count: 5 },
-];
-
-export const WOODCUTTER_BUILD_TOOL_COSTS: BuildToolCost[] = [
-  { toolType: "brick", count: 5 },
+  { itemType: "brick", count: 5 },
 ];
 
 export const KITCHEN_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 5 },
+  { itemType: "brick", count: 3 },
 ];
 
-export const KITCHEN_BUILD_TOOL_COSTS: BuildToolCost[] = [
-  { toolType: "wood", count: 3 },
-  { toolType: "brick", count: 3 },
-];
+export const KITCHEN_BUILD_TOOL_COSTS: BuildToolCost[] = [{ toolType: "wood", count: 3 }];
 
 export const BUILD_RESOURCE_COSTS: Record<BuildableStructureType, BuildResourceCost[]> = {
   beetle_house: BEETLE_HOUSE_BUILD_COSTS,
@@ -60,6 +55,5 @@ export const BUILD_RESOURCE_COSTS: Record<BuildableStructureType, BuildResourceC
 };
 
 export const BUILD_TOOL_COSTS: Partial<Record<BuildableStructureType, BuildToolCost[]>> = {
-  woodcutter: WOODCUTTER_BUILD_TOOL_COSTS,
   kitchen: KITCHEN_BUILD_TOOL_COSTS,
 };
