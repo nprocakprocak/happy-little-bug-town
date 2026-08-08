@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { ItemType, ToolType } from "@happy-little-bug-town/utils";
+import { ItemType } from "@happy-little-bug-town/utils";
 
 import { PopupActionFooter } from "./PopupActionFooter";
 import { PopupResourceCosts } from "./PopupResourceCosts";
@@ -9,7 +9,6 @@ import { PopupResourceCosts } from "./PopupResourceCosts";
 interface SelectionPopupContentProps {
   slider: ReactNode;
   itemCosts: { itemType: ItemType; count: number }[];
-  toolCosts?: { toolType: ToolType; count: number }[];
   primaryLabel: string;
   onPrimaryClick: () => void;
   onClose: () => void;
@@ -19,7 +18,6 @@ interface SelectionPopupContentProps {
 export function SelectionPopupContent({
   slider,
   itemCosts,
-  toolCosts,
   primaryLabel,
   onPrimaryClick,
   onClose,
@@ -29,7 +27,7 @@ export function SelectionPopupContent({
     <>
       <div className="flex flex-col items-center gap-[3cqi] px-[4cqi] pt-[4cqi] pb-[2cqi]">
         {slider}
-        <PopupResourceCosts itemCosts={itemCosts} toolCosts={toolCosts} />
+        <PopupResourceCosts itemCosts={itemCosts} />
       </div>
       <PopupActionFooter
         primaryLabel={primaryLabel}

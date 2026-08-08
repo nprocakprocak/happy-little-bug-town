@@ -1,10 +1,9 @@
-import { ItemType, Position, ToolType } from "@happy-little-bug-town/utils";
+import { ItemType, Position } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
 import { ItemDto } from "../types/itemDto.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
-import { ToolDto } from "../types/toolDto.js";
-import { toItemDto, toStructureDto, toToolDto } from "./helpers.js";
+import { toItemDto, toStructureDto } from "./helpers.js";
 
 const structureInclude = { items: true, bugs: true, tools: true } as const;
 const itemInclude = { items: true } as const;
@@ -117,54 +116,6 @@ export const updateStructurePosition = async (
     include: structureInclude,
   });
   return toStructureDto(structure);
-};
-
-export const craftOperationalResourceAtStructure = async (
-  structureId: string,
-  authorId: string,
-  outputToolType: ToolType,
-  operationalItemIds: string[],
-  position: Position,
-): Promise<{ tool: ToolDto; structure: StructureDto }> => {
-  return prisma.$transaction(async (tx) => {
-    const tool = await tx.tool.create({
-      data: {
-        toolType: outputToolType,
-        x: position.x,
-        y: position.y,
-        authorId,
-      },
-      include: { items: true },
-    });
-
-    await tx.item.updateMany({
-      where: { id: { in: operationalItemIds } },
-      data: {
-        structureId: null,
-        toolId: tool.id,
-        x: null,
-        y: null,
-      },
-    });
-
-    const updatedStructure = await tx.structure.findUnique({
-      where: { id: structureId },
-      include: structureInclude,
-    });
-    const updatedTool = await tx.tool.findUnique({
-      where: { id: tool.id },
-      include: { items: true },
-    });
-
-    if (!updatedStructure || !updatedTool) {
-      throw new Error("Failed to craft operational resource at structure");
-    }
-
-    return {
-      tool: toToolDto(updatedTool),
-      structure: toStructureDto(updatedStructure),
-    };
-  });
 };
 
 export const craftOperationalItemAtStructure = async (

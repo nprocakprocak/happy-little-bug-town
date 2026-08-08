@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import {
   getStructureBuildProgress,
-  getStructureBuildToolProgress,
   getStructureSpan,
   isStructureIncomplete,
 } from "@happy-little-bug-town/utils";
@@ -16,7 +15,6 @@ import {
   spanCellGridPosition,
 } from "../helpers/groundGridStyles";
 import { itemTypeToImageForItem } from "../helpers/itemTypeToImage";
-import { toolTypeToImage } from "../helpers/toolTypeToImage";
 import { MissingResourceCounter } from "../ui/MissingResourceCounter";
 
 interface StructureBuildProgressLayerProps {
@@ -46,24 +44,11 @@ export function StructureBuildProgressLayer({
         const isDragged =
           gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
         const dragStyle = gridDragStyle(gridDrag, isDragged);
-        const itemProgress = getStructureBuildProgress(structure);
-        const toolProgress = getStructureBuildToolProgress(structure);
-        const progress = [
-          ...itemProgress.map(({ itemType, missing }) => ({
-            key: `item-${itemType}`,
-            missing,
-            imageSrc: itemTypeToImageForItem(itemType),
-          })),
-          ...toolProgress.map(({ toolType, missing }) => ({
-            key: `tool-${toolType}`,
-            missing,
-            imageSrc: toolTypeToImage(toolType),
-          })),
-        ].filter(({ missing }) => missing > 0);
+        const progress = getStructureBuildProgress(structure).filter(({ missing }) => missing > 0);
 
-        return progress.map(({ key, missing, imageSrc }, index) => (
+        return progress.map(({ itemType, missing }, index) => (
           <div
-            key={`${structure.id}-${key}`}
+            key={`${structure.id}-${itemType}`}
             className="relative min-h-0 min-w-0"
             style={{
               ...spanCellGridPosition(
@@ -75,7 +60,7 @@ export function StructureBuildProgressLayer({
               ...dragStyle,
             }}
           >
-            <MissingResourceCounter imageSrc={imageSrc} missing={missing} />
+            <MissingResourceCounter imageSrc={itemTypeToImageForItem(itemType)} missing={missing} />
           </div>
         ));
       })}

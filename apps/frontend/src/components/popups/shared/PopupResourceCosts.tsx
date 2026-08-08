@@ -1,17 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { ItemType, ToolType } from "@happy-little-bug-town/utils";
+import { ItemType } from "@happy-little-bug-town/utils";
 
 import { itemTypeToImageForItem } from "../../helpers/itemTypeToImage";
-import { toolTypeToImage } from "../../helpers/toolTypeToImage";
 
 interface PopupResourceCostsProps {
   itemCosts: { itemType: ItemType; count: number }[];
-  toolCosts?: { toolType: ToolType; count: number }[];
 }
 
-export function PopupResourceCosts({ itemCosts, toolCosts = [] }: PopupResourceCostsProps) {
+export function PopupResourceCosts({ itemCosts }: PopupResourceCostsProps) {
   return (
     <div className="flex w-full flex-wrap items-center justify-center gap-[3cqi]">
       {itemCosts.map(({ itemType, count }) => (
@@ -19,22 +17,6 @@ export function PopupResourceCosts({ itemCosts, toolCosts = [] }: PopupResourceC
           <div className="relative h-[7cqi] w-[7cqi]">
             <Image
               src={itemTypeToImageForItem(itemType)}
-              alt=""
-              fill
-              className="object-contain"
-              sizes="7cqi"
-            />
-          </div>
-          <span className="text-[clamp(0.875rem,4cqi,1.5rem)] font-semibold text-stone-700">
-            {count}
-          </span>
-        </div>
-      ))}
-      {toolCosts.map(({ toolType, count }) => (
-        <div key={toolType} className="flex items-center gap-[1.5cqi]">
-          <div className="relative h-[7cqi] w-[7cqi]">
-            <Image
-              src={toolTypeToImage(toolType)}
               alt=""
               fill
               className="object-contain"

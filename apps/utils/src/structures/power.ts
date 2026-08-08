@@ -8,7 +8,6 @@ import { StructureType } from "../types/structureType.js";
 import { ToolType } from "../types/toolType.js";
 import { isToolCrafted, ToolForCraft } from "../tools/craft.js";
 import {
-  canAcceptToolForBuild,
   isStructureBuilt,
   isStructureIncomplete,
   StructureForBuild,
@@ -33,7 +32,9 @@ export function isBugFed(bug: BugForFedCheck): boolean {
   return bug.itemIds.length >= BEETLE_MAX_LEAF_PARTS;
 }
 
-export function pickMostFedBug<T extends BugForFedCheck>(bugs: readonly T[]): T {
+export function pickMostFedBug<T extends BugForFedCheck>(
+  bugs: T[],
+): T {
   if (bugs.length === 0) {
     throw new Error("Cannot pick most fed bug from empty list");
   }
@@ -43,7 +44,9 @@ export function pickMostFedBug<T extends BugForFedCheck>(bugs: readonly T[]): T 
   );
 }
 
-export function structureDropRequiresFedBug(structureType: StructureType): boolean {
+export function structureDropRequiresFedBug(
+  structureType: StructureType,
+): boolean {
   return structureRequiresPower(structureType);
 }
 
@@ -98,20 +101,25 @@ export function structureRequiresPower(structureType: StructureType): boolean {
   return getStructurePowerRequirement(structureType) !== undefined;
 }
 
-export function getStructurePowerSuppliedCount(structure: StructureForPower): number {
+export function getStructurePowerSuppliedCount(
+  structure: StructureForPower,
+): number {
   const requirement = getStructurePowerRequirement(structure.structureType);
   if (!requirement) {
     return 0;
   }
 
-  return structure.bugs.filter(({ bugType }) => bugType === requirement.occupantBugType).length;
+  return structure.bugs.filter(
+    ({ bugType }) => bugType === requirement.occupantBugType,
+  ).length;
 }
 
 export function getStructureToolPowerSuppliedCount(
   structure: StructureForPower,
   toolType: ToolType,
 ): number {
-  return (structure.tools ?? []).filter((tool) => tool.toolType === toolType).length;
+  return (structure.tools ?? []).filter((tool) => tool.toolType === toolType)
+    .length;
 }
 
 export function getStructurePowerMissing(structure: StructureForPower): number {
@@ -120,23 +128,27 @@ export function getStructurePowerMissing(structure: StructureForPower): number {
     return 0;
   }
 
-  return Math.max(0, requirement.requiredCount - getStructurePowerSuppliedCount(structure));
+  return Math.max(
+    0,
+    requirement.requiredCount - getStructurePowerSuppliedCount(structure),
+  );
 }
 
 export function getStructureToolPowerMissing(
   structure: StructureForPower,
   toolType: ToolType,
 ): number {
-  const toolRequirement = getStructureToolPowerRequirements(structure.structureType).find(
-    (requirement) => requirement.toolType === toolType,
-  );
+  const toolRequirement = getStructureToolPowerRequirements(
+    structure.structureType,
+  ).find((requirement) => requirement.toolType === toolType);
   if (!toolRequirement) {
     return 0;
   }
 
   return Math.max(
     0,
-    toolRequirement.requiredCount - getStructureToolPowerSuppliedCount(structure, toolType),
+    toolRequirement.requiredCount -
+      getStructureToolPowerSuppliedCount(structure, toolType),
   );
 }
 
@@ -146,7 +158,9 @@ export function getStructurePowerOccupantBugType(
   return getStructurePowerRequirement(structureType)?.occupantBugType;
 }
 
-export function hasStructureToolPowerRequirements(structureType: StructureType): boolean {
+export function hasStructureToolPowerRequirements(
+  structureType: StructureType,
+): boolean {
   return getStructureToolPowerRequirements(structureType).length > 0;
 }
 
@@ -160,7 +174,9 @@ export function isStructureBugPowered(structure: StructureForPower): boolean {
 }
 
 export function isStructureToolPowered(structure: StructureForPower): boolean {
-  const toolRequirements = getStructureToolPowerRequirements(structure.structureType);
+  const toolRequirements = getStructureToolPowerRequirements(
+    structure.structureType,
+  );
   if (toolRequirements.length === 0) {
     return true;
   }
@@ -179,9 +195,9 @@ export function canStructureAcceptToolDrop(
   tool: ToolForCraft,
   structure: StructureForBuild & StructureForPower,
 ): boolean {
-  const toolRequirement = getStructureToolPowerRequirements(structure.structureType).find(
-    (requirement) => requirement.toolType === tool.toolType,
-  );
+  const toolRequirement = getStructureToolPowerRequirements(
+    structure.structureType,
+  ).find((requirement) => requirement.toolType === tool.toolType);
   if (!toolRequirement) {
     return false;
   }
@@ -189,7 +205,8 @@ export function canStructureAcceptToolDrop(
   return (
     isStructureBuilt(structure) &&
     isToolCrafted(tool) &&
-    getStructureToolPowerSuppliedCount(structure, tool.toolType) < toolRequirement.requiredCount
+    getStructureToolPowerSuppliedCount(structure, tool.toolType) <
+      toolRequirement.requiredCount
   );
 }
 
@@ -197,10 +214,6 @@ export function canDropToolOnStructure(
   tool: ToolForCraft,
   structure: StructureForBuild & StructureForPower,
 ): boolean {
-  if (canAcceptToolForBuild(structure, tool)) {
-    return true;
-  }
-
   return canStructureAcceptToolDrop(tool, structure);
 }
 
@@ -217,5 +230,7 @@ export function isStructureAwaitingPower(
 export function structureShowsActivationGlow(
   structure: StructureForBuild & StructureForPower,
 ): boolean {
-  return isStructureIncomplete(structure) || isStructureAwaitingPower(structure);
+  return (
+    isStructureIncomplete(structure) || isStructureAwaitingPower(structure)
+  );
 }

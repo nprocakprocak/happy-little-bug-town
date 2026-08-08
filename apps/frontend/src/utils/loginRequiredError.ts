@@ -1,5 +1,5 @@
 export class LoginRequiredError extends Error {
-  readonly code = "LOGIN_REQUIRED" as const;
+  code = "LOGIN_REQUIRED";
 
   constructor(message = "Login required to save progress for this account.") {
     super(message);
