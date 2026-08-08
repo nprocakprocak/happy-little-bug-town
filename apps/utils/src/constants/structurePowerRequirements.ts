@@ -1,16 +1,16 @@
 import { BugType } from "../types/bugType.js";
+import { ItemType } from "../types/itemType.js";
 import { StructureType } from "../types/structureType.js";
-import { ToolType } from "../types/toolType.js";
 
-export interface StructureToolPowerRequirement {
-  toolType: ToolType;
+export interface StructureItemPowerRequirement {
+  itemType: ItemType;
   requiredCount: number;
 }
 
 export interface StructurePowerRequirement {
   requiredCount: number;
   occupantBugType: BugType;
-  toolRequirements?: StructureToolPowerRequirement[];
+  itemRequirements?: StructureItemPowerRequirement[];
 }
 
 export const STRUCTURE_POWER_REQUIREMENTS: Partial<
@@ -20,11 +20,11 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
   stonemason: {
     requiredCount: 10,
     occupantBugType: "beetle",
-    toolRequirements: [{ toolType: "hammer_and_chisel", requiredCount: 3 }],
+    itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 3 }],
   },
   woodcutter: {
     requiredCount: 10,
     occupantBugType: "beetle",
-    toolRequirements: [{ toolType: "axe", requiredCount: 3 }],
+    itemRequirements: [{ itemType: "axe", requiredCount: 3 }],
   },
 };

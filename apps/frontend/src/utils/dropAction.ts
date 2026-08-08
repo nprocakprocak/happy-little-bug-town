@@ -3,7 +3,6 @@ import {
   canDropItemOnItem,
   canDropItemOnStructure,
   canDropItemOnTool,
-  canDropToolOnStructure,
   canStackItemType,
   Position,
   Positionable,
@@ -20,7 +19,7 @@ import {
 } from "../api/items";
 import { createStack, mergeStacks, updateStack } from "../api/stacks";
 import { updateStructurePosition } from "../api/structures";
-import { addToolToStructure, updateToolPosition } from "../api/tools";
+import { updateToolPosition } from "../api/tools";
 import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
@@ -171,22 +170,6 @@ export async function dropAction(
       bugs: bugs.filter((b) => b.id !== originalBug.id),
       structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
       tools,
-    };
-  }
-
-  // drop a tool onto a structure to add it to its tools list
-  if (originalTool && targetStructure) {
-    if (!canDropToolOnStructure(originalTool, targetStructure)) {
-      throw new Error("Tool cannot be placed in structure");
-    }
-    const structure = await addToolToStructure(originalTool.id, targetStructure.id);
-
-    return {
-      items: items,
-      stacks: stacks,
-      bugs: bugs,
-      structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
-      tools: tools.filter((t) => t.id !== originalTool.id),
     };
   }
 

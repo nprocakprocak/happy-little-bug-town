@@ -2,7 +2,6 @@ import { Router, type RequestHandler } from "express";
 
 import {
   canCreateMultipleOfToolType,
-  canDropToolOnStructure,
   GROUND_HEIGHT,
   GROUND_WIDTH,
   structureFootprintFits,
@@ -73,12 +72,7 @@ const createTool: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const fits = structureFootprintFits(
-    { x, y, toolType },
-    GROUND_WIDTH,
-    GROUND_HEIGHT,
-    entities,
-  );
+  const fits = structureFootprintFits({ x, y, toolType }, GROUND_WIDTH, GROUND_HEIGHT, entities);
 
   if (!fits) {
     res.status(400).json({ error: "Position is not free for tool" });
@@ -120,37 +114,6 @@ const updateTool: RequestHandler<{ id: string }> = async (req, res) => {
       return;
     }
     if (existingStructure.structureType === "workshop") {
-      await updateToolService(id, { structureId });
-      const structure = await getStructure(structureId);
-      if (!structure) {
-        res.status(500).json({ error: "Structure not found after updating tool" });
-        return;
-      }
-      res.status(200).json(toStructureOnGridDto(structure));
-      return;
-    }
-
-    if (
-      existingStructure.structureType === "stonemason" ||
-      existingStructure.structureType === "woodcutter" ||
-      existingStructure.structureType === "kitchen"
-    ) {
-      const structureForDrop = {
-        structureType: existingStructure.structureType,
-        items: existingStructure.items,
-        bugs: existingStructure.bugs,
-        tools: existingStructure.tools,
-      };
-      const toolForDrop = {
-        toolType: existingTool.toolType,
-        items: existingTool.items,
-      };
-
-      if (!canDropToolOnStructure(toolForDrop, structureForDrop)) {
-        res.status(400).json({ error: "Structure cannot accept this tool" });
-        return;
-      }
-
       await updateToolService(id, { structureId });
       const structure = await getStructure(structureId);
       if (!structure) {

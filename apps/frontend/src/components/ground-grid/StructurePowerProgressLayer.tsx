@@ -2,11 +2,11 @@
 
 import { useMemo } from "react";
 import {
+  getStructureItemPowerMissing,
+  getStructureItemPowerRequirements,
   getStructurePowerMissing,
   getStructurePowerOccupantBugType,
   getStructureSpan,
-  getStructureToolPowerMissing,
-  getStructureToolPowerRequirements,
   isStructureAwaitingPower,
 } from "@happy-little-bug-town/utils";
 
@@ -17,7 +17,7 @@ import {
   groundGridTemplateStyle,
   spanCellGridPosition,
 } from "../helpers/groundGridStyles";
-import { bugTypeToImage, toolTypeToImage } from "../helpers/itemTypeToImage";
+import { bugTypeToImage, itemTypeToImageForItem } from "../helpers/itemTypeToImage";
 import { MissingResourceCounter } from "../ui/MissingResourceCounter";
 
 interface StructurePowerProgressLayerProps {
@@ -46,12 +46,12 @@ function getStructurePowerCounters(structure: Structure): StructurePowerCounterE
     });
   }
 
-  getStructureToolPowerRequirements(structure.structureType).forEach(({ toolType }) => {
-    const missing = getStructureToolPowerMissing(structure, toolType);
+  getStructureItemPowerRequirements(structure.structureType).forEach(({ itemType }) => {
+    const missing = getStructureItemPowerMissing(structure, itemType);
     if (missing > 0) {
       counters.push({
-        key: `tool-${toolType}`,
-        imageSrc: toolTypeToImage(toolType),
+        key: `item-${itemType}`,
+        imageSrc: itemTypeToImageForItem(itemType),
         missing,
       });
     }

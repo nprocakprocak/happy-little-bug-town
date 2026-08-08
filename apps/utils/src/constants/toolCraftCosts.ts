@@ -12,21 +12,11 @@ export const TOOL_CRAFT_COSTS: Record<ToolType, ToolCraftResourceCost[]> = {
     { itemType: "little_rock", count: 5 },
     { itemType: "stick", count: 5 },
   ],
-  hammer_and_chisel: [
-    { itemType: "little_rock", count: 10 },
-    { itemType: "stick", count: 5 },
-    { itemType: "root", count: 5 },
-  ],
   shovel: [
     { itemType: "leaf_part", count: 5 },
     { itemType: "little_rock", count: 10 },
     { itemType: "stick", count: 10 },
     { itemType: "root", count: 5 },
-  ],
-  axe: [
-    { itemType: "little_rock", count: 1 },
-    { itemType: "stick", count: 1 },
-    { itemType: "root", count: 3 },
   ],
 };
 

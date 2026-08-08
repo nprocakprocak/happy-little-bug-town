@@ -276,7 +276,6 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
     structureType: existingStructure.structureType,
     items: existingStructure.items,
     bugs: existingStructure.bugs,
-    tools: existingStructure.tools,
   };
 
   const craftableOutput = getCraftableOperationalResourceOutput(structureForCraft);

@@ -34,8 +34,6 @@ enum BugType {
 enum ToolType {
   leaf_rake
   shovel
-  hammer_and_chisel
-  axe
 }
 
 model User {
