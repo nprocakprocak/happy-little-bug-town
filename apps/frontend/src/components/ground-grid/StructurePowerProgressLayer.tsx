@@ -17,8 +17,7 @@ import {
   groundGridTemplateStyle,
   spanCellGridPosition,
 } from "../helpers/groundGridStyles";
-import { bugTypeToImage } from "../helpers/itemTypeToImage";
-import { toolTypeToImage } from "../helpers/toolTypeToImage";
+import { bugTypeToImage, toolTypeToImage } from "../helpers/itemTypeToImage";
 import { MissingResourceCounter } from "../ui/MissingResourceCounter";
 
 interface StructurePowerProgressLayerProps {

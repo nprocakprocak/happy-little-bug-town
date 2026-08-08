@@ -15,8 +15,8 @@ import {
   itemTypeToImageForItem,
   itemTypeToImageForStack,
   structureTypeToImage,
+  toolTypeToImage,
 } from "../helpers/itemTypeToImage";
-import { toolTypeToImage } from "../helpers/toolTypeToImage";
 import { FLIGHT_DURATION_MS, FLIGHT_EASING } from "./constants";
 
 type Animatable = GridAnimatable & WithId & Positionable;

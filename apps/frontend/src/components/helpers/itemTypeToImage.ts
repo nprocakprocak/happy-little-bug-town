@@ -1,4 +1,5 @@
 import { BugType, ItemType, StructureType } from "@happy-little-bug-town/utils";
+import { ToolType } from "@happy-little-bug-town/utils";
 
 export function itemTypeToImageForItem(itemType: ItemType): string {
   switch (itemType) {
@@ -14,6 +15,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/brick.webp";
     case "wood":
       return "/items/wood.webp";
+    case "axe":
+      return "/items/axe.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
@@ -59,5 +62,20 @@ export function structureTypeToImage(structureType: StructureType): string {
       return "/structures/field-kitchen.webp";
     default:
       throw new Error(`Unknown structure type: ${structureType}`);
+  }
+}
+
+export function toolTypeToImage(toolType: ToolType): string {
+  switch (toolType) {
+    case "leaf_rake":
+      return "/tools/leaf-rake.webp";
+    case "shovel":
+      return "/tools/shovel.webp";
+    case "hammer_and_chisel":
+      return "/tools/hammer-and-chisel.webp";
+    case "axe":
+      return "/items/axe.webp";
+    default:
+      throw new Error(`Unknown tool type: ${toolType}`);
   }
 }

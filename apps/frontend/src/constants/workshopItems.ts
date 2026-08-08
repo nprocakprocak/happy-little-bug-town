@@ -5,7 +5,7 @@ export interface WorkshopItemOption {
   itemType: ItemType;
 }
 
-const WORKSHOP_ITEM_TYPES: ItemType[] = [];
+const WORKSHOP_ITEM_TYPES: ItemType[] = ["axe"];
 
 export const WORKSHOP_ITEM_OPTIONS: WorkshopItemOption[] = WORKSHOP_ITEM_TYPES.map((itemType) => ({
   id: `workshop-item-option-${itemType}`,

@@ -6,7 +6,7 @@ import { canCreateToolType, getToolCraftCosts, ToolType } from "@happy-little-bu
 import { WORKSHOP_TOOL_OPTIONS } from "../../../constants/workshopTools";
 import { Tool } from "../../../types/tool";
 import { toolTypeToName } from "../../helpers/getToolName";
-import { toolTypeToImage } from "../../helpers/toolTypeToImage";
+import { toolTypeToImage } from "../../helpers/itemTypeToImage";
 import { CarouselSlider } from "../../ui/CarouselSlider";
 import { SelectionPopupContent } from "../shared/SelectionPopupContent";
 

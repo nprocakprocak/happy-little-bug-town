@@ -36,8 +36,8 @@ import {
   itemTypeToImageForItem,
   itemTypeToImageForStack,
   structureTypeToImage,
+  toolTypeToImage,
 } from "../helpers/itemTypeToImage";
-import { toolTypeToImage } from "../helpers/toolTypeToImage";
 
 interface GroundGridAssetLayerProps {
   cols: number;
