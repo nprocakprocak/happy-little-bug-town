@@ -34,7 +34,6 @@ enum ToolType {
   shovel
   hammer_and_chisel
   axe
-  wood
 }
 
 model User {
