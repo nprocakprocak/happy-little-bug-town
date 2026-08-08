@@ -8,8 +8,6 @@ export function toolTypeToName(toolType: ToolType): string {
       return "Shovel";
     case "hammer_and_chisel":
       return "Hammer and chisel";
-    case "brick":
-      return "Brick";
     case "axe":
       return "Axe";
     case "wood":

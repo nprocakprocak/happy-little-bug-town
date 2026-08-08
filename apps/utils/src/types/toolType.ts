@@ -1,1 +1,1 @@
-export type ToolType = "leaf_rake" | "hammer_and_chisel" | "shovel" | "brick" | "axe" | "wood";
+export type ToolType = "leaf_rake" | "hammer_and_chisel" | "shovel" | "axe" | "wood";

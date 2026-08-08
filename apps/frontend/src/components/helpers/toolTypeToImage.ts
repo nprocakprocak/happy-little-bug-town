@@ -8,8 +8,6 @@ export function toolTypeToImage(toolType: ToolType): string {
       return "/tools/shovel.webp";
     case "hammer_and_chisel":
       return "/tools/hammer-and-chisel.webp";
-    case "brick":
-      return "/tools/brick.webp";
     case "axe":
       return "/items/axe.webp";
     case "wood":
