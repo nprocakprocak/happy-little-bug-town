@@ -33,7 +33,7 @@ import { getStructure, hasWorkshop } from "../services/structuresService.js";
 import { getTool, getTools } from "../services/toolsService.js";
 import { UpdateItemData } from "../types/itemDto.js";
 
-const ITEM_TYPES: ItemType[] = ["leaf_part", "little_rock", "root", "stick", "brick"];
+const ITEM_TYPES: ItemType[] = ["leaf_part", "little_rock", "root", "stick", "brick", "wood"];
 
 function isItemType(value: unknown): value is ItemType {
   return typeof value === "string" && ITEM_TYPES.includes(value as ItemType);

@@ -7,6 +7,7 @@ export interface ItemCraftResourceCost {
 
 export const ITEM_CRAFT_COSTS: Partial<Record<ItemType, ItemCraftResourceCost[]>> = {
   brick: [{ itemType: "little_rock", count: 3 }],
+  wood: [{ itemType: "stick", count: 3 }],
 };
 
 export function getItemCraftCosts(itemType: ItemType): ItemCraftResourceCost[] {
