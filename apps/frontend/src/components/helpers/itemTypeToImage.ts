@@ -12,6 +12,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/stick.webp";
     case "brick":
       return "/items/brick.webp";
+    case "wood":
+      return "/items/wood.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
