@@ -1,5 +1,4 @@
-import { BugType, ItemType, StructureType } from "@happy-little-bug-town/utils";
-import { ToolType } from "@happy-little-bug-town/utils";
+import { BugType, ItemType, StructureType, ToolType } from "@happy-little-bug-town/utils";
 
 export function itemTypeToImageForItem(itemType: ItemType): string {
   switch (itemType) {
@@ -17,6 +16,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/wood.webp";
     case "axe":
       return "/items/axe.webp";
+    case "hammer_and_chisel":
+      return "/items/hammer-and-chisel.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }

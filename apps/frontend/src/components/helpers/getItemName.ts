@@ -4,6 +4,8 @@ export function itemTypeToName(itemType: ItemType): string {
   switch (itemType) {
     case "axe":
       return "Axe";
+    case "hammer_and_chisel":
+      return "Hammer and chisel";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }

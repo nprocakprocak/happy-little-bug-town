@@ -15,6 +15,7 @@ enum ItemType {
   brick
   wood
   axe
+  hammer_and_chisel
 }
 
 enum StructureType {
