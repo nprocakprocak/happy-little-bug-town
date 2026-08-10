@@ -1,5 +1,10 @@
 import { ToolType } from "../types/toolType.js";
 
+export function canCreateMultipleOfToolType(toolType: ToolType): boolean {
+  void toolType;
+  return false;
+}
+
 export function hasToolType<T extends { toolType: ToolType }>(
   tools: T[],
   toolType: ToolType,

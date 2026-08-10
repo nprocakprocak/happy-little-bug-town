@@ -577,7 +577,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       if (!canCreateItemType(items, itemType)) {
         return;
       }
-      const position = findFirstStructurePlacement({}, cols, rows, [
+      const position = findFirstStructurePlacement({ itemType }, cols, rows, [
         ...structures,
         ...items,
         ...stacks,

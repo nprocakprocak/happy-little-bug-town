@@ -9,6 +9,7 @@ import {
   canStackItemType,
   canStructureAcceptBugDrop,
   findOverlappingEntity,
+  getItemSpan,
   getStackSpan,
   getStructureSpan,
   getToolSpan,
@@ -179,6 +180,7 @@ export function GroundGridInteractionLayer({
           (structureToDrop ? getStructureSpan(structureToDrop.structureType) : undefined) ??
           (toolToDrop ? getToolSpan(toolToDrop.toolType) : undefined) ??
           (stackToDrop ? getStackSpan() : undefined) ??
+          (itemToDrop ? getItemSpan(itemToDrop.itemType) : undefined) ??
           1;
         const bounds = event.currentTarget.getBoundingClientRect();
         const centerX = bounds.left + bounds.width / draggedSpan / 2;
@@ -194,7 +196,9 @@ export function GroundGridInteractionLayer({
           ...bugs,
         ]);
         const overlappingItem =
-          overlappingEntity && isItem(overlappingEntity) ? overlappingEntity : undefined;
+          overlappingEntity && isItem(overlappingEntity) && overlappingEntity.id !== itemToDrop?.id
+            ? overlappingEntity
+            : undefined;
         const overlappingStack =
           overlappingEntity &&
           isStack(overlappingEntity) &&
@@ -253,17 +257,37 @@ export function GroundGridInteractionLayer({
                 ...stacks,
                 ...bugs,
               ]);
+            const overlapsSelf =
+              !!overlappingEntity &&
+              isItem(overlappingEntity) &&
+              overlappingEntity.id === itemToDrop.id;
+            const dropTarget = overlapsSelf ? undefined : overlappingEntity;
+            const emptyCellBlocked =
+              !dropTarget &&
+              !structureFootprintFits(
+                { x: target.x, y: target.y, itemType: itemToDrop.itemType },
+                cols,
+                rows,
+                [
+                  ...structures,
+                  ...tools,
+                  ...items.filter((i) => i.id !== itemToDrop.id),
+                  ...stacks,
+                  ...bugs,
+                ],
+              );
             const shouldCancel =
               (!!overlappingStructure && !canDropOnStructure) ||
               (!!overlappingTool && !canDropOnTool) ||
               stackNotAllowed ||
               stackFootprintBlocked ||
-              (!!overlappingBug && !canDropLeafOnBeetle);
+              (!!overlappingBug && !canDropLeafOnBeetle) ||
+              emptyCellBlocked;
 
             if (shouldCancel) {
               onItemDropCancelled(itemToDrop.id, target);
             } else {
-              onItemDropped(itemToDrop.id, target, overlappingEntity);
+              onItemDropped(itemToDrop.id, target, dropTarget);
             }
           }
 
@@ -417,6 +441,7 @@ export function GroundGridInteractionLayer({
         const structure = structures.find((s) => s.x === gridCol && s.y === gridRow);
         const tool = tools.find((t) => t.x === gridCol && t.y === gridRow);
         const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
+        const item = items.find((i) => i.x === gridCol && i.y === gridRow);
         const bug = bugs.find((b) => b.x === gridCol && b.y === gridRow);
 
         if (!structure && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structures)) {
@@ -431,11 +456,16 @@ export function GroundGridInteractionLayer({
           return null;
         }
 
+        if (!item && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, items)) {
+          return null;
+        }
+
         const canDrag =
           !!structure ||
           !!tool ||
           !!stack ||
-          positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, [...items, ...bugs]);
+          !!item ||
+          positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, bugs);
 
         const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
         const isDragging = dragState?.index === index;
@@ -450,7 +480,9 @@ export function GroundGridInteractionLayer({
             ? gridPlacementStyle(tool.x, tool.y, getToolSpan(tool.toolType))
             : stack
               ? gridPlacementStyle(stack.x, stack.y, getStackSpan())
-              : gridPlacementStyle(gridCol, gridRow);
+              : item
+                ? gridPlacementStyle(item.x, item.y, getItemSpan(item.itemType))
+                : gridPlacementStyle(gridCol, gridRow);
         const dragStyle =
           isDragging && dragState
             ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }

@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import Image from "next/image";
 import {
+  getItemSpan,
   getStackSpan,
   getStructureOperationalResourceCount,
   getStructureOperationalResourceDisplayRequirement,
@@ -217,13 +218,14 @@ export function GroundGridAssetLayer({
         const imageSource = isBug(item)
           ? bugTypeToImage(item.bugType)
           : itemTypeToImageForItem(item.itemType);
+        const span = isBug(item) ? 1 : getItemSpan(item.itemType);
 
         return (
           <div
             key={item.id}
             className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
             style={{
-              ...gridPlacementStyle(item.x, item.y),
+              ...gridPlacementStyle(item.x, item.y, span),
               ...gridDragStyle(gridDrag, isDragged),
             }}
           >
@@ -233,7 +235,7 @@ export function GroundGridAssetLayer({
                 alt=""
                 fill
                 className="object-cover"
-                sizes={`${Math.ceil(GROUND_GRID_MAX_WIDTH_PX / cols)}px`}
+                sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
               />
               {!isBug(item) && itemShowsActivationGlow(item) && (
                 <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />

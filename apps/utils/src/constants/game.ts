@@ -9,3 +9,4 @@ export const WOODCUTTER_SPAN = 3;
 export const KITCHEN_SPAN = 3;
 export const TOOL_SPAN = 2;
 export const STACK_SPAN = 2;
+export const ITEM_SPAN = 1;

@@ -7,6 +7,7 @@ export * from "./constants/itemCraftCosts.js";
 export * from "./grid/overlaps.js";
 export * from "./items/availability.js";
 export * from "./items/craft.js";
+export * from "./items/span.js";
 export * from "./items/stacking.js";
 export * from "./structures/availability.js";
 export * from "./structures/build.js";

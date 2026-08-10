@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { getVisibleItemCraftProgress, isItemIncomplete } from "@happy-little-bug-town/utils";
+import {
+  getItemSpan,
+  getVisibleItemCraftProgress,
+  isItemIncomplete,
+} from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
@@ -37,13 +41,14 @@ export function ItemCraftProgressLayer({
         const isDragged = gridDrag?.target.kind === "item" && gridDrag.target.itemId === item.id;
         const dragStyle = gridDragStyle(gridDrag, isDragged);
         const progress = getVisibleItemCraftProgress(item);
+        const span = getItemSpan(item.itemType);
 
-        return progress.map(({ itemType, missing }) => (
+        return progress.map(({ itemType, missing }, index) => (
           <div
             key={`${item.id}-${itemType}`}
             className="relative min-h-0 min-w-0"
             style={{
-              ...spanCellGridPosition(item.x, item.y, 1, 0),
+              ...spanCellGridPosition(item.x, item.y, span, index),
               ...dragStyle,
             }}
           >

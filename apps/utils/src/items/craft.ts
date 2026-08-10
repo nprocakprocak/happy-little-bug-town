@@ -1,5 +1,6 @@
 import { getItemCraftCosts } from "../constants/itemCraftCosts.js";
 import { ItemType } from "../types/itemType.js";
+import { getItemSpan } from "./span.js";
 
 export interface ItemCraftIngredient {
   itemType: ItemType;
@@ -21,7 +22,9 @@ export function isItemCrafted(item: ItemForCraft): boolean {
   const costs = getItemCraftCosts(item.itemType);
 
   return costs.every(({ itemType, count }) => {
-    const supplied = item.items.filter((ingredient) => ingredient.itemType === itemType).length;
+    const supplied = item.items.filter(
+      (ingredient) => ingredient.itemType === itemType,
+    ).length;
     return supplied >= count;
   });
 }
@@ -30,11 +33,15 @@ export function isItemIncomplete(item: ItemForCraft): boolean {
   return !isItemCrafted(item);
 }
 
-export function getItemCraftProgress(item: ItemForCraft): ItemCraftResourceProgress[] {
+export function getItemCraftProgress(
+  item: ItemForCraft,
+): ItemCraftResourceProgress[] {
   const costs = getItemCraftCosts(item.itemType);
 
   return costs.map(({ itemType, count: required }) => {
-    const supplied = item.items.filter((ingredient) => ingredient.itemType === itemType).length;
+    const supplied = item.items.filter(
+      (ingredient) => ingredient.itemType === itemType,
+    ).length;
     const missing = Math.max(0, required - supplied);
     return { itemType, supplied, required, missing };
   });
@@ -46,21 +53,43 @@ export function getActiveItemCraftResource(
   return getItemCraftProgress(item).find(({ missing }) => missing > 0);
 }
 
-export function getVisibleItemCraftProgress(item: ItemForCraft): ItemCraftResourceProgress[] {
-  const activeResource = getActiveItemCraftResource(item);
-  return activeResource ? [activeResource] : [];
+export function getVisibleItemCraftProgress(
+  item: ItemForCraft,
+): ItemCraftResourceProgress[] {
+  const progress = getItemCraftProgress(item);
+
+  if (getItemSpan(item.itemType) === 1) {
+    const activeResource = getActiveItemCraftResource(item);
+    return activeResource ? [activeResource] : [];
+  }
+
+  return progress;
 }
 
-export function canAcceptItemForItemCraft(target: ItemForCraft, itemType: ItemType): boolean {
+export function canAcceptItemForItemCraft(
+  target: ItemForCraft,
+  itemType: ItemType,
+): boolean {
   if (!isItemIncomplete(target)) {
     return false;
   }
 
-  const activeResource = getActiveItemCraftResource(target);
-  return activeResource !== undefined && activeResource.itemType === itemType;
+  if (getItemSpan(target.itemType) === 1) {
+    const activeResource = getActiveItemCraftResource(target);
+    return activeResource !== undefined && activeResource.itemType === itemType;
+  }
+
+  const resourceProgress = getItemCraftProgress(target).find(
+    (progress) => progress.itemType === itemType,
+  );
+
+  return resourceProgress !== undefined && resourceProgress.missing > 0;
 }
 
-export function canDropItemOnItem(source: ItemForCraft, target: ItemForCraft): boolean {
+export function canDropItemOnItem(
+  source: ItemForCraft,
+  target: ItemForCraft,
+): boolean {
   if (isItemIncomplete(source)) {
     return false;
   }

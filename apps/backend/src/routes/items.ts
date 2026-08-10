@@ -7,9 +7,11 @@ import {
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
+  GROUND_HEIGHT,
+  GROUND_WIDTH,
   isCraftableItemType,
   ItemType,
-  positionOverlapsAnyEntity,
+  structureFootprintFits,
 } from "@happy-little-bug-town/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
@@ -81,8 +83,9 @@ const createItem: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  if (positionOverlapsAnyEntity({ x, y }, entities)) {
-    res.status(400).json({ error: "Position is already occupied" });
+  const fits = structureFootprintFits({ x, y, itemType }, GROUND_WIDTH, GROUND_HEIGHT, entities);
+  if (!fits) {
+    res.status(400).json({ error: "Position is not free for item" });
     return;
   }
 
@@ -316,8 +319,14 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  if (positionOverlapsAnyEntity({ x, y }, entities)) {
-    res.status(400).json({ error: "Position is already occupied" });
+  const fits = structureFootprintFits(
+    { x, y, itemType: existingItem.itemType },
+    GROUND_WIDTH,
+    GROUND_HEIGHT,
+    entities.filter((entity) => entity.x !== existingItem.x || entity.y !== existingItem.y),
+  );
+  if (!fits) {
+    res.status(400).json({ error: "Position is not free for item" });
     return;
   }
 
