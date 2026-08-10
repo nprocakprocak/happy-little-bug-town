@@ -6,15 +6,10 @@ export interface ToolCraftResourceCost {
   count: number;
 }
 
-export const TOOL_CRAFT_COSTS: Record<ToolType, ToolCraftResourceCost[]> = {
-  shovel: [
-    { itemType: "leaf_part", count: 5 },
-    { itemType: "little_rock", count: 10 },
-    { itemType: "stick", count: 10 },
-    { itemType: "root", count: 5 },
-  ],
-};
+export const TOOL_CRAFT_COSTS: Partial<
+  Record<ToolType, ToolCraftResourceCost[]>
+> = {};
 
 export function getToolCraftCosts(toolType: ToolType): ToolCraftResourceCost[] {
-  return TOOL_CRAFT_COSTS[toolType];
+  return TOOL_CRAFT_COSTS[toolType] ?? [];
 }

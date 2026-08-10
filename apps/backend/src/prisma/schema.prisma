@@ -17,6 +17,7 @@ enum ItemType {
   axe
   hammer_and_chisel
   leaf_rake
+  shovel
 }
 
 enum StructureType {
@@ -30,10 +31,6 @@ enum StructureType {
 
 enum BugType {
   beetle
-}
-
-enum ToolType {
-  shovel
 }
 
 model User {
@@ -128,7 +125,7 @@ model Bug {
 model Tool {
   id          String     @id @default(uuid())
   items       Item[]
-  toolType    ToolType
+  toolType    String
   x           Int?
   y           Int?
   authorId    String

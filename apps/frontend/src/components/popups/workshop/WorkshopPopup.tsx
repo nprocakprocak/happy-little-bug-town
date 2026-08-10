@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ItemType, ToolType } from "@happy-little-bug-town/utils";
 
 import { WORKSHOP_ITEM_OPTIONS } from "../../../constants/workshopItems";
+import { WORKSHOP_TOOL_OPTIONS } from "../../../constants/workshopTools";
 import { Item } from "../../../types/item";
 import { Tool } from "../../../types/tool";
 import { GridPopup } from "../shared/GridPopup";
@@ -29,12 +30,13 @@ export function WorkshopPopup({
   items,
   isCreating,
 }: WorkshopPopupProps) {
+  const hasCraftableTools = WORKSHOP_TOOL_OPTIONS.length > 0;
   const hasCraftableItems = WORKSHOP_ITEM_OPTIONS.length > 0;
-  const [section, setSection] = useState<WorkshopSection>("tools");
+  const [section, setSection] = useState<WorkshopSection>(hasCraftableTools ? "tools" : "items");
 
   return (
     <GridPopup>
-      {hasCraftableItems && (
+      {hasCraftableTools && hasCraftableItems && (
         <div className="flex gap-[2cqi] px-[4cqi] pt-[4cqi]">
           <button
             type="button"
@@ -56,7 +58,7 @@ export function WorkshopPopup({
           </button>
         </div>
       )}
-      {section === "tools" || !hasCraftableItems ? (
+      {section === "tools" && hasCraftableTools ? (
         <WorkshopToolsPopupContent
           onClose={onClose}
           onCreateTool={onCreateTool}

@@ -1,1 +1,1 @@
-export type ToolType = "shovel";
+export type ToolType = string;

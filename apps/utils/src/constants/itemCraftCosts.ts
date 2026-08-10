@@ -25,6 +25,11 @@ export const ITEM_CRAFT_COSTS: Partial<
     { itemType: "little_rock", count: 1 },
     { itemType: "stick", count: 2 },
   ],
+  shovel: [
+    { itemType: "little_rock", count: 2 },
+    { itemType: "stick", count: 1 },
+    { itemType: "root", count: 3 },
+  ],
 };
 
 export function getItemCraftCosts(itemType: ItemType): ItemCraftResourceCost[] {

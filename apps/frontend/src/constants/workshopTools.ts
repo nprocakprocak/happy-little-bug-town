@@ -5,7 +5,7 @@ export interface WorkshopToolOption {
   toolType: ToolType;
 }
 
-const WORKSHOP_TOOL_TYPES: ToolType[] = ["shovel"];
+const WORKSHOP_TOOL_TYPES: ToolType[] = [];
 
 export const WORKSHOP_TOOL_OPTIONS: WorkshopToolOption[] = WORKSHOP_TOOL_TYPES.map((toolType) => ({
   id: `workshop-tool-option-${toolType}`,
