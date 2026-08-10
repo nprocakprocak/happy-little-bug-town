@@ -16,6 +16,7 @@ enum ItemType {
   wood
   axe
   hammer_and_chisel
+  leaf_rake
 }
 
 enum StructureType {
@@ -32,7 +33,6 @@ enum BugType {
 }
 
 enum ToolType {
-  leaf_rake
   shovel
 }
 

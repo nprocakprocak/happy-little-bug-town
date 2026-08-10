@@ -11,7 +11,12 @@ import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { toStackOnGridDto } from "../services/helpers.js";
-import { dissolveStack, getItemsByIds, takeItemFromStack } from "../services/itemsService.js";
+import {
+  dissolveStack,
+  getItemsByIds,
+  getItemsOnGrid,
+  takeItemFromStack,
+} from "../services/itemsService.js";
 import {
   createStackWithItems,
   getStack,
@@ -19,7 +24,6 @@ import {
   mergeStacks as mergeStacksService,
   updateStack as updateStackService,
 } from "../services/stacksService.js";
-import { getTools } from "../services/toolsService.js";
 
 export const stacksRouter = Router();
 
@@ -47,8 +51,8 @@ const createStack: RequestHandler = async (req, res) => {
     return;
   }
 
-  const tools = await getTools(authorId);
-  if (!canStackItemType(itemType, tools)) {
+  const itemsOnGrid = await getItemsOnGrid(authorId);
+  if (!canStackItemType(itemType, itemsOnGrid)) {
     res.status(400).json({ error: "Items of this type cannot be stacked" });
     return;
   }
@@ -162,8 +166,8 @@ const mergeStacks: RequestHandler = async (req, res) => {
     return;
   }
 
-  const tools = await getTools(authorId);
-  if (!canStackItemType(sourceStack.itemType, tools)) {
+  const itemsOnGrid = await getItemsOnGrid(authorId);
+  if (!canStackItemType(sourceStack.itemType, itemsOnGrid)) {
     res.status(400).json({ error: "Stacks of this type cannot be merged" });
     return;
   }

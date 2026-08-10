@@ -76,7 +76,7 @@ export async function dropAction(
 
   // drop one item onto another to create a stack
   if (originalItem && targetItem) {
-    if (!canStackItemType(originalItem.itemType, tools)) {
+    if (!canStackItemType(originalItem.itemType, items)) {
       throw new Error("Items cannot be stacked");
     }
     const stack = await createStack({
@@ -95,7 +95,7 @@ export async function dropAction(
 
   // drop an item onto a stack to add it to its items
   if (originalItem && targetStack) {
-    if (!canStackItemType(originalItem.itemType, tools)) {
+    if (!canStackItemType(originalItem.itemType, items)) {
       throw new Error("Item cannot be added to stack");
     }
     const stack = await addItemToStack(originalItem.id, targetStack.id);
@@ -175,7 +175,7 @@ export async function dropAction(
 
   // drop a stack onto another stack of the same type to merge
   if (originalStack && targetStack) {
-    if (!canStackItemType(originalStack.itemType, tools)) {
+    if (!canStackItemType(originalStack.itemType, items)) {
       throw new Error("Stacks cannot be merged");
     }
     const mergedStack = await mergeStacks(originalStack.id, targetStack.id);

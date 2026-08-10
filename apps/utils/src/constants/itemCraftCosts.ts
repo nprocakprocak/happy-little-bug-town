@@ -20,6 +20,11 @@ export const ITEM_CRAFT_COSTS: Partial<
     { itemType: "stick", count: 2 },
     { itemType: "root", count: 4 },
   ],
+  leaf_rake: [
+    { itemType: "leaf_part", count: 5 },
+    { itemType: "little_rock", count: 1 },
+    { itemType: "stick", count: 2 },
+  ],
 };
 
 export function getItemCraftCosts(itemType: ItemType): ItemCraftResourceCost[] {

@@ -6,4 +6,5 @@ export type ItemType =
   | "brick"
   | "wood"
   | "axe"
-  | "hammer_and_chisel";
+  | "hammer_and_chisel"
+  | "leaf_rake";

@@ -1,1 +1,1 @@
-export type ToolType = "leaf_rake" | "shovel";
+export type ToolType = "shovel";

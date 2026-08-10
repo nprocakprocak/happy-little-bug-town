@@ -233,7 +233,7 @@ export function GroundGridInteractionLayer({
             const typeAllowed = sameTypeItems || sameTypeAsStack;
             const stackNotAllowed =
               wouldCreateOrJoinStack &&
-              (!canStackItemType(itemToDrop.itemType, tools) || !typeAllowed);
+              (!canStackItemType(itemToDrop.itemType, items) || !typeAllowed);
             const canDropLeafOnBeetle =
               itemToDrop.itemType === "leaf_part" &&
               overlappingBug?.bugType === "beetle" &&
@@ -246,7 +246,7 @@ export function GroundGridInteractionLayer({
               !!overlappingItem &&
               !canDropOnItemCraft &&
               sameTypeItems &&
-              canStackItemType(itemToDrop.itemType, tools);
+              canStackItemType(itemToDrop.itemType, items);
             const stackFootprintBlocked =
               wouldCreateStack &&
               overlappingItem !== undefined &&
@@ -295,7 +295,7 @@ export function GroundGridInteractionLayer({
             const isMerge =
               !!overlappingStack &&
               overlappingStack.itemType === stackToDrop.itemType &&
-              canStackItemType(stackToDrop.itemType, tools);
+              canStackItemType(stackToDrop.itemType, items);
             const overlapsSelf =
               overlappingEntity?.x === stackToDrop.x && overlappingEntity?.y === stackToDrop.y;
             const shouldCancel =

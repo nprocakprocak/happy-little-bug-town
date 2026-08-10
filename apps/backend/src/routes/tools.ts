@@ -21,7 +21,7 @@ import {
 } from "../services/toolsService.js";
 import { isPositioned } from "../typeGuards/items.js";
 
-const TOOL_TYPES: ToolType[] = ["leaf_rake", "shovel"];
+const TOOL_TYPES: ToolType[] = ["shovel"];
 
 function isToolType(value: unknown): value is ToolType {
   return typeof value === "string" && TOOL_TYPES.includes(value as ToolType);

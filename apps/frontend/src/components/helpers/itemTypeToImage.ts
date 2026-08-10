@@ -18,6 +18,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/axe.webp";
     case "hammer_and_chisel":
       return "/items/hammer-and-chisel.webp";
+    case "leaf_rake":
+      return "/items/leaf-rake.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
@@ -68,8 +70,6 @@ export function structureTypeToImage(structureType: StructureType): string {
 
 export function toolTypeToImage(toolType: ToolType): string {
   switch (toolType) {
-    case "leaf_rake":
-      return "/tools/leaf-rake.webp";
     case "shovel":
       return "/tools/shovel.webp";
     default:

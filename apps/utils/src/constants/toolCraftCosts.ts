@@ -7,11 +7,6 @@ export interface ToolCraftResourceCost {
 }
 
 export const TOOL_CRAFT_COSTS: Record<ToolType, ToolCraftResourceCost[]> = {
-  leaf_rake: [
-    { itemType: "leaf_part", count: 15 },
-    { itemType: "little_rock", count: 5 },
-    { itemType: "stick", count: 5 },
-  ],
   shovel: [
     { itemType: "leaf_part", count: 5 },
     { itemType: "little_rock", count: 10 },

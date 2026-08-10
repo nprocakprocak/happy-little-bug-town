@@ -32,7 +32,7 @@ import {
 } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
 import { getStructure, hasWorkshop } from "../services/structuresService.js";
-import { getTool, getTools } from "../services/toolsService.js";
+import { getTool } from "../services/toolsService.js";
 import { UpdateItemData } from "../types/itemDto.js";
 
 const ITEM_TYPES: ItemType[] = [
@@ -44,6 +44,7 @@ const ITEM_TYPES: ItemType[] = [
   "wood",
   "axe",
   "hammer_and_chisel",
+  "leaf_rake",
 ];
 
 function isItemType(value: unknown): value is ItemType {
@@ -286,8 +287,8 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
       return;
     }
 
-    const tools = await getTools(authorId);
-    if (!canStackItemType(existingItem.itemType, tools)) {
+    const itemsOnGrid = await getItemsOnGrid(authorId);
+    if (!canStackItemType(existingItem.itemType, itemsOnGrid)) {
       res.status(400).json({ error: "Item cannot be stacked" });
       return;
     }
