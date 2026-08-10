@@ -4,14 +4,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   canCraftFromStructureOperationalResources,
   canCreateItemType,
-  canCreateToolType,
   canDropItemOnItem,
   isBuildableStructureType,
   isStructurePowered,
   ItemType,
   Position,
   Positionable,
-  ToolType,
 } from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -34,15 +32,13 @@ import {
   useExtractOccupantMutation,
   useStructuresQuery,
 } from "../../hooks/useStructures";
-import { updateToolsCache, useCreateToolMutation, useToolsQuery } from "../../hooks/useTools";
 import { Bug } from "../../types/bug";
 import { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
-import { Tool } from "../../types/tool";
 import { dropAction } from "../../utils/dropAction";
-import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGuards";
+import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
 import { findFirstStructurePlacement } from "../helpers/findFirstStructurePlacement";
 import { hasEmptyGridCell } from "../helpers/hasEmptyGridCell";
 import {
@@ -60,7 +56,6 @@ import { ItemFlightLayer } from "./ItemFlightLayer";
 import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
 import { StructurePowerProgressLayer } from "./StructurePowerProgressLayer";
 import { StructureResourceProgressLayer } from "./StructureResourceProgressLayer";
-import { ToolCraftProgressLayer } from "./ToolCraftProgressLayer";
 
 interface GroundGridProps {
   rows: number;
@@ -78,7 +73,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { data: items = [] } = useItemsQuery(canLoadGridData);
   const { data: bugs = [] } = useBugsQuery(canLoadGridData);
   const { data: stacks = [] } = useStacksQuery(canLoadGridData);
-  const { data: tools = [] } = useToolsQuery(canLoadGridData);
   const extractFromStack = useExtractFromStackMutation();
   const dig = useDigMutation();
   const extractOccupantMutation = useExtractOccupantMutation();
@@ -89,12 +83,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     isError: firstStructureCreateFailed,
   } = useCreateFirstStructureMutation();
   const createStructure = useCreateStructureMutation();
-  const createTool = useCreateToolMutation();
   const createItem = useCreateItemMutation();
 
   const animatables = useMemo(
-    () => [...items, ...stacks, ...bugs, ...structures, ...tools],
-    [items, stacks, bugs, structures, tools],
+    () => [...items, ...stacks, ...bugs, ...structures],
+    [items, stacks, bugs, structures],
   );
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
@@ -147,13 +140,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [queryClient],
   );
 
-  const setToolsCache = useCallback(
-    (updater: (tools: Tool[]) => Tool[]) => {
-      updateToolsCache(queryClient, updater);
-    },
-    [queryClient],
-  );
-
   const handleFlightComplete = useCallback(
     (entityId: string) => {
       setItemsCache((prev) =>
@@ -178,13 +164,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             : structure,
         ),
       );
-      setToolsCache((prev) =>
-        prev.map((tool) =>
-          tool.id === entityId ? { ...tool, fromX: undefined, fromY: undefined } : tool,
-        ),
-      );
     },
-    [setItemsCache, setBugsCache, setStructuresCache, setStacksCache, setToolsCache],
+    [setItemsCache, setBugsCache, setStructuresCache, setStacksCache],
   );
 
   const handleItemDropCancelled = useCallback(
@@ -211,13 +192,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             : structure,
         ),
       );
-      setToolsCache((prev) =>
-        prev.map((tool) =>
-          tool.id === itemId ? { ...tool, fromX: position.x, fromY: position.y } : tool,
-        ),
-      );
     },
-    [setItemsCache, setBugsCache, setStacksCache, setStructuresCache, setToolsCache],
+    [setItemsCache, setBugsCache, setStacksCache, setStructuresCache],
   );
 
   // todo: either { x, y } or targetEntity (or separate handlers)
@@ -228,9 +204,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         const originalStack = stacks.find((stack) => stack.id === itemId);
         const originalBug = bugs.find((bug) => bug.id === itemId);
         const originalStructure = structures.find((structure) => structure.id === itemId);
-        const originalTool = tools.find((tool) => tool.id === itemId);
-        const originalEntity =
-          originalItem ?? originalStack ?? originalBug ?? originalStructure ?? originalTool;
+        const originalEntity = originalItem ?? originalStack ?? originalBug ?? originalStructure;
 
         if (!originalEntity) {
           console.error("Can't drop the item, could not find entity with id:", itemId);
@@ -255,11 +229,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           if (originalStructure) {
             setStructuresCache((prev) =>
               prev.map((s) => (s.id === originalStructure.id ? { ...s, x, y } : s)),
-            );
-          }
-          if (originalTool) {
-            setToolsCache((prev) =>
-              prev.map((t) => (t.id === originalTool.id ? { ...t, x, y } : t)),
             );
           }
         }
@@ -307,24 +276,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
-        // drop an item onto a tool to craft it, assume optimistic update
-        if (originalItem && targetEntity && isTool(targetEntity)) {
-          setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
-          setToolsCache((prev) =>
-            prev.map((tool) =>
-              tool.id === targetEntity.id
-                ? {
-                    ...tool,
-                    items: [
-                      ...tool.items,
-                      { id: originalItem.id, itemType: originalItem.itemType },
-                    ],
-                  }
-                : tool,
-            ),
-          );
-        }
-
         // drop an item onto another item to craft it, assume optimistic update
         if (
           originalItem &&
@@ -367,24 +318,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
-        // drop a tool onto a structure to add it to its tools, assume optimistic update
-        if (originalTool && targetEntity && isStructure(targetEntity)) {
-          setToolsCache((prev) => prev.filter((t) => t.id !== originalTool.id));
-          setStructuresCache((prev) =>
-            prev.map((structure) =>
-              structure.id === targetEntity.id
-                ? {
-                    ...structure,
-                    tools: [
-                      ...(structure.tools ?? []),
-                      { id: originalTool.id, toolType: originalTool.toolType },
-                    ],
-                  }
-                : structure,
-            ),
-          );
-        }
-
         // drop a stack onto another stack to merge them, assume optimistic update
         if (originalStack && targetEntity && isStack(targetEntity)) {
           setStacksCache((prev) => {
@@ -407,14 +340,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           stacks: newStacks,
           bugs: newBugs,
           structures: newStructures,
-          tools: newTools,
         } = await dropAction(
           { x, y },
           items,
           stacks,
           bugs,
           structures,
-          tools,
           originalEntity,
           targetEntity,
         );
@@ -423,7 +354,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         queryClient.setQueryData(queryKeys.stacks, newStacks);
         queryClient.setQueryData(queryKeys.bugs, newBugs);
         queryClient.setQueryData(queryKeys.structures, newStructures);
-        queryClient.setQueryData(queryKeys.tools, newTools);
       })();
     },
     [
@@ -431,13 +361,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       stacks,
       bugs,
       structures,
-      tools,
       queryClient,
       setItemsCache,
       setStacksCache,
       setBugsCache,
       setStructuresCache,
-      setToolsCache,
     ],
   );
 
@@ -533,7 +461,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         { structureType: structure.structureType },
         cols,
         rows,
-        [...structures, ...items, ...stacks, ...bugs, ...tools],
+        [...structures, ...items, ...stacks, ...bugs],
       );
       if (!position) {
         return;
@@ -544,32 +472,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       });
       setSelectedBeetle(null);
     },
-    [cols, rows, structures, items, stacks, bugs, tools, createStructure],
-  );
-
-  const onWorkshopCreateTool = useCallback(
-    (toolType: ToolType) => {
-      if (!canCreateToolType(tools, toolType)) {
-        return;
-      }
-      const position = findFirstStructurePlacement({ toolType }, cols, rows, [
-        ...structures,
-        ...items,
-        ...stacks,
-        ...bugs,
-        ...tools,
-      ]);
-      if (!position) {
-        return;
-      }
-      createTool.mutate(
-        { toolType, ...position },
-        {
-          onSuccess: () => setWorkshopPopupOpen(false),
-        },
-      );
-    },
-    [cols, rows, structures, items, stacks, bugs, tools, createTool],
+    [cols, rows, structures, items, stacks, bugs, createStructure],
   );
 
   const onWorkshopCreateItem = useCallback(
@@ -582,7 +485,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         ...items,
         ...stacks,
         ...bugs,
-        ...tools,
       ]);
       if (!position) {
         return;
@@ -594,7 +496,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         },
       );
     },
-    [cols, rows, structures, items, stacks, bugs, tools, createItem],
+    [cols, rows, structures, items, stacks, bugs, createItem],
   );
 
   return (
@@ -618,7 +520,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           items={items}
           stacks={stacks}
           bugs={bugs}
-          tools={tools}
           gridDrag={gridDrag}
         />
         <ItemFlightLayer
@@ -646,7 +547,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           structures={structures}
           gridDrag={gridDrag}
         />
-        <ToolCraftProgressLayer cols={cols} rows={rows} tools={tools} gridDrag={gridDrag} />
         <ItemCraftProgressLayer cols={cols} rows={rows} items={items} gridDrag={gridDrag} />
         <BugsProgressLayer cols={cols} rows={rows} bugs={bugs} gridDrag={gridDrag} />
         <StructureResourceProgressLayer
@@ -662,7 +562,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           items={items}
           stacks={stacks}
           bugs={bugs}
-          tools={tools}
           onStructureClick={onStructureClick}
           onStackClick={onStackClick}
           onBeetleClick={onBeetleClick}
@@ -681,11 +580,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         {workshopPopupOpen && (
           <WorkshopPopup
             onClose={() => setWorkshopPopupOpen(false)}
-            onCreateTool={onWorkshopCreateTool}
             onCreateItem={onWorkshopCreateItem}
-            tools={tools}
             items={items}
-            isCreating={createTool.isPending || createItem.isPending}
+            isCreating={createItem.isPending}
           />
         )}
       </div>

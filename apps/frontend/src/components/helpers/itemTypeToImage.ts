@@ -1,4 +1,4 @@
-import { BugType, ItemType, StructureType, ToolType } from "@happy-little-bug-town/utils";
+import { BugType, ItemType, StructureType } from "@happy-little-bug-town/utils";
 
 export function itemTypeToImageForItem(itemType: ItemType): string {
   switch (itemType) {
@@ -68,8 +68,4 @@ export function structureTypeToImage(structureType: StructureType): string {
     default:
       throw new Error(`Unknown structure type: ${structureType}`);
   }
-}
-
-export function toolTypeToImage(toolType: ToolType): string {
-  throw new Error(`Unknown tool type: ${toolType}`);
 }

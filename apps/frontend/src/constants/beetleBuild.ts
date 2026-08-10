@@ -18,6 +18,5 @@ export const BUILDING_OPTIONS: Structure[] = BUILDABLE_STRUCTURE_TYPES.map<Struc
     structureType,
     items: [],
     bugs: [],
-    tools: [],
   }),
 );

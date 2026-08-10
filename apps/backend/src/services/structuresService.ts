@@ -5,7 +5,7 @@ import { ItemDto } from "../types/itemDto.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
 import { toItemDto, toStructureDto } from "./helpers.js";
 
-const structureInclude = { items: true, bugs: true, tools: true } as const;
+const structureInclude = { items: true, bugs: true } as const;
 const itemInclude = { items: true } as const;
 
 export const hasBeetleHouse = async (authorId: string): Promise<boolean> => {
@@ -141,7 +141,6 @@ export const craftOperationalItemAtStructure = async (
       data: {
         structureId: null,
         parentItemId: craftedItem.id,
-        toolId: null,
         x: null,
         y: null,
       },

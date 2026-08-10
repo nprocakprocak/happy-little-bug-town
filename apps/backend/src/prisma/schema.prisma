@@ -46,7 +46,6 @@ model User {
   structures Structure[]
   stacks     Stack[]
   bugs       Bug[]
-  tools      Tool[]
 }
 
 model Session {
@@ -69,7 +68,6 @@ model Item {
   stackId      String?
   bugId        String?
   structureId  String?
-  toolId       String?
   parentItemId String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -77,7 +75,6 @@ model Item {
   stack        Stack?     @relation(fields: [stackId], references: [id])
   bug          Bug?       @relation(fields: [bugId], references: [id])
   structure    Structure? @relation(fields: [structureId], references: [id])
-  tool         Tool?      @relation(fields: [toolId], references: [id])
   parentItem   Item?      @relation("ItemCraft", fields: [parentItemId], references: [id])
   items        Item[]     @relation("ItemCraft")
 }
@@ -86,7 +83,6 @@ model Structure {
   id            String        @id @default(uuid())
   bugs          Bug[]
   items         Item[]
-  tools         Tool[]
   structureType StructureType
   x             Int
   y             Int
@@ -112,20 +108,6 @@ model Bug {
   id          String     @id @default(uuid())
   items       Item[]
   bugType     BugType
-  x           Int?
-  y           Int?
-  authorId    String
-  structureId String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  author      User       @relation(fields: [authorId], references: [id])
-  structure   Structure? @relation(fields: [structureId], references: [id])
-}
-
-model Tool {
-  id          String     @id @default(uuid())
-  items       Item[]
-  toolType    String
   x           Int?
   y           Int?
   authorId    String

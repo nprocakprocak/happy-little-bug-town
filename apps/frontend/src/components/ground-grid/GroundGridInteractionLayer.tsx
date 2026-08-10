@@ -5,14 +5,12 @@ import {
   BEETLE_MAX_LEAF_PARTS,
   canDropItemOnItem,
   canDropItemOnStructure,
-  canDropItemOnTool,
   canStackItemType,
   canStructureAcceptBugDrop,
   findOverlappingEntity,
   getItemSpan,
   getStackSpan,
   getStructureSpan,
-  getToolSpan,
   isBugFed,
   Position,
   Positionable,
@@ -27,8 +25,7 @@ import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
-import { Tool } from "../../types/tool";
-import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGuards";
+import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
 import { buildGridDragPayload } from "../helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
 import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
@@ -41,7 +38,6 @@ interface GroundGridInteractionLayerProps {
   items: Item[];
   stacks: Stack[];
   bugs: Bug[];
-  tools: Tool[];
   onStructureClick: (structure: Structure) => void;
   onStackClick: (stack: Stack) => void;
   onBeetleClick: (bug: Bug) => void;
@@ -57,7 +53,6 @@ export function GroundGridInteractionLayer({
   items,
   stacks,
   bugs,
-  tools,
   onStructureClick,
   onStackClick,
   onBeetleClick,
@@ -105,17 +100,7 @@ export function GroundGridInteractionLayer({
 
     if (hasDraggedRef.current) {
       setDragState({ index, dx, dy });
-      const payload = buildGridDragPayload(
-        index,
-        dx,
-        dy,
-        cols,
-        structures,
-        tools,
-        items,
-        stacks,
-        bugs,
-      );
+      const payload = buildGridDragPayload(index, dx, dy, cols, structures, items, stacks, bugs);
       if (payload !== null) {
         onDragChange(payload);
       }
@@ -126,17 +111,7 @@ export function GroundGridInteractionLayer({
     if (distance >= DRAG_THRESHOLD_PX) {
       hasDraggedRef.current = true;
       setDragState({ index, dx, dy });
-      const payload = buildGridDragPayload(
-        index,
-        dx,
-        dy,
-        cols,
-        structures,
-        tools,
-        items,
-        stacks,
-        bugs,
-      );
+      const payload = buildGridDragPayload(index, dx, dy, cols, structures, items, stacks, bugs);
       if (payload !== null) {
         onDragChange(payload);
       }
@@ -172,13 +147,10 @@ export function GroundGridInteractionLayer({
         const stackToDrop = stacks.find((s) => s.x === gridCol && s.y === gridRow);
         const bugToDrop = bugs.find((b) => b.x === gridCol && b.y === gridRow);
         const structureToDrop = structures.find((s) => s.x === gridCol && s.y === gridRow);
-        const toolToDrop = tools.find((t) => t.x === gridCol && t.y === gridRow);
-        const entityToDrop =
-          itemToDrop ?? stackToDrop ?? bugToDrop ?? structureToDrop ?? toolToDrop;
+        const entityToDrop = itemToDrop ?? stackToDrop ?? bugToDrop ?? structureToDrop;
 
         const draggedSpan =
           (structureToDrop ? getStructureSpan(structureToDrop.structureType) : undefined) ??
-          (toolToDrop ? getToolSpan(toolToDrop.toolType) : undefined) ??
           (stackToDrop ? getStackSpan() : undefined) ??
           (itemToDrop ? getItemSpan(itemToDrop.itemType) : undefined) ??
           1;
@@ -190,7 +162,6 @@ export function GroundGridInteractionLayer({
 
         const overlappingEntity = findOverlappingEntity({ x: target.x, y: target.y }, [
           ...structures,
-          ...tools,
           ...items,
           ...stacks,
           ...bugs,
@@ -211,10 +182,6 @@ export function GroundGridInteractionLayer({
           overlappingEntity &&
           isStructure(overlappingEntity) &&
           overlappingEntity.id !== structureToDrop?.id
-            ? overlappingEntity
-            : undefined;
-        const overlappingTool =
-          overlappingEntity && isTool(overlappingEntity) && overlappingEntity.id !== toolToDrop?.id
             ? overlappingEntity
             : undefined;
 
@@ -240,8 +207,6 @@ export function GroundGridInteractionLayer({
               overlappingBug.itemIds.length < BEETLE_MAX_LEAF_PARTS;
             const canDropOnStructure =
               !!overlappingStructure && canDropItemOnStructure(itemToDrop, overlappingStructure);
-            const canDropOnTool =
-              !!overlappingTool && canDropItemOnTool(itemToDrop, overlappingTool);
             const wouldCreateStack =
               !!overlappingItem &&
               !canDropOnItemCraft &&
@@ -252,7 +217,6 @@ export function GroundGridInteractionLayer({
               overlappingItem !== undefined &&
               !structureFootprintFits({ x: target.x, y: target.y, itemsCount: 2 }, cols, rows, [
                 ...structures,
-                ...tools,
                 ...items.filter((i) => i.id !== itemToDrop.id && i.id !== overlappingItem.id),
                 ...stacks,
                 ...bugs,
@@ -268,17 +232,10 @@ export function GroundGridInteractionLayer({
                 { x: target.x, y: target.y, itemType: itemToDrop.itemType },
                 cols,
                 rows,
-                [
-                  ...structures,
-                  ...tools,
-                  ...items.filter((i) => i.id !== itemToDrop.id),
-                  ...stacks,
-                  ...bugs,
-                ],
+                [...structures, ...items.filter((i) => i.id !== itemToDrop.id), ...stacks, ...bugs],
               );
             const shouldCancel =
               (!!overlappingStructure && !canDropOnStructure) ||
-              (!!overlappingTool && !canDropOnTool) ||
               stackNotAllowed ||
               stackFootprintBlocked ||
               (!!overlappingBug && !canDropLeafOnBeetle) ||
@@ -313,7 +270,6 @@ export function GroundGridInteractionLayer({
                 rows,
                 [
                   ...structures,
-                  ...tools,
                   ...items,
                   ...stacks.filter((s) => s.id !== stackToDrop.id),
                   ...bugs,
@@ -339,7 +295,6 @@ export function GroundGridInteractionLayer({
               rows,
               [
                 ...structures.filter((s) => s.id !== structureToDrop.id),
-                ...tools,
                 ...items,
                 ...stacks,
                 ...bugs,
@@ -350,32 +305,6 @@ export function GroundGridInteractionLayer({
               onItemDropped(structureToDrop.id, target);
             } else {
               onItemDropCancelled(structureToDrop.id, target);
-            }
-          }
-
-          if (toolToDrop) {
-            if (overlappingStructure) {
-              onItemDropCancelled(toolToDrop.id, target);
-              return;
-            }
-
-            const fits = structureFootprintFits(
-              { x: target.x, y: target.y, toolType: toolToDrop.toolType },
-              cols,
-              rows,
-              [
-                ...structures,
-                ...tools.filter((t) => t.id !== toolToDrop.id),
-                ...items,
-                ...stacks,
-                ...bugs,
-              ],
-            );
-
-            if (fits) {
-              onItemDropped(toolToDrop.id, target);
-            } else {
-              onItemDropCancelled(toolToDrop.id, target);
             }
           }
 
@@ -439,16 +368,11 @@ export function GroundGridInteractionLayer({
         const gridRow = Math.floor(index / cols) + 1;
         const gridCol = (index % cols) + 1;
         const structure = structures.find((s) => s.x === gridCol && s.y === gridRow);
-        const tool = tools.find((t) => t.x === gridCol && t.y === gridRow);
         const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
         const item = items.find((i) => i.x === gridCol && i.y === gridRow);
         const bug = bugs.find((b) => b.x === gridCol && b.y === gridRow);
 
         if (!structure && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structures)) {
-          return null;
-        }
-
-        if (!tool && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, tools)) {
           return null;
         }
 
@@ -462,7 +386,6 @@ export function GroundGridInteractionLayer({
 
         const canDrag =
           !!structure ||
-          !!tool ||
           !!stack ||
           !!item ||
           positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, bugs);
@@ -476,13 +399,11 @@ export function GroundGridInteractionLayer({
             : "bg-transparent";
         const placementStyle = structure
           ? gridPlacementStyle(structure.x, structure.y, getStructureSpan(structure.structureType))
-          : tool
-            ? gridPlacementStyle(tool.x, tool.y, getToolSpan(tool.toolType))
-            : stack
-              ? gridPlacementStyle(stack.x, stack.y, getStackSpan())
-              : item
-                ? gridPlacementStyle(item.x, item.y, getItemSpan(item.itemType))
-                : gridPlacementStyle(gridCol, gridRow);
+          : stack
+            ? gridPlacementStyle(stack.x, stack.y, getStackSpan())
+            : item
+              ? gridPlacementStyle(item.x, item.y, getItemSpan(item.itemType))
+              : gridPlacementStyle(gridCol, gridRow);
         const dragStyle =
           isDragging && dragState
             ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }

@@ -3,7 +3,7 @@ import { Item } from "../prisma/prisma/client.js";
 export type CreateItemData = Pick<Item, "itemType" | "x" | "y" | "authorId">;
 
 export type UpdateItemData = Partial<
-  Pick<Item, "x" | "y" | "stackId" | "bugId" | "structureId" | "toolId" | "parentItemId">
+  Pick<Item, "x" | "y" | "stackId" | "bugId" | "structureId" | "parentItemId">
 >;
 
 export type ItemOnItem = Pick<Item, "id" | "itemType">;

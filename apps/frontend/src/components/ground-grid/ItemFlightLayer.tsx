@@ -7,7 +7,7 @@ import { getSpannableSpan, Positionable } from "@happy-little-bug-town/utils";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { GridAnimatable } from "../../types/gridAnimatable";
 import { WithId } from "../../types/withId";
-import { isBug, isItem, isStack, isStructure, isTool } from "../../utils/typeGuards";
+import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
 import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
 import { isFlyingItem } from "../helpers/isFlyingItem";
 import {
@@ -15,7 +15,6 @@ import {
   itemTypeToImageForItem,
   itemTypeToImageForStack,
   structureTypeToImage,
-  toolTypeToImage,
 } from "../helpers/itemTypeToImage";
 import { FLIGHT_DURATION_MS, FLIGHT_EASING } from "./constants";
 
@@ -33,9 +32,6 @@ function animatableImageSrc(animatable: Animatable): string {
   }
   if (isStructure(animatable)) {
     return structureTypeToImage(animatable.structureType);
-  }
-  if (isTool(animatable)) {
-    return toolTypeToImage(animatable.toolType);
   }
   throw new Error(`Unknown animatable type: ${animatable}`);
 }

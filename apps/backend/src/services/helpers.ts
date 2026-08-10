@@ -3,7 +3,6 @@ import { BugDto, BugOnGridDto } from "../types/bugDto.js";
 import { ItemDto, ItemOnGridDto, ItemWithItems } from "../types/itemDto.js";
 import { StackDto, StackOnGridDto, StackWithItems } from "../types/stackDto.js";
 import { StructureDto, StructureOnGridDto, StructureWithItems } from "../types/structureDto.js";
-import { ToolDto, ToolOnGridDto, ToolWithItems } from "../types/toolDto.js";
 
 export function toItemDto(item: ItemWithItems): ItemDto {
   return {
@@ -28,7 +27,6 @@ export function toStructureDto(structure: StructureWithItems): StructureDto {
     authorId: structure.authorId,
     items: structure.items.map((item) => ({ id: item.id, itemType: item.itemType })),
     bugs: structure.bugs.map((bug) => ({ id: bug.id, bugType: bug.bugType })),
-    tools: structure.tools.map((tool) => ({ id: tool.id, toolType: tool.toolType })),
   };
 }
 
@@ -40,7 +38,6 @@ export function toStructureOnGridDto(structure: StructureDto): StructureOnGridDt
     y: structure.y,
     items: structure.items,
     bugs: structure.bugs,
-    tools: structure.tools,
   };
 }
 
@@ -102,31 +99,5 @@ export function toBugOnGridDto(bug: BugDto): BugOnGridDto {
     x: bug.x,
     y: bug.y,
     itemIds: bug.itemIds,
-  };
-}
-
-export function toToolDto(tool: ToolWithItems): ToolDto {
-  return {
-    id: tool.id,
-    toolType: tool.toolType,
-    x: tool.x,
-    y: tool.y,
-    authorId: tool.authorId,
-    structureId: tool.structureId,
-    items: tool.items.map((item) => ({ id: item.id, itemType: item.itemType })),
-  };
-}
-
-export function toToolOnGridDto(tool: ToolDto): ToolOnGridDto {
-  if (!tool.x || !tool.y) {
-    throw new Error(`Tool ${tool.id} is not on a grid`);
-  }
-
-  return {
-    id: tool.id,
-    toolType: tool.toolType,
-    x: tool.x,
-    y: tool.y,
-    items: tool.items,
   };
 }

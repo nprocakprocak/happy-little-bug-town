@@ -8,10 +8,8 @@ import {
   getStructureOperationalResourceCount,
   getStructureOperationalResourceDisplayRequirement,
   getStructureSpan,
-  getToolSpan,
   itemShowsActivationGlow,
   structureShowsActivationGlow,
-  toolShowsActivationGlow,
 } from "@happy-little-bug-town/utils";
 
 import {
@@ -24,7 +22,6 @@ import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
-import { Tool } from "../../types/tool";
 import { isBug } from "../../utils/typeGuards";
 import {
   gridDragStyle,
@@ -37,7 +34,6 @@ import {
   itemTypeToImageForItem,
   itemTypeToImageForStack,
   structureTypeToImage,
-  toolTypeToImage,
 } from "../helpers/itemTypeToImage";
 
 interface GroundGridAssetLayerProps {
@@ -47,7 +43,6 @@ interface GroundGridAssetLayerProps {
   items: Item[];
   stacks: Stack[];
   bugs: Bug[];
-  tools: Tool[];
   gridDrag: DragPayload | null;
 }
 
@@ -58,7 +53,6 @@ export function GroundGridAssetLayer({
   items,
   stacks,
   bugs,
-  tools,
   gridDrag,
 }: GroundGridAssetLayerProps) {
   const allGrounded = useMemo(() => {
@@ -148,36 +142,6 @@ export function GroundGridAssetLayer({
                       sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
                     />
                   </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      {tools
-        .filter((tool) => !isFlyingItem(tool))
-        .map((tool) => {
-          const isDragged = gridDrag?.target.kind === "tool" && gridDrag.target.toolId === tool.id;
-          const span = getToolSpan(tool.toolType);
-
-          return (
-            <div
-              key={tool.id}
-              className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
-              style={{
-                ...gridPlacementStyle(tool.x, tool.y, span),
-                ...gridDragStyle(gridDrag, isDragged),
-              }}
-            >
-              <div className="relative h-full w-full">
-                <Image
-                  src={toolTypeToImage(tool.toolType)}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
-                />
-                {toolShowsActivationGlow(tool) && (
-                  <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
                 )}
               </div>
             </div>

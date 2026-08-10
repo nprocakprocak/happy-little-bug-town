@@ -2,7 +2,6 @@ import { Router, type RequestHandler } from "express";
 
 import {
   BEETLE_MAX_LEAF_PARTS,
-  canAcceptItemForToolCraft,
   canCreateItemType,
   canDropItemOnItem,
   canDropItemOnStructure,
@@ -22,7 +21,6 @@ import {
   toItemOnGridDto,
   toStackOnGridDto,
   toStructureOnGridDto,
-  toToolOnGridDto,
 } from "../services/helpers.js";
 import {
   createItem as createItemService,
@@ -32,7 +30,6 @@ import {
 } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
 import { getStructure, hasWorkshop } from "../services/structuresService.js";
-import { getTool } from "../services/toolsService.js";
 import { UpdateItemData } from "../types/itemDto.js";
 
 const ITEM_TYPES: ItemType[] = [
@@ -102,7 +99,7 @@ const createItem: RequestHandler = async (req, res) => {
 
 const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = async (req, res) => {
   const { id } = req.params;
-  const { x, y, stackId, bugId, structureId, toolId, parentItemId } = req.body;
+  const { x, y, stackId, bugId, structureId, parentItemId } = req.body;
   const authorId = req.authorId!;
 
   if (parentItemId) {
@@ -141,41 +138,6 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
       return;
     }
     res.status(200).json(toItemOnGridDto(updatedParentItem));
-    return;
-  }
-
-  if (toolId) {
-    const existingItem = await getItemService(id);
-    if (!existingItem) {
-      res.status(400).json({ error: "Item not found when updating" });
-      return;
-    }
-    if (existingItem.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
-      return;
-    }
-
-    const existingTool = await getTool(toolId);
-    if (!existingTool) {
-      res.status(400).json({ error: "Tool not found when updating item" });
-      return;
-    }
-    if (existingTool.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
-      return;
-    }
-    if (!canAcceptItemForToolCraft(existingTool, existingItem.itemType)) {
-      res.status(400).json({ error: "Item cannot be added to tool" });
-      return;
-    }
-
-    await updateItemService(id, { toolId });
-    const tool = await getTool(toolId);
-    if (!tool) {
-      res.status(500).json({ error: "Tool not found after updating item" });
-      return;
-    }
-    res.status(200).json(toToolOnGridDto(tool));
     return;
   }
 

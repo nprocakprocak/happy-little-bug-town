@@ -1,7 +1,7 @@
+import { BUG_SPAN } from "../constants/game.js";
 import { getItemSpan } from "../items/span.js";
 import { getStackSpan } from "../stacks/span.js";
 import { getStructureSpan } from "../structures/span.js";
-import { getToolSpan } from "../tools/span.js";
 import { Position } from "../types/position.js";
 import { Positionable } from "../types/positionable.js";
 import { Spannable } from "../types/spannable.js";
@@ -15,16 +15,11 @@ export function getSpannableSpan(spannable: Spannable): number {
     return getStackSpan();
   }
 
-  if ("toolType" in spannable && spannable.toolType !== undefined) {
-    return getToolSpan(spannable.toolType);
-  }
-
   if ("itemType" in spannable && spannable.itemType !== undefined) {
     return getItemSpan(spannable.itemType);
   }
 
-  // bug span
-  return 1;
+  return BUG_SPAN;
 }
 
 function positionOverlaps(position: Position, entity: Positionable): boolean {
@@ -38,10 +33,7 @@ function positionOverlaps(position: Position, entity: Positionable): boolean {
   );
 }
 
-export function positionOverlapsAnyEntity(
-  position: Position,
-  entities: Positionable[],
-): boolean {
+export function positionOverlapsAnyEntity(position: Position, entities: Positionable[]): boolean {
   return entities.some((entity) => positionOverlaps(position, entity));
 }
 

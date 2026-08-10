@@ -74,17 +74,6 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
       y: null,
       stackId: null,
       structureId: null,
-      toolId: null,
-      parentItemId: null,
-    };
-  } else if (item.toolId) {
-    data = {
-      toolId: item.toolId,
-      x: null,
-      y: null,
-      stackId: null,
-      bugId: null,
-      structureId: null,
       parentItemId: null,
     };
   } else if (item.structureId) {
@@ -94,14 +83,12 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
       y: null,
       stackId: null,
       bugId: null,
-      toolId: null,
       parentItemId: null,
     };
   } else if (item.stackId) {
     data = {
       bugId: null,
       structureId: null,
-      toolId: null,
       parentItemId: null,
       x: null,
       y: null,
@@ -115,7 +102,6 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
       stackId: null,
       bugId: null,
       structureId: null,
-      toolId: null,
     };
   } else {
     data = {
@@ -124,7 +110,6 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
       stackId: null,
       bugId: null,
       structureId: null,
-      toolId: null,
       parentItemId: null,
     };
   }
