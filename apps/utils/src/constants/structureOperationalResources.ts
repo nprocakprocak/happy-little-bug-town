@@ -19,4 +19,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   woodcutter: {
     wood: { itemType: "stick", maxCount: 3 },
   },
+  kitchen: {
+    nettle_soup: { itemType: "leaf_part", maxCount: 2 },
+  },
 };

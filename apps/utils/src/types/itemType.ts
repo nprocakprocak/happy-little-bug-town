@@ -9,4 +9,5 @@ export type ItemType =
   | "hammer_and_chisel"
   | "leaf_rake"
   | "shovel"
-  | "knife";
+  | "knife"
+  | "nettle_soup";

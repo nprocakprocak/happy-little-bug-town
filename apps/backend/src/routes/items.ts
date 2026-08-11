@@ -44,6 +44,7 @@ const ITEM_TYPES: ItemType[] = [
   "leaf_rake",
   "shovel",
   "knife",
+  "nettle_soup",
 ];
 
 function isItemType(value: unknown): value is ItemType {

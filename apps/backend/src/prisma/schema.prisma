@@ -19,6 +19,7 @@ enum ItemType {
   leaf_rake
   shovel
   knife
+  nettle_soup
 }
 
 enum StructureType {
