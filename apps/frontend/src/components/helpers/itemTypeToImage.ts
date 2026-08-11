@@ -26,6 +26,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/knife.webp";
     case "nettle_soup":
       return "/items/nettle-soup.webp";
+    case "grilled_roots":
+      return "/items/grilled-roots.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }

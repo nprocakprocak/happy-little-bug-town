@@ -10,4 +10,5 @@ export type ItemType =
   | "leaf_rake"
   | "shovel"
   | "knife"
-  | "nettle_soup";
+  | "nettle_soup"
+  | "grilled_roots";

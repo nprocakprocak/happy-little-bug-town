@@ -18,10 +18,25 @@ export interface CraftableOperationalResourceOutput {
   requirement: StructureOperationalResourceRequirement;
 }
 
+export interface StructureOperationalResourceProgress {
+  outputItemType: ItemType;
+  requirement: StructureOperationalResourceRequirement;
+  count: number;
+}
+
 function getAllOperationalRequirements(
   outputs: StructureOperationalResourceOutputs,
 ): StructureOperationalResourceRequirement[] {
   return Object.values(outputs);
+}
+
+function getOperationalOutputEntries(
+  outputs: StructureOperationalResourceOutputs,
+): [ItemType, StructureOperationalResourceRequirement][] {
+  return Object.entries(outputs) as [
+    ItemType,
+    StructureOperationalResourceRequirement,
+  ][];
 }
 
 function getStructureItemCount(
@@ -61,40 +76,37 @@ export function getStructureOperationalResourceOutputs(
   return STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS[structureType];
 }
 
-export function getStructureOperationalResourceCount(
+export function getStructureOperationalResourceProgresses(
   structure: StructureForBuild,
-): number {
+): StructureOperationalResourceProgress[] {
   const outputs = getStructureOperationalResourceOutputs(
     structure.structureType,
   );
   if (!outputs) {
-    return 0;
+    return [];
   }
 
-  return getAllOperationalRequirements(outputs).reduce(
-    (maxCount, requirement) =>
-      Math.max(
-        maxCount,
-        getOperationalResourceCountForRequirement(structure, requirement),
-      ),
-    0,
+  return getOperationalOutputEntries(outputs).map(
+    ([outputItemType, requirement]) => ({
+      outputItemType,
+      requirement,
+      count: getOperationalResourceCountForRequirement(structure, requirement),
+    }),
   );
 }
 
-export function getStructureOperationalResourceLimit(
+export function getVisibleStructureOperationalResourceProgresses(
   structure: StructureForBuild,
-): number {
-  const outputs = getStructureOperationalResourceOutputs(
-    structure.structureType,
+): StructureOperationalResourceProgress[] {
+  return getStructureOperationalResourceProgresses(structure).filter(
+    (progress) => progress.count > 0,
   );
-  if (!outputs) {
-    return 0;
-  }
+}
 
-  return getAllOperationalRequirements(outputs).reduce(
-    (maxLimit, requirement) => Math.max(maxLimit, requirement.maxCount),
-    0,
-  );
+export function hasStructureOperationalResources(
+  structure: StructureForBuild,
+): boolean {
+  return getVisibleStructureOperationalResourceProgresses(structure).length > 0;
 }
 
 export function canAcceptOperationalResourceForStructure(
@@ -141,45 +153,29 @@ export function getStructureOperationalResourceItems(
 export function getCraftableOperationalResourceOutput(
   structure: StructureForBuild & StructureForPower,
 ): CraftableOperationalResourceOutput | undefined {
-  const outputs = getStructureOperationalResourceOutputs(
-    structure.structureType,
-  );
-  if (
-    !outputs ||
-    !isStructureBuilt(structure) ||
-    !isStructurePowered(structure)
-  ) {
+  if (!isStructureBuilt(structure) || !isStructurePowered(structure)) {
     return undefined;
   }
 
-  for (const [outputItemType, requirement] of Object.entries(outputs) as [
-    ItemType,
-    StructureOperationalResourceRequirement,
-  ][]) {
-    if (
-      getOperationalResourceCountForRequirement(structure, requirement) >=
-      requirement.maxCount
-    ) {
-      return { outputItemType, requirement };
-    }
+  return getStructureOperationalResourceProgresses(structure).find(
+    (progress) => progress.count >= progress.requirement.maxCount,
+  );
+}
+
+export function getCraftableOperationalResourceOutputs(
+  structure: StructureForBuild & StructureForPower,
+): CraftableOperationalResourceOutput[] {
+  if (!isStructureBuilt(structure) || !isStructurePowered(structure)) {
+    return [];
   }
 
-  return undefined;
+  return getStructureOperationalResourceProgresses(structure).filter(
+    (progress) => progress.count >= progress.requirement.maxCount,
+  );
 }
 
 export function canCraftFromStructureOperationalResources(
   structure: StructureForBuild & StructureForPower,
 ): boolean {
   return getCraftableOperationalResourceOutput(structure) !== undefined;
-}
-
-export function getStructureOperationalResourceDisplayRequirement(
-  structureType: StructureType,
-): StructureOperationalResourceRequirement | undefined {
-  const outputs = getStructureOperationalResourceOutputs(structureType);
-  if (!outputs) {
-    return undefined;
-  }
-
-  return getAllOperationalRequirements(outputs)[0];
 }

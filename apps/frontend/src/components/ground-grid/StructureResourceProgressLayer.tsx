@@ -2,9 +2,9 @@
 
 import { useMemo } from "react";
 import {
-  getStructureOperationalResourceCount,
-  getStructureOperationalResourceLimit,
   getStructureSpan,
+  getVisibleStructureOperationalResourceProgresses,
+  hasStructureOperationalResources,
 } from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../../types/dragPayload";
@@ -33,8 +33,7 @@ export function StructureResourceProgressLayer({
   const structuresWithResources = useMemo(
     () =>
       structures.filter(
-        (structure) =>
-          !isFlyingItem(structure) && getStructureOperationalResourceCount(structure) > 0,
+        (structure) => !isFlyingItem(structure) && hasStructureOperationalResources(structure),
       ),
     [structures],
   );
@@ -48,6 +47,7 @@ export function StructureResourceProgressLayer({
         const isDragged =
           gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
         const span = getStructureSpan(structure.structureType);
+        const progresses = getVisibleStructureOperationalResourceProgresses(structure);
 
         return (
           <div
@@ -59,19 +59,28 @@ export function StructureResourceProgressLayer({
             }}
           >
             <div
-              className="absolute min-h-0 min-w-0"
+              className="absolute flex min-h-0 min-w-0 items-end gap-[4%]"
               style={{
                 right: 0,
                 bottom: 0,
-                width: `${100 / span}%`,
+                width: `${(100 / span) * Math.min(progresses.length, span)}%`,
                 height: `${100 / span}%`,
+                paddingInline: "6%",
+                paddingBottom: "6%",
               }}
             >
-              <ResourceProgressBar
-                collected={getStructureOperationalResourceCount(structure)}
-                max={getStructureOperationalResourceLimit(structure)}
-                layout="corner"
-              />
+              {progresses.map((progress) => (
+                <div
+                  key={`${structure.id}-${progress.outputItemType}`}
+                  className="relative h-[clamp(3px,18%,5px)] min-h-[3px] min-w-0 flex-1"
+                >
+                  <ResourceProgressBar
+                    collected={progress.count}
+                    max={progress.requirement.maxCount}
+                    layout="inline"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         );

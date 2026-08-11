@@ -5,9 +5,8 @@ import Image from "next/image";
 import {
   getItemSpan,
   getStackSpan,
-  getStructureOperationalResourceCount,
-  getStructureOperationalResourceDisplayRequirement,
   getStructureSpan,
+  getVisibleStructureOperationalResourceProgresses,
   itemShowsActivationGlow,
   structureShowsActivationGlow,
 } from "@happy-little-bug-town/utils";
@@ -79,10 +78,8 @@ export function GroundGridAssetLayer({
           const showActivationGlow = structureShowsActivationGlow(structure);
           const firstHouseBug =
             structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
-          const operationalResourceRequirement = getStructureOperationalResourceDisplayRequirement(
-            structure.structureType,
-          );
-          const operationalResourceCount = getStructureOperationalResourceCount(structure);
+          const operationalResourceProgresses =
+            getVisibleStructureOperationalResourceProgresses(structure);
           const span = getStructureSpan(structure.structureType);
 
           return (
@@ -124,23 +121,30 @@ export function GroundGridAssetLayer({
                     />
                   </div>
                 )}
-                {operationalResourceRequirement && operationalResourceCount > 0 && (
+                {operationalResourceProgresses.length > 0 && (
                   <div
-                    className="absolute min-h-0 min-w-0 overflow-hidden rounded-sm"
+                    className="absolute flex min-h-0 min-w-0 overflow-hidden rounded-sm"
                     style={{
                       right: 0,
                       bottom: 0,
-                      width: `${100 / span}%`,
+                      width: `${(100 / span) * Math.min(operationalResourceProgresses.length, span)}%`,
                       height: `${100 / span}%`,
                     }}
                   >
-                    <Image
-                      src={itemTypeToImageForItem(operationalResourceRequirement.itemType)}
-                      alt=""
-                      fill
-                      className="object-contain p-[8%] drop-shadow-sm"
-                      sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
-                    />
+                    {operationalResourceProgresses.map((progress) => (
+                      <div
+                        key={`${structure.id}-${progress.outputItemType}`}
+                        className="relative min-h-0 min-w-0 flex-1 overflow-hidden"
+                      >
+                        <Image
+                          src={itemTypeToImageForItem(progress.requirement.itemType)}
+                          alt=""
+                          fill
+                          className="object-contain p-[8%] drop-shadow-sm"
+                          sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
+                        />
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

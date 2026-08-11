@@ -282,7 +282,10 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const { requirement } = craftableOutput;
-  const operationalItems = getStructureOperationalResourceItems(existingStructure, requirement);
+  const operationalItems = getStructureOperationalResourceItems(
+    existingStructure,
+    requirement,
+  ).slice(0, requirement.maxCount);
   if (operationalItems.length < requirement.maxCount) {
     res
       .status(400)
