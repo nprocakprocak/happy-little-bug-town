@@ -283,7 +283,7 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
 
   const { requirement } = craftableOutput;
   const operationalItems = getStructureOperationalResourceItems(existingStructure, requirement);
-  if (operationalItems.length !== requirement.maxCount) {
+  if (operationalItems.length < requirement.maxCount) {
     res
       .status(400)
       .json({ error: "Structure does not have enough operational resources to craft" });
