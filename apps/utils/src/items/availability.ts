@@ -1,8 +1,14 @@
 import { isCraftableItemType } from "../constants/itemCraftCosts.js";
 import { ItemType } from "../types/itemType.js";
 
+const UNIQUE_CRAFTABLE_ITEM_TYPES = new Set<ItemType>(["leaf_rake", "shovel"]);
+
 export function canCreateMultipleOfItemType(itemType: ItemType): boolean {
-  return isCraftableItemType(itemType);
+  if (!isCraftableItemType(itemType)) {
+    return false;
+  }
+
+  return !UNIQUE_CRAFTABLE_ITEM_TYPES.has(itemType);
 }
 
 export function hasItemType<T extends { itemType: ItemType }>(
@@ -12,7 +18,10 @@ export function hasItemType<T extends { itemType: ItemType }>(
   return items.some((item) => item.itemType === itemType);
 }
 
-export function canCreateItemType(items: { itemType: ItemType }[], itemType: ItemType): boolean {
+export function canCreateItemType(
+  items: { itemType: ItemType }[],
+  itemType: ItemType,
+): boolean {
   if (!isCraftableItemType(itemType)) {
     return false;
   }
