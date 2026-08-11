@@ -3,6 +3,7 @@ import {
   HOLE_SPAN,
   KITCHEN_SPAN,
   STONEMASON_SPAN,
+  TAVERN_SPAN,
   WOODCUTTER_SPAN,
   WORKSHOP_SPAN,
 } from "../constants/game.js";
@@ -20,6 +21,8 @@ export function getStructureSpan(structureType: StructureType): number {
       return WOODCUTTER_SPAN;
     case "kitchen":
       return KITCHEN_SPAN;
+    case "tavern":
+      return TAVERN_SPAN;
     case "beetle_house":
       return BEETLE_HOUSE_SPAN;
   }

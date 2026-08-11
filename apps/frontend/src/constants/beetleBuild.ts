@@ -8,6 +8,7 @@ const BUILDABLE_STRUCTURE_TYPES: BuildableStructureType[] = [
   "stonemason",
   "woodcutter",
   "kitchen",
+  "tavern",
 ];
 
 export const BUILDING_OPTIONS: Structure[] = BUILDABLE_STRUCTURE_TYPES.map<Structure>(

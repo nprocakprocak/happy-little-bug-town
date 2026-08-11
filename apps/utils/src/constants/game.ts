@@ -7,6 +7,7 @@ export const WORKSHOP_SPAN = 3;
 export const STONEMASON_SPAN = 3;
 export const WOODCUTTER_SPAN = 3;
 export const KITCHEN_SPAN = 3;
+export const TAVERN_SPAN = 3;
 export const STACK_SPAN = 2;
 export const ITEM_SPAN = 1;
 export const BUG_SPAN = 1;

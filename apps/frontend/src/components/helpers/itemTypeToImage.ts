@@ -71,6 +71,8 @@ export function structureTypeToImage(structureType: StructureType): string {
       return "/structures/woodcutter.webp";
     case "kitchen":
       return "/structures/field-kitchen.webp";
+    case "tavern":
+      return "/structures/tavern.webp";
     default:
       throw new Error(`Unknown structure type: ${structureType}`);
   }

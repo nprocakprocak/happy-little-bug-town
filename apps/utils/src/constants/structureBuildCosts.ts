@@ -39,6 +39,12 @@ export const KITCHEN_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "wood", count: 3 },
 ];
 
+export const TAVERN_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "leaf_part", count: 3 },
+  { itemType: "brick", count: 4 },
+  { itemType: "wood", count: 4 },
+];
+
 export const BUILD_RESOURCE_COSTS: Record<
   BuildableStructureType,
   BuildResourceCost[]
@@ -48,4 +54,5 @@ export const BUILD_RESOURCE_COSTS: Record<
   stonemason: STONEMASON_BUILD_COSTS,
   woodcutter: WOODCUTTER_BUILD_COSTS,
   kitchen: KITCHEN_BUILD_COSTS,
+  tavern: TAVERN_BUILD_COSTS,
 };

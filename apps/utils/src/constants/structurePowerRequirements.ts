@@ -32,4 +32,8 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
     occupantBugType: "beetle",
     itemRequirements: [{ itemType: "knife", requiredCount: 2 }],
   },
+  tavern: {
+    requiredCount: 4,
+    occupantBugType: "beetle",
+  },
 };

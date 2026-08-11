@@ -3,6 +3,7 @@ export type BuildableStructureType =
   | "workshop"
   | "stonemason"
   | "woodcutter"
-  | "kitchen";
+  | "kitchen"
+  | "tavern";
 
 export type StructureType = "hole" | BuildableStructureType;

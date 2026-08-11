@@ -4,10 +4,6 @@ export function isBuildableStructureType(
   structureType: StructureType,
 ): structureType is BuildableStructureType {
   return (
-    structureType === "beetle_house" ||
-    structureType === "workshop" ||
-    structureType === "stonemason" ||
-    structureType === "woodcutter" ||
-    structureType === "kitchen"
+    ["beetle_house", "workshop", "stonemason", "woodcutter", "kitchen", "tavern"].includes(structureType)
   );
 }
