@@ -30,6 +30,6 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
   kitchen: {
     requiredCount: 1,
     occupantBugType: "beetle",
-    itemRequirements: [],
+    itemRequirements: [{ itemType: "knife", requiredCount: 2 }],
   },
 };
