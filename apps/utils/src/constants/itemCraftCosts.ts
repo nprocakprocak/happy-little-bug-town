@@ -22,13 +22,18 @@ export const ITEM_CRAFT_COSTS: Partial<
   ],
   leaf_rake: [
     { itemType: "leaf_part", count: 5 },
-    { itemType: "little_rock", count: 1 },
-    { itemType: "stick", count: 2 },
+    { itemType: "brick", count: 1 },
+    { itemType: "wood", count: 1 },
+    { itemType: "root", count: 2 },
   ],
   shovel: [
     { itemType: "little_rock", count: 2 },
     { itemType: "stick", count: 1 },
     { itemType: "root", count: 3 },
+  ],
+  knife: [
+    { itemType: "brick", count: 1 },
+    { itemType: "wood", count: 1 },
   ],
 };
 

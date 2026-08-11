@@ -8,4 +8,5 @@ export type ItemType =
   | "axe"
   | "hammer_and_chisel"
   | "leaf_rake"
-  | "shovel";
+  | "shovel"
+  | "knife";

@@ -10,6 +10,8 @@ export function itemTypeToName(itemType: ItemType): string {
       return "Leaf rake";
     case "shovel":
       return "Shovel";
+    case "knife":
+      return "Knife";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
