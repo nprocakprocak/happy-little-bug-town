@@ -52,6 +52,8 @@ export function bugTypeToImage(bugType: BugType): string {
   switch (bugType) {
     case "beetle":
       return "/bugs/beetle.webp";
+    case "ant":
+      return "/bugs/ant.webp";
     default:
       throw new Error(`Unknown bug type: ${bugType}`);
   }

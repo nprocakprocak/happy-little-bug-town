@@ -1,5 +1,6 @@
 import {
   STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS,
+  StructureOperationalOutputType,
   StructureOperationalResourceOutputs,
   StructureOperationalResourceRequirement,
 } from "../constants/structureOperationalResources.js";
@@ -14,12 +15,12 @@ import {
 import { isStructurePowered, StructureForPower } from "./power.js";
 
 export interface CraftableOperationalResourceOutput {
-  outputItemType: ItemType;
+  outputType: StructureOperationalOutputType;
   requirement: StructureOperationalResourceRequirement;
 }
 
 export interface StructureOperationalResourceProgress {
-  outputItemType: ItemType;
+  outputType: StructureOperationalOutputType;
   requirement: StructureOperationalResourceRequirement;
   count: number;
 }
@@ -32,9 +33,9 @@ function getAllOperationalRequirements(
 
 function getOperationalOutputEntries(
   outputs: StructureOperationalResourceOutputs,
-): [ItemType, StructureOperationalResourceRequirement][] {
+): [StructureOperationalOutputType, StructureOperationalResourceRequirement][] {
   return Object.entries(outputs) as [
-    ItemType,
+    StructureOperationalOutputType,
     StructureOperationalResourceRequirement,
   ][];
 }
@@ -87,8 +88,8 @@ export function getStructureOperationalResourceProgresses(
   }
 
   return getOperationalOutputEntries(outputs).map(
-    ([outputItemType, requirement]) => ({
-      outputItemType,
+    ([outputType, requirement]) => ({
+      outputType,
       requirement,
       count: getOperationalResourceCountForRequirement(structure, requirement),
     }),

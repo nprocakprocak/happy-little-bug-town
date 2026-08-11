@@ -133,7 +133,7 @@ export function GroundGridAssetLayer({
                   >
                     {operationalResourceProgresses.map((progress) => (
                       <div
-                        key={`${structure.id}-${progress.outputItemType}`}
+                        key={`${structure.id}-${progress.outputType}`}
                         className="relative min-h-0 min-w-0 flex-1 overflow-hidden"
                       >
                         <Image

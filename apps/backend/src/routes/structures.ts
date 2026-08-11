@@ -5,6 +5,7 @@ import {
   getStructureOperationalResourceItems,
   GROUND_HEIGHT,
   GROUND_WIDTH,
+  isCraftableBugType,
   pickMostFedBug,
   structureFootprintFits,
 } from "@happy-little-bug-town/utils";
@@ -21,6 +22,7 @@ import {
 import { toBugOnGridDto, toItemOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
 import { createItem, generateRandomItemType } from "../services/itemsService.js";
 import {
+  craftOperationalBugAtStructure,
   craftOperationalItemAtStructure,
   createFirstStructure as createFirstStructureService,
   createStructure as createStructureService,
@@ -320,10 +322,26 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
     return;
   }
 
+  if (isCraftableBugType(craftableOutput.outputType)) {
+    const result = await craftOperationalBugAtStructure(
+      id,
+      authorId,
+      craftableOutput.outputType,
+      operationalItems.map((item) => item.id),
+      emptyPosition,
+    );
+
+    res.status(201).json({
+      bug: toBugOnGridDto(result.bug),
+      structure: toStructureOnGridDto(result.structure),
+    });
+    return;
+  }
+
   const result = await craftOperationalItemAtStructure(
     id,
     authorId,
-    craftableOutput.outputItemType,
+    craftableOutput.outputType,
     operationalItems.map((item) => item.id),
     emptyPosition,
   );

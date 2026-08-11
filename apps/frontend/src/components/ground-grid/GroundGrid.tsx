@@ -410,7 +410,18 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           setStructuresCache((prev) =>
             prev.map((s) => (s.id === result.structure.id ? result.structure : s)),
           );
-          setItemsCache((prev) => [...prev, { ...result.item, fromX: origin.x, fromY: origin.y }]);
+          if (result.bug) {
+            const craftedBug = result.bug;
+            setBugsCache((prev) => [...prev, { ...craftedBug, fromX: origin.x, fromY: origin.y }]);
+            return;
+          }
+          if (result.item) {
+            const craftedItem = result.item;
+            setItemsCache((prev) => [
+              ...prev,
+              { ...craftedItem, fromX: origin.x, fromY: origin.y },
+            ]);
+          }
         })();
         return;
       }

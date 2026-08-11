@@ -71,7 +71,7 @@ export function StructureResourceProgressLayer({
             >
               {progresses.map((progress) => (
                 <div
-                  key={`${structure.id}-${progress.outputItemType}`}
+                  key={`${structure.id}-${progress.outputType}`}
                   className="relative h-[clamp(3px,18%,5px)] min-h-[3px] min-w-0 flex-1"
                 >
                   <ResourceProgressBar

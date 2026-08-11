@@ -1,9 +1,10 @@
-import { ItemType, Position } from "@happy-little-bug-town/utils";
+import { BugType, ItemType, Position } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
+import { BugDto } from "../types/bugDto.js";
 import { ItemDto } from "../types/itemDto.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
-import { toItemDto, toStructureDto } from "./helpers.js";
+import { toBugDto, toItemDto, toStructureDto } from "./helpers.js";
 
 const structureInclude = { items: true, bugs: true } as const;
 const itemInclude = { items: true } as const;
@@ -171,6 +172,48 @@ export const craftOperationalItemAtStructure = async (
 
     return {
       item: toItemDto(updatedItem),
+      structure: toStructureDto(updatedStructure),
+    };
+  });
+};
+
+export const craftOperationalBugAtStructure = async (
+  structureId: string,
+  authorId: string,
+  outputBugType: BugType,
+  operationalItemIds: string[],
+  position: Position,
+): Promise<{ bug: BugDto; structure: StructureDto }> => {
+  return prisma.$transaction(async (tx) => {
+    const craftedBug = await tx.bug.create({
+      data: {
+        bugType: outputBugType,
+        x: position.x,
+        y: position.y,
+        authorId,
+      },
+    });
+
+    await tx.item.updateMany({
+      where: { id: { in: operationalItemIds } },
+      data: {
+        structureId: null,
+        x: null,
+        y: null,
+      },
+    });
+
+    const updatedStructure = await tx.structure.findUnique({
+      where: { id: structureId },
+      include: structureInclude,
+    });
+
+    if (!updatedStructure) {
+      throw new Error("Failed to craft operational bug at structure");
+    }
+
+    return {
+      bug: toBugDto({ ...craftedBug, items: [] }),
       structure: toStructureDto(updatedStructure),
     };
   });

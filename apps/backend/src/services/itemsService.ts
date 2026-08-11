@@ -1,7 +1,6 @@
-import { Position } from "@happy-little-bug-town/utils";
+import { DiggableType, Position } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
-import { BugType, ItemType } from "../prisma/prisma/client.js";
 import { CreateItemData, ItemDto, UpdateItemData } from "../types/itemDto.js";
 import { toItemDto } from "./helpers.js";
 
@@ -122,7 +121,7 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
   return toItemDto(updatedItem);
 };
 
-export function generateRandomItemType(): ItemType | BugType {
+export function generateRandomItemType(): DiggableType {
   const seed = Math.random();
   return DIGGABLE_TYPES.find((itemType) => seed < ITEM_TYPES_WEIGHTS[itemType]) ?? "leaf_part";
 }
