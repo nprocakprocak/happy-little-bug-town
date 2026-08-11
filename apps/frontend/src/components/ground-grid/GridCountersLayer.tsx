@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { getStackSpan, getStructureSpan } from "@happy-little-bug-town/utils";
+import {
+  getHoleAntOccupancyProgress,
+  getStackSpan,
+  getStructureSpan,
+} from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../../types/dragPayload";
 import { Stack } from "../../types/stack";
@@ -9,9 +13,11 @@ import { Structure } from "../../types/structure";
 import {
   footprintBottomRightCell,
   gridDragStyle,
+  gridPlacementStyle,
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
 import { isFlyingItem } from "../helpers/isFlyingItem";
+import { ResourceProgressBar } from "../ui/ResourceProgressBar";
 
 interface GridCountersLayerProps {
   cols: number;
@@ -45,7 +51,17 @@ export function GridCountersLayer({
     () =>
       structures.filter(
         (structure) =>
-          structure.structureType === "beetle_house" && (structure.bugs ?? []).length > 0,
+          !isFlyingItem(structure) &&
+          structure.structureType === "beetle_house" &&
+          (structure.bugs ?? []).length > 0,
+      ),
+    [structures],
+  );
+
+  const holesWithAntProgress = useMemo(
+    () =>
+      structures.filter(
+        (structure) => !isFlyingItem(structure) && getHoleAntOccupancyProgress(structure) !== null,
       ),
     [structures],
   );
@@ -93,6 +109,46 @@ export function GridCountersLayer({
             }}
           >
             <CounterBadge count={(structure.bugs ?? []).length} />
+          </div>
+        );
+      })}
+      {holesWithAntProgress.map((structure) => {
+        const isDragged =
+          gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+        const span = getStructureSpan(structure.structureType);
+        const progress = getHoleAntOccupancyProgress(structure);
+        if (!progress) {
+          return null;
+        }
+
+        return (
+          <div
+            key={`hole-ant-progress-${structure.id}`}
+            className="relative min-h-0 min-w-0"
+            style={{
+              ...gridPlacementStyle(structure.x, structure.y, span),
+              ...gridDragStyle(gridDrag, isDragged),
+            }}
+          >
+            <div
+              className="absolute flex min-h-0 min-w-0 items-end"
+              style={{
+                right: 0,
+                bottom: 0,
+                width: `${100 / span}%`,
+                height: `${100 / span}%`,
+                paddingInline: "6%",
+                paddingBottom: "6%",
+              }}
+            >
+              <div className="relative h-[clamp(3px,18%,5px)] min-h-[3px] min-w-0 flex-1">
+                <ResourceProgressBar
+                  collected={progress.count}
+                  max={progress.max}
+                  layout="inline"
+                />
+              </div>
+            </div>
           </div>
         );
       })}

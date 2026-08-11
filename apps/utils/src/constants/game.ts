@@ -1,6 +1,7 @@
 export const GROUND_WIDTH = 10;
 export const GROUND_HEIGHT = 16;
 export const BEETLE_MAX_LEAF_PARTS = 2;
+export const HOLE_ANT_CAPACITY = 3;
 export const HOLE_SPAN = 2;
 export const BEETLE_HOUSE_SPAN = 3;
 export const WORKSHOP_SPAN = 3;

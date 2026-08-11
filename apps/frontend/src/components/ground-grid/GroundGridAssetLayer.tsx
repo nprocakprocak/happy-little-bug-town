@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import Image from "next/image";
 import {
+  getHoleAntOccupancyProgress,
   getItemSpan,
   getStackSpan,
   getStructureSpan,
@@ -78,6 +79,8 @@ export function GroundGridAssetLayer({
           const showActivationGlow = structureShowsActivationGlow(structure);
           const firstHouseBug =
             structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
+          const holeAntProgress =
+            structure.structureType === "hole" ? getHoleAntOccupancyProgress(structure) : null;
           const operationalResourceProgresses =
             getVisibleStructureOperationalResourceProgresses(structure);
           const span = getStructureSpan(structure.structureType);
@@ -119,6 +122,27 @@ export function GroundGridAssetLayer({
                       className="object-contain p-[8%] drop-shadow-sm"
                       sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
                     />
+                  </div>
+                )}
+                {holeAntProgress && (
+                  <div
+                    className="absolute flex min-h-0 min-w-0 overflow-hidden rounded-sm"
+                    style={{
+                      right: 0,
+                      bottom: 0,
+                      width: `${100 / span}%`,
+                      height: `${100 / span}%`,
+                    }}
+                  >
+                    <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
+                      <Image
+                        src={bugTypeToImage("ant")}
+                        alt=""
+                        fill
+                        className="object-contain p-[8%] drop-shadow-sm"
+                        sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
+                      />
+                    </div>
                   </div>
                 )}
                 {operationalResourceProgresses.length > 0 && (

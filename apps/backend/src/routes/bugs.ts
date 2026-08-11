@@ -52,11 +52,6 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   if (structureId) {
-    if (existingBug.bugType !== "beetle") {
-      res.status(400).json({ error: "Only beetles can be placed in a structure" });
-      return;
-    }
-
     const existingStructure = await getStructure(structureId);
     if (!existingStructure) {
       res.status(400).json({ error: "Structure not found when updating bug" });

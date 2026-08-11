@@ -1,4 +1,4 @@
-import { BEETLE_MAX_LEAF_PARTS } from "../constants/game.js";
+import { BEETLE_MAX_LEAF_PARTS, HOLE_ANT_CAPACITY } from "../constants/game.js";
 import {
   STRUCTURE_POWER_REQUIREMENTS,
   StructureItemPowerRequirement,
@@ -50,12 +50,43 @@ export function structureDropRequiresFedBug(
   return structureRequiresPower(structureType);
 }
 
+export function getHoleAntCount(structure: StructureForPower): number {
+  if (structure.structureType !== "hole") {
+    return 0;
+  }
+
+  return structure.bugs.filter(({ bugType }) => bugType === "ant").length;
+}
+
+export function hasHoleAntOccupants(structure: StructureForPower): boolean {
+  return getHoleAntCount(structure) > 0;
+}
+
+export function getHoleAntOccupancyProgress(
+  structure: StructureForPower,
+): { count: number; max: number } | null {
+  const count = getHoleAntCount(structure);
+  if (structure.structureType !== "hole" || count <= 0) {
+    return null;
+  }
+
+  return { count, max: HOLE_ANT_CAPACITY };
+}
+
 export function canStructureAcceptBugDrop(
   bug: Pick<BugForStructureDrop, "bugType">,
   structure: StructureForBuild & StructureForPower,
 ): boolean {
   if (structure.structureType === "beetle_house") {
     return isStructureBuilt(structure) && bug.bugType === "beetle";
+  }
+
+  if (structure.structureType === "hole") {
+    return (
+      isStructureBuilt(structure) &&
+      bug.bugType === "ant" &&
+      getHoleAntCount(structure) < HOLE_ANT_CAPACITY
+    );
   }
 
   const requirement = getStructurePowerRequirement(structure.structureType);
