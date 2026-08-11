@@ -16,15 +16,20 @@ export interface StructurePowerRequirement {
 export const STRUCTURE_POWER_REQUIREMENTS: Partial<
   Record<StructureType, StructurePowerRequirement>
 > = {
-  workshop: { requiredCount: 10, occupantBugType: "beetle" },
+  workshop: { requiredCount: 2, occupantBugType: "beetle" },
   stonemason: {
-    requiredCount: 10,
+    requiredCount: 2,
     occupantBugType: "beetle",
     itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 3 }],
   },
   woodcutter: {
-    requiredCount: 10,
+    requiredCount: 2,
     occupantBugType: "beetle",
     itemRequirements: [{ itemType: "axe", requiredCount: 3 }],
+  },
+  kitchen: {
+    requiredCount: 1,
+    occupantBugType: "beetle",
+    itemRequirements: [],
   },
 };

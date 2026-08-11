@@ -48,15 +48,12 @@ const createStructure: RequestHandler = async (req, res) => {
   const { structureType, x, y } = req.body;
 
   if (
-    structureType !== "beetle_house" &&
-    structureType !== "workshop" &&
-    structureType !== "stonemason" &&
-    structureType !== "woodcutter" &&
-    structureType !== "kitchen"
+    !["beetle_house", "workshop", "stonemason", "woodcutter", "kitchen"].includes(structureType)
   ) {
     res.status(400).json({ error: "Invalid structure type" });
     return;
   }
+
   if (typeof x !== "number" || typeof y !== "number") {
     res.status(400).json({ error: "x and y are required" });
     return;
