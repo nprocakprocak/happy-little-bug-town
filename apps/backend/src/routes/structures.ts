@@ -15,6 +15,7 @@ import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { isPrismaUniqueConstraintError } from "../helpers/isPrismaUniqueConstraintError.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
 import { getValidCoords } from "../helpers/validateCoords.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 import { economyRateLimit } from "../middleware/rateLimits.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStructure } from "../middleware/requireOwnedEntity.js";
@@ -43,12 +44,12 @@ export const structuresRouter = Router();
 
 structuresRouter.use(...requireGameAccess);
 
-const listStructures: RequestHandler = async (req, res) => {
+const listStructures: RequestHandler = asyncHandler(async (req, res) => {
   const structures = await getStructures(req.authorId!);
   res.status(200).json(structures.map(toStructureOnGridDto));
-};
+});
 
-const createStructure: RequestHandler = async (req, res) => {
+const createStructure: RequestHandler = asyncHandler(async (req, res) => {
   const authorId = req.authorId!;
   const { structureType, x, y } = req.body;
 
@@ -101,9 +102,9 @@ const createStructure: RequestHandler = async (req, res) => {
     }
     throw error;
   }
-};
+});
 
-const createFirstStructure: RequestHandler = async (req, res) => {
+const createFirstStructure: RequestHandler = asyncHandler(async (req, res) => {
   const authorId = req.authorId!;
   const structures = await getStructures(authorId);
   if (structures.length > 0) {
@@ -120,9 +121,9 @@ const createFirstStructure: RequestHandler = async (req, res) => {
     }
     throw error;
   }
-};
+});
 
-const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
+const updateStructure: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { x, y } = req.body;
   const authorId = req.authorId!;
@@ -150,9 +151,9 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
 
   const structure = await updateStructurePositionService(id, coords.x, coords.y);
   res.status(200).json(toStructureOnGridDto(structure));
-};
+});
 
-const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
+const extractOccupant: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const authorId = req.authorId!;
   const existingStructure = req.structure!;
@@ -197,9 +198,9 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
     extractedOccupant: toBugOnGridDto(bug),
     structure: toStructureOnGridDto(structure),
   });
-};
+});
 
-const transformToAnthill: RequestHandler = async (req, res) => {
+const transformToAnthill: RequestHandler = asyncHandler(async (req, res) => {
   const authorId = req.authorId!;
 
   const hole = await getHole(authorId);
@@ -214,9 +215,9 @@ const transformToAnthill: RequestHandler = async (req, res) => {
 
   const anthill = await transformHoleToAnthillService(hole.id);
   res.status(200).json(toStructureOnGridDto(anthill));
-};
+});
 
-const dig: RequestHandler<{ id: string }> = async (req, res) => {
+const dig: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
   const authorId = req.authorId!;
   const hole = req.structure!;
 
@@ -249,9 +250,9 @@ const dig: RequestHandler<{ id: string }> = async (req, res) => {
     authorId,
   });
   res.status(201).json(toItemOnGridDto(createdItem));
-};
+});
 
-const craft: RequestHandler<{ id: string }> = async (req, res) => {
+const craft: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const authorId = req.authorId!;
   const existingStructure = req.structure!;
@@ -327,7 +328,7 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
     item: toItemOnGridDto(result.item),
     structure: toStructureOnGridDto(result.structure),
   });
-};
+});
 
 structuresRouter.get("/", listStructures);
 structuresRouter.post("/", createStructure);

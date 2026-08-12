@@ -10,6 +10,7 @@ import {
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { isUuid } from "../helpers/isUuid.js";
 import { getValidCoords } from "../helpers/validateCoords.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireBug } from "../middleware/requireOwnedEntity.js";
 import { getBugs, updateBug as updateBugService } from "../services/bugsService.js";
@@ -21,16 +22,16 @@ export const bugsRouter = Router();
 
 bugsRouter.use(...requireGameAccess);
 
-const listBugs: RequestHandler = async (req, res) => {
+const listBugs: RequestHandler = asyncHandler(async (req, res) => {
   const bugs = await getBugs(req.authorId!);
   res.status(200).json(bugs.filter(isPositioned).map(toBugOnGridDto));
-};
+});
 
-const getBugById: RequestHandler<{ id: string }> = async (req, res) => {
+const getBugById: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
   res.status(200).json(req.bug!);
-};
+});
 
-const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
+const updateBug: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { x, y, structureId } = req.body;
   const authorId = req.authorId!;
@@ -88,7 +89,7 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
 
   const bug = await updateBugService(id, { x: coords.x, y: coords.y });
   res.status(200).json(toBugOnGridDto(bug));
-};
+});
 
 bugsRouter.get("/", listBugs);
 bugsRouter.get("/:id", requireBug, getBugById);

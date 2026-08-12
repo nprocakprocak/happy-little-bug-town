@@ -16,6 +16,7 @@ import {
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { isUuid } from "../helpers/isUuid.js";
 import { getValidCoords } from "../helpers/validateCoords.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireItem } from "../middleware/requireOwnedEntity.js";
 import { getBug } from "../services/bugsService.js";
@@ -60,12 +61,12 @@ export const itemsRouter = Router();
 
 itemsRouter.use(...requireGameAccess);
 
-const listItems: RequestHandler = async (req, res) => {
+const listItems: RequestHandler = asyncHandler(async (req, res) => {
   const items = await getItemsOnGrid(req.authorId!);
   res.status(200).json(items.map(toItemOnGridDto));
-};
+});
 
-const createItem: RequestHandler = async (req, res) => {
+const createItem: RequestHandler = asyncHandler(async (req, res) => {
   const { itemType, x, y } = req.body;
   const authorId = req.authorId!;
 
@@ -108,9 +109,10 @@ const createItem: RequestHandler = async (req, res) => {
     authorId,
   });
   res.status(201).json(toItemOnGridDto(item));
-};
+});
 
-const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = async (req, res) => {
+const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyncHandler(
+  async (req, res) => {
   const { id } = req.params;
   const { x, y, stackId, bugId, structureId, parentItemId } = req.body;
   const authorId = req.authorId!;
@@ -269,7 +271,8 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
 
   const item = await updateItemService(id, { x: coords.x, y: coords.y });
   res.status(200).json(toItemOnGridDto(item));
-};
+  },
+);
 
 itemsRouter.get("/", listItems);
 itemsRouter.post("/create", createItem);

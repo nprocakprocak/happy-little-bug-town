@@ -9,6 +9,7 @@ import type { BugDto } from "../types/bugDto.js";
 import type { ItemDto } from "../types/itemDto.js";
 import type { StackDto } from "../types/stackDto.js";
 import type { StructureDto } from "../types/structureDto.js";
+import { asyncHandler } from "./asyncHandler.js";
 
 declare global {
   namespace Express {
@@ -33,7 +34,7 @@ interface RequireOwnedEntityOptions<T extends OwnedEntity> {
 function createRequireOwnedEntity<T extends OwnedEntity>(
   options: RequireOwnedEntityOptions<T>,
 ): RequestHandler<{ id: string }> {
-  return async (req, res, next) => {
+  return asyncHandler(async (req, res, next) => {
     if (!isUuid(req.params.id)) {
       res.status(404).json({ error: "Not found" });
       return;
@@ -47,7 +48,7 @@ function createRequireOwnedEntity<T extends OwnedEntity>(
 
     options.setOnRequest(req, entity);
     next();
-  };
+  });
 }
 
 export const requireStructure = createRequireOwnedEntity({

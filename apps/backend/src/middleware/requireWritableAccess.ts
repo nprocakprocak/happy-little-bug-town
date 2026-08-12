@@ -1,8 +1,9 @@
 import type { RequestHandler } from "express";
 
 import { prisma } from "../lib/prisma.js";
+import { asyncHandler } from "./asyncHandler.js";
 
-export const requireWritableAccess: RequestHandler = async (req, res, next) => {
+export const requireWritableAccess: RequestHandler = asyncHandler(async (req, res, next) => {
   const authorId = req.authorId!;
 
   const user = await prisma.user.findUnique({
@@ -24,4 +25,4 @@ export const requireWritableAccess: RequestHandler = async (req, res, next) => {
   }
 
   next();
-};
+});
