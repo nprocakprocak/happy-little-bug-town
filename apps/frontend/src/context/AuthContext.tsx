@@ -4,8 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useQueryClient } from "@tanstack/react-query";
 
 import { fetchAuthMe, logout as logoutRequest, type AuthUser } from "../api/auth";
-import { AID_STORAGE_KEY } from "../constants/aid";
-import { useRegisterUserMutation } from "../hooks/useUser";
+import { registerUser, resetRegisterUserCache } from "../api/users";
+import { queryKeys } from "../constants/queryKeys";
 import { useMainStore } from "../stores/main";
 import { setGoogleAuthHandlers } from "../utils/authReceiver";
 
@@ -28,43 +28,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isSessionLoading, setIsSessionLoading] = useState(true);
   const setRequiresLogin = useMainStore((state) => state.setRequiresLogin);
   const setIsTransformingToAnthill = useMainStore((state) => state.setIsTransformingToAnthill);
-  const { mutateAsync: registerUser } = useRegisterUserMutation();
   const queryClient = useQueryClient();
 
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
-      const stored = localStorage.getItem(AID_STORAGE_KEY);
-      const anonId = stored ?? crypto.randomUUID();
-      if (!stored) {
-        localStorage.setItem(AID_STORAGE_KEY, anonId);
-        await registerUser();
-      }
+      try {
+        const registered = await registerUser();
+        if (cancelled) {
+          return;
+        }
 
-      if (cancelled) {
-        return;
-      }
+        setAnonymousId(registered.id);
+        queryClient.setQueryData(queryKeys.user(registered.id), registered);
 
-      setAnonymousId(anonId);
+        const me = await fetchAuthMe();
+        if (cancelled) {
+          return;
+        }
 
-      const me = await fetchAuthMe();
-      if (cancelled) {
-        return;
+        setAuthUser(me);
+        if (me) {
+          setAnonymousId(me.id);
+        }
+      } catch (error) {
+        console.error("Failed to register anonymous user:", error);
+      } finally {
+        if (!cancelled) {
+          setIsSessionLoading(false);
+        }
       }
-
-      setAuthUser(me);
-      if (me) {
-        setAnonymousId(me.id);
-        localStorage.setItem(AID_STORAGE_KEY, me.id);
-      }
-      setIsSessionLoading(false);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [registerUser]);
+  }, [queryClient]);
 
   useEffect(() => {
     setGoogleAuthHandlers({
@@ -88,11 +88,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = useCallback(async () => {
     await logoutRequest();
 
-    const newAid = crypto.randomUUID();
-    localStorage.setItem(AID_STORAGE_KEY, newAid);
-    await registerUser();
+    resetRegisterUserCache();
+    const registered = await registerUser();
 
-    setAnonymousId(newAid);
+    setAnonymousId(registered.id);
+    queryClient.setQueryData(queryKeys.user(registered.id), registered);
     setAuthUser(null);
     setRequiresLogin(false);
     setIsTransformingToAnthill(false);
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await queryClient.refetchQueries();
 
     google?.accounts?.id?.disableAutoSelect();
-  }, [queryClient, registerUser, setRequiresLogin, setIsTransformingToAnthill]);
+  }, [queryClient, setRequiresLogin, setIsTransformingToAnthill]);
 
   const value = useMemo(
     () => ({

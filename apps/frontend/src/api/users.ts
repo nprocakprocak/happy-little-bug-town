@@ -7,8 +7,21 @@ export interface UserDto {
   isLinked: boolean;
 }
 
+let registerInflight: Promise<UserDto> | null = null;
+
 export function registerUser(): Promise<UserDto> {
-  return apiFetch<UserDto>(`/api/users/register`, {
-    method: "POST",
-  });
+  if (!registerInflight) {
+    registerInflight = apiFetch<UserDto>(`/api/users/register`, {
+      method: "POST",
+    }).catch((error: unknown) => {
+      registerInflight = null;
+      throw error;
+    });
+  }
+
+  return registerInflight;
+}
+
+export function resetRegisterUserCache(): void {
+  registerInflight = null;
 }

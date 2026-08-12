@@ -1,1 +1,1 @@
-export const AID_HEADER = "X-Anonymous-Id";
+export const AID_COOKIE_NAME = "aid";

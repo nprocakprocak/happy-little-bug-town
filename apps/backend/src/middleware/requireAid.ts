@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
 
-import { AID_HEADER } from "../constants/aid.js";
+import { AID_COOKIE_NAME } from "../constants/aid.js";
 import { isUuid } from "../helpers/isUuid.js";
 
 declare global {
@@ -12,12 +12,12 @@ declare global {
 }
 
 export const requireAid: RequestHandler = (req, res, next) => {
-  const authorId = req.get(AID_HEADER);
-  if (!authorId || !isUuid(authorId)) {
+  const cookieAid = req.signedCookies[AID_COOKIE_NAME];
+  if (typeof cookieAid !== "string" || !isUuid(cookieAid)) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
 
-  req.authorId = authorId;
+  req.authorId = cookieAid;
   next();
 };

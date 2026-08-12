@@ -1,4 +1,3 @@
-import { AID_HEADER, AID_STORAGE_KEY } from "../constants/aid";
 import { useMainStore } from "../stores/main";
 import { LoginRequiredError } from "../utils/loginRequiredError";
 
@@ -9,19 +8,11 @@ type ApiErrorResponse = {
   code?: string;
 };
 
-function getAid(): string | null {
-  return localStorage.getItem(AID_STORAGE_KEY);
-}
-
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const aid = getAid();
   const headers = new Headers(init?.headers);
 
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
-  }
-  if (aid) {
-    headers.set(AID_HEADER, aid);
   }
 
   const response = await fetch(`${backendUrl}${path}`, {

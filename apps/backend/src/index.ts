@@ -1,8 +1,6 @@
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-import { AID_HEADER } from "./constants/aid.js";
-
 import "dotenv/config";
 
 import { createServer } from "http";
@@ -28,7 +26,7 @@ app.use(
   cors({
     origin: corsOrigin,
     credentials: true,
-    allowedHeaders: ["Content-Type", AID_HEADER],
+    allowedHeaders: ["Content-Type"],
   }),
 );
 app.use(cookieParser(sessionSecret));

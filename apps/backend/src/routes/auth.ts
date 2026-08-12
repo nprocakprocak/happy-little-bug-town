@@ -1,8 +1,11 @@
-import type { CookieOptions } from "express";
 import { Router, type RequestHandler } from "express";
 
-import { loadAuthEnv } from "../config/authEnv.js";
 import { SESSION_COOKIE_NAME } from "../constants/session.js";
+import { clearAidCookie, setAidCookie } from "../helpers/aidCookie.js";
+import {
+  getSignedClearCookieOptions,
+  getSignedCookieOptions,
+} from "../helpers/signedCookieOptions.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { loginWithGoogle } from "../services/googleAuthService.js";
 import {
@@ -14,26 +17,6 @@ import { UserDto } from "../types/userDto.js";
 import { getUser } from "../services/usersService.js";
 
 export const authRouter = Router();
-
-const getSessionCookieOptions = (): CookieOptions => {
-  const { sessionTtlDays } = loadAuthEnv();
-  const maxAge = sessionTtlDays * 24 * 60 * 60 * 1000;
-
-  return {
-    httpOnly: true,
-    signed: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge,
-  };
-};
-
-const getSessionClearCookieOptions = (): CookieOptions => ({
-  httpOnly: true,
-  signed: true,
-  sameSite: "lax",
-  secure: process.env.NODE_ENV === "production",
-});
 
 const login: RequestHandler = async (req, res) => {
   const anonymousId = req.authorId!;
@@ -50,7 +33,8 @@ const login: RequestHandler = async (req, res) => {
       anonymousId,
     );
     const sessionId = await createSession(userId);
-    res.cookie(SESSION_COOKIE_NAME, sessionId, getSessionCookieOptions());
+    res.cookie(SESSION_COOKIE_NAME, sessionId, getSignedCookieOptions());
+    setAidCookie(res, userId);
 
     const response: UserDto = {
       id: userId,
@@ -74,7 +58,8 @@ const logout: RequestHandler = async (req, res) => {
     await deleteSession(sessionId);
   }
 
-  res.clearCookie(SESSION_COOKIE_NAME, getSessionClearCookieOptions());
+  res.clearCookie(SESSION_COOKIE_NAME, getSignedClearCookieOptions());
+  clearAidCookie(res);
   res.status(200).json({ ok: true });
 };
 
@@ -90,7 +75,7 @@ const me: RequestHandler = async (req, res) => {
 
   const userId = await validateSession(sessionId);
   if (!userId) {
-    res.clearCookie(SESSION_COOKIE_NAME, getSessionClearCookieOptions());
+    res.clearCookie(SESSION_COOKIE_NAME, getSignedClearCookieOptions());
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
@@ -101,6 +86,7 @@ const me: RequestHandler = async (req, res) => {
     return;
   }
 
+  setAidCookie(res, userId);
   res.status(200).json(authUser);
 };
 

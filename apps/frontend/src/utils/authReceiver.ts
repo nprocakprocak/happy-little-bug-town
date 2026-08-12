@@ -1,5 +1,4 @@
 import { loginWithGoogle, type AuthUser } from "../api/auth";
-import { AID_STORAGE_KEY } from "../constants/aid";
 
 export interface GoogleAuthHandlers {
   onSuccess: (user: AuthUser) => void | Promise<void>;
@@ -13,13 +12,8 @@ export function setGoogleAuthHandlers(next: GoogleAuthHandlers | null): void {
 }
 
 async function receiveGoogleAuth(response: google.accounts.id.CredentialResponse): Promise<void> {
-  if (!localStorage.getItem(AID_STORAGE_KEY)) {
-    return;
-  }
-
   try {
     const user = await loginWithGoogle(response.credential);
-    localStorage.setItem(AID_STORAGE_KEY, user.id);
     await handlers?.onSuccess(user);
   } catch (error) {
     handlers?.onError?.(error instanceof Error ? error : new Error(String(error)));
