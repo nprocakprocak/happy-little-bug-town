@@ -12,6 +12,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
+import { isPrismaUniqueConstraintError } from "../helpers/isPrismaUniqueConstraintError.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
 import { getValidCoords } from "../helpers/validateCoords.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
@@ -84,13 +85,21 @@ const createStructure: RequestHandler = async (req, res) => {
     return;
   }
 
-  const structure = await createStructureService({
-    authorId,
-    structureType,
-    x: coords.x,
-    y: coords.y,
-  });
-  res.status(201).json(toStructureOnGridDto(structure));
+  try {
+    const structure = await createStructureService({
+      authorId,
+      structureType,
+      x: coords.x,
+      y: coords.y,
+    });
+    res.status(201).json(toStructureOnGridDto(structure));
+  } catch (error) {
+    if (isPrismaUniqueConstraintError(error)) {
+      res.status(409).json({ error: "Structure already built" });
+      return;
+    }
+    throw error;
+  }
 };
 
 const createFirstStructure: RequestHandler = async (req, res) => {
@@ -100,8 +109,16 @@ const createFirstStructure: RequestHandler = async (req, res) => {
     res.status(400).json({ error: "First structure already created" });
     return;
   }
-  const structure = await createFirstStructureService(authorId);
-  res.status(201).json(toStructureOnGridDto(structure));
+  try {
+    const structure = await createFirstStructureService(authorId);
+    res.status(201).json(toStructureOnGridDto(structure));
+  } catch (error) {
+    if (isPrismaUniqueConstraintError(error)) {
+      res.status(409).json({ error: "First structure already created" });
+      return;
+    }
+    throw error;
+  }
 };
 
 const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
