@@ -45,7 +45,7 @@ const login: RequestHandler = async (req, res) => {
     res.status(200).json(response);
   } catch (error) {
     console.error("Google auth failed:", error);
-    res.status(401).json({ error: (error as Error).message ?? "Unknown error" });
+    res.status(401).json({ error: "Invalid credentials" });
   }
 };
 
@@ -91,5 +91,5 @@ const me: RequestHandler = async (req, res) => {
 };
 
 authRouter.post("/google", requireAid, login);
-authRouter.post("/logout", logout);
+authRouter.post("/logout", requireAid, logout);
 authRouter.get("/me", me);

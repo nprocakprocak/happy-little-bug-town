@@ -6,6 +6,8 @@ export const createSession = async (userId: string): Promise<string> => {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + sessionTtlDays);
 
+  await prisma.session.deleteMany({ where: { userId } });
+
   const session = await prisma.session.create({
     data: {
       userId,
