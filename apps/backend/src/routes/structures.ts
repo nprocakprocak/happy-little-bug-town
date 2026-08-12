@@ -15,6 +15,7 @@ import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { isPrismaUniqueConstraintError } from "../helpers/isPrismaUniqueConstraintError.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
 import { getValidCoords } from "../helpers/validateCoords.js";
+import { economyRateLimit } from "../middleware/rateLimits.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStructure } from "../middleware/requireOwnedEntity.js";
 import {
@@ -334,5 +335,5 @@ structuresRouter.post("/create", createFirstStructure);
 structuresRouter.post("/transform-to-anthill", transformToAnthill);
 structuresRouter.put("/:id", requireStructure, updateStructure);
 structuresRouter.post("/:id/extract-occupant", requireStructure, extractOccupant);
-structuresRouter.post("/:id/craft", requireStructure, craft);
-structuresRouter.post("/:id/dig", requireStructure, dig);
+structuresRouter.post("/:id/craft", economyRateLimit, requireStructure, craft);
+structuresRouter.post("/:id/dig", economyRateLimit, requireStructure, dig);
