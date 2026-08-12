@@ -1,4 +1,4 @@
-import { Bug, Item } from "../prisma/prisma/client.js";
+import { Bug } from "../prisma/prisma/client.js";
 
 export type CreateBugData = Pick<Bug, "bugType" | "x" | "y" | "authorId">;
 

@@ -33,16 +33,6 @@ export const getStack = async (id: string): Promise<StackDto | null> => {
   return stack ? toStackDto(stack) : null;
 };
 
-export const createStack = async (stack: CreateStackData): Promise<StackDto> => {
-  const createdStack = await prisma.stack.create({
-    data: {
-      ...stack,
-    },
-    include: stackInclude,
-  });
-  return toStackDto(createdStack);
-};
-
 export const updateStack = async (id: string, stack: UpdateStackData): Promise<StackDto> => {
   const updatedStack = await prisma.stack.update({
     where: { id },

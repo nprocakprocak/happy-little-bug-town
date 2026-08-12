@@ -1,5 +1,4 @@
 import { prisma } from "../lib/prisma.js";
-import { Bug, Item } from "../prisma/prisma/client.js";
 import { BugDto, CreateBugData, UpdateBugData } from "../types/bugDto.js";
 import { toBugDto } from "./helpers.js";
 
