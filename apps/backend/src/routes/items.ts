@@ -15,6 +15,7 @@ import {
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
+import { requireItem } from "../middleware/requireOwnedEntity.js";
 import { getBug } from "../services/bugsService.js";
 import {
   toBugOnGridDto,
@@ -104,17 +105,9 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   const { id } = req.params;
   const { x, y, stackId, bugId, structureId, parentItemId } = req.body;
   const authorId = req.authorId!;
+  const existingItem = req.item!;
 
   if (parentItemId) {
-    const existingItem = await getItemService(id);
-    if (!existingItem) {
-      res.status(400).json({ error: "Item not found when updating" });
-      return;
-    }
-    if (existingItem.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
-      return;
-    }
     if (id === parentItemId) {
       res.status(400).json({ error: "Item cannot be added to itself" });
       return;
@@ -145,16 +138,6 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   }
 
   if (structureId) {
-    const existingItem = await getItemService(id);
-    if (!existingItem) {
-      res.status(400).json({ error: "Item not found when updating" });
-      return;
-    }
-    if (existingItem.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
-      return;
-    }
-
     const existingStructure = await getStructure(structureId);
     if (!existingStructure) {
       res.status(400).json({ error: "Structure not found when updating item" });
@@ -181,15 +164,6 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   }
 
   if (bugId) {
-    const existingItem = await getItemService(id);
-    if (!existingItem) {
-      res.status(400).json({ error: "Item not found when updating" });
-      return;
-    }
-    if (existingItem.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
-      return;
-    }
     if (existingItem.itemType !== "leaf_part") {
       res.status(400).json({ error: "Only leaf parts can be given to bugs" });
       return;
@@ -229,16 +203,6 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   }
 
   if (stackId) {
-    const existingItem = await getItemService(id);
-    if (!existingItem) {
-      res.status(400).json({ error: "Item not found when updating" });
-      return;
-    }
-    if (existingItem.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
-      return;
-    }
-
     const existingStack = await getStack(stackId);
     if (!existingStack) {
       res.status(400).json({ error: "Stack not found when updating item" });
@@ -270,16 +234,6 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
     return;
   }
 
-  const existingItem = await getItemService(id);
-  if (!existingItem) {
-    res.status(400).json({ error: "Item not found when updating" });
-    return;
-  }
-  if (existingItem.authorId !== authorId) {
-    res.status(403).json({ error: "Forbidden" });
-    return;
-  }
-
   if (!x || !y) {
     res.status(400).json({ error: "x and y are required when updating item not in stack" });
     return;
@@ -303,4 +257,4 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
 
 itemsRouter.get("/", listItems);
 itemsRouter.post("/create", createItem);
-itemsRouter.put("/:id", updateItem);
+itemsRouter.put("/:id", requireItem, updateItem);

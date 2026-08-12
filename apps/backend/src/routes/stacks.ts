@@ -10,6 +10,7 @@ import {
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
+import { requireStack } from "../middleware/requireOwnedEntity.js";
 import { toStackOnGridDto } from "../services/helpers.js";
 import {
   dissolveStack,
@@ -94,16 +95,7 @@ const updateStack: RequestHandler = async (req, res) => {
   const { id } = req.params;
   const { x, y } = req.body;
   const authorId = req.authorId!;
-
-  const existingStack = await getStack(id);
-  if (!existingStack) {
-    res.status(400).json({ error: "Item not found when updating" });
-    return;
-  }
-  if (existingStack.authorId !== authorId) {
-    res.status(403).json({ error: "Forbidden" });
-    return;
-  }
+  const existingStack = req.stack!;
 
   if (typeof x !== "number" || typeof y !== "number") {
     res.status(400).json({ error: "x and y are required" });
@@ -130,6 +122,7 @@ const mergeStacks: RequestHandler = async (req, res) => {
   const { id } = req.params;
   const { targetStackId } = req.body;
   const authorId = req.authorId!;
+  const sourceStack = req.stack!;
 
   if (!targetStackId || typeof targetStackId !== "string") {
     res.status(400).json({ error: "targetStackId is required" });
@@ -138,16 +131,6 @@ const mergeStacks: RequestHandler = async (req, res) => {
 
   if (id === targetStackId) {
     res.status(400).json({ error: "Cannot merge a stack with itself" });
-    return;
-  }
-
-  const sourceStack = await getStack(id);
-  if (!sourceStack) {
-    res.status(400).json({ error: "Source stack not found when merging" });
-    return;
-  }
-  if (sourceStack.authorId !== authorId) {
-    res.status(403).json({ error: "Forbidden" });
     return;
   }
 
@@ -179,16 +162,7 @@ const mergeStacks: RequestHandler = async (req, res) => {
 const extractItemFromStack: RequestHandler = async (req, res) => {
   const { id } = req.params;
   const authorId = req.authorId!;
-
-  const existingStack = await getStack(id);
-  if (!existingStack) {
-    res.status(400).json({ error: "Stack not found when extracting item" });
-    return;
-  }
-  if (existingStack.authorId !== authorId) {
-    res.status(403).json({ error: "Forbidden" });
-    return;
-  }
+  const existingStack = req.stack!;
 
   const entities = await getAllEntitiesOnGrid(authorId);
   const emptyPosition = findNearestEmptyPosition(
@@ -225,6 +199,6 @@ const extractItemFromStack: RequestHandler = async (req, res) => {
 
 stacksRouter.get("/", listStacks);
 stacksRouter.post("/create", createStack);
-stacksRouter.post("/:id/merge", mergeStacks);
-stacksRouter.post("/:id/extract", extractItemFromStack);
-stacksRouter.put("/:id", updateStack);
+stacksRouter.post("/:id/merge", requireStack, mergeStacks);
+stacksRouter.post("/:id/extract", requireStack, extractItemFromStack);
+stacksRouter.put("/:id", requireStack, updateStack);

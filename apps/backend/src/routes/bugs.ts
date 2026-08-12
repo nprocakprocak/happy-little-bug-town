@@ -9,7 +9,8 @@ import {
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
-import { getBug, getBugs, updateBug as updateBugService } from "../services/bugsService.js";
+import { requireBug } from "../middleware/requireOwnedEntity.js";
+import { getBugs, updateBug as updateBugService } from "../services/bugsService.js";
 import { toBugOnGridDto } from "../services/helpers.js";
 import { getStructure } from "../services/structuresService.js";
 import { isPositioned } from "../typeGuards/items.js";
@@ -24,32 +25,14 @@ const listBugs: RequestHandler = async (req, res) => {
 };
 
 const getBugById: RequestHandler<{ id: string }> = async (req, res) => {
-  const bug = await getBug(req.params.id);
-  if (!bug) {
-    res.status(404).json({ error: "Bug not found" });
-    return;
-  }
-  if (bug.authorId !== req.authorId!) {
-    res.status(403).json({ error: "Forbidden" });
-    return;
-  }
-  res.status(200).json(toBugOnGridDto(bug));
+  res.status(200).json(toBugOnGridDto(req.bug!));
 };
 
 const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
   const { x, y, structureId } = req.body;
   const authorId = req.authorId!;
-
-  const existingBug = await getBug(id);
-  if (!existingBug) {
-    res.status(400).json({ error: "Bug not found when updating" });
-    return;
-  }
-  if (existingBug.authorId !== authorId) {
-    res.status(403).json({ error: "Forbidden" });
-    return;
-  }
+  const existingBug = req.bug!;
 
   if (structureId) {
     const existingStructure = await getStructure(structureId);
@@ -104,5 +87,5 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
 };
 
 bugsRouter.get("/", listBugs);
-bugsRouter.get("/:id", getBugById);
-bugsRouter.put("/:id", updateBug);
+bugsRouter.get("/:id", requireBug, getBugById);
+bugsRouter.put("/:id", requireBug, updateBug);

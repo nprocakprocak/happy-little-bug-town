@@ -14,6 +14,7 @@ import {
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
+import { requireStructure } from "../middleware/requireOwnedEntity.js";
 import {
   createBug,
   getBug,
@@ -27,9 +28,9 @@ import {
   craftOperationalItemAtStructure,
   createFirstStructure as createFirstStructureService,
   createStructure as createStructureService,
+  getHole,
   getStructure,
   getStructures,
-  getHole,
   hasStructureOfType,
   transformHoleToAnthill as transformHoleToAnthillService,
   updateStructurePosition as updateStructurePositionService,
@@ -105,19 +106,10 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
   const { x, y } = req.body;
   const authorId = req.authorId!;
+  const existingStructure = req.structure!;
 
   if (typeof x !== "number" || typeof y !== "number") {
     res.status(400).json({ error: "x and y are required" });
-    return;
-  }
-
-  const existingStructure = await getStructure(id);
-  if (!existingStructure) {
-    res.status(400).json({ error: "Structure not found when updating" });
-    return;
-  }
-  if (existingStructure.authorId !== authorId) {
-    res.status(403).json({ error: "Forbidden" });
     return;
   }
 
@@ -142,16 +134,8 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
 const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
   const authorId = req.authorId!;
+  const existingStructure = req.structure!;
 
-  const existingStructure = await getStructure(id);
-  if (!existingStructure) {
-    res.status(400).json({ error: "Structure not found when extracting occupant" });
-    return;
-  }
-  if (existingStructure.authorId !== authorId) {
-    res.status(403).json({ error: "Forbidden" });
-    return;
-  }
   if (existingStructure.structureType !== "beetle_house") {
     res.status(400).json({ error: "Only beetle houses can extract occupants" });
     return;
@@ -212,18 +196,9 @@ const transformToAnthill: RequestHandler = async (req, res) => {
 };
 
 const dig: RequestHandler<{ id: string }> = async (req, res) => {
-  const { id } = req.params;
   const authorId = req.authorId!;
+  const hole = req.structure!;
 
-  const hole = await getStructure(id);
-  if (!hole) {
-    res.status(400).json({ error: "Structure not found when digging" });
-    return;
-  }
-  if (hole.authorId !== authorId) {
-    res.status(403).json({ error: "Forbidden" });
-    return;
-  }
   if (hole.structureType !== "hole") {
     res.status(400).json({ error: "Only holes can be dug" });
     return;
@@ -258,16 +233,7 @@ const dig: RequestHandler<{ id: string }> = async (req, res) => {
 const craft: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
   const authorId = req.authorId!;
-
-  const existingStructure = await getStructure(id);
-  if (!existingStructure) {
-    res.status(400).json({ error: "Structure not found when crafting operational resource" });
-    return;
-  }
-  if (existingStructure.authorId !== authorId) {
-    res.status(403).json({ error: "Forbidden" });
-    return;
-  }
+  const existingStructure = req.structure!;
 
   const structureForCraft = {
     structureType: existingStructure.structureType,
@@ -346,7 +312,7 @@ structuresRouter.get("/", listStructures);
 structuresRouter.post("/", createStructure);
 structuresRouter.post("/create", createFirstStructure);
 structuresRouter.post("/transform-to-anthill", transformToAnthill);
-structuresRouter.put("/:id", updateStructure);
-structuresRouter.post("/:id/extract-occupant", extractOccupant);
-structuresRouter.post("/:id/craft", craft);
-structuresRouter.post("/:id/dig", dig);
+structuresRouter.put("/:id", requireStructure, updateStructure);
+structuresRouter.post("/:id/extract-occupant", requireStructure, extractOccupant);
+structuresRouter.post("/:id/craft", requireStructure, craft);
+structuresRouter.post("/:id/dig", requireStructure, dig);
