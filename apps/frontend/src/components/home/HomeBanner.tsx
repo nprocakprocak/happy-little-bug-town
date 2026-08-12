@@ -5,18 +5,33 @@ import Image from "next/image";
 
 import {
   GROUND_GRID_MAX_WIDTH_PX,
-  GROUND_SAND_BG_TILE_WIDTH_RATIO,
+  GROUND_BG_TILE_HEIGHT_PX,
+  GROUND_BG_TILE_WIDTH_PX,
   HOME_BANNER_HEIGHT_PX,
 } from "../../constants";
 import { useAuth } from "../../context/AuthContext";
+import { useAnthillBackgroundFade } from "../../hooks/useAnthillBackgroundFade";
+import { useStructuresQuery } from "../../hooks/useStructures";
 import { useMainStore } from "../../stores/main";
 import { SettingsPopup } from "./SettingsPopup";
 
 export function HomeBanner() {
-  const { logout } = useAuth();
+  const { anonymousId, logout } = useAuth();
   const requiresLogin = useMainStore((state) => state.requiresLogin);
+  const isTransformingToAnthill = useMainStore((state) => state.isTransformingToAnthill);
+  const { data: structures = [] } = useStructuresQuery(Boolean(anonymousId));
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isStartingOver, setIsStartingOver] = useState(false);
+
+  const useSandySoilBackground = structures.some(
+    (structure) => structure.structureType === "anthill",
+  );
+  const { showSandySoil, backgroundFadeClassName, backgroundFadeStyle } = useAnthillBackgroundFade(
+    isTransformingToAnthill,
+    useSandySoilBackground,
+  );
+  const backgroundSize = `calc(100cqi * ${GROUND_BG_TILE_WIDTH_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px) calc(100cqi * ${GROUND_BG_TILE_HEIGHT_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px)`;
+  const backgroundPosition = `0 calc(100cqi * ${HOME_BANNER_HEIGHT_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px)`;
 
   const handleStartOver = async () => {
     setIsStartingOver(true);
@@ -33,12 +48,30 @@ export function HomeBanner() {
         className="relative z-10 w-full"
         style={{
           aspectRatio: `${GROUND_GRID_MAX_WIDTH_PX} / ${HOME_BANNER_HEIGHT_PX}`,
-          backgroundImage: "url('/backgrounds/bg-sand.webp')",
-          backgroundRepeat: "repeat",
-          backgroundSize: `${GROUND_SAND_BG_TILE_WIDTH_RATIO * 100}% auto`,
-          backgroundPosition: `0 calc(100cqi * ${HOME_BANNER_HEIGHT_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px)`,
         }}
       >
+        <div
+          className={`absolute inset-0 ${backgroundFadeClassName}`}
+          style={{
+            ...backgroundFadeStyle,
+            backgroundImage: "url('/backgrounds/bg-sand.webp')",
+            backgroundRepeat: "repeat",
+            backgroundSize,
+            backgroundPosition,
+            opacity: showSandySoil ? 0 : 1,
+          }}
+        />
+        <div
+          className={`absolute inset-0 ${backgroundFadeClassName}`}
+          style={{
+            ...backgroundFadeStyle,
+            backgroundImage: "url('/backgrounds/bg-sandy-soil.webp')",
+            backgroundRepeat: "repeat",
+            backgroundSize,
+            backgroundPosition,
+            opacity: showSandySoil ? 1 : 0,
+          }}
+        />
         <button
           type="button"
           aria-label="Settings"

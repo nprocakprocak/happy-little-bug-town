@@ -63,6 +63,8 @@ export function structureTypeToImage(structureType: StructureType): string {
   switch (structureType) {
     case "hole":
       return "/structures/hole.webp";
+    case "anthill":
+      return "/structures/anthill.webp";
     case "beetle_house":
       return "/structures/beetle-house.webp";
     case "workshop":

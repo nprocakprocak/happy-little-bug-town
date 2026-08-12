@@ -6,6 +6,7 @@ import {
   GROUND_HEIGHT,
   GROUND_WIDTH,
   isCraftableBugType,
+  isHoleReadyToBecomeAnthill,
   pickMostFedBug,
   structureFootprintFits,
 } from "@happy-little-bug-town/utils";
@@ -28,12 +29,14 @@ import {
   createStructure as createStructureService,
   getStructure,
   getStructures,
+  getHole,
   hasBeetleHouse,
   hasKitchen,
   hasStonemason,
   hasTavern,
   hasWoodcutter,
   hasWorkshop,
+  transformHoleToAnthill as transformHoleToAnthillService,
   updateStructurePosition as updateStructurePositionService,
 } from "../services/structuresService.js";
 
@@ -221,6 +224,23 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
   });
 };
 
+const transformToAnthill: RequestHandler = async (req, res) => {
+  const authorId = req.authorId!;
+
+  const hole = await getHole(authorId);
+  if (!hole) {
+    res.status(400).json({ error: "Hole not found when transforming to anthill" });
+    return;
+  }
+  if (!isHoleReadyToBecomeAnthill(hole)) {
+    res.status(400).json({ error: "Hole is not ready to become an anthill" });
+    return;
+  }
+
+  const anthill = await transformHoleToAnthillService(hole.id);
+  res.status(200).json(toStructureOnGridDto(anthill));
+};
+
 const dig: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
   const authorId = req.authorId!;
@@ -355,6 +375,7 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
 structuresRouter.get("/", listStructures);
 structuresRouter.post("/", createStructure);
 structuresRouter.post("/create", createFirstStructure);
+structuresRouter.post("/transform-to-anthill", transformToAnthill);
 structuresRouter.put("/:id", updateStructure);
 structuresRouter.post("/:id/extract-occupant", extractOccupant);
 structuresRouter.post("/:id/craft", craft);

@@ -6,6 +6,7 @@ import {
   canCreateItemType,
   canDropItemOnItem,
   isBuildableStructureType,
+  isHoleReadyToBecomeAnthill,
   isStructurePowered,
   ItemType,
   Position,
@@ -13,6 +14,7 @@ import {
 } from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { transformToAnthill } from "../../api/structures";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { queryKeys } from "../../constants/queryKeys";
 import { useAuth } from "../../context/AuthContext";
@@ -32,6 +34,7 @@ import {
   useExtractOccupantMutation,
   useStructuresQuery,
 } from "../../hooks/useStructures";
+import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
 import { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
@@ -93,6 +96,30 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBeetle, setSelectedBeetle] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
+  const [preferSandySoilBackground, setPreferSandySoilBackground] = useState(false);
+  const isTransformingToAnthill = useMainStore((state) => state.isTransformingToAnthill);
+  const setIsTransformingToAnthill = useMainStore((state) => state.setIsTransformingToAnthill);
+
+  const hasAnthill = structures.some((structure) => structure.structureType === "anthill");
+  const useSandySoilBackground = preferSandySoilBackground || hasAnthill;
+
+  const beginHoleToAnthillTransform = useCallback(
+    async (holeId: string) => {
+      setPreferSandySoilBackground(true);
+      setIsTransformingToAnthill(true);
+      updateStructuresCache(queryClient, (prev) =>
+        prev.map((structure) =>
+          structure.id === holeId ? { ...structure, structureType: "anthill" } : structure,
+        ),
+      );
+
+      const anthill = await transformToAnthill();
+      updateStructuresCache(queryClient, (prev) =>
+        prev.map((structure) => (structure.id === anthill.id ? anthill : structure)),
+      );
+    },
+    [queryClient, setIsTransformingToAnthill],
+  );
 
   useEffect(() => {
     if (
@@ -354,6 +381,16 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         queryClient.setQueryData(queryKeys.stacks, newStacks);
         queryClient.setQueryData(queryKeys.bugs, newBugs);
         queryClient.setQueryData(queryKeys.structures, newStructures);
+
+        if (originalBug && targetEntity && isStructure(targetEntity)) {
+          const filledHole = newStructures.find(
+            (structure) =>
+              structure.id === targetEntity.id && isHoleReadyToBecomeAnthill(structure),
+          );
+          if (filledHole) {
+            await beginHoleToAnthillTransform(filledHole.id);
+          }
+        }
       })();
     },
     [
@@ -366,6 +403,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       setStacksCache,
       setBugsCache,
       setStructuresCache,
+      beginHoleToAnthillTransform,
     ],
   );
 
@@ -532,6 +570,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           stacks={stacks}
           bugs={bugs}
           gridDrag={gridDrag}
+          useSandySoilBackground={useSandySoilBackground}
+          isTransformingToAnthill={isTransformingToAnthill}
+          onAnthillTransformFadeComplete={() => setIsTransformingToAnthill(false)}
         />
         <ItemFlightLayer
           cols={cols}

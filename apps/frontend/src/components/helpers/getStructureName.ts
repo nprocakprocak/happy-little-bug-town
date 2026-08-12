@@ -4,8 +4,6 @@ import { Structure } from "../../types/structure";
 
 export function structureTypeToName(structureType: StructureType): string {
   switch (structureType) {
-    case "hole":
-      return "Hole in the ground";
     case "beetle_house":
       return "Beetle house";
     case "workshop":

@@ -116,6 +116,20 @@ export const getStructure = async (id: string): Promise<StructureDto | null> => 
   return toStructureDto(structure);
 };
 
+export const getHole = async (authorId: string): Promise<StructureDto | null> => {
+  const structure = await prisma.structure.findFirst({
+    where: {
+      authorId,
+      structureType: "hole",
+    },
+    include: structureInclude,
+  });
+  if (!structure) {
+    return null;
+  }
+  return toStructureDto(structure);
+};
+
 export const updateStructurePosition = async (
   id: string,
   x: number,
@@ -124,6 +138,15 @@ export const updateStructurePosition = async (
   const structure = await prisma.structure.update({
     where: { id },
     data: { x, y },
+    include: structureInclude,
+  });
+  return toStructureDto(structure);
+};
+
+export const transformHoleToAnthill = async (id: string): Promise<StructureDto> => {
+  const structure = await prisma.structure.update({
+    where: { id },
+    data: { structureType: "anthill" },
     include: structureInclude,
   });
   return toStructureDto(structure);

@@ -55,3 +55,9 @@ export function craftOperationalResource(
     method: "POST",
   });
 }
+
+export function transformToAnthill(): Promise<Structure> {
+  return apiFetch<Structure>("/api/structures/transform-to-anthill", {
+    method: "POST",
+  });
+}

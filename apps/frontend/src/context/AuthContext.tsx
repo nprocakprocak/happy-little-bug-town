@@ -27,6 +27,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
   const setRequiresLogin = useMainStore((state) => state.setRequiresLogin);
+  const setIsTransformingToAnthill = useMainStore((state) => state.setIsTransformingToAnthill);
   const { mutateAsync: registerUser } = useRegisterUserMutation();
   const queryClient = useQueryClient();
 
@@ -94,11 +95,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAnonymousId(newAid);
     setAuthUser(null);
     setRequiresLogin(false);
+    setIsTransformingToAnthill(false);
     queryClient.clear();
     await queryClient.refetchQueries();
 
     google?.accounts?.id?.disableAutoSelect();
-  }, [queryClient, registerUser, setRequiresLogin]);
+  }, [queryClient, registerUser, setRequiresLogin, setIsTransformingToAnthill]);
 
   const value = useMemo(
     () => ({

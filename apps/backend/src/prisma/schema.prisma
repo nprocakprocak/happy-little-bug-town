@@ -25,6 +25,7 @@ enum ItemType {
 
 enum StructureType {
   hole
+  anthill
   beetle_house
   workshop
   stonemason

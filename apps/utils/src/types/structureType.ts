@@ -6,4 +6,4 @@ export type BuildableStructureType =
   | "kitchen"
   | "tavern";
 
-export type StructureType = "hole" | BuildableStructureType;
+export type StructureType = "hole" | "anthill" | BuildableStructureType;

@@ -58,7 +58,7 @@ function areBuildItemsSupplied(
 }
 
 export function isStructureBuilt(structure: StructureForBuild): boolean {
-  if (structure.structureType === "hole") {
+  if (structure.structureType === "hole" || structure.structureType === "anthill") {
     return true;
   }
 

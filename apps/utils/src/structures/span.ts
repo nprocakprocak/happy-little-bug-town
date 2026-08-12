@@ -1,4 +1,5 @@
 import {
+  ANTHILL_SPAN,
   BEETLE_HOUSE_SPAN,
   HOLE_SPAN,
   KITCHEN_SPAN,
@@ -13,6 +14,8 @@ export function getStructureSpan(structureType: StructureType): number {
   switch (structureType) {
     case "hole":
       return HOLE_SPAN;
+    case "anthill":
+      return ANTHILL_SPAN;
     case "workshop":
       return WORKSHOP_SPAN;
     case "stonemason":

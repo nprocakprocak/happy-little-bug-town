@@ -73,6 +73,15 @@ export function getHoleAntOccupancyProgress(
   return { count, max: HOLE_ANT_CAPACITY };
 }
 
+export function isHoleReadyToBecomeAnthill(
+  structure: StructureForPower,
+): boolean {
+  return (
+    structure.structureType === "hole" &&
+    getHoleAntCount(structure) >= HOLE_ANT_CAPACITY
+  );
+}
+
 export function canStructureAcceptBugDrop(
   bug: Pick<BugForStructureDrop, "bugType">,
   structure: StructureForBuild & StructureForPower,
