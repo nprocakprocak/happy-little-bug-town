@@ -8,7 +8,9 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
+import { isUuid } from "../helpers/isUuid.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
+import { getValidCoords } from "../helpers/validateCoords.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStack } from "../middleware/requireOwnedEntity.js";
 import { toStackOnGridDto } from "../services/helpers.js";
@@ -16,6 +18,7 @@ import {
   dissolveStack,
   getItemsByIds,
   getItemsOnGrid,
+  isItemFreeOnGrid,
   takeItemFromStack,
 } from "../services/itemsService.js";
 import {
@@ -23,6 +26,7 @@ import {
   getStack,
   getStacks,
   mergeStacks as mergeStacksService,
+  StackItemsUnavailableError,
   updateStack as updateStackService,
 } from "../services/stacksService.js";
 
@@ -39,9 +43,27 @@ const createStack: RequestHandler = async (req, res) => {
   const { x, y, itemIds } = req.body;
   const authorId = req.authorId!;
 
+  if (!Array.isArray(itemIds) || itemIds.length === 0) {
+    res.status(400).json({ error: "itemIds must be a non-empty array" });
+    return;
+  }
+  if (!itemIds.every((id: unknown) => typeof id === "string" && isUuid(id))) {
+    res.status(400).json({ error: "Invalid itemIds" });
+    return;
+  }
+  const coords = getValidCoords(x, y);
+  if (!coords) {
+    res.status(400).json({ error: "x and y are required" });
+    return;
+  }
+
   const items = await getItemsByIds(authorId, itemIds);
   if (items.length !== itemIds.length) {
     res.status(400).json({ error: "Some items were not found when creating stack" });
+    return;
+  }
+  if (!items.every(isItemFreeOnGrid)) {
+    res.status(400).json({ error: "All items must be free on the grid" });
     return;
   }
 
@@ -58,17 +80,12 @@ const createStack: RequestHandler = async (req, res) => {
     return;
   }
 
-  if (typeof x !== "number" || typeof y !== "number") {
-    res.status(400).json({ error: "x and y are required" });
-    return;
-  }
-
   const entities = await getAllEntitiesOnGrid(authorId);
   const entitiesWithoutItems = entities.filter(
     (entity) => !items.some((item) => item.x === entity.x && item.y === entity.y),
   );
   const fits = structureFootprintFits(
-    { x, y, itemsCount: items.length },
+    { x: coords.x, y: coords.y, itemsCount: items.length },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entitiesWithoutItems,
@@ -78,17 +95,24 @@ const createStack: RequestHandler = async (req, res) => {
     return;
   }
 
-  const stack = await createStackWithItems(
-    {
-      itemType,
-      x,
-      y,
-      authorId,
-    },
-    itemIds,
-  );
-
-  res.status(201).json(toStackOnGridDto(stack));
+  try {
+    const stack = await createStackWithItems(
+      {
+        itemType,
+        x: coords.x,
+        y: coords.y,
+        authorId,
+      },
+      itemIds,
+    );
+    res.status(201).json(toStackOnGridDto(stack));
+  } catch (error) {
+    if (error instanceof StackItemsUnavailableError) {
+      res.status(400).json({ error: "Some items are not available for stacking" });
+      return;
+    }
+    throw error;
+  }
 };
 
 const updateStack: RequestHandler = async (req, res) => {
@@ -97,14 +121,15 @@ const updateStack: RequestHandler = async (req, res) => {
   const authorId = req.authorId!;
   const existingStack = req.stack!;
 
-  if (typeof x !== "number" || typeof y !== "number") {
+  const coords = getValidCoords(x, y);
+  if (!coords) {
     res.status(400).json({ error: "x and y are required" });
     return;
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
   const fits = structureFootprintFits(
-    { x, y, itemsCount: existingStack.itemsCount },
+    { x: coords.x, y: coords.y, itemsCount: existingStack.itemsCount },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entities.filter((entity) => entity.x !== existingStack.x || entity.y !== existingStack.y),
@@ -114,7 +139,7 @@ const updateStack: RequestHandler = async (req, res) => {
     return;
   }
 
-  const stack = await updateStackService(id, { x, y });
+  const stack = await updateStackService(id, { x: coords.x, y: coords.y });
   res.status(200).json(toStackOnGridDto(stack));
 };
 
@@ -124,8 +149,8 @@ const mergeStacks: RequestHandler = async (req, res) => {
   const authorId = req.authorId!;
   const sourceStack = req.stack!;
 
-  if (!targetStackId || typeof targetStackId !== "string") {
-    res.status(400).json({ error: "targetStackId is required" });
+  if (typeof targetStackId !== "string" || !isUuid(targetStackId)) {
+    res.status(400).json({ error: "Invalid targetStackId" });
     return;
   }
 
@@ -135,12 +160,8 @@ const mergeStacks: RequestHandler = async (req, res) => {
   }
 
   const targetStack = await getStack(targetStackId);
-  if (!targetStack) {
-    res.status(400).json({ error: "Target stack not found when merging" });
-    return;
-  }
-  if (targetStack.authorId !== authorId) {
-    res.status(403).json({ error: "Forbidden" });
+  if (!targetStack || targetStack.authorId !== authorId) {
+    res.status(404).json({ error: "Not found" });
     return;
   }
 

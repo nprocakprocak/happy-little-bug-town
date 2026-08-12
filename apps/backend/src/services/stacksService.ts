@@ -8,6 +8,13 @@ const stackInclude = { items: true } as const;
 type CreateStackData = Pick<Stack, "itemType" | "x" | "y" | "authorId">;
 type UpdateStackData = Pick<Stack, "x" | "y">;
 
+export class StackItemsUnavailableError extends Error {
+  constructor() {
+    super("Some items are not available for stacking");
+    this.name = "StackItemsUnavailableError";
+  }
+}
+
 export const getStacks = async (authorId: string): Promise<StackDto[]> => {
   const stacks = await prisma.stack.findMany({
     where: {
@@ -53,11 +60,18 @@ export const createStackWithItems = async (
     const createdStack = await tx.stack.create({
       data: stack,
     });
-    await tx.item.updateMany({
+    const updateResult = await tx.item.updateMany({
       where: {
         id: {
           in: itemIds,
         },
+        authorId: stack.authorId,
+        stackId: null,
+        bugId: null,
+        structureId: null,
+        parentItemId: null,
+        x: { not: null },
+        y: { not: null },
       },
       data: {
         stackId: createdStack.id,
@@ -65,6 +79,9 @@ export const createStackWithItems = async (
         y: null,
       },
     });
+    if (updateResult.count !== itemIds.length) {
+      throw new StackItemsUnavailableError();
+    }
     const stackWithItems = await tx.stack.findUnique({
       where: { id: createdStack.id },
       include: stackInclude,

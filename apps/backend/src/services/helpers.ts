@@ -13,6 +13,7 @@ export function toItemDto(item: ItemWithItems): ItemDto {
     stackId: item.stackId ?? null,
     bugId: item.bugId ?? null,
     structureId: item.structureId ?? null,
+    parentItemId: item.parentItemId ?? null,
     authorId: item.authorId,
     items: item.items.map((craftItem) => ({ id: craftItem.id, itemType: craftItem.itemType })),
   };
@@ -63,7 +64,7 @@ export function toStackOnGridDto(stack: StackDto): StackOnGridDto {
 }
 
 export function toItemOnGridDto(item: ItemDto): ItemOnGridDto {
-  if (!item.x || !item.y) {
+  if (item.x == null || item.y == null) {
     throw new Error(`Item ${item.id} is not on a grid`);
   }
 
@@ -89,7 +90,7 @@ export function toBugDto(bug: Bug & { items: Item[] }): BugDto {
 }
 
 export function toBugOnGridDto(bug: BugDto): BugOnGridDto {
-  if (!bug.x || !bug.y) {
+  if (bug.x == null || bug.y == null) {
     throw new Error(`Bug ${bug.id} is not on a grid`);
   }
 

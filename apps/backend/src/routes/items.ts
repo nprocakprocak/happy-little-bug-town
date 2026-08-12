@@ -14,6 +14,8 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
+import { isUuid } from "../helpers/isUuid.js";
+import { getValidCoords } from "../helpers/validateCoords.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireItem } from "../middleware/requireOwnedEntity.js";
 import { getBug } from "../services/bugsService.js";
@@ -27,6 +29,7 @@ import {
   createItem as createItemService,
   getItem as getItemService,
   getItemsOnGrid,
+  hasParentCycle,
   updateItem as updateItemService,
 } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
@@ -70,7 +73,8 @@ const createItem: RequestHandler = async (req, res) => {
     res.status(400).json({ error: "Invalid item type" });
     return;
   }
-  if (typeof x !== "number" || typeof y !== "number") {
+  const coords = getValidCoords(x, y);
+  if (!coords) {
     res.status(400).json({ error: "x and y are required" });
     return;
   }
@@ -86,7 +90,12 @@ const createItem: RequestHandler = async (req, res) => {
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
-  const fits = structureFootprintFits({ x, y, itemType }, GROUND_WIDTH, GROUND_HEIGHT, entities);
+  const fits = structureFootprintFits(
+    { x: coords.x, y: coords.y, itemType },
+    GROUND_WIDTH,
+    GROUND_HEIGHT,
+    entities,
+  );
   if (!fits) {
     res.status(400).json({ error: "Position is not free for item" });
     return;
@@ -94,8 +103,8 @@ const createItem: RequestHandler = async (req, res) => {
 
   const item = await createItemService({
     itemType,
-    x,
-    y,
+    x: coords.x,
+    y: coords.y,
     authorId,
   });
   res.status(201).json(toItemOnGridDto(item));
@@ -108,18 +117,22 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   const existingItem = req.item!;
 
   if (parentItemId) {
+    if (typeof parentItemId !== "string" || !isUuid(parentItemId)) {
+      res.status(400).json({ error: "Invalid parentItemId" });
+      return;
+    }
     if (id === parentItemId) {
       res.status(400).json({ error: "Item cannot be added to itself" });
       return;
     }
-
-    const parentItem = await getItemService(parentItemId);
-    if (!parentItem) {
-      res.status(400).json({ error: "Parent item not found when updating item" });
+    if (await hasParentCycle(id, parentItemId)) {
+      res.status(400).json({ error: "Item cannot be added to its descendant" });
       return;
     }
-    if (parentItem.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
+
+    const parentItem = await getItemService(parentItemId);
+    if (!parentItem || parentItem.authorId !== authorId) {
+      res.status(404).json({ error: "Not found" });
       return;
     }
     if (!canDropItemOnItem(existingItem, parentItem)) {
@@ -138,13 +151,14 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   }
 
   if (structureId) {
-    const existingStructure = await getStructure(structureId);
-    if (!existingStructure) {
-      res.status(400).json({ error: "Structure not found when updating item" });
+    if (typeof structureId !== "string" || !isUuid(structureId)) {
+      res.status(400).json({ error: "Invalid structureId" });
       return;
     }
-    if (existingStructure.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
+
+    const existingStructure = await getStructure(structureId);
+    if (!existingStructure || existingStructure.authorId !== authorId) {
+      res.status(404).json({ error: "Not found" });
       return;
     }
     if (!canDropItemOnStructure(existingItem, existingStructure)) {
@@ -164,25 +178,25 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   }
 
   if (bugId) {
+    if (typeof bugId !== "string" || !isUuid(bugId)) {
+      res.status(400).json({ error: "Invalid bugId" });
+      return;
+    }
     if (existingItem.itemType !== "leaf_part") {
       res.status(400).json({ error: "Only leaf parts can be given to bugs" });
       return;
     }
 
     const existingBug = await getBug(bugId);
-    if (!existingBug) {
-      res.status(400).json({ error: "Bug not found when updating item" });
-      return;
-    }
-    if (existingBug.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
+    if (!existingBug || existingBug.authorId !== authorId) {
+      res.status(404).json({ error: "Not found" });
       return;
     }
     if (existingBug.bugType !== "beetle") {
       res.status(400).json({ error: "Only beetles can carry leaf parts" });
       return;
     }
-    if (!existingBug.x || !existingBug.y) {
+    if (existingBug.x == null || existingBug.y == null) {
       res.status(400).json({ error: "Bug must be on the grid" });
       return;
     }
@@ -203,13 +217,14 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   }
 
   if (stackId) {
-    const existingStack = await getStack(stackId);
-    if (!existingStack) {
-      res.status(400).json({ error: "Stack not found when updating item" });
+    if (typeof stackId !== "string" || !isUuid(stackId)) {
+      res.status(400).json({ error: "Invalid stackId" });
       return;
     }
-    if (existingStack.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
+
+    const existingStack = await getStack(stackId);
+    if (!existingStack || existingStack.authorId !== authorId) {
+      res.status(404).json({ error: "Not found" });
       return;
     }
     if (existingItem.itemType !== existingStack.itemType) {
@@ -234,14 +249,15 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
     return;
   }
 
-  if (!x || !y) {
+  const coords = getValidCoords(x, y);
+  if (!coords) {
     res.status(400).json({ error: "x and y are required when updating item not in stack" });
     return;
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
   const fits = structureFootprintFits(
-    { x, y, itemType: existingItem.itemType },
+    { x: coords.x, y: coords.y, itemType: existingItem.itemType },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entities.filter((entity) => entity.x !== existingItem.x || entity.y !== existingItem.y),
@@ -251,7 +267,7 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
     return;
   }
 
-  const item = await updateItemService(id, { x, y });
+  const item = await updateItemService(id, { x: coords.x, y: coords.y });
   res.status(200).json(toItemOnGridDto(item));
 };
 

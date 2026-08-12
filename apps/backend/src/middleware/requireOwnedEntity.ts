@@ -1,5 +1,6 @@
 import type { Request, RequestHandler } from "express";
 
+import { isUuid } from "../helpers/isUuid.js";
 import { getBug } from "../services/bugsService.js";
 import { getItem } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
@@ -26,7 +27,6 @@ interface OwnedEntity {
 
 interface RequireOwnedEntityOptions<T extends OwnedEntity> {
   load: (id: string) => Promise<T | null>;
-  entityName: string;
   setOnRequest: (req: Request, entity: T) => void;
 }
 
@@ -34,13 +34,14 @@ function createRequireOwnedEntity<T extends OwnedEntity>(
   options: RequireOwnedEntityOptions<T>,
 ): RequestHandler<{ id: string }> {
   return async (req, res, next) => {
-    const entity = await options.load(req.params.id);
-    if (!entity) {
-      res.status(404).json({ error: `${options.entityName} not found` });
+    if (!isUuid(req.params.id)) {
+      res.status(404).json({ error: "Not found" });
       return;
     }
-    if (entity.authorId !== req.authorId!) {
-      res.status(403).json({ error: "Forbidden" });
+
+    const entity = await options.load(req.params.id);
+    if (!entity || entity.authorId !== req.authorId!) {
+      res.status(404).json({ error: "Not found" });
       return;
     }
 
@@ -51,7 +52,6 @@ function createRequireOwnedEntity<T extends OwnedEntity>(
 
 export const requireStructure = createRequireOwnedEntity({
   load: getStructure,
-  entityName: "Structure",
   setOnRequest: (req, structure) => {
     req.structure = structure;
   },
@@ -59,7 +59,6 @@ export const requireStructure = createRequireOwnedEntity({
 
 export const requireItem = createRequireOwnedEntity({
   load: getItem,
-  entityName: "Item",
   setOnRequest: (req, item) => {
     req.item = item;
   },
@@ -67,7 +66,6 @@ export const requireItem = createRequireOwnedEntity({
 
 export const requireBug = createRequireOwnedEntity({
   load: getBug,
-  entityName: "Bug",
   setOnRequest: (req, bug) => {
     req.bug = bug;
   },
@@ -75,7 +73,6 @@ export const requireBug = createRequireOwnedEntity({
 
 export const requireStack = createRequireOwnedEntity({
   load: getStack,
-  entityName: "Stack",
   setOnRequest: (req, stack) => {
     req.stack = stack;
   },

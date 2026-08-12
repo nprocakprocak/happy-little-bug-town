@@ -13,6 +13,7 @@ import {
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
+import { getValidCoords } from "../helpers/validateCoords.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStructure } from "../middleware/requireOwnedEntity.js";
 import {
@@ -58,7 +59,8 @@ const createStructure: RequestHandler = async (req, res) => {
     return;
   }
 
-  if (typeof x !== "number" || typeof y !== "number") {
+  const coords = getValidCoords(x, y);
+  if (!coords) {
     res.status(400).json({ error: "x and y are required" });
     return;
   }
@@ -71,7 +73,7 @@ const createStructure: RequestHandler = async (req, res) => {
   const entities = await getAllEntitiesOnGrid(authorId);
 
   const fits = structureFootprintFits(
-    { x, y, structureType },
+    { x: coords.x, y: coords.y, structureType },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entities,
@@ -85,8 +87,8 @@ const createStructure: RequestHandler = async (req, res) => {
   const structure = await createStructureService({
     authorId,
     structureType,
-    x,
-    y,
+    x: coords.x,
+    y: coords.y,
   });
   res.status(201).json(toStructureOnGridDto(structure));
 };
@@ -108,7 +110,8 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   const authorId = req.authorId!;
   const existingStructure = req.structure!;
 
-  if (typeof x !== "number" || typeof y !== "number") {
+  const coords = getValidCoords(x, y);
+  if (!coords) {
     res.status(400).json({ error: "x and y are required" });
     return;
   }
@@ -116,7 +119,7 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   const entities = await getAllEntitiesOnGrid(authorId);
 
   const fits = structureFootprintFits(
-    { x, y, structureType: existingStructure.structureType },
+    { x: coords.x, y: coords.y, structureType: existingStructure.structureType },
     GROUND_WIDTH,
     GROUND_HEIGHT,
     entities.filter((e) => e.x !== existingStructure.x || e.y !== existingStructure.y),
@@ -127,7 +130,7 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
     return;
   }
 
-  const structure = await updateStructurePositionService(id, x, y);
+  const structure = await updateStructurePositionService(id, coords.x, coords.y);
   res.status(200).json(toStructureOnGridDto(structure));
 };
 

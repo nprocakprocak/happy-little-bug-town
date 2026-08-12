@@ -50,6 +50,44 @@ export const getItem = async (id: string): Promise<ItemDto | null> => {
   return toItemDto(item);
 };
 
+const PARENT_CHAIN_DEPTH_LIMIT = 32;
+
+export const hasParentCycle = async (itemId: string, parentItemId: string): Promise<boolean> => {
+  let currentId: string | null = parentItemId;
+
+  for (let depth = 0; depth < PARENT_CHAIN_DEPTH_LIMIT; depth++) {
+    if (currentId == null) {
+      return false;
+    }
+    if (currentId === itemId) {
+      return true;
+    }
+
+    const parent: { parentItemId: string | null } | null = await prisma.item.findUnique({
+      where: { id: currentId },
+      select: { parentItemId: true },
+    });
+    if (!parent) {
+      return false;
+    }
+
+    currentId = parent.parentItemId;
+  }
+
+  return true;
+};
+
+export function isItemFreeOnGrid(item: ItemDto): boolean {
+  return (
+    item.stackId == null &&
+    item.bugId == null &&
+    item.structureId == null &&
+    item.parentItemId == null &&
+    item.x != null &&
+    item.y != null
+  );
+}
+
 export const createItem = async (item: CreateItemData): Promise<ItemDto> => {
   const createdItem = await prisma.item.create({
     data: {

@@ -12,7 +12,7 @@ export type ItemWithItems = Item & { items: Item[] };
 
 export type ItemDto = Pick<
   Item,
-  "id" | "itemType" | "x" | "y" | "authorId" | "stackId" | "bugId" | "structureId"
+  "id" | "itemType" | "x" | "y" | "authorId" | "stackId" | "bugId" | "structureId" | "parentItemId"
 > & {
   items: ItemOnItem[];
 };

@@ -8,10 +8,12 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
+import { isUuid } from "../helpers/isUuid.js";
+import { getValidCoords } from "../helpers/validateCoords.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireBug } from "../middleware/requireOwnedEntity.js";
 import { getBugs, updateBug as updateBugService } from "../services/bugsService.js";
-import { toBugOnGridDto } from "../services/helpers.js";
+import { toBugOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
 import { getStructure } from "../services/structuresService.js";
 import { isPositioned } from "../typeGuards/items.js";
 
@@ -25,7 +27,7 @@ const listBugs: RequestHandler = async (req, res) => {
 };
 
 const getBugById: RequestHandler<{ id: string }> = async (req, res) => {
-  res.status(200).json(toBugOnGridDto(req.bug!));
+  res.status(200).json(req.bug!);
 };
 
 const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
@@ -35,13 +37,14 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
   const existingBug = req.bug!;
 
   if (structureId) {
-    const existingStructure = await getStructure(structureId);
-    if (!existingStructure) {
-      res.status(400).json({ error: "Structure not found when updating bug" });
+    if (typeof structureId !== "string" || !isUuid(structureId)) {
+      res.status(400).json({ error: "Invalid structureId" });
       return;
     }
-    if (existingStructure.authorId !== authorId) {
-      res.status(403).json({ error: "Forbidden" });
+
+    const existingStructure = await getStructure(structureId);
+    if (!existingStructure || existingStructure.authorId !== authorId) {
+      res.status(404).json({ error: "Not found" });
       return;
     }
     const structureForDrop = {
@@ -66,23 +69,24 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
       res.status(500).json({ error: "Structure not found after updating bug" });
       return;
     }
-    res.status(200).json(structure);
+    res.status(200).json(toStructureOnGridDto(structure));
     return;
   }
 
-  if (typeof x !== "number" || typeof y !== "number") {
+  const coords = getValidCoords(x, y);
+  if (!coords) {
     res.status(400).json({ error: "x and y are required" });
     return;
   }
 
   const entities = await getAllEntitiesOnGrid(authorId);
 
-  if (positionOverlapsAnyEntity({ x, y }, entities)) {
+  if (positionOverlapsAnyEntity({ x: coords.x, y: coords.y }, entities)) {
     res.status(400).json({ error: "Position is already occupied" });
     return;
   }
 
-  const bug = await updateBugService(id, { x, y });
+  const bug = await updateBugService(id, { x: coords.x, y: coords.y });
   res.status(200).json(toBugOnGridDto(bug));
 };
 
