@@ -29,7 +29,7 @@ import {
   updateItem as updateItemService,
 } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
-import { getStructure, hasWorkshop } from "../services/structuresService.js";
+import { getStructure, hasStructureOfType } from "../services/structuresService.js";
 import { UpdateItemData } from "../types/itemDto.js";
 
 const ITEM_TYPES: ItemType[] = [
@@ -73,7 +73,7 @@ const createItem: RequestHandler = async (req, res) => {
     res.status(400).json({ error: "x and y are required" });
     return;
   }
-  if (!(await hasWorkshop(authorId))) {
+  if (!(await hasStructureOfType(authorId, "workshop"))) {
     res.status(400).json({ error: "Workshop is required to create items" });
     return;
   }

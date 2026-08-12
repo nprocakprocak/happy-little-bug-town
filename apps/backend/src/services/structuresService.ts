@@ -1,4 +1,4 @@
-import { BugType, ItemType, Position } from "@happy-little-bug-town/utils";
+import { BugType, ItemType, Position, StructureType } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
 import { BugDto } from "../types/bugDto.js";
@@ -9,61 +9,14 @@ import { toBugDto, toItemDto, toStructureDto } from "./helpers.js";
 const structureInclude = { items: true, bugs: true } as const;
 const itemInclude = { items: true } as const;
 
-export const hasBeetleHouse = async (authorId: string): Promise<boolean> => {
+export const hasStructureOfType = async (
+  authorId: string,
+  structureType: StructureType,
+): Promise<boolean> => {
   const count = await prisma.structure.count({
     where: {
       authorId,
-      structureType: "beetle_house",
-    },
-  });
-  return count > 0;
-};
-
-export const hasWorkshop = async (authorId: string): Promise<boolean> => {
-  const count = await prisma.structure.count({
-    where: {
-      authorId,
-      structureType: "workshop",
-    },
-  });
-  return count > 0;
-};
-
-export const hasStonemason = async (authorId: string): Promise<boolean> => {
-  const count = await prisma.structure.count({
-    where: {
-      authorId,
-      structureType: "stonemason",
-    },
-  });
-  return count > 0;
-};
-
-export const hasWoodcutter = async (authorId: string): Promise<boolean> => {
-  const count = await prisma.structure.count({
-    where: {
-      authorId,
-      structureType: "woodcutter",
-    },
-  });
-  return count > 0;
-};
-
-export const hasKitchen = async (authorId: string): Promise<boolean> => {
-  const count = await prisma.structure.count({
-    where: {
-      authorId,
-      structureType: "kitchen",
-    },
-  });
-  return count > 0;
-};
-
-export const hasTavern = async (authorId: string): Promise<boolean> => {
-  const count = await prisma.structure.count({
-    where: {
-      authorId,
-      structureType: "tavern",
+      structureType,
     },
   });
   return count > 0;

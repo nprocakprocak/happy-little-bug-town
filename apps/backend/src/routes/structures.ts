@@ -30,12 +30,7 @@ import {
   getStructure,
   getStructures,
   getHole,
-  hasBeetleHouse,
-  hasKitchen,
-  hasStonemason,
-  hasTavern,
-  hasWoodcutter,
-  hasWorkshop,
+  hasStructureOfType,
   transformHoleToAnthill as transformHoleToAnthillService,
   updateStructurePosition as updateStructurePositionService,
 } from "../services/structuresService.js";
@@ -67,33 +62,8 @@ const createStructure: RequestHandler = async (req, res) => {
     return;
   }
 
-  if (structureType === "beetle_house" && (await hasBeetleHouse(authorId))) {
-    res.status(400).json({ error: "Beetle house already built" });
-    return;
-  }
-
-  if (structureType === "workshop" && (await hasWorkshop(authorId))) {
-    res.status(400).json({ error: "Workshop already built" });
-    return;
-  }
-
-  if (structureType === "stonemason" && (await hasStonemason(authorId))) {
-    res.status(400).json({ error: "Stonemason already built" });
-    return;
-  }
-
-  if (structureType === "woodcutter" && (await hasWoodcutter(authorId))) {
-    res.status(400).json({ error: "Woodcutter already built" });
-    return;
-  }
-
-  if (structureType === "kitchen" && (await hasKitchen(authorId))) {
-    res.status(400).json({ error: "Kitchen already built" });
-    return;
-  }
-
-  if (structureType === "tavern" && (await hasTavern(authorId))) {
-    res.status(400).json({ error: "Tavern already built" });
+  if (await hasStructureOfType(authorId, structureType)) {
+    res.status(400).json({ error: "Structure already built" });
     return;
   }
 
