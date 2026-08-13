@@ -18,9 +18,7 @@ export const createSession = async (userId: string): Promise<string> => {
   return session.id;
 };
 
-export const validateSession = async (
-  sessionId: string,
-): Promise<string | null> => {
+export const validateSession = async (sessionId: string): Promise<string | null> => {
   const session = await prisma.session.findUnique({
     where: { id: sessionId },
   });

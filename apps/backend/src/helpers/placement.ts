@@ -42,26 +42,16 @@ export async function assertFootprintFits(
   const entities = await getAllEntitiesOnGrid(authorId);
   const excluded = toExcludeList(options?.excludePosition);
   const entitiesForCheck =
-    excluded.length === 0
-      ? entities
-      : entities.filter((entity) => !isExcluded(entity, excluded));
+    excluded.length === 0 ? entities : entities.filter((entity) => !isExcluded(entity, excluded));
 
   if (!structureFootprintFits(spannable, GROUND_WIDTH, GROUND_HEIGHT, entitiesForCheck)) {
     throw new AppError(400, "Position is not free");
   }
 }
 
-export async function requireNearestEmpty(
-  authorId: string,
-  near: Positionable,
-): Promise<Position> {
+export async function requireNearestEmpty(authorId: string, near: Positionable): Promise<Position> {
   const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findNearestEmptyPosition(
-    GROUND_HEIGHT,
-    GROUND_WIDTH,
-    entities,
-    near,
-  );
+  const emptyPosition = findNearestEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities, near);
   if (!emptyPosition) {
     throw new AppError(400, "No empty position found");
   }

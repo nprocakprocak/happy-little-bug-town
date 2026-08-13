@@ -4,9 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 
 import {
-  GROUND_GRID_MAX_WIDTH_PX,
   GROUND_BG_TILE_HEIGHT_PX,
   GROUND_BG_TILE_WIDTH_PX,
+  GROUND_GRID_MAX_WIDTH_PX,
   HOME_BANNER_HEIGHT_PX,
 } from "../../constants";
 import { useAuth } from "../../context/AuthContext";

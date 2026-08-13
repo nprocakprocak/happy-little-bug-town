@@ -4,12 +4,11 @@ import { Router, type RequestHandler } from "express";
 import { AID_COOKIE_NAME } from "../constants/cookies.js";
 import { setAidCookie } from "../helpers/aidCookie.js";
 import { isUuid } from "../helpers/isUuid.js";
-import { asyncHandler } from "../middleware/asyncHandler.js";
 import { ensureUser } from "../services/usersService.js";
 
 export const usersRouter = Router();
 
-const registerUser: RequestHandler = asyncHandler(async (req, res) => {
+const registerUser: RequestHandler = async (req, res) => {
   const cookieAid = req.signedCookies[AID_COOKIE_NAME];
 
   if (typeof cookieAid === "string" && isUuid(cookieAid)) {
@@ -23,6 +22,6 @@ const registerUser: RequestHandler = asyncHandler(async (req, res) => {
   const user = await ensureUser(anonymousId);
   setAidCookie(res, anonymousId);
   res.status(200).json(user);
-});
+};
 
 usersRouter.post("/register", registerUser);

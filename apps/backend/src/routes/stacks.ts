@@ -6,7 +6,6 @@ import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { assertFootprintFits, requireCoords, requireNearestEmpty } from "../helpers/placement.js";
 import { toItemOnGridDto } from "../mappers/item.js";
 import { toStackOnGridDto } from "../mappers/stack.js";
-import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStack } from "../middleware/requireOwnedEntity.js";
 import {
@@ -29,12 +28,12 @@ export const stacksRouter = Router();
 
 stacksRouter.use(...requireGameAccess);
 
-const listStacks: RequestHandler = asyncHandler(async (req, res) => {
+const listStacks: RequestHandler = async (req, res) => {
   const stacks = await getStacks(req.authorId!);
   res.status(200).json(stacks.map(toStackOnGridDto));
-});
+};
 
-const createStack: RequestHandler = asyncHandler(async (req, res) => {
+const createStack: RequestHandler = async (req, res) => {
   const { x, y, itemIds } = req.body;
   const authorId = req.authorId!;
 
@@ -94,9 +93,9 @@ const createStack: RequestHandler = asyncHandler(async (req, res) => {
     }
     throw error;
   }
-});
+};
 
-const updateStack: RequestHandler = asyncHandler(async (req, res) => {
+const updateStack: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
   const { x, y } = req.body;
   const authorId = req.authorId!;
@@ -112,9 +111,9 @@ const updateStack: RequestHandler = asyncHandler(async (req, res) => {
 
   const stack = await updateStackService(id, { x: coords.x, y: coords.y });
   res.status(200).json(toStackOnGridDto(stack));
-});
+};
 
-const mergeStacks: RequestHandler = asyncHandler(async (req, res) => {
+const mergeStacks: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
   const { targetStackId } = req.body;
   const authorId = req.authorId!;
@@ -142,9 +141,9 @@ const mergeStacks: RequestHandler = asyncHandler(async (req, res) => {
 
   const stack = await mergeStacksService(id, parsedTargetStackId);
   res.status(200).json(toStackOnGridDto(stack));
-});
+};
 
-const extractItemFromStack: RequestHandler = asyncHandler(async (req, res) => {
+const extractItemFromStack: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
   const authorId = req.authorId!;
   const existingStack = req.stack!;
@@ -170,7 +169,7 @@ const extractItemFromStack: RequestHandler = asyncHandler(async (req, res) => {
     extractedItem: toItemOnGridDto(item),
     stackDissolved: false,
   });
-});
+};
 
 stacksRouter.get("/", listStacks);
 stacksRouter.post("/", createStack);

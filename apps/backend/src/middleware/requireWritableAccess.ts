@@ -1,9 +1,8 @@
 import type { RequestHandler } from "express";
 
 import { getUser } from "../services/usersService.js";
-import { asyncHandler } from "./asyncHandler.js";
 
-export const requireWritableAccess: RequestHandler = asyncHandler(async (req, res, next) => {
+export const requireWritableAccess: RequestHandler = async (req, res, next) => {
   const authorId = req.authorId!;
 
   const user = await getUser(authorId);
@@ -22,4 +21,4 @@ export const requireWritableAccess: RequestHandler = asyncHandler(async (req, re
   }
 
   next();
-});
+};

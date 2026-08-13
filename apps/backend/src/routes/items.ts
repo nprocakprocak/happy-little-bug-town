@@ -4,7 +4,6 @@ import { canCreateItemType, isCraftableItemType, isItemType } from "@happy-littl
 
 import { assertFootprintFits, requireCoords } from "../helpers/placement.js";
 import { toItemOnGridDto } from "../mappers/item.js";
-import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireItem } from "../middleware/requireOwnedEntity.js";
 import {
@@ -23,12 +22,12 @@ export const itemsRouter = Router();
 
 itemsRouter.use(...requireGameAccess);
 
-const listItems: RequestHandler = asyncHandler(async (req, res) => {
+const listItems: RequestHandler = async (req, res) => {
   const items = await getItemsOnGrid(req.authorId!);
   res.status(200).json(items.map(toItemOnGridDto));
-});
+};
 
-const createItem: RequestHandler = asyncHandler(async (req, res) => {
+const createItem: RequestHandler = async (req, res) => {
   const { itemType, x, y } = req.body;
   const authorId = req.authorId!;
 
@@ -57,53 +56,51 @@ const createItem: RequestHandler = asyncHandler(async (req, res) => {
     authorId,
   });
   res.status(201).json(toItemOnGridDto(item));
-});
+};
 
-const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyncHandler(
-  async (req, res) => {
-    const { id } = req.params;
-    const { x, y, stackId, bugId, structureId, parentItemId } = req.body;
-    const authorId = req.authorId!;
-    const existingItem = req.item!;
+const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = async (req, res) => {
+  const { id } = req.params;
+  const { x, y, stackId, bugId, structureId, parentItemId } = req.body;
+  const authorId = req.authorId!;
+  const existingItem = req.item!;
 
-    if (parentItemId) {
-      const parentItem = await attachItemToParent(id, parentItemId, existingItem, authorId);
-      res.status(200).json(parentItem);
-      return;
-    }
+  if (parentItemId) {
+    const parentItem = await attachItemToParent(id, parentItemId, existingItem, authorId);
+    res.status(200).json(parentItem);
+    return;
+  }
 
-    if (structureId) {
-      const structure = await attachItemToStructure(id, structureId, existingItem, authorId);
-      res.status(200).json(structure);
-      return;
-    }
+  if (structureId) {
+    const structure = await attachItemToStructure(id, structureId, existingItem, authorId);
+    res.status(200).json(structure);
+    return;
+  }
 
-    if (bugId) {
-      const bug = await attachItemToBug(id, bugId, existingItem, authorId);
-      res.status(200).json(bug);
-      return;
-    }
+  if (bugId) {
+    const bug = await attachItemToBug(id, bugId, existingItem, authorId);
+    res.status(200).json(bug);
+    return;
+  }
 
-    if (stackId) {
-      const stack = await attachItemToStack(id, stackId, existingItem, authorId);
-      res.status(200).json(stack);
-      return;
-    }
+  if (stackId) {
+    const stack = await attachItemToStack(id, stackId, existingItem, authorId);
+    res.status(200).json(stack);
+    return;
+  }
 
-    const coords = requireCoords(x, y);
+  const coords = requireCoords(x, y);
 
-    await assertFootprintFits(
-      authorId,
-      { x: coords.x, y: coords.y, itemType: existingItem.itemType },
-      existingItem.x != null && existingItem.y != null
-        ? { excludePosition: { x: existingItem.x, y: existingItem.y } }
-        : undefined,
-    );
+  await assertFootprintFits(
+    authorId,
+    { x: coords.x, y: coords.y, itemType: existingItem.itemType },
+    existingItem.x != null && existingItem.y != null
+      ? { excludePosition: { x: existingItem.x, y: existingItem.y } }
+      : undefined,
+  );
 
-    const item = await updateItemService(id, { x: coords.x, y: coords.y });
-    res.status(200).json(toItemOnGridDto(item));
-  },
-);
+  const item = await updateItemService(id, { x: coords.x, y: coords.y });
+  res.status(200).json(toItemOnGridDto(item));
+};
 
 itemsRouter.get("/", listItems);
 itemsRouter.post("/", createItem);

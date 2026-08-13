@@ -44,6 +44,9 @@ app.use("/api/users", usersRouter);
 app.use("/api/bugs", bugsRouter);
 app.use(errorHandler);
 
-app.listen(port, () => {
+app.listen(port, (error?: Error) => {
+  if (error) {
+    throw error;
+  }
   console.log(`Backend is running at ${railwayPublicDomain}:${port}`);
 });

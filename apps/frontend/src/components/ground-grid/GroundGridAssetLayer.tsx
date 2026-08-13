@@ -14,9 +14,9 @@ import {
 
 import {
   ANTHILL_TRANSFORM_FADE_MS,
-  GROUND_GRID_MAX_WIDTH_PX,
   GROUND_BG_TILE_HEIGHT_PX,
   GROUND_BG_TILE_WIDTH_PX,
+  GROUND_GRID_MAX_WIDTH_PX,
 } from "../../constants";
 import { useAnthillBackgroundFade } from "../../hooks/useAnthillBackgroundFade";
 import { Bug } from "../../types/bug";

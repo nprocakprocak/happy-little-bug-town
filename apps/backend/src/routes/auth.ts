@@ -6,7 +6,6 @@ import {
   getSignedClearCookieOptions,
   getSignedCookieOptions,
 } from "../helpers/signedCookieOptions.js";
-import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireAid } from "../middleware/requireAid.js";
 import { requireSession } from "../middleware/requireSession.js";
 import { loginWithGoogle } from "../services/googleAuthService.js";
@@ -15,7 +14,7 @@ import { getUser } from "../services/usersService.js";
 
 export const authRouter = Router();
 
-const login: RequestHandler = asyncHandler(async (req, res) => {
+const login: RequestHandler = async (req, res) => {
   const anonymousId = req.authorId!;
 
   const credential = req.body?.credential;
@@ -43,9 +42,9 @@ const login: RequestHandler = asyncHandler(async (req, res) => {
   res.cookie(SESSION_COOKIE_NAME, sessionId, getSignedCookieOptions());
   setAidCookie(res, userId);
   res.status(200).json(user);
-});
+};
 
-const logout: RequestHandler = asyncHandler(async (req, res) => {
+const logout: RequestHandler = async (req, res) => {
   const sessionId = req.signedCookies[SESSION_COOKIE_NAME] as string | undefined;
 
   if (sessionId) {
@@ -55,9 +54,9 @@ const logout: RequestHandler = asyncHandler(async (req, res) => {
   res.clearCookie(SESSION_COOKIE_NAME, getSignedClearCookieOptions());
   clearAidCookie(res);
   res.status(200).json({ ok: true });
-});
+};
 
-const me: RequestHandler = asyncHandler(async (req, res) => {
+const me: RequestHandler = async (req, res) => {
   const userId = req.sessionUserId;
   if (!userId) {
     if (req.signedCookies[SESSION_COOKIE_NAME]) {
@@ -75,7 +74,7 @@ const me: RequestHandler = asyncHandler(async (req, res) => {
 
   setAidCookie(res, userId);
   res.status(200).json(authUser);
-});
+};
 
 authRouter.post("/google", requireAid, login);
 authRouter.post("/logout", requireAid, logout);

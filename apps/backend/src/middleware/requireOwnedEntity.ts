@@ -5,7 +5,6 @@ import { getBug } from "../services/bugsService.js";
 import { getItem } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
 import { getStructure } from "../services/structuresService.js";
-import { asyncHandler } from "./asyncHandler.js";
 
 interface OwnedEntity {
   authorId: string;
@@ -19,7 +18,7 @@ interface RequireOwnedEntityOptions<T extends OwnedEntity> {
 function createRequireOwnedEntity<T extends OwnedEntity>(
   options: RequireOwnedEntityOptions<T>,
 ): RequestHandler<{ id: string }> {
-  return asyncHandler(async (req, res, next) => {
+  return async (req, res, next) => {
     if (!isUuid(req.params.id)) {
       res.status(404).json({ error: "Not found" });
       return;
@@ -33,7 +32,7 @@ function createRequireOwnedEntity<T extends OwnedEntity>(
 
     options.setOnRequest(req, entity);
     next();
-  });
+  };
 }
 
 export const requireStructure = createRequireOwnedEntity({

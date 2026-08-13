@@ -20,9 +20,7 @@ const getOAuthClient = (): OAuth2Client => {
   return new OAuth2Client(googleClientId);
 };
 
-export const verifyGoogleIdToken = async (
-  credential: string,
-): Promise<GoogleTokenPayload> => {
+export const verifyGoogleIdToken = async (credential: string): Promise<GoogleTokenPayload> => {
   const { googleClientId } = loadAuthEnv();
   const client = getOAuthClient();
   const ticket = await client.verifyIdToken({
