@@ -1,6 +1,17 @@
+import {
+  canStructureAcceptBugDrop,
+  isBugFed,
+  structureDropRequiresFedBug,
+} from "@happy-little-bug-town/utils";
+
+import { AppError } from "../errors/AppError.js";
+import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { prisma } from "../lib/prisma.js";
 import { toBugDto } from "../mappers/bug.js";
+import { toStructureOnGridDto } from "../mappers/structure.js";
 import { BugDto, CreateBugData, UpdateBugData } from "../types/bugDto.js";
+import { StructureOnGridDto } from "../types/structureDto.js";
+import { getStructure } from "./structuresService.js";
 
 export const getBugs = async (authorId: string): Promise<BugDto[]> => {
   const bugs = await prisma.bug.findMany({
@@ -56,4 +67,35 @@ export const updateBug = async (id: string, data: UpdateBugData): Promise<BugDto
     include: { items: true },
   });
   return toBugDto({ ...updatedBug, items: updatedBug.items });
+};
+
+export const attachBugToStructure = async (
+  bugId: string,
+  structureId: string,
+  existingBug: BugDto,
+  authorId: string,
+): Promise<StructureOnGridDto> => {
+  const parsedStructureId = parseUuidOrThrow(structureId, "structureId");
+
+  const existingStructure = await loadOwnedOr404(getStructure, parsedStructureId, authorId);
+  const structureForDrop = {
+    structureType: existingStructure.structureType,
+    items: existingStructure.items,
+    bugs: existingStructure.bugs,
+  };
+
+  if (!canStructureAcceptBugDrop(existingBug, structureForDrop)) {
+    throw new AppError(400, "Structure cannot accept this bug");
+  }
+
+  if (structureDropRequiresFedBug(existingStructure.structureType) && !isBugFed(existingBug)) {
+    throw new AppError(400, "Bug must be fed before joining structure");
+  }
+
+  await updateBug(bugId, { structureId: parsedStructureId });
+  const structure = await getStructure(parsedStructureId);
+  if (!structure) {
+    throw new AppError(500, "Structure not found after updating bug");
+  }
+  return toStructureOnGridDto(structure);
 };

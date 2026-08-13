@@ -1,8 +1,26 @@
-import { DiggableType, Position } from "@happy-little-bug-town/utils";
+import {
+  BEETLE_MAX_LEAF_PARTS,
+  canDropItemOnItem,
+  canDropItemOnStructure,
+  canStackItemType,
+  DiggableType,
+  Position,
+} from "@happy-little-bug-town/utils";
 
+import { AppError } from "../errors/AppError.js";
+import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { prisma } from "../lib/prisma.js";
-import { toItemDto } from "../mappers/item.js";
-import { CreateItemData, ItemDto, UpdateItemData } from "../types/itemDto.js";
+import { toBugOnGridDto } from "../mappers/bug.js";
+import { toItemDto, toItemOnGridDto } from "../mappers/item.js";
+import { toStackOnGridDto } from "../mappers/stack.js";
+import { toStructureOnGridDto } from "../mappers/structure.js";
+import { BugOnGridDto } from "../types/bugDto.js";
+import { CreateItemData, ItemDto, ItemOnGridDto, UpdateItemData } from "../types/itemDto.js";
+import { StackOnGridDto } from "../types/stackDto.js";
+import { StructureOnGridDto } from "../types/structureDto.js";
+import { getBug } from "./bugsService.js";
+import { getStack } from "./stacksService.js";
+import { getStructure } from "./structuresService.js";
 
 const ITEM_TYPES_WEIGHTS = {
   beetle: 0.2,
@@ -157,6 +175,110 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
     include: itemInclude,
   });
   return toItemDto(updatedItem);
+};
+
+export const attachItemToParent = async (
+  itemId: string,
+  parentItemId: string,
+  existingItem: ItemDto,
+  authorId: string,
+): Promise<ItemOnGridDto> => {
+  const parsedParentItemId = parseUuidOrThrow(parentItemId, "parentItemId");
+  if (itemId === parsedParentItemId) {
+    throw new AppError(400, "Item cannot be added to itself");
+  }
+  if (await hasParentCycle(itemId, parsedParentItemId)) {
+    throw new AppError(400, "Item cannot be added to its descendant");
+  }
+
+  const parentItem = await loadOwnedOr404(getItem, parsedParentItemId, authorId);
+  if (!canDropItemOnItem(existingItem, parentItem)) {
+    throw new AppError(400, "Item cannot be added to item");
+  }
+
+  await updateItem(itemId, { parentItemId: parsedParentItemId });
+  const updatedParentItem = await getItem(parsedParentItemId);
+  if (!updatedParentItem) {
+    throw new AppError(500, "Parent item not found after updating item");
+  }
+  return toItemOnGridDto(updatedParentItem);
+};
+
+export const attachItemToStructure = async (
+  itemId: string,
+  structureId: string,
+  existingItem: ItemDto,
+  authorId: string,
+): Promise<StructureOnGridDto> => {
+  const parsedStructureId = parseUuidOrThrow(structureId, "structureId");
+
+  const existingStructure = await loadOwnedOr404(getStructure, parsedStructureId, authorId);
+  if (!canDropItemOnStructure(existingItem, existingStructure)) {
+    throw new AppError(400, "Item cannot be added to structure");
+  }
+
+  await updateItem(itemId, { structureId: parsedStructureId });
+  const structure = await getStructure(parsedStructureId);
+  if (!structure) {
+    throw new AppError(500, "Structure not found after updating item");
+  }
+  return toStructureOnGridDto(structure);
+};
+
+export const attachItemToBug = async (
+  itemId: string,
+  bugId: string,
+  existingItem: ItemDto,
+  authorId: string,
+): Promise<BugOnGridDto> => {
+  const parsedBugId = parseUuidOrThrow(bugId, "bugId");
+  if (existingItem.itemType !== "leaf_part") {
+    throw new AppError(400, "Only leaf parts can be given to bugs");
+  }
+
+  const existingBug = await loadOwnedOr404(getBug, parsedBugId, authorId);
+  if (existingBug.bugType !== "beetle") {
+    throw new AppError(400, "Only beetles can carry leaf parts");
+  }
+  if (existingBug.x == null || existingBug.y == null) {
+    throw new AppError(400, "Bug must be on the grid");
+  }
+  if (existingBug.itemIds.length >= BEETLE_MAX_LEAF_PARTS) {
+    throw new AppError(400, "Beetle is already full");
+  }
+
+  await updateItem(itemId, { bugId: parsedBugId });
+  const bug = await getBug(parsedBugId);
+  if (!bug) {
+    throw new AppError(500, "Bug not found after updating item");
+  }
+  return toBugOnGridDto(bug);
+};
+
+export const attachItemToStack = async (
+  itemId: string,
+  stackId: string,
+  existingItem: ItemDto,
+  authorId: string,
+): Promise<StackOnGridDto> => {
+  const parsedStackId = parseUuidOrThrow(stackId, "stackId");
+
+  const existingStack = await loadOwnedOr404(getStack, parsedStackId, authorId);
+  if (existingItem.itemType !== existingStack.itemType) {
+    throw new AppError(400, "Item type must match stack type");
+  }
+
+  const itemsOnGrid = await getItemsOnGrid(authorId);
+  if (!canStackItemType(existingItem.itemType, itemsOnGrid)) {
+    throw new AppError(400, "Item cannot be stacked");
+  }
+
+  await updateItem(itemId, { stackId: parsedStackId });
+  const stack = await getStack(parsedStackId);
+  if (!stack) {
+    throw new AppError(500, "Stack not found after updating item");
+  }
+  return toStackOnGridDto(stack);
 };
 
 export function generateRandomItemType(): DiggableType {

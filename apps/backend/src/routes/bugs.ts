@@ -1,23 +1,19 @@
 import { Router, type RequestHandler } from "express";
 
-import {
-  canStructureAcceptBugDrop,
-  isBugFed,
-  positionOverlapsAnyEntity,
-  structureDropRequiresFedBug,
-} from "@happy-little-bug-town/utils";
+import { positionOverlapsAnyEntity } from "@happy-little-bug-town/utils";
 
 import { AppError } from "../errors/AppError.js";
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
-import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { requireCoords } from "../helpers/placement.js";
 import { toBugOnGridDto } from "../mappers/bug.js";
-import { toStructureOnGridDto } from "../mappers/structure.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireBug } from "../middleware/requireOwnedEntity.js";
-import { getBugs, updateBug as updateBugService } from "../services/bugsService.js";
-import { getStructure } from "../services/structuresService.js";
+import {
+  attachBugToStructure,
+  getBugs,
+  updateBug as updateBugService,
+} from "../services/bugsService.js";
 import { isPositioned } from "../typeGuards/position.js";
 
 export const bugsRouter = Router();
@@ -45,32 +41,8 @@ const updateBug: RequestHandler<{ id: string }> = asyncHandler(async (req, res) 
   const existingBug = req.bug!;
 
   if (structureId) {
-    const parsedStructureId = parseUuidOrThrow(structureId, "structureId");
-
-    const existingStructure = await loadOwnedOr404(getStructure, parsedStructureId, authorId);
-    const structureForDrop = {
-      structureType: existingStructure.structureType,
-      items: existingStructure.items,
-      bugs: existingStructure.bugs,
-    };
-
-    if (!canStructureAcceptBugDrop(existingBug, structureForDrop)) {
-      res.status(400).json({ error: "Structure cannot accept this bug" });
-      return;
-    }
-
-    if (structureDropRequiresFedBug(existingStructure.structureType) && !isBugFed(existingBug)) {
-      res.status(400).json({ error: "Bug must be fed before joining structure" });
-      return;
-    }
-
-    await updateBugService(id, { structureId: parsedStructureId });
-    const structure = await getStructure(parsedStructureId);
-    if (!structure) {
-      res.status(500).json({ error: "Structure not found after updating bug" });
-      return;
-    }
-    res.status(200).json(toStructureOnGridDto(structure));
+    const structure = await attachBugToStructure(id, structureId, existingBug, authorId);
+    res.status(200).json(structure);
     return;
   }
 
