@@ -2,12 +2,8 @@ import { Router, type RequestHandler } from "express";
 
 import { canStackItemType } from "@happy-little-bug-town/utils";
 
-import { isUuid } from "../helpers/isUuid.js";
-import {
-  assertFootprintFits,
-  requireCoords,
-  requireNearestEmpty,
-} from "../helpers/placement.js";
+import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
+import { assertFootprintFits, requireCoords, requireNearestEmpty } from "../helpers/placement.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStack } from "../middleware/requireOwnedEntity.js";
@@ -45,14 +41,11 @@ const createStack: RequestHandler = asyncHandler(async (req, res) => {
     res.status(400).json({ error: "itemIds must be a non-empty array" });
     return;
   }
-  if (!itemIds.every((id: unknown) => typeof id === "string" && isUuid(id))) {
-    res.status(400).json({ error: "Invalid itemIds" });
-    return;
-  }
+  const parsedItemIds = itemIds.map((itemId: unknown) => parseUuidOrThrow(itemId, "itemIds"));
   const coords = requireCoords(x, y);
 
-  const items = await getItemsByIds(authorId, itemIds);
-  if (items.length !== itemIds.length) {
+  const items = await getItemsByIds(authorId, parsedItemIds);
+  if (items.length !== parsedItemIds.length) {
     res.status(400).json({ error: "Some items were not found when creating stack" });
     return;
   }
@@ -90,7 +83,7 @@ const createStack: RequestHandler = asyncHandler(async (req, res) => {
         y: coords.y,
         authorId,
       },
-      itemIds,
+      parsedItemIds,
     );
     res.status(201).json(toStackOnGridDto(stack));
   } catch (error) {
@@ -126,21 +119,14 @@ const mergeStacks: RequestHandler = asyncHandler(async (req, res) => {
   const authorId = req.authorId!;
   const sourceStack = req.stack!;
 
-  if (typeof targetStackId !== "string" || !isUuid(targetStackId)) {
-    res.status(400).json({ error: "Invalid targetStackId" });
-    return;
-  }
+  const parsedTargetStackId = parseUuidOrThrow(targetStackId, "targetStackId");
 
-  if (id === targetStackId) {
+  if (id === parsedTargetStackId) {
     res.status(400).json({ error: "Cannot merge a stack with itself" });
     return;
   }
 
-  const targetStack = await getStack(targetStackId);
-  if (!targetStack || targetStack.authorId !== authorId) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
+  const targetStack = await loadOwnedOr404(getStack, parsedTargetStackId, authorId);
 
   if (sourceStack.itemType !== targetStack.itemType) {
     res.status(400).json({ error: "Stacks must be of the same type to merge" });
@@ -153,7 +139,7 @@ const mergeStacks: RequestHandler = asyncHandler(async (req, res) => {
     return;
   }
 
-  const stack = await mergeStacksService(id, targetStackId);
+  const stack = await mergeStacksService(id, parsedTargetStackId);
   res.status(200).json(toStackOnGridDto(stack));
 });
 

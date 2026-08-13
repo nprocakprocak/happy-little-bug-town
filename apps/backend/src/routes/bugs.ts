@@ -9,7 +9,7 @@ import {
 
 import { AppError } from "../errors/AppError.js";
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
-import { isUuid } from "../helpers/isUuid.js";
+import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { requireCoords } from "../helpers/placement.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
@@ -39,16 +39,9 @@ const updateBug: RequestHandler<{ id: string }> = asyncHandler(async (req, res) 
   const existingBug = req.bug!;
 
   if (structureId) {
-    if (typeof structureId !== "string" || !isUuid(structureId)) {
-      res.status(400).json({ error: "Invalid structureId" });
-      return;
-    }
+    const parsedStructureId = parseUuidOrThrow(structureId, "structureId");
 
-    const existingStructure = await getStructure(structureId);
-    if (!existingStructure || existingStructure.authorId !== authorId) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
+    const existingStructure = await loadOwnedOr404(getStructure, parsedStructureId, authorId);
     const structureForDrop = {
       structureType: existingStructure.structureType,
       items: existingStructure.items,
@@ -65,8 +58,8 @@ const updateBug: RequestHandler<{ id: string }> = asyncHandler(async (req, res) 
       return;
     }
 
-    await updateBugService(id, { structureId });
-    const structure = await getStructure(structureId);
+    await updateBugService(id, { structureId: parsedStructureId });
+    const structure = await getStructure(parsedStructureId);
     if (!structure) {
       res.status(500).json({ error: "Structure not found after updating bug" });
       return;

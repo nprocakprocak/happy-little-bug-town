@@ -10,7 +10,7 @@ import {
   ItemType,
 } from "@happy-little-bug-town/utils";
 
-import { isUuid } from "../helpers/isUuid.js";
+import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { assertFootprintFits, requireCoords } from "../helpers/placement.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
@@ -95,156 +95,128 @@ const createItem: RequestHandler = asyncHandler(async (req, res) => {
 
 const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyncHandler(
   async (req, res) => {
-  const { id } = req.params;
-  const { x, y, stackId, bugId, structureId, parentItemId } = req.body;
-  const authorId = req.authorId!;
-  const existingItem = req.item!;
+    const { id } = req.params;
+    const { x, y, stackId, bugId, structureId, parentItemId } = req.body;
+    const authorId = req.authorId!;
+    const existingItem = req.item!;
 
-  if (parentItemId) {
-    if (typeof parentItemId !== "string" || !isUuid(parentItemId)) {
-      res.status(400).json({ error: "Invalid parentItemId" });
-      return;
-    }
-    if (id === parentItemId) {
-      res.status(400).json({ error: "Item cannot be added to itself" });
-      return;
-    }
-    if (await hasParentCycle(id, parentItemId)) {
-      res.status(400).json({ error: "Item cannot be added to its descendant" });
-      return;
-    }
+    if (parentItemId) {
+      const parsedParentItemId = parseUuidOrThrow(parentItemId, "parentItemId");
+      if (id === parsedParentItemId) {
+        res.status(400).json({ error: "Item cannot be added to itself" });
+        return;
+      }
+      if (await hasParentCycle(id, parsedParentItemId)) {
+        res.status(400).json({ error: "Item cannot be added to its descendant" });
+        return;
+      }
 
-    const parentItem = await getItemService(parentItemId);
-    if (!parentItem || parentItem.authorId !== authorId) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    if (!canDropItemOnItem(existingItem, parentItem)) {
-      res.status(400).json({ error: "Item cannot be added to item" });
-      return;
-    }
+      const parentItem = await loadOwnedOr404(getItemService, parsedParentItemId, authorId);
+      if (!canDropItemOnItem(existingItem, parentItem)) {
+        res.status(400).json({ error: "Item cannot be added to item" });
+        return;
+      }
 
-    await updateItemService(id, { parentItemId });
-    const updatedParentItem = await getItemService(parentItemId);
-    if (!updatedParentItem) {
-      res.status(500).json({ error: "Parent item not found after updating item" });
-      return;
-    }
-    res.status(200).json(toItemOnGridDto(updatedParentItem));
-    return;
-  }
-
-  if (structureId) {
-    if (typeof structureId !== "string" || !isUuid(structureId)) {
-      res.status(400).json({ error: "Invalid structureId" });
+      await updateItemService(id, { parentItemId: parsedParentItemId });
+      const updatedParentItem = await getItemService(parsedParentItemId);
+      if (!updatedParentItem) {
+        res.status(500).json({ error: "Parent item not found after updating item" });
+        return;
+      }
+      res.status(200).json(toItemOnGridDto(updatedParentItem));
       return;
     }
 
-    const existingStructure = await getStructure(structureId);
-    if (!existingStructure || existingStructure.authorId !== authorId) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    if (!canDropItemOnStructure(existingItem, existingStructure)) {
-      res.status(400).json({ error: "Item cannot be added to structure" });
+    if (structureId) {
+      const parsedStructureId = parseUuidOrThrow(structureId, "structureId");
+
+      const existingStructure = await loadOwnedOr404(getStructure, parsedStructureId, authorId);
+      if (!canDropItemOnStructure(existingItem, existingStructure)) {
+        res.status(400).json({ error: "Item cannot be added to structure" });
+        return;
+      }
+
+      await updateItemService(id, { structureId: parsedStructureId });
+      const structure = await getStructure(parsedStructureId);
+      if (!structure) {
+        res.status(500).json({ error: "Structure not found after updating item" });
+        return;
+      }
+      // todo: move to structures router
+      res.status(200).json(toStructureOnGridDto(structure));
       return;
     }
 
-    await updateItemService(id, { structureId });
-    const structure = await getStructure(structureId);
-    if (!structure) {
-      res.status(500).json({ error: "Structure not found after updating item" });
-      return;
-    }
-    // todo: move to structures router
-    res.status(200).json(toStructureOnGridDto(structure));
-    return;
-  }
+    if (bugId) {
+      const parsedBugId = parseUuidOrThrow(bugId, "bugId");
+      if (existingItem.itemType !== "leaf_part") {
+        res.status(400).json({ error: "Only leaf parts can be given to bugs" });
+        return;
+      }
 
-  if (bugId) {
-    if (typeof bugId !== "string" || !isUuid(bugId)) {
-      res.status(400).json({ error: "Invalid bugId" });
-      return;
-    }
-    if (existingItem.itemType !== "leaf_part") {
-      res.status(400).json({ error: "Only leaf parts can be given to bugs" });
-      return;
-    }
+      const existingBug = await loadOwnedOr404(getBug, parsedBugId, authorId);
+      if (existingBug.bugType !== "beetle") {
+        res.status(400).json({ error: "Only beetles can carry leaf parts" });
+        return;
+      }
+      if (existingBug.x == null || existingBug.y == null) {
+        res.status(400).json({ error: "Bug must be on the grid" });
+        return;
+      }
+      if (existingBug.itemIds.length >= BEETLE_MAX_LEAF_PARTS) {
+        res.status(400).json({ error: "Beetle is already full" });
+        return;
+      }
 
-    const existingBug = await getBug(bugId);
-    if (!existingBug || existingBug.authorId !== authorId) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    if (existingBug.bugType !== "beetle") {
-      res.status(400).json({ error: "Only beetles can carry leaf parts" });
-      return;
-    }
-    if (existingBug.x == null || existingBug.y == null) {
-      res.status(400).json({ error: "Bug must be on the grid" });
-      return;
-    }
-    if (existingBug.itemIds.length >= BEETLE_MAX_LEAF_PARTS) {
-      res.status(400).json({ error: "Beetle is already full" });
+      await updateItemService(id, { bugId: parsedBugId });
+      const bug = await getBug(parsedBugId);
+      if (!bug) {
+        res.status(500).json({ error: "Bug not found after updating item" });
+        return;
+      }
+      // todo: move to bugs router
+      res.status(200).json(toBugOnGridDto(bug));
       return;
     }
 
-    await updateItemService(id, { bugId });
-    const bug = await getBug(bugId);
-    if (!bug) {
-      res.status(500).json({ error: "Bug not found after updating item" });
-      return;
-    }
-    // todo: move to bugs router
-    res.status(200).json(toBugOnGridDto(bug));
-    return;
-  }
+    if (stackId) {
+      const parsedStackId = parseUuidOrThrow(stackId, "stackId");
 
-  if (stackId) {
-    if (typeof stackId !== "string" || !isUuid(stackId)) {
-      res.status(400).json({ error: "Invalid stackId" });
-      return;
-    }
+      const existingStack = await loadOwnedOr404(getStack, parsedStackId, authorId);
+      if (existingItem.itemType !== existingStack.itemType) {
+        res.status(400).json({ error: "Item type must match stack type" });
+        return;
+      }
 
-    const existingStack = await getStack(stackId);
-    if (!existingStack || existingStack.authorId !== authorId) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    if (existingItem.itemType !== existingStack.itemType) {
-      res.status(400).json({ error: "Item type must match stack type" });
-      return;
-    }
+      const itemsOnGrid = await getItemsOnGrid(authorId);
+      if (!canStackItemType(existingItem.itemType, itemsOnGrid)) {
+        res.status(400).json({ error: "Item cannot be stacked" });
+        return;
+      }
 
-    const itemsOnGrid = await getItemsOnGrid(authorId);
-    if (!canStackItemType(existingItem.itemType, itemsOnGrid)) {
-      res.status(400).json({ error: "Item cannot be stacked" });
+      await updateItemService(id, { stackId: parsedStackId });
+      const stack = await getStack(parsedStackId);
+      if (!stack) {
+        res.status(500).json({ error: "Stack not found after updating item" });
+        return;
+      }
+      // todo: move to stacks router
+      res.status(200).json(toStackOnGridDto(stack));
       return;
     }
 
-    await updateItemService(id, { stackId });
-    const stack = await getStack(stackId);
-    if (!stack) {
-      res.status(500).json({ error: "Stack not found after updating item" });
-      return;
-    }
-    // todo: move to stacks router
-    res.status(200).json(toStackOnGridDto(stack));
-    return;
-  }
+    const coords = requireCoords(x, y);
 
-  const coords = requireCoords(x, y);
+    await assertFootprintFits(
+      authorId,
+      { x: coords.x, y: coords.y, itemType: existingItem.itemType },
+      existingItem.x != null && existingItem.y != null
+        ? { excludePosition: { x: existingItem.x, y: existingItem.y } }
+        : undefined,
+    );
 
-  await assertFootprintFits(
-    authorId,
-    { x: coords.x, y: coords.y, itemType: existingItem.itemType },
-    existingItem.x != null && existingItem.y != null
-      ? { excludePosition: { x: existingItem.x, y: existingItem.y } }
-      : undefined,
-  );
-
-  const item = await updateItemService(id, { x: coords.x, y: coords.y });
-  res.status(200).json(toItemOnGridDto(item));
+    const item = await updateItemService(id, { x: coords.x, y: coords.y });
+    res.status(200).json(toItemOnGridDto(item));
   },
 );
 
