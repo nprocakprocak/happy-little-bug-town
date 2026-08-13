@@ -1,8 +1,9 @@
-import { Bug, Item } from "../prisma/prisma/client.js";
+import { Bug, Item, User } from "../prisma/prisma/client.js";
 import { BugDto, BugOnGridDto } from "../types/bugDto.js";
 import { ItemDto, ItemOnGridDto, ItemWithItems } from "../types/itemDto.js";
 import { StackDto, StackOnGridDto, StackWithItems } from "../types/stackDto.js";
 import { StructureDto, StructureOnGridDto, StructureWithItems } from "../types/structureDto.js";
+import { UserDto } from "../types/userDto.js";
 
 export function toItemDto(item: ItemWithItems): ItemDto {
   return {
@@ -100,5 +101,14 @@ export function toBugOnGridDto(bug: BugDto): BugOnGridDto {
     x: bug.x,
     y: bug.y,
     itemIds: bug.itemIds,
+  };
+}
+
+export function toUserDto(user: User): UserDto {
+  return {
+    id: user.id,
+    name: user.name ?? undefined,
+    email: user.email ?? undefined,
+    isLinked: user.googleSub !== null,
   };
 }

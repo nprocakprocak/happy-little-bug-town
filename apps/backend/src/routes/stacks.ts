@@ -7,7 +7,7 @@ import { assertFootprintFits, requireCoords, requireNearestEmpty } from "../help
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStack } from "../middleware/requireOwnedEntity.js";
-import { toStackOnGridDto } from "../services/helpers.js";
+import { toItemOnGridDto, toStackOnGridDto } from "../services/helpers.js";
 import {
   dissolveStack,
   getItemsByIds,
@@ -157,8 +157,8 @@ const extractItemFromStack: RequestHandler = asyncHandler(async (req, res) => {
       emptyPosition,
     );
     res.status(200).json({
-      extractedItem,
-      remainingItem,
+      extractedItem: toItemOnGridDto(extractedItem),
+      remainingItem: toItemOnGridDto(remainingItem),
       stackDissolved: true,
     });
     return;
@@ -166,13 +166,13 @@ const extractItemFromStack: RequestHandler = asyncHandler(async (req, res) => {
 
   const item = await takeItemFromStack(id, emptyPosition);
   res.status(200).json({
-    extractedItem: item,
+    extractedItem: toItemOnGridDto(item),
     stackDissolved: false,
   });
 });
 
 stacksRouter.get("/", listStacks);
-stacksRouter.post("/create", createStack);
+stacksRouter.post("/", createStack);
 stacksRouter.post("/:id/merge", requireStack, mergeStacks);
 stacksRouter.post("/:id/extract", requireStack, extractItemFromStack);
 stacksRouter.put("/:id", requireStack, updateStack);

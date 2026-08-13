@@ -3,17 +3,14 @@ import { Router, type RequestHandler } from "express";
 import {
   getCraftableOperationalResourceOutput,
   getStructureOperationalResourceItems,
+  isBuildableStructureType,
   isCraftableBugType,
   isHoleReadyToBecomeAnthill,
   pickMostFedBug,
 } from "@happy-little-bug-town/utils";
 
 import { isPrismaUniqueConstraintError } from "../helpers/isPrismaUniqueConstraintError.js";
-import {
-  assertFootprintFits,
-  requireCoords,
-  requireNearestEmpty,
-} from "../helpers/placement.js";
+import { assertFootprintFits, requireCoords, requireNearestEmpty } from "../helpers/placement.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { economyRateLimit } from "../middleware/rateLimits.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
@@ -52,11 +49,7 @@ const createStructure: RequestHandler = asyncHandler(async (req, res) => {
   const authorId = req.authorId!;
   const { structureType, x, y } = req.body;
 
-  if (
-    !["beetle_house", "workshop", "stonemason", "woodcutter", "kitchen", "tavern"].includes(
-      structureType,
-    )
-  ) {
+  if (!isBuildableStructureType(structureType)) {
     res.status(400).json({ error: "Invalid structure type" });
     return;
   }
@@ -276,7 +269,7 @@ const craft: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
 
 structuresRouter.get("/", listStructures);
 structuresRouter.post("/", createStructure);
-structuresRouter.post("/create", createFirstStructure);
+structuresRouter.post("/bootstrap", createFirstStructure);
 structuresRouter.post("/transform-to-anthill", transformToAnthill);
 structuresRouter.put("/:id", requireStructure, updateStructure);
 structuresRouter.post("/:id/extract-occupant", requireStructure, extractOccupant);

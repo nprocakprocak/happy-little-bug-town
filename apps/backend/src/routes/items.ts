@@ -7,7 +7,7 @@ import {
   canDropItemOnStructure,
   canStackItemType,
   isCraftableItemType,
-  ItemType,
+  isItemType,
 } from "@happy-little-bug-town/utils";
 
 import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
@@ -32,26 +32,6 @@ import {
 import { getStack } from "../services/stacksService.js";
 import { getStructure, hasStructureOfType } from "../services/structuresService.js";
 import { UpdateItemData } from "../types/itemDto.js";
-
-const ITEM_TYPES: ItemType[] = [
-  "leaf_part",
-  "little_rock",
-  "root",
-  "stick",
-  "brick",
-  "wood",
-  "axe",
-  "hammer_and_chisel",
-  "leaf_rake",
-  "shovel",
-  "knife",
-  "nettle_soup",
-  "grilled_roots",
-];
-
-function isItemType(value: unknown): value is ItemType {
-  return typeof value === "string" && ITEM_TYPES.includes(value as ItemType);
-}
 
 export const itemsRouter = Router();
 
@@ -221,5 +201,5 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
 );
 
 itemsRouter.get("/", listItems);
-itemsRouter.post("/create", createItem);
+itemsRouter.post("/", createItem);
 itemsRouter.put("/:id", requireItem, updateItem);

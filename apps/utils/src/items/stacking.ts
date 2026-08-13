@@ -3,7 +3,7 @@ import { isItemCrafted, ItemForCraft } from "./craft.js";
 
 const LEAF_RAKE_ITEM_TYPE: ItemType = "leaf_rake";
 
-const LEAF_RAKE_STACKABLE_ITEM_TYPES: ReadonlySet<ItemType> = new Set([
+const LEAF_RAKE_STACKABLE_ITEM_TYPES: Set<ItemType> = new Set([
   "leaf_part",
   "stick",
   "root",

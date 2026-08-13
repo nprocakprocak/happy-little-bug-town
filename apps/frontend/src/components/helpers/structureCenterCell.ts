@@ -2,7 +2,7 @@ import { getStructureSpan, Position } from "@happy-little-bug-town/utils";
 
 import { Structure } from "../../types/structure";
 
-const EVEN_CENTER_OFFSETS: ReadonlyArray<[number, number]> = [
+const EVEN_CENTER_OFFSETS: [number, number][] = [
   [0, 0],
   [1, 0],
   [0, 1],

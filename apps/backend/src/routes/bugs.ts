@@ -29,7 +29,12 @@ const listBugs: RequestHandler = asyncHandler(async (req, res) => {
 });
 
 const getBugById: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
-  res.status(200).json(req.bug!);
+  const bug = req.bug!;
+  if (!isPositioned(bug)) {
+    res.status(400).json({ error: "Bug is not on the grid" });
+    return;
+  }
+  res.status(200).json(toBugOnGridDto(bug));
 });
 
 const updateBug: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {

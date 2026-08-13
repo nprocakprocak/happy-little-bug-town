@@ -17,6 +17,7 @@ export * from "./structures/power.js";
 export * from "./stacks/span.js";
 export * from "./typeGuards/buildable.js";
 export * from "./typeGuards/craftable.js";
+export * from "./typeGuards/item.js";
 export * from "./types/bugType.js";
 export * from "./types/diggable.js";
 export * from "./types/itemType.js";

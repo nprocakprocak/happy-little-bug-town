@@ -1,17 +1,14 @@
 import type { RequestHandler } from "express";
 
-import { prisma } from "../lib/prisma.js";
+import { getUser } from "../services/usersService.js";
 import { asyncHandler } from "./asyncHandler.js";
 
 export const requireWritableAccess: RequestHandler = asyncHandler(async (req, res, next) => {
   const authorId = req.authorId!;
 
-  const user = await prisma.user.findUnique({
-    where: { id: authorId },
-    select: { googleSub: true },
-  });
+  const user = await getUser(authorId);
 
-  if (!user || user.googleSub === null) {
+  if (!user || !user.isLinked) {
     next();
     return;
   }

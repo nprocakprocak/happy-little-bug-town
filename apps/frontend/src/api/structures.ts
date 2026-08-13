@@ -12,7 +12,7 @@ export function fetchStructures(): Promise<Structure[]> {
 }
 
 export function createFirstStructure(): Promise<Structure> {
-  return apiFetch<Structure>("/api/structures/create", {
+  return apiFetch<Structure>("/api/structures/bootstrap", {
     method: "POST",
   });
 }

@@ -14,7 +14,7 @@ export interface CreateStackInput {
 }
 
 export function createStack(input: CreateStackInput): Promise<Stack> {
-  return apiFetch<Stack>("/api/stacks/create", {
+  return apiFetch<Stack>("/api/stacks", {
     method: "POST",
     body: JSON.stringify({
       x: input.position.x,

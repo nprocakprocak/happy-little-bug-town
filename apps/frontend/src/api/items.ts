@@ -46,7 +46,7 @@ export function addItemToItem(itemId: string, parentItemId: string): Promise<Ite
 }
 
 export function createCraftableItem(data: Pick<Item, "itemType"> & Position): Promise<Item> {
-  return apiFetch<Item>("/api/items/create", {
+  return apiFetch<Item>("/api/items", {
     method: "POST",
     body: JSON.stringify(data),
   });
