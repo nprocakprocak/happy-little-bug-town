@@ -4,10 +4,11 @@ import { canStackItemType } from "@happy-little-bug-town/utils";
 
 import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { assertFootprintFits, requireCoords, requireNearestEmpty } from "../helpers/placement.js";
+import { toItemOnGridDto } from "../mappers/item.js";
+import { toStackOnGridDto } from "../mappers/stack.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStack } from "../middleware/requireOwnedEntity.js";
-import { toItemOnGridDto, toStackOnGridDto } from "../services/helpers.js";
 import {
   dissolveStack,
   getItemsByIds,

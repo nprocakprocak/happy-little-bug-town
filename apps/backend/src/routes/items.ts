@@ -12,16 +12,14 @@ import {
 
 import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { assertFootprintFits, requireCoords } from "../helpers/placement.js";
+import { toBugOnGridDto } from "../mappers/bug.js";
+import { toItemOnGridDto } from "../mappers/item.js";
+import { toStackOnGridDto } from "../mappers/stack.js";
+import { toStructureOnGridDto } from "../mappers/structure.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireItem } from "../middleware/requireOwnedEntity.js";
 import { getBug } from "../services/bugsService.js";
-import {
-  toBugOnGridDto,
-  toItemOnGridDto,
-  toStackOnGridDto,
-  toStructureOnGridDto,
-} from "../services/helpers.js";
 import {
   createItem as createItemService,
   getItem as getItemService,

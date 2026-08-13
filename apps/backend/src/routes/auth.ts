@@ -1,6 +1,6 @@
 import { Router, type RequestHandler } from "express";
 
-import { SESSION_COOKIE_NAME } from "../constants/session.js";
+import { SESSION_COOKIE_NAME } from "../constants/cookies.js";
 import { clearAidCookie, setAidCookie } from "../helpers/aidCookie.js";
 import {
   getSignedClearCookieOptions,

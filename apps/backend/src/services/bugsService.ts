@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
+import { toBugDto } from "../mappers/bug.js";
 import { BugDto, CreateBugData, UpdateBugData } from "../types/bugDto.js";
-import { toBugDto } from "./helpers.js";
 
 export const getBugs = async (authorId: string): Promise<BugDto[]> => {
   const bugs = await prisma.bug.findMany({

@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { Router, type RequestHandler } from "express";
 
-import { AID_COOKIE_NAME } from "../constants/aid.js";
+import { AID_COOKIE_NAME } from "../constants/cookies.js";
 import { setAidCookie } from "../helpers/aidCookie.js";
 import { isUuid } from "../helpers/isUuid.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";

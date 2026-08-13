@@ -5,22 +5,7 @@ import { getBug } from "../services/bugsService.js";
 import { getItem } from "../services/itemsService.js";
 import { getStack } from "../services/stacksService.js";
 import { getStructure } from "../services/structuresService.js";
-import type { BugDto } from "../types/bugDto.js";
-import type { ItemDto } from "../types/itemDto.js";
-import type { StackDto } from "../types/stackDto.js";
-import type { StructureDto } from "../types/structureDto.js";
 import { asyncHandler } from "./asyncHandler.js";
-
-declare global {
-  namespace Express {
-    interface Request {
-      structure?: StructureDto;
-      item?: ItemDto;
-      bug?: BugDto;
-      stack?: StackDto;
-    }
-  }
-}
 
 interface OwnedEntity {
   authorId: string;

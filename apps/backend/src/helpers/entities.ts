@@ -4,7 +4,7 @@ import { getBugs } from "../services/bugsService.js";
 import { getItemsOnGrid } from "../services/itemsService.js";
 import { getStacks } from "../services/stacksService.js";
 import { getStructures } from "../services/structuresService.js";
-import { isPositioned } from "../typeGuards/items.js";
+import { isPositioned } from "../typeGuards/position.js";
 
 export async function getAllEntitiesOnGrid(authorId: string): Promise<Positionable[]> {
   const [structures, items, stacks, bugs] = await Promise.all([

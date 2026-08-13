@@ -9,8 +9,11 @@ import {
   pickMostFedBug,
 } from "@happy-little-bug-town/utils";
 
-import { isPrismaUniqueConstraintError } from "../helpers/isPrismaUniqueConstraintError.js";
+import { isPrismaUniqueConstraintError } from "../errors/prismaErrors.js";
 import { assertFootprintFits, requireCoords, requireNearestEmpty } from "../helpers/placement.js";
+import { toBugOnGridDto } from "../mappers/bug.js";
+import { toItemOnGridDto } from "../mappers/item.js";
+import { toStructureOnGridDto } from "../mappers/structure.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { economyRateLimit } from "../middleware/rateLimits.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
@@ -21,7 +24,6 @@ import {
   getBugsByIds,
   updateBug as updateBugService,
 } from "../services/bugsService.js";
-import { toBugOnGridDto, toItemOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
 import { createItem, generateRandomItemType } from "../services/itemsService.js";
 import {
   craftOperationalBugAtStructure,

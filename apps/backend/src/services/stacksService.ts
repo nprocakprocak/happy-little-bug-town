@@ -1,7 +1,7 @@
 import { prisma } from "../lib/prisma.js";
+import { toStackDto } from "../mappers/stack.js";
 import { Stack } from "../prisma/prisma/client.js";
 import { StackDto } from "../types/stackDto.js";
-import { toStackDto } from "./helpers.js";
 
 const stackInclude = { items: true } as const;
 

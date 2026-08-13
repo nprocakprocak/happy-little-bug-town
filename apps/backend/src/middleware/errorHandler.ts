@@ -1,7 +1,7 @@
 import type { ErrorRequestHandler } from "express";
 
 import { AppError } from "../errors/AppError.js";
-import { isPrismaUniqueConstraintError } from "../helpers/isPrismaUniqueConstraintError.js";
+import { isPrismaUniqueConstraintError } from "../errors/prismaErrors.js";
 import { StackItemsUnavailableError } from "../services/stacksService.js";
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {

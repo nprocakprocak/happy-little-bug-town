@@ -1,8 +1,8 @@
 import { DiggableType, Position } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
+import { toItemDto } from "../mappers/item.js";
 import { CreateItemData, ItemDto, UpdateItemData } from "../types/itemDto.js";
-import { toItemDto } from "./helpers.js";
 
 const ITEM_TYPES_WEIGHTS = {
   beetle: 0.2,

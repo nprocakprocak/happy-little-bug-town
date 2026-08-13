@@ -1,10 +1,7 @@
 import type { Response } from "express";
 
-import { AID_COOKIE_NAME } from "../constants/aid.js";
-import {
-  getSignedClearCookieOptions,
-  getSignedCookieOptions,
-} from "./signedCookieOptions.js";
+import { AID_COOKIE_NAME } from "../constants/cookies.js";
+import { getSignedClearCookieOptions, getSignedCookieOptions } from "./signedCookieOptions.js";
 
 export const setAidCookie = (res: Response, aid: string): void => {
   res.cookie(AID_COOKIE_NAME, aid, getSignedCookieOptions());

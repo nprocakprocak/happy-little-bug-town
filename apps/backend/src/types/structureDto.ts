@@ -20,4 +20,4 @@ export type StructureOnGridDto = Pick<Structure, "id" | "structureType" | "x" | 
 
 export type StructureDto = StructureOnGridDto & Pick<Structure, "authorId">;
 
-export type StructureWithItems = Structure & { items: Item[]; bugs: Bug[] };
+export type StructureWithContents = Structure & { items: Item[]; bugs: Bug[] };

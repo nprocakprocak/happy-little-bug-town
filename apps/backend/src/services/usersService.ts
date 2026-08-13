@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
+import { toUserDto } from "../mappers/user.js";
 import { UserDto } from "../types/userDto.js";
-import { toUserDto } from "./helpers.js";
 
 export const ensureUser = async (id: string): Promise<UserDto> => {
   await prisma.user.upsert({

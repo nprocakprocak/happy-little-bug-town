@@ -1,10 +1,12 @@
 import { BugType, ItemType, Position, StructureType } from "@happy-little-bug-town/utils";
 
 import { prisma } from "../lib/prisma.js";
+import { toBugDto } from "../mappers/bug.js";
+import { toItemDto } from "../mappers/item.js";
+import { toStructureDto } from "../mappers/structure.js";
 import { BugDto } from "../types/bugDto.js";
 import { ItemDto } from "../types/itemDto.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
-import { toBugDto, toItemDto, toStructureDto } from "./helpers.js";
 
 const structureInclude = { items: true, bugs: true } as const;
 const itemInclude = { items: true } as const;

@@ -11,13 +11,14 @@ import { AppError } from "../errors/AppError.js";
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { requireCoords } from "../helpers/placement.js";
+import { toBugOnGridDto } from "../mappers/bug.js";
+import { toStructureOnGridDto } from "../mappers/structure.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireBug } from "../middleware/requireOwnedEntity.js";
 import { getBugs, updateBug as updateBugService } from "../services/bugsService.js";
-import { toBugOnGridDto, toStructureOnGridDto } from "../services/helpers.js";
 import { getStructure } from "../services/structuresService.js";
-import { isPositioned } from "../typeGuards/items.js";
+import { isPositioned } from "../typeGuards/position.js";
 
 export const bugsRouter = Router();
 
