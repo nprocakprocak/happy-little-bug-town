@@ -7,9 +7,10 @@ import {
   structureDropRequiresFedBug,
 } from "@happy-little-bug-town/utils";
 
+import { AppError } from "../errors/AppError.js";
 import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { isUuid } from "../helpers/isUuid.js";
-import { getValidCoords } from "../helpers/validateCoords.js";
+import { requireCoords } from "../helpers/placement.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireBug } from "../middleware/requireOwnedEntity.js";
@@ -74,17 +75,12 @@ const updateBug: RequestHandler<{ id: string }> = asyncHandler(async (req, res) 
     return;
   }
 
-  const coords = getValidCoords(x, y);
-  if (!coords) {
-    res.status(400).json({ error: "x and y are required" });
-    return;
-  }
+  const coords = requireCoords(x, y);
 
   const entities = await getAllEntitiesOnGrid(authorId);
 
   if (positionOverlapsAnyEntity({ x: coords.x, y: coords.y }, entities)) {
-    res.status(400).json({ error: "Position is already occupied" });
-    return;
+    throw new AppError(400, "Position is already occupied");
   }
 
   const bug = await updateBugService(id, { x: coords.x, y: coords.y });

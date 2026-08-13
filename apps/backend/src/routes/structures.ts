@@ -3,18 +3,17 @@ import { Router, type RequestHandler } from "express";
 import {
   getCraftableOperationalResourceOutput,
   getStructureOperationalResourceItems,
-  GROUND_HEIGHT,
-  GROUND_WIDTH,
   isCraftableBugType,
   isHoleReadyToBecomeAnthill,
   pickMostFedBug,
-  structureFootprintFits,
 } from "@happy-little-bug-town/utils";
 
-import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { isPrismaUniqueConstraintError } from "../helpers/isPrismaUniqueConstraintError.js";
-import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
-import { getValidCoords } from "../helpers/validateCoords.js";
+import {
+  assertFootprintFits,
+  requireCoords,
+  requireNearestEmpty,
+} from "../helpers/placement.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { economyRateLimit } from "../middleware/rateLimits.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
@@ -62,30 +61,18 @@ const createStructure: RequestHandler = asyncHandler(async (req, res) => {
     return;
   }
 
-  const coords = getValidCoords(x, y);
-  if (!coords) {
-    res.status(400).json({ error: "x and y are required" });
-    return;
-  }
+  const coords = requireCoords(x, y);
 
   if (await hasStructureOfType(authorId, structureType)) {
     res.status(400).json({ error: "Structure already built" });
     return;
   }
 
-  const entities = await getAllEntitiesOnGrid(authorId);
-
-  const fits = structureFootprintFits(
-    { x: coords.x, y: coords.y, structureType },
-    GROUND_WIDTH,
-    GROUND_HEIGHT,
-    entities,
-  );
-
-  if (!fits) {
-    res.status(400).json({ error: "Position is not free for structure" });
-    return;
-  }
+  await assertFootprintFits(authorId, {
+    x: coords.x,
+    y: coords.y,
+    structureType,
+  });
 
   try {
     const structure = await createStructureService({
@@ -129,25 +116,13 @@ const updateStructure: RequestHandler<{ id: string }> = asyncHandler(async (req,
   const authorId = req.authorId!;
   const existingStructure = req.structure!;
 
-  const coords = getValidCoords(x, y);
-  if (!coords) {
-    res.status(400).json({ error: "x and y are required" });
-    return;
-  }
+  const coords = requireCoords(x, y);
 
-  const entities = await getAllEntitiesOnGrid(authorId);
-
-  const fits = structureFootprintFits(
+  await assertFootprintFits(
+    authorId,
     { x: coords.x, y: coords.y, structureType: existingStructure.structureType },
-    GROUND_WIDTH,
-    GROUND_HEIGHT,
-    entities.filter((e) => e.x !== existingStructure.x || e.y !== existingStructure.y),
+    { excludePosition: { x: existingStructure.x, y: existingStructure.y } },
   );
-
-  if (!fits) {
-    res.status(400).json({ error: "Position is not free for structure" });
-    return;
-  }
 
   const structure = await updateStructurePositionService(id, coords.x, coords.y);
   res.status(200).json(toStructureOnGridDto(structure));
@@ -167,17 +142,7 @@ const extractOccupant: RequestHandler<{ id: string }> = asyncHandler(async (req,
     return;
   }
 
-  const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findNearestEmptyPosition(
-    GROUND_HEIGHT,
-    GROUND_WIDTH,
-    entities,
-    existingStructure,
-  );
-  if (!emptyPosition) {
-    res.status(400).json({ error: "No empty position found" });
-    return;
-  }
+  const emptyPosition = await requireNearestEmpty(authorId, existingStructure);
 
   const occupants = await getBugsByIds(existingStructure.bugs.map((bug) => bug.id));
   const occupantToExtract = pickMostFedBug(occupants);
@@ -226,12 +191,7 @@ const dig: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
     return;
   }
 
-  const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findNearestEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities, hole);
-  if (!emptyPosition) {
-    res.status(400).json({ error: "No empty position found" });
-    return;
-  }
+  const emptyPosition = await requireNearestEmpty(authorId, hole);
   const itemOrBug = generateRandomItemType();
   if (itemOrBug === "beetle") {
     const createdBug = await createBug({
@@ -281,24 +241,8 @@ const craft: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
     return;
   }
 
-  const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findNearestEmptyPosition(
-    GROUND_HEIGHT,
-    GROUND_WIDTH,
-    entities,
-    existingStructure,
-  );
-  if (!emptyPosition) {
-    res.status(400).json({ error: "No empty position found" });
-    return;
-  }
-
-  const footprintOrigin = { x: emptyPosition.x, y: emptyPosition.y };
-  const fits = structureFootprintFits(footprintOrigin, GROUND_WIDTH, GROUND_HEIGHT, entities);
-  if (!fits) {
-    res.status(400).json({ error: "Position is not free for crafted resource" });
-    return;
-  }
+  const emptyPosition = await requireNearestEmpty(authorId, existingStructure);
+  await assertFootprintFits(authorId, { x: emptyPosition.x, y: emptyPosition.y });
 
   if (isCraftableBugType(craftableOutput.outputType)) {
     const result = await craftOperationalBugAtStructure(

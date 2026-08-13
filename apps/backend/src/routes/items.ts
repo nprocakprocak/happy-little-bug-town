@@ -6,16 +6,12 @@ import {
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
-  GROUND_HEIGHT,
-  GROUND_WIDTH,
   isCraftableItemType,
   ItemType,
-  structureFootprintFits,
 } from "@happy-little-bug-town/utils";
 
-import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { isUuid } from "../helpers/isUuid.js";
-import { getValidCoords } from "../helpers/validateCoords.js";
+import { assertFootprintFits, requireCoords } from "../helpers/placement.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireItem } from "../middleware/requireOwnedEntity.js";
@@ -74,11 +70,7 @@ const createItem: RequestHandler = asyncHandler(async (req, res) => {
     res.status(400).json({ error: "Invalid item type" });
     return;
   }
-  const coords = getValidCoords(x, y);
-  if (!coords) {
-    res.status(400).json({ error: "x and y are required" });
-    return;
-  }
+  const coords = requireCoords(x, y);
   if (!(await hasStructureOfType(authorId, "workshop"))) {
     res.status(400).json({ error: "Workshop is required to create items" });
     return;
@@ -90,17 +82,7 @@ const createItem: RequestHandler = asyncHandler(async (req, res) => {
     return;
   }
 
-  const entities = await getAllEntitiesOnGrid(authorId);
-  const fits = structureFootprintFits(
-    { x: coords.x, y: coords.y, itemType },
-    GROUND_WIDTH,
-    GROUND_HEIGHT,
-    entities,
-  );
-  if (!fits) {
-    res.status(400).json({ error: "Position is not free for item" });
-    return;
-  }
+  await assertFootprintFits(authorId, { x: coords.x, y: coords.y, itemType });
 
   const item = await createItemService({
     itemType,
@@ -251,23 +233,15 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
     return;
   }
 
-  const coords = getValidCoords(x, y);
-  if (!coords) {
-    res.status(400).json({ error: "x and y are required when updating item not in stack" });
-    return;
-  }
+  const coords = requireCoords(x, y);
 
-  const entities = await getAllEntitiesOnGrid(authorId);
-  const fits = structureFootprintFits(
+  await assertFootprintFits(
+    authorId,
     { x: coords.x, y: coords.y, itemType: existingItem.itemType },
-    GROUND_WIDTH,
-    GROUND_HEIGHT,
-    entities.filter((entity) => entity.x !== existingItem.x || entity.y !== existingItem.y),
+    existingItem.x != null && existingItem.y != null
+      ? { excludePosition: { x: existingItem.x, y: existingItem.y } }
+      : undefined,
   );
-  if (!fits) {
-    res.status(400).json({ error: "Position is not free for item" });
-    return;
-  }
 
   const item = await updateItemService(id, { x: coords.x, y: coords.y });
   res.status(200).json(toItemOnGridDto(item));

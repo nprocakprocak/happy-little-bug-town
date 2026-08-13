@@ -1,16 +1,13 @@
 import { Router, type RequestHandler } from "express";
 
-import {
-  canStackItemType,
-  GROUND_HEIGHT,
-  GROUND_WIDTH,
-  structureFootprintFits,
-} from "@happy-little-bug-town/utils";
+import { canStackItemType } from "@happy-little-bug-town/utils";
 
-import { getAllEntitiesOnGrid } from "../helpers/entities.js";
 import { isUuid } from "../helpers/isUuid.js";
-import { findNearestEmptyPosition } from "../helpers/randomPosition.js";
-import { getValidCoords } from "../helpers/validateCoords.js";
+import {
+  assertFootprintFits,
+  requireCoords,
+  requireNearestEmpty,
+} from "../helpers/placement.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStack } from "../middleware/requireOwnedEntity.js";
@@ -52,11 +49,7 @@ const createStack: RequestHandler = asyncHandler(async (req, res) => {
     res.status(400).json({ error: "Invalid itemIds" });
     return;
   }
-  const coords = getValidCoords(x, y);
-  if (!coords) {
-    res.status(400).json({ error: "x and y are required" });
-    return;
-  }
+  const coords = requireCoords(x, y);
 
   const items = await getItemsByIds(authorId, itemIds);
   if (items.length !== itemIds.length) {
@@ -81,20 +74,13 @@ const createStack: RequestHandler = asyncHandler(async (req, res) => {
     return;
   }
 
-  const entities = await getAllEntitiesOnGrid(authorId);
-  const entitiesWithoutItems = entities.filter(
-    (entity) => !items.some((item) => item.x === entity.x && item.y === entity.y),
-  );
-  const fits = structureFootprintFits(
+  await assertFootprintFits(
+    authorId,
     { x: coords.x, y: coords.y, itemsCount: items.length },
-    GROUND_WIDTH,
-    GROUND_HEIGHT,
-    entitiesWithoutItems,
+    {
+      excludePosition: items.map((item) => ({ x: item.x!, y: item.y! })),
+    },
   );
-  if (!fits) {
-    res.status(400).json({ error: "Position is not free for stack" });
-    return;
-  }
 
   try {
     const stack = await createStackWithItems(
@@ -122,23 +108,13 @@ const updateStack: RequestHandler = asyncHandler(async (req, res) => {
   const authorId = req.authorId!;
   const existingStack = req.stack!;
 
-  const coords = getValidCoords(x, y);
-  if (!coords) {
-    res.status(400).json({ error: "x and y are required" });
-    return;
-  }
+  const coords = requireCoords(x, y);
 
-  const entities = await getAllEntitiesOnGrid(authorId);
-  const fits = structureFootprintFits(
+  await assertFootprintFits(
+    authorId,
     { x: coords.x, y: coords.y, itemsCount: existingStack.itemsCount },
-    GROUND_WIDTH,
-    GROUND_HEIGHT,
-    entities.filter((entity) => entity.x !== existingStack.x || entity.y !== existingStack.y),
+    { excludePosition: { x: existingStack.x, y: existingStack.y } },
   );
-  if (!fits) {
-    res.status(400).json({ error: "Position is not free for stack" });
-    return;
-  }
 
   const stack = await updateStackService(id, { x: coords.x, y: coords.y });
   res.status(200).json(toStackOnGridDto(stack));
@@ -186,17 +162,7 @@ const extractItemFromStack: RequestHandler = asyncHandler(async (req, res) => {
   const authorId = req.authorId!;
   const existingStack = req.stack!;
 
-  const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findNearestEmptyPosition(
-    GROUND_HEIGHT,
-    GROUND_WIDTH,
-    entities,
-    existingStack,
-  );
-  if (!emptyPosition) {
-    res.status(400).json({ error: "No empty position found" });
-    return;
-  }
+  const emptyPosition = await requireNearestEmpty(authorId, existingStack);
 
   if (existingStack.itemsCount === 2) {
     const { extractedItem, remainingItem } = await dissolveStack(
