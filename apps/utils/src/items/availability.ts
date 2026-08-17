@@ -1,7 +1,11 @@
 import { isCraftableItemType } from "../constants/itemCraftCosts.js";
 import { ItemType } from "../types/itemType.js";
 
-const UNIQUE_CRAFTABLE_ITEM_TYPES = new Set<ItemType>(["leaf_rake", "shovel"]);
+const UNIQUE_CRAFTABLE_ITEM_TYPES = new Set<ItemType>([
+  "leaf_rake",
+  "shovel",
+  "wheelbarrel",
+]);
 
 export function canCreateMultipleOfItemType(itemType: ItemType): boolean {
   if (!isCraftableItemType(itemType)) {

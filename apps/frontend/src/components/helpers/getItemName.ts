@@ -14,6 +14,8 @@ export function itemTypeToName(itemType: ItemType): string {
       return "Knife";
     case "crucible":
       return "Crucible";
+    case "wheelbarrel":
+      return "Wheelbarrel";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }

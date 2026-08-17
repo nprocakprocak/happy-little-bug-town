@@ -11,6 +11,7 @@ const WORKSHOP_ITEM_TYPES: ItemType[] = [
   "knife",
   "crucible",
   "leaf_rake",
+  "wheelbarrel",
   "shovel",
 ];
 

@@ -18,4 +18,5 @@ export type ItemType =
   | "glass"
   | "paper"
   | "crucible"
-  | "iron_ingot";
+  | "iron_ingot"
+  | "wheelbarrel";

@@ -43,6 +43,10 @@ export const ITEM_CRAFT_COSTS: Partial<
     { itemType: "iron_ore", count: 1 },
   ],
   iron_ingot: [{ itemType: "iron_ore", count: 3 }],
+  wheelbarrel: [
+    { itemType: "wood", count: 2 },
+    { itemType: "iron_ingot", count: 2 },
+  ],
 };
 
 export function getItemCraftCosts(itemType: ItemType): ItemCraftResourceCost[] {

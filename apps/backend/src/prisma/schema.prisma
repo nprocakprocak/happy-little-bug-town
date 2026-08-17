@@ -28,6 +28,7 @@ enum ItemType {
   paper
   crucible
   iron_ingot
+  wheelbarrel
 }
 
 enum StructureType {
