@@ -27,6 +27,7 @@ enum ItemType {
   glass
   paper
   crucible
+  iron_ingot
 }
 
 enum StructureType {

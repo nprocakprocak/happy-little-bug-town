@@ -29,4 +29,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   tavern: {
     ant: { itemType: "nettle_soup", maxCount: 2 },
   },
+  smelter: {
+    iron_ingot: { itemType: "iron_ore", maxCount: 3 },
+  },
 };

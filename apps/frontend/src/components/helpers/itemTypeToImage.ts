@@ -40,6 +40,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/paper.webp";
     case "crucible":
       return "/items/crucible.webp";
+    case "iron_ingot":
+      return "/items/iron-ingot.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }

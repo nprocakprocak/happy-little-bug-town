@@ -42,6 +42,7 @@ export const ITEM_CRAFT_COSTS: Partial<
     { itemType: "brick", count: 1 },
     { itemType: "iron_ore", count: 1 },
   ],
+  iron_ingot: [{ itemType: "iron_ore", count: 3 }],
 };
 
 export function getItemCraftCosts(itemType: ItemType): ItemCraftResourceCost[] {

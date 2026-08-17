@@ -17,4 +17,5 @@ export type ItemType =
   | "greenfly"
   | "glass"
   | "paper"
-  | "crucible";
+  | "crucible"
+  | "iron_ingot";
