@@ -1,5 +1,6 @@
 import {
   BEETLE_MAX_LEAF_PARTS,
+  canDiscardItemOnStructure,
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
@@ -21,7 +22,8 @@ import { getBug } from "./bugsService.js";
 import { getStack } from "./stacksService.js";
 import { getStructure } from "./structuresService.js";
 
-const itemInclude = { items: true } as const;
+const notRemoved = { removedAt: null } as const;
+const itemInclude = { items: { where: notRemoved } } as const;
 
 export const getItemsOnGrid = async (authorId: string): Promise<ItemDto[]> => {
   const items = await prisma.item.findMany({
@@ -29,6 +31,7 @@ export const getItemsOnGrid = async (authorId: string): Promise<ItemDto[]> => {
       authorId,
       x: { not: null },
       y: { not: null },
+      ...notRemoved,
     },
     include: itemInclude,
   });
@@ -40,6 +43,7 @@ export const getItemsByIds = async (authorId: string, itemIds: string[]): Promis
     where: {
       authorId,
       id: { in: itemIds },
+      ...notRemoved,
     },
     include: itemInclude,
   });
@@ -51,7 +55,7 @@ export const getItem = async (id: string): Promise<ItemDto | null> => {
     where: { id },
     include: itemInclude,
   });
-  if (!item) {
+  if (!item || item.removedAt) {
     return null;
   }
   return toItemDto(item);
@@ -166,6 +170,35 @@ export const updateItem = async (id: string, item: UpdateItemData): Promise<Item
   return toItemDto(updatedItem);
 };
 
+export const discardItem = async (id: string): Promise<void> => {
+  await prisma.item.update({
+    where: { id },
+    data: {
+      removedAt: new Date(),
+      x: null,
+      y: null,
+      stackId: null,
+      bugId: null,
+      structureId: null,
+      parentItemId: null,
+    },
+  });
+};
+
+export const discardItemIntoStructure = async (
+  itemId: string,
+  structureId: unknown,
+  authorId: string,
+): Promise<void> => {
+  const parsedStructureId = parseUuidOrThrow(structureId, "structureId");
+  const existingStructure = await loadOwnedOr404(getStructure, parsedStructureId, authorId);
+  if (!canDiscardItemOnStructure(existingStructure)) {
+    throw new AppError(400, "Item cannot be discarded into structure");
+  }
+
+  await discardItem(itemId);
+};
+
 export const attachItemToParent = async (
   itemId: string,
   parentItemId: string,
@@ -275,6 +308,7 @@ export async function takeItemFromStack(stackId: string, position: Position): Pr
     const item = await tx.item.findFirst({
       where: {
         stackId,
+        ...notRemoved,
       },
     });
     if (!item) {
@@ -300,7 +334,7 @@ export async function dissolveStack(
 ): Promise<{ extractedItem: ItemDto; remainingItem: ItemDto }> {
   return await prisma.$transaction(async (tx) => {
     const stackItems = await tx.item.findMany({
-      where: { stackId },
+      where: { stackId, ...notRemoved },
     });
     if (stackItems.length !== 2) {
       throw new Error(`Expected 2 items in stack ${stackId} when dissolving`);

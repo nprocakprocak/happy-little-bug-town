@@ -38,6 +38,13 @@ export function addItemToStructure(itemId: string, structureId: string): Promise
   });
 }
 
+export function deleteItem(itemId: string, structureId: string): Promise<void> {
+  return apiFetch<void>(`/api/items/${itemId}`, {
+    method: "DELETE",
+    body: JSON.stringify({ structureId }),
+  });
+}
+
 export function addItemToItem(itemId: string, parentItemId: string): Promise<Item> {
   return apiFetch<Item>(`/api/items/${itemId}`, {
     method: "PUT",

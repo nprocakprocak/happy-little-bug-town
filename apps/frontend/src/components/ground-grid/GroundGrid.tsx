@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   canCraftFromStructureOperationalResources,
   canCreateItemType,
+  canDiscardItemOnStructure,
   canDropItemOnItem,
   isBuildableStructureType,
   isHoleReadyToBecomeAnthill,
@@ -288,19 +289,21 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         // drop an item onto a structure to add it to its items or build it, assume optimistic update
         if (originalItem && targetEntity && isStructure(targetEntity)) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
-          setStructuresCache((prev) =>
-            prev.map((structure) =>
-              structure.id === targetEntity.id
-                ? {
-                    ...structure,
-                    items: [
-                      ...structure.items,
-                      { id: originalItem.id, itemType: originalItem.itemType },
-                    ],
-                  }
-                : structure,
-            ),
-          );
+          if (!canDiscardItemOnStructure(targetEntity)) {
+            setStructuresCache((prev) =>
+              prev.map((structure) =>
+                structure.id === targetEntity.id
+                  ? {
+                      ...structure,
+                      items: [
+                        ...structure.items,
+                        { id: originalItem.id, itemType: originalItem.itemType },
+                      ],
+                    }
+                  : structure,
+              ),
+            );
+          }
         }
 
         // drop an item onto another item to craft it, assume optimistic update

@@ -3,7 +3,7 @@ import { toStackDto } from "../mappers/stack.js";
 import { Stack } from "../prisma/prisma/client.js";
 import { StackDto } from "../types/stackDto.js";
 
-const stackInclude = { items: true } as const;
+const stackInclude = { items: { where: { removedAt: null } } } as const;
 
 type CreateStackData = Pick<Stack, "itemType" | "x" | "y" | "authorId">;
 type UpdateStackData = Pick<Stack, "x" | "y">;
@@ -60,6 +60,7 @@ export const createStackWithItems = async (
         bugId: null,
         structureId: null,
         parentItemId: null,
+        removedAt: null,
         x: { not: null },
         y: { not: null },
       },

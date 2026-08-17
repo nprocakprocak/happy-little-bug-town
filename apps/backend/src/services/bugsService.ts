@@ -16,7 +16,7 @@ import { getStructure } from "./structuresService.js";
 export const getBugs = async (authorId: string): Promise<BugDto[]> => {
   const bugs = await prisma.bug.findMany({
     where: { authorId },
-    include: { items: true },
+    include: { items: { where: { removedAt: null } } },
   });
   return bugs.map(toBugDto);
 };
@@ -24,7 +24,7 @@ export const getBugs = async (authorId: string): Promise<BugDto[]> => {
 export const getBug = async (id: string): Promise<BugDto | null> => {
   const bug = await prisma.bug.findUnique({
     where: { id },
-    include: { items: true },
+    include: { items: { where: { removedAt: null } } },
   });
   if (!bug) {
     return null;
@@ -39,7 +39,7 @@ export const getBugsByIds = async (ids: string[]): Promise<BugDto[]> => {
 
   const bugs = await prisma.bug.findMany({
     where: { id: { in: ids } },
-    include: { items: true },
+    include: { items: { where: { removedAt: null } } },
   });
   return bugs.map(toBugDto);
 };
@@ -64,7 +64,7 @@ export const updateBug = async (id: string, data: UpdateBugData): Promise<BugDto
   const updatedBug = await prisma.bug.update({
     where: { id },
     data: updateData,
-    include: { items: true },
+    include: { items: { where: { removedAt: null } } },
   });
   return toBugDto({ ...updatedBug, items: updatedBug.items });
 };

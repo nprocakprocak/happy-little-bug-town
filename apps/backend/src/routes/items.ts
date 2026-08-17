@@ -12,6 +12,7 @@ import {
   attachItemToStack,
   attachItemToStructure,
   createItem as createItemService,
+  discardItemIntoStructure,
   getItemsOnGrid,
   updateItem as updateItemService,
 } from "../services/itemsService.js";
@@ -102,6 +103,16 @@ const updateItem: RequestHandler<{ id: string }, unknown, UpdateItemData> = asyn
   res.status(200).json(toItemOnGridDto(item));
 };
 
+const deleteItem: RequestHandler<{ id: string }> = async (req, res) => {
+  const { id } = req.params;
+  const { structureId } = req.body;
+  const authorId = req.authorId!;
+
+  await discardItemIntoStructure(id, structureId, authorId);
+  res.status(204).end();
+};
+
 itemsRouter.get("/", listItems);
 itemsRouter.post("/", createItem);
 itemsRouter.put("/:id", requireItem, updateItem);
+itemsRouter.delete("/:id", requireItem, deleteItem);

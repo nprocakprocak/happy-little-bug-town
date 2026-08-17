@@ -8,8 +8,9 @@ import { BugDto } from "../types/bugDto.js";
 import { ItemDto } from "../types/itemDto.js";
 import { CreateStructureData, StructureDto } from "../types/structureDto.js";
 
-const structureInclude = { items: true, bugs: true } as const;
-const itemInclude = { items: true } as const;
+const notRemoved = { removedAt: null } as const;
+const structureInclude = { items: { where: notRemoved }, bugs: true } as const;
+const itemInclude = { items: { where: notRemoved } } as const;
 
 export const hasStructureOfType = async (
   authorId: string,

@@ -1,5 +1,6 @@
 import {
   BEETLE_MAX_LEAF_PARTS,
+  canDiscardItemOnStructure,
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
@@ -13,6 +14,7 @@ import {
   addItemToItem,
   addItemToStack,
   addItemToStructure,
+  deleteItem,
   updateItemPosition,
 } from "../api/items";
 import { createStack, mergeStacks, updateStack } from "../api/stacks";
@@ -112,6 +114,18 @@ export async function dropAction(
       items: items.filter((it) => it.id !== originalItem.id),
       stacks: stacks,
       bugs: bugs.map((b) => (b.id === targetBug.id ? bug : b)),
+      structures: structures,
+    };
+  }
+
+  // drop an item to discard it
+  if (originalItem && targetStructure && canDiscardItemOnStructure(targetStructure)) {
+    await deleteItem(originalItem.id, targetStructure.id);
+
+    return {
+      items: items.filter((it) => it.id !== originalItem.id),
+      stacks: stacks,
+      bugs: bugs,
       structures: structures,
     };
   }

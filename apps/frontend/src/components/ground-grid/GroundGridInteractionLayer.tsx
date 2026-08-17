@@ -3,6 +3,7 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   BEETLE_MAX_LEAF_PARTS,
+  canDiscardItemOnStructure,
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
@@ -206,7 +207,9 @@ export function GroundGridInteractionLayer({
               overlappingBug?.bugType === "beetle" &&
               overlappingBug.itemIds.length < BEETLE_MAX_LEAF_PARTS;
             const canDropOnStructure =
-              !!overlappingStructure && canDropItemOnStructure(itemToDrop, overlappingStructure);
+              !!overlappingStructure &&
+              (canDropItemOnStructure(itemToDrop, overlappingStructure) ||
+                canDiscardItemOnStructure(overlappingStructure));
             const wouldCreateStack =
               !!overlappingItem &&
               !canDropOnItemCraft &&

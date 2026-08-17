@@ -81,6 +81,7 @@ model Item {
   parentItemId String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  removedAt    DateTime?  @map("removed_at")
   author       User       @relation(fields: [authorId], references: [id])
   stack        Stack?     @relation(fields: [stackId], references: [id])
   bug          Bug?       @relation(fields: [bugId], references: [id])
