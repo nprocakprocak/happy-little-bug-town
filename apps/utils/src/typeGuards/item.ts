@@ -19,6 +19,7 @@ const ITEM_TYPE_BY_KEY: Record<ItemType, true> = {
   greenfly: true,
   glass: true,
   paper: true,
+  crucible: true,
 };
 
 export const ITEM_TYPES = Object.keys(ITEM_TYPE_BY_KEY) as ItemType[];

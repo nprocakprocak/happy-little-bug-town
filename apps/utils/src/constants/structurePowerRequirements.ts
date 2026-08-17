@@ -36,4 +36,9 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
     requiredCount: 4,
     occupantBugType: "beetle",
   },
+  smelter: {
+    requiredCount: 3,
+    occupantBugType: "beetle",
+    itemRequirements: [{ itemType: "crucible", requiredCount: 1 }],
+  },
 };

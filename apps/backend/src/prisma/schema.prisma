@@ -26,6 +26,7 @@ enum ItemType {
   greenfly
   glass
   paper
+  crucible
 }
 
 enum StructureType {

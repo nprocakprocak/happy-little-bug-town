@@ -16,4 +16,5 @@ export type ItemType =
   | "clay"
   | "greenfly"
   | "glass"
-  | "paper";
+  | "paper"
+  | "crucible";

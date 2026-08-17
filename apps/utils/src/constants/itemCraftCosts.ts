@@ -37,6 +37,11 @@ export const ITEM_CRAFT_COSTS: Partial<
     { itemType: "brick", count: 1 },
     { itemType: "wood", count: 1 },
   ],
+  crucible: [
+    { itemType: "wood", count: 1 },
+    { itemType: "brick", count: 1 },
+    { itemType: "iron_ore", count: 1 },
+  ],
 };
 
 export function getItemCraftCosts(itemType: ItemType): ItemCraftResourceCost[] {

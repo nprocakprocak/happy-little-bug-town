@@ -9,6 +9,7 @@ const WORKSHOP_ITEM_TYPES: ItemType[] = [
   "axe",
   "hammer_and_chisel",
   "knife",
+  "crucible",
   "leaf_rake",
   "shovel",
 ];
