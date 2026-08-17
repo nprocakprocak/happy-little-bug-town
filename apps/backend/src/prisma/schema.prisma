@@ -37,6 +37,7 @@ enum StructureType {
   woodcutter
   kitchen
   tavern
+  smelter
 }
 
 enum BugType {

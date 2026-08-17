@@ -7,6 +7,7 @@ const BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<BuildableStructureType, true> = {
   woodcutter: true,
   kitchen: true,
   tavern: true,
+  smelter: true,
 };
 
 const BUILDABLE_STRUCTURE_TYPE_SET: Set<string> = new Set(

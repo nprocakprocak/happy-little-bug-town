@@ -45,6 +45,13 @@ export const TAVERN_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "wood", count: 4 },
 ];
 
+export const SMELTER_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "leaf_part", count: 2 },
+  { itemType: "brick", count: 5 },
+  { itemType: "wood", count: 2 },
+  { itemType: "glass", count: 2 },
+];
+
 export const BUILD_RESOURCE_COSTS: Record<
   BuildableStructureType,
   BuildResourceCost[]
@@ -55,4 +62,5 @@ export const BUILD_RESOURCE_COSTS: Record<
   woodcutter: WOODCUTTER_BUILD_COSTS,
   kitchen: KITCHEN_BUILD_COSTS,
   tavern: TAVERN_BUILD_COSTS,
+  smelter: SMELTER_BUILD_COSTS,
 };
