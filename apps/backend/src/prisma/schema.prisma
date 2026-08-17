@@ -21,6 +21,11 @@ enum ItemType {
   knife
   nettle_soup
   grilled_roots
+  iron_ore
+  clay
+  greenfly
+  glass
+  paper
 }
 
 enum StructureType {

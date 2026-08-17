@@ -3,7 +3,6 @@ import {
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
-  DiggableType,
   Position,
 } from "@happy-little-bug-town/utils";
 
@@ -21,16 +20,6 @@ import { StructureOnGridDto } from "../types/structureDto.js";
 import { getBug } from "./bugsService.js";
 import { getStack } from "./stacksService.js";
 import { getStructure } from "./structuresService.js";
-
-const ITEM_TYPES_WEIGHTS = {
-  beetle: 0.2,
-  root: 0.4,
-  leaf_part: 0.6,
-  little_rock: 0.8,
-  stick: 1,
-} as const;
-type DiggableItemOrBugType = keyof typeof ITEM_TYPES_WEIGHTS;
-const DIGGABLE_TYPES = Object.keys(ITEM_TYPES_WEIGHTS) as DiggableItemOrBugType[];
 
 const itemInclude = { items: true } as const;
 
@@ -280,11 +269,6 @@ export const attachItemToStack = async (
   }
   return toStackOnGridDto(stack);
 };
-
-export function generateRandomItemType(): DiggableType {
-  const seed = Math.random();
-  return DIGGABLE_TYPES.find((itemType) => seed < ITEM_TYPES_WEIGHTS[itemType]) ?? "leaf_part";
-}
 
 export async function takeItemFromStack(stackId: string, position: Position): Promise<ItemDto> {
   return await prisma.$transaction(async (tx) => {

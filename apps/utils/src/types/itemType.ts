@@ -11,4 +11,9 @@ export type ItemType =
   | "shovel"
   | "knife"
   | "nettle_soup"
-  | "grilled_roots";
+  | "grilled_roots"
+  | "iron_ore"
+  | "clay"
+  | "greenfly"
+  | "glass"
+  | "paper";

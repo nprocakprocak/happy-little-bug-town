@@ -418,7 +418,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onStructureClick = useCallback(
     (structure: Structure) => {
-      if (structure.structureType === "hole") {
+      if (structure.structureType === "hole" || structure.structureType === "anthill") {
         (async () => {
           const itemOrBug = await dig.mutateAsync(structure.id);
           const origin = pickRandomNearestStructureCenterCell(structure);

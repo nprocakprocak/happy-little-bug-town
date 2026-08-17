@@ -10,6 +10,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { isPrismaUniqueConstraintError } from "../errors/prismaErrors.js";
+import { generateRandomItemType } from "../helpers/diggableItems.js";
 import { assertFootprintFits, requireCoords, requireNearestEmpty } from "../helpers/placement.js";
 import { toBugOnGridDto } from "../mappers/bug.js";
 import { toItemOnGridDto } from "../mappers/item.js";
@@ -23,7 +24,7 @@ import {
   getBugsByIds,
   updateBug as updateBugService,
 } from "../services/bugsService.js";
-import { createItem, generateRandomItemType } from "../services/itemsService.js";
+import { createItem } from "../services/itemsService.js";
 import {
   craftOperationalBugAtStructure,
   craftOperationalItemAtStructure,
@@ -178,15 +179,15 @@ const transformToAnthill: RequestHandler = async (req, res) => {
 
 const dig: RequestHandler<{ id: string }> = async (req, res) => {
   const authorId = req.authorId!;
-  const hole = req.structure!;
+  const structure = req.structure!;
 
-  if (hole.structureType !== "hole") {
-    res.status(400).json({ error: "Only holes can be dug" });
+  if (structure.structureType !== "hole" && structure.structureType !== "anthill") {
+    res.status(400).json({ error: "Only holes and anthills can be dug" });
     return;
   }
 
-  const emptyPosition = await requireNearestEmpty(authorId, hole);
-  const itemOrBug = generateRandomItemType();
+  const emptyPosition = await requireNearestEmpty(authorId, structure);
+  const itemOrBug = generateRandomItemType(structure.structureType === "anthill");
   if (itemOrBug === "beetle") {
     const createdBug = await createBug({
       bugType: itemOrBug,
