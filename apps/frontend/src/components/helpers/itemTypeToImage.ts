@@ -59,6 +59,12 @@ export function itemTypeToImageForStack(itemType: ItemType): string {
       return "/stacks/root-pile.webp";
     case "stick":
       return "/stacks/stick-pile.webp";
+    case "iron_ore":
+      return "/stacks/iron-ore-pile.webp";
+    case "clay":
+      return "/stacks/clay-pile.webp";
+    case "glass":
+      return "/stacks/glass-pile.webp";
     default:
       throw new Error(`Unstackable item type: ${itemType}`);
   }
