@@ -21,6 +21,7 @@ const ITEM_TYPE_BY_KEY: Record<ItemType, true> = {
   paper: true,
   crucible: true,
   iron_ingot: true,
+  roof_tile: true,
   wheelbarrel: true,
 };
 

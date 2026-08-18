@@ -42,6 +42,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/crucible.webp";
     case "iron_ingot":
       return "/items/iron-ingot.webp";
+    case "roof_tile":
+      return "/items/roof-tile.webp";
     case "wheelbarrel":
       return "/items/wheelbarrel.webp";
     default:

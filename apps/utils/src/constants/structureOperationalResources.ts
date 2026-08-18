@@ -32,5 +32,6 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   },
   smelter: {
     iron_ingot: { itemType: "iron_ore", maxCount: 3 },
+    roof_tile: { itemType: "clay", maxCount: 2 },
   },
 };
