@@ -1,23 +1,29 @@
-export type ItemType =
-  | "leaf_part"
-  | "little_rock"
-  | "root"
-  | "stick"
-  | "brick"
-  | "wood"
+export type WorkshopItemType =
   | "axe"
   | "hammer_and_chisel"
   | "leaf_rake"
   | "shovel"
   | "knife"
-  | "nettle_soup"
-  | "grilled_greenflies"
+  | "crucible"
+  | "wheelbarrel";
+
+type DiggableItemType =
+  | "leaf_part"
+  | "little_rock"
+  | "root"
+  | "stick"
   | "iron_ore"
   | "clay"
   | "greenfly"
   | "glass"
-  | "paper"
-  | "crucible"
+  | "paper";
+
+type CraftableItemType =
+  | "brick"
+  | "wood"
+  | "nettle_soup"
+  | "grilled_greenflies"
   | "iron_ingot"
-  | "roof_tile"
-  | "wheelbarrel";
+  | "roof_tile";
+
+export type ItemType = DiggableItemType | CraftableItemType| WorkshopItemType;

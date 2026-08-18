@@ -1,7 +1,7 @@
 import { isCraftableItemType } from "../constants/itemCraftCosts.js";
-import { ItemType } from "../types/itemType.js";
+import { ItemType, WorkshopItemType } from "../types/itemType.js";
 
-const UNIQUE_CRAFTABLE_ITEM_TYPES = new Set<ItemType>([
+const UNIQUE_CRAFTABLE_ITEM_TYPES = new Set<WorkshopItemType>([
   "leaf_rake",
   "shovel",
   "wheelbarrel",

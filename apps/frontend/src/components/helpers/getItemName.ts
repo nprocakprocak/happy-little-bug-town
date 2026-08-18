@@ -1,6 +1,6 @@
-import { ItemType } from "@happy-little-bug-town/utils";
+import { WorkshopItemType } from "@happy-little-bug-town/utils";
 
-export function itemTypeToName(itemType: ItemType): string {
+export function itemTypeToName(itemType: WorkshopItemType): string {
   switch (itemType) {
     case "axe":
       return "Axe";
@@ -16,7 +16,5 @@ export function itemTypeToName(itemType: ItemType): string {
       return "Crucible";
     case "wheelbarrel":
       return "Wheelbarrel";
-    default:
-      throw new Error(`Unknown item type: ${itemType}`);
   }
 }
