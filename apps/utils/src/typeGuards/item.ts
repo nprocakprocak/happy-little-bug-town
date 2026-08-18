@@ -13,7 +13,7 @@ const ITEM_TYPE_BY_KEY: Record<ItemType, true> = {
   shovel: true,
   knife: true,
   nettle_soup: true,
-  grilled_roots: true,
+  grilled_greenflies: true,
   iron_ore: true,
   clay: true,
   greenfly: true,

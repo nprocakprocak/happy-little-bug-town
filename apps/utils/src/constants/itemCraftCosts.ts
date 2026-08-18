@@ -10,8 +10,6 @@ export const ITEM_CRAFT_COSTS: Partial<
 > = {
   brick: [{ itemType: "little_rock", count: 3 }],
   wood: [{ itemType: "stick", count: 3 }],
-  nettle_soup: [{ itemType: "leaf_part", count: 2 }],
-  grilled_roots: [{ itemType: "root", count: 2 }],
   axe: [
     { itemType: "little_rock", count: 1 },
     { itemType: "stick", count: 1 },

@@ -26,8 +26,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/knife.webp";
     case "nettle_soup":
       return "/items/nettle-soup.webp";
-    case "grilled_roots":
-      return "/items/grilled-roots.webp";
+    case "grilled_greenflies":
+      return "/items/grilled-greenflies.webp";
     case "iron_ore":
       return "/items/iron-ore.webp";
     case "clay":
