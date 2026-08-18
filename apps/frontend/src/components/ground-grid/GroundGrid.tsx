@@ -639,7 +639,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             onBuild={onBeetleBuild}
           />
         )}
-        {selectedLadybug && <LadybugPopup onClose={() => setSelectedLadybug(null)} />}
+        {selectedLadybug && (
+          <LadybugPopup structures={structures} onClose={() => setSelectedLadybug(null)} />
+        )}
         {workshopPopupOpen && (
           <WorkshopPopup
             onClose={() => setWorkshopPopupOpen(false)}
