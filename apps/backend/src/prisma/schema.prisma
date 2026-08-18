@@ -46,6 +46,7 @@ enum StructureType {
 enum BugType {
   beetle
   ant
+  ladybug
 }
 
 model User {
