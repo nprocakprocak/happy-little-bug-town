@@ -14,6 +14,7 @@ export * from "./structures/itemDrop.js";
 export * from "./structures/span.js";
 export * from "./structures/structureOperationalResources.js";
 export * from "./structures/power.js";
+export * from "./structures/upgrade.js";
 export * from "./stacks/span.js";
 export * from "./typeGuards/buildable.js";
 export * from "./typeGuards/craftable.js";

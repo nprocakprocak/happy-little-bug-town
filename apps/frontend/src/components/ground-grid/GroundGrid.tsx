@@ -50,6 +50,7 @@ import {
   pickRandomNearestStructureCenterCell,
 } from "../helpers/structureCenterCell";
 import { BeetlePopup } from "../popups/beetle/BeetlePopup";
+import { LadybugPopup } from "../popups/ladybug/LadybugPopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
@@ -96,6 +97,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBeetle, setSelectedBeetle] = useState<Bug | null>(null);
+  const [selectedLadybug, setSelectedLadybug] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [preferSandySoilBackground, setPreferSandySoilBackground] = useState(false);
   const isTransformingToAnthill = useMainStore((state) => state.isTransformingToAnthill);
@@ -504,6 +506,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     setSelectedBeetle(bug);
   }, []);
 
+  const onLadybugClick = useCallback((bug: Bug) => {
+    setSelectedLadybug(bug);
+  }, []);
+
   const onBeetleBuild = useCallback(
     (structure: Structure) => {
       if (!isBuildableStructureType(structure.structureType)) {
@@ -620,6 +626,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onStructureClick={onStructureClick}
           onStackClick={onStackClick}
           onBeetleClick={onBeetleClick}
+          onLadybugClick={onLadybugClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
@@ -632,6 +639,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             onBuild={onBeetleBuild}
           />
         )}
+        {selectedLadybug && <LadybugPopup onClose={() => setSelectedLadybug(null)} />}
         {workshopPopupOpen && (
           <WorkshopPopup
             onClose={() => setWorkshopPopupOpen(false)}

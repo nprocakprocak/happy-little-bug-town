@@ -42,6 +42,7 @@ interface GroundGridInteractionLayerProps {
   onStructureClick: (structure: Structure) => void;
   onStackClick: (stack: Stack) => void;
   onBeetleClick: (bug: Bug) => void;
+  onLadybugClick: (bug: Bug) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
   onItemDropped: (itemId: string, position: Position, targetEntity?: Positionable) => void;
@@ -57,6 +58,7 @@ export function GroundGridInteractionLayer({
   onStructureClick,
   onStackClick,
   onBeetleClick,
+  onLadybugClick,
   onDragChange,
   onItemDropCancelled,
   onItemDropped,
@@ -344,6 +346,8 @@ export function GroundGridInteractionLayer({
       onStackClick(stack);
     } else if (bug?.bugType === "beetle") {
       onBeetleClick(bug);
+    } else if (bug?.bugType === "ladybug") {
+      onLadybugClick(bug);
     } else {
       setSelectedPosition({ x: gridCol, y: gridRow });
     }

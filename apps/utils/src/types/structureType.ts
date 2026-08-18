@@ -7,4 +7,6 @@ export type BuildableStructureType =
   | "tavern"
   | "smelter";
 
+export type UpgradableStructureType = "stonemason";
+
 export type StructureType = "hole" | "anthill" | BuildableStructureType;
