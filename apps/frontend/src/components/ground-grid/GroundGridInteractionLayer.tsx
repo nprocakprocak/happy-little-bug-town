@@ -75,6 +75,16 @@ export function GroundGridInteractionLayer({
 
   const cellCount = rows * cols;
 
+  function openBugPopup(bug: Bug) {
+    if (bug.bugType === "ladybug") {
+      onLadybugClick(bug);
+      return;
+    }
+    if (bug.bugType === "beetle") {
+      onBeetleClick(bug);
+    }
+  }
+
   function handlePointerDown(index: number, event: ReactPointerEvent<HTMLDivElement>) {
     if (event.button !== 0) {
       return;
@@ -323,7 +333,7 @@ export function GroundGridInteractionLayer({
                 overlappingStructure.upgradeLevel,
               );
               if (mustBeFed && !isBugFed(bugToDrop)) {
-                onBeetleClick(bugToDrop);
+                openBugPopup(bugToDrop);
                 onItemDropCancelled(bugToDrop.id, target);
               } else {
                 onItemDropped(bugToDrop.id, target, overlappingEntity);
@@ -347,10 +357,8 @@ export function GroundGridInteractionLayer({
       onStructureClick(structure);
     } else if (stack) {
       onStackClick(stack);
-    } else if (bug?.bugType === "beetle") {
-      onBeetleClick(bug);
-    } else if (bug?.bugType === "ladybug") {
-      onLadybugClick(bug);
+    } else if (bug?.bugType === "beetle" || bug?.bugType === "ladybug") {
+      openBugPopup(bug);
     } else {
       setSelectedPosition({ x: gridCol, y: gridRow });
     }
