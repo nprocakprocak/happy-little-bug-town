@@ -31,7 +31,7 @@ function animatableImageSrc(animatable: Animatable): string {
     return itemTypeToImageForItem(animatable.itemType);
   }
   if (isStructure(animatable)) {
-    return structureTypeToImage(animatable.structureType);
+    return structureTypeToImage(animatable.structureType, animatable.upgradeLevel);
   }
   throw new Error(`Unknown animatable type: ${animatable}`);
 }

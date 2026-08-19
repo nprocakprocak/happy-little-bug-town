@@ -9,11 +9,20 @@ export type CreateStructureData = {
   y: number;
 };
 
+export type UpdateStructureData = {
+  x?: number;
+  y?: number;
+  upgradeLevel?: number;
+};
+
 export type ItemOnStructure = Pick<Item, "id" | "itemType">;
 
 export type BugOnStructure = Pick<Bug, "id" | "bugType">;
 
-export type StructureOnGridDto = Pick<Structure, "id" | "structureType" | "x" | "y"> & {
+export type StructureOnGridDto = Pick<
+  Structure,
+  "id" | "structureType" | "upgradeLevel" | "x" | "y"
+> & {
   items: ItemOnStructure[];
   bugs: BugOnStructure[];
 };

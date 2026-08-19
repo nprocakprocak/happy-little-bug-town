@@ -10,7 +10,9 @@ export const STONEMASON_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
 
 export const UPGRADE_RESOURCE_COSTS: Record<
   UpgradableStructureType,
-  BuildResourceCost[]
+  Record<number, BuildResourceCost[]>
 > = {
-  stonemason: STONEMASON_LVL_2_BUILD_COSTS,
+  stonemason: {
+    1: STONEMASON_LVL_2_BUILD_COSTS,
+  },
 };

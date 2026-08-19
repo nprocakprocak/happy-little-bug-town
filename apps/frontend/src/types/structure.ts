@@ -15,6 +15,7 @@ export interface StructureBug {
 
 export interface Structure extends WithId, Position, GridAnimatable {
   structureType: StructureType;
+  upgradeLevel: number;
   items: StructureItem[];
   bugs: StructureBug[];
 }

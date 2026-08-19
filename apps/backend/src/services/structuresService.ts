@@ -6,7 +6,7 @@ import { toItemDto } from "../mappers/item.js";
 import { toStructureDto } from "../mappers/structure.js";
 import { BugDto } from "../types/bugDto.js";
 import { ItemDto } from "../types/itemDto.js";
-import { CreateStructureData, StructureDto } from "../types/structureDto.js";
+import { CreateStructureData, StructureDto, UpdateStructureData } from "../types/structureDto.js";
 
 const notRemoved = { removedAt: null } as const;
 const structureInclude = { items: { where: notRemoved }, bugs: true } as const;
@@ -86,14 +86,13 @@ export const getHole = async (authorId: string): Promise<StructureDto | null> =>
   return toStructureDto(structure);
 };
 
-export const updateStructurePosition = async (
+export const updateStructure = async (
   id: string,
-  x: number,
-  y: number,
+  data: UpdateStructureData,
 ): Promise<StructureDto> => {
   const structure = await prisma.structure.update({
     where: { id },
-    data: { x, y },
+    data,
     include: structureInclude,
   });
   return toStructureDto(structure);

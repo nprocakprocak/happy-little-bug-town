@@ -2,6 +2,7 @@ import { ItemForCraft } from "../items/craft.js";
 import { canAcceptItemForBuild, StructureForBuild } from "./build.js";
 import { canStructureAcceptItemPowerDrop, StructureForPower } from "./power.js";
 import { canAcceptOperationalResourceForStructure } from "./structureOperationalResources.js";
+import { canAcceptItemForUpgrade, StructureForUpgrade } from "./upgrade.js";
 
 export function canDiscardItemOnStructure(
   structure: Pick<StructureForBuild, "structureType">,
@@ -13,9 +14,13 @@ export function canDiscardItemOnStructure(
 
 export function canDropItemOnStructure(
   item: ItemForCraft,
-  structure: StructureForBuild & StructureForPower,
+  structure: StructureForBuild & StructureForPower & StructureForUpgrade,
 ): boolean {
   if (canAcceptItemForBuild(structure, item.itemType)) {
+    return true;
+  }
+
+  if (canAcceptItemForUpgrade(structure, item.itemType)) {
     return true;
   }
 

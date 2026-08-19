@@ -1,7 +1,9 @@
 import { Router, type RequestHandler } from "express";
 
 import {
+  canStartStructureUpgrade,
   getCraftableOperationalResourceOutput,
+  getNextStructureUpgradeLevel,
   getStructureOperationalResourceItems,
   isBuildableStructureType,
   isCraftableBugType,
@@ -35,8 +37,9 @@ import {
   getStructures,
   hasStructureOfType,
   transformHoleToAnthill as transformHoleToAnthillService,
-  updateStructurePosition as updateStructurePositionService,
+  updateStructure as updateStructureService,
 } from "../services/structuresService.js";
+import { UpdateStructureData } from "../types/structureDto.js";
 
 export const structuresRouter = Router();
 
@@ -107,19 +110,54 @@ const createFirstStructure: RequestHandler = async (req, res) => {
 
 const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
-  const { x, y } = req.body;
+  const { x, y, upgradeLevel: upgradeLevelInput } = req.body;
   const authorId = req.authorId!;
   const existingStructure = req.structure!;
+  const hasPositionUpdate = x !== undefined || y !== undefined;
+  const hasUpgradeUpdate = upgradeLevelInput !== undefined;
 
-  const coords = requireCoords(x, y);
+  if (!hasPositionUpdate && !hasUpgradeUpdate) {
+    res.status(400).json({ error: "No structure fields to update" });
+    return;
+  }
 
-  await assertFootprintFits(
-    authorId,
-    { x: coords.x, y: coords.y, structureType: existingStructure.structureType },
-    { excludePosition: { x: existingStructure.x, y: existingStructure.y } },
-  );
+  const data: UpdateStructureData = {};
 
-  const structure = await updateStructurePositionService(id, coords.x, coords.y);
+  if (hasPositionUpdate) {
+    const coords = requireCoords(x, y);
+
+    await assertFootprintFits(
+      authorId,
+      { x: coords.x, y: coords.y, structureType: existingStructure.structureType },
+      { excludePosition: { x: existingStructure.x, y: existingStructure.y } },
+    );
+
+    data.x = coords.x;
+    data.y = coords.y;
+  }
+
+  if (hasUpgradeUpdate) {
+    if (
+      typeof upgradeLevelInput !== "number" ||
+      !Number.isInteger(upgradeLevelInput) ||
+      !Number.isFinite(upgradeLevelInput)
+    ) {
+      res.status(400).json({ error: "Invalid upgrade level" });
+      return;
+    }
+
+    if (
+      !canStartStructureUpgrade(existingStructure) ||
+      upgradeLevelInput !== getNextStructureUpgradeLevel(existingStructure)
+    ) {
+      res.status(400).json({ error: "Structure cannot be upgraded" });
+      return;
+    }
+
+    data.upgradeLevel = upgradeLevelInput;
+  }
+
+  const structure = await updateStructureService(id, data);
   res.status(200).json(toStructureOnGridDto(structure));
 };
 

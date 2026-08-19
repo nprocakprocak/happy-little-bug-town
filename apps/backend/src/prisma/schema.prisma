@@ -101,6 +101,7 @@ model Structure {
   bugs          Bug[]
   items         Item[]
   structureType StructureType
+  upgradeLevel  Int           @default(0)
   x             Int
   y             Int
   authorId      String

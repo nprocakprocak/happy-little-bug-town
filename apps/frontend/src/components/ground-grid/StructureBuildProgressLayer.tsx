@@ -4,7 +4,9 @@ import { useMemo } from "react";
 import {
   getStructureBuildProgress,
   getStructureSpan,
+  getStructureUpgradeProgress,
   isStructureIncomplete,
+  isStructureUpgradeIncomplete,
 } from "@happy-little-bug-town/utils";
 
 import type { DragPayload } from "../../types/dragPayload";
@@ -24,14 +26,33 @@ interface StructureBuildProgressLayerProps {
   gridDrag: DragPayload | null;
 }
 
+function getMissingStructureResourceProgress(structure: Structure) {
+  if (isStructureIncomplete(structure)) {
+    return getStructureBuildProgress(structure).filter(({ missing }) => missing > 0);
+  }
+
+  if (isStructureUpgradeIncomplete(structure)) {
+    return getStructureUpgradeProgress(structure).filter(({ missing }) => missing > 0);
+  }
+
+  return [];
+}
+
 export function StructureBuildProgressLayer({
   cols,
   rows,
   structures,
   gridDrag,
 }: StructureBuildProgressLayerProps) {
-  const structuresUnderConstruction = useMemo(
-    () => structures.filter(isStructureIncomplete),
+  const structuresWithProgress = useMemo(
+    () =>
+      structures.flatMap((structure) => {
+        const progress = getMissingStructureResourceProgress(structure);
+        if (progress.length === 0) {
+          return [];
+        }
+        return [{ structure, progress }];
+      }),
     [structures],
   );
 
@@ -40,11 +61,10 @@ export function StructureBuildProgressLayer({
       className="pointer-events-none absolute inset-0 z-15 grid h-full w-full gap-1"
       style={groundGridTemplateStyle(cols, rows)}
     >
-      {structuresUnderConstruction.flatMap((structure) => {
+      {structuresWithProgress.flatMap(({ structure, progress }) => {
         const isDragged =
           gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
         const dragStyle = gridDragStyle(gridDrag, isDragged);
-        const progress = getStructureBuildProgress(structure).filter(({ missing }) => missing > 0);
 
         return progress.map(({ itemType, missing }, index) => (
           <div

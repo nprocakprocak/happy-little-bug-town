@@ -4,6 +4,7 @@ export function toStructureDto(structure: StructureWithContents): StructureDto {
   return {
     id: structure.id,
     structureType: structure.structureType,
+    upgradeLevel: structure.upgradeLevel,
     x: structure.x,
     y: structure.y,
     authorId: structure.authorId,
@@ -16,6 +17,7 @@ export function toStructureOnGridDto(structure: StructureDto): StructureOnGridDt
   return {
     id: structure.id,
     structureType: structure.structureType,
+    upgradeLevel: structure.upgradeLevel,
     x: structure.x,
     y: structure.y,
     items: structure.items,

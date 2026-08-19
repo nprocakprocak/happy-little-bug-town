@@ -1,5 +1,3 @@
-import { Position } from "@happy-little-bug-town/utils";
-
 import { Bug } from "../types/bug";
 import { CraftOperationalResourceResult } from "../types/craftOperationalResourceResult";
 import { ExtractOccupantResult } from "../types/extractOccupantResult";
@@ -26,13 +24,13 @@ export function createStructure(
   });
 }
 
-export function updateStructurePosition(
+export function updateStructure(
   structureId: string,
-  position: Position,
+  data: Partial<Pick<Structure, "x" | "y" | "upgradeLevel">>,
 ): Promise<Structure> {
   return apiFetch<Structure>(`/api/structures/${structureId}`, {
     method: "PUT",
-    body: JSON.stringify(position),
+    body: JSON.stringify(data),
   });
 }
 

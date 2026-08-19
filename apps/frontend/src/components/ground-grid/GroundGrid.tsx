@@ -34,6 +34,7 @@ import {
   useDigMutation,
   useExtractOccupantMutation,
   useStructuresQuery,
+  useUpgradeStructureMutation,
 } from "../../hooks/useStructures";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
@@ -88,6 +89,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     isError: firstStructureCreateFailed,
   } = useCreateFirstStructureMutation();
   const createStructure = useCreateStructureMutation();
+  const upgradeStructureMutation = useUpgradeStructureMutation();
   const createItem = useCreateItemMutation();
 
   const animatables = useMemo(
@@ -533,6 +535,14 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [cols, rows, structures, items, stacks, bugs, createStructure],
   );
 
+  const onLadybugUpgrade = useCallback(
+    (structure: Structure) => {
+      upgradeStructureMutation.mutate(structure);
+      setSelectedLadybug(null);
+    },
+    [upgradeStructureMutation],
+  );
+
   const onWorkshopCreateItem = useCallback(
     (itemType: ItemType) => {
       if (!canCreateItemType(items, itemType)) {
@@ -640,7 +650,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           />
         )}
         {selectedLadybug && (
-          <LadybugPopup structures={structures} onClose={() => setSelectedLadybug(null)} />
+          <LadybugPopup
+            structures={structures}
+            onClose={() => setSelectedLadybug(null)}
+            onUpgrade={onLadybugUpgrade}
+          />
         )}
         {workshopPopupOpen && (
           <WorkshopPopup

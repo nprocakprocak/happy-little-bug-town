@@ -12,6 +12,7 @@ import {
   isStructureIncomplete,
   StructureForBuild,
 } from "./build.js";
+import { isStructureUpgradeIncomplete, StructureForUpgrade } from "./upgrade.js";
 
 export interface StructureForPower {
   structureType: StructureType;
@@ -260,9 +261,11 @@ export function isStructureAwaitingPower(
 }
 
 export function structureShowsActivationGlow(
-  structure: StructureForBuild & StructureForPower,
+  structure: StructureForBuild & StructureForPower & StructureForUpgrade,
 ): boolean {
   return (
-    isStructureIncomplete(structure) || isStructureAwaitingPower(structure)
+    isStructureIncomplete(structure) ||
+    isStructureAwaitingPower(structure) ||
+    isStructureUpgradeIncomplete(structure)
   );
 }

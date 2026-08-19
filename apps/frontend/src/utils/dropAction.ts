@@ -18,7 +18,7 @@ import {
   updateItemPosition,
 } from "../api/items";
 import { createStack, mergeStacks, updateStack } from "../api/stacks";
-import { updateStructurePosition } from "../api/structures";
+import { updateStructure } from "../api/structures";
 import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
@@ -210,7 +210,7 @@ export async function dropAction(
   }
 
   if (originalStructure) {
-    const structure = await updateStructurePosition(originalStructure.id, targetPosition);
+    const structure = await updateStructure(originalStructure.id, targetPosition);
 
     return {
       items: items,

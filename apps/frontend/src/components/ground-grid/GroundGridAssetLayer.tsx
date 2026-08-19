@@ -163,7 +163,7 @@ export function GroundGridAssetLayer({
                     </>
                   ) : (
                     <Image
-                      src={structureTypeToImage(structure.structureType)}
+                      src={structureTypeToImage(structure.structureType, structure.upgradeLevel)}
                       alt=""
                       fill
                       className="object-cover"

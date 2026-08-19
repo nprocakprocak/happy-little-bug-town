@@ -85,7 +85,10 @@ export function bugTypeToImage(bugType: BugType): string {
   }
 }
 
-export function structureTypeToImage(structureType: StructureType, isUpgrade: boolean = false): string {
+export function structureTypeToImage(
+  structureType: StructureType,
+  upgradeLevel: number = 0,
+): string {
   switch (structureType) {
     case "hole":
       return "/structures/hole.webp";
@@ -96,7 +99,9 @@ export function structureTypeToImage(structureType: StructureType, isUpgrade: bo
     case "workshop":
       return "/structures/workshop.webp";
     case "stonemason":
-      return isUpgrade ? "/structures/stonemason-lvl-2.webp" : "/structures/stonemason.webp";
+      return upgradeLevel >= 1
+        ? "/structures/stonemason-lvl-2.webp"
+        : "/structures/stonemason.webp";
     case "woodcutter":
       return "/structures/woodcutter.webp";
     case "kitchen":

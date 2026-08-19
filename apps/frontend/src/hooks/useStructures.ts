@@ -1,3 +1,4 @@
+import { getNextStructureUpgradeLevel } from "@happy-little-bug-town/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -7,6 +8,7 @@ import {
   dig,
   extractOccupant,
   fetchStructures,
+  updateStructure,
 } from "../api/structures";
 import { queryKeys } from "../constants/queryKeys";
 import { Structure } from "../types/structure";
@@ -44,6 +46,22 @@ export function useCreateStructureMutation() {
     mutationFn: createStructure,
     onSuccess: (structure) => {
       updateStructuresCache(queryClient, (structures) => [...structures, structure]);
+    },
+  });
+}
+
+export function useUpgradeStructureMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (structure: Structure) =>
+      updateStructure(structure.id, {
+        upgradeLevel: getNextStructureUpgradeLevel(structure),
+      }),
+    onSuccess: (structure) => {
+      updateStructuresCache(queryClient, (structures) =>
+        structures.map((existing) => (existing.id === structure.id ? structure : existing)),
+      );
     },
   });
 }
