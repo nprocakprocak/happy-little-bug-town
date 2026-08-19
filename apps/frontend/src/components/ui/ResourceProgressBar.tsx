@@ -12,8 +12,8 @@ export function ResourceProgressBar({ collected, max, layout = "full" }: Resourc
     layout === "inline"
       ? "relative h-full w-full"
       : layout === "corner"
-        ? "absolute inset-x-[8%] bottom-[6%] z-10 h-[clamp(3px,18%,5px)] min-h-[3px]"
-        : "absolute inset-x-[12%] bottom-[8%] z-10 h-[clamp(4px,2.5cqi,6px)] min-h-[4px]";
+        ? "absolute inset-x-[8%] bottom-[6%] h-[clamp(3px,18%,5px)] min-h-[3px]"
+        : "absolute inset-x-[12%] bottom-[8%] h-[clamp(4px,2.5cqi,6px)] min-h-[4px]";
 
   return (
     <div className={`${layoutClassName} overflow-hidden rounded-full bg-black/45 shadow-sm`}>

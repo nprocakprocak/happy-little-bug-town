@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { getBugFoodCount, getBugFoodRequirement, isBugFed } from "@happy-little-bug-town/utils";
 
 import { Bug } from "../../types/bug";
 import type { DragPayload } from "../../types/dragPayload";
@@ -10,7 +11,7 @@ import {
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
 import { isFlyingItem } from "../helpers/isFlyingItem";
-import { BugsProgressBar } from "../ui/BugsProgressBar";
+import { ResourceProgressBar } from "../ui/ResourceProgressBar";
 
 interface BugsProgressLayerProps {
   cols: number;
@@ -19,9 +20,20 @@ interface BugsProgressLayerProps {
   gridDrag: DragPayload | null;
 }
 
+function HungryBadge() {
+  return (
+    <span
+      className="absolute bottom-0 right-0 flex size-[clamp(18px,42%,34px)] min-w-[clamp(18px,42%,34px)] -translate-x-1/4 translate-y-1/4 items-center justify-center rounded-full bg-red-500 text-[clamp(11px,58%,16px)] leading-none"
+      aria-hidden
+    >
+      🍴
+    </span>
+  );
+}
+
 export function BugsProgressLayer({ cols, rows, bugs, gridDrag }: BugsProgressLayerProps) {
-  const beetlesWithLeaves = useMemo(
-    () => bugs.filter((bug) => !isFlyingItem(bug) && bug.items.length > 0),
+  const hungryBugs = useMemo(
+    () => bugs.filter((bug) => !isFlyingItem(bug) && !isBugFed(bug)),
     [bugs],
   );
 
@@ -30,7 +42,13 @@ export function BugsProgressLayer({ cols, rows, bugs, gridDrag }: BugsProgressLa
       className="pointer-events-none absolute inset-0 z-10 grid h-full w-full gap-1"
       style={groundGridTemplateStyle(cols, rows)}
     >
-      {beetlesWithLeaves.map((bug) => {
+      {hungryBugs.map((bug) => {
+        const foodRequirement = getBugFoodRequirement(bug.bugType);
+        if (!foodRequirement) {
+          return null;
+        }
+
+        const foodCount = getBugFoodCount(bug);
         const isDragged = gridDrag?.target.kind === "bug" && gridDrag.target.bugId === bug.id;
 
         return (
@@ -42,7 +60,8 @@ export function BugsProgressLayer({ cols, rows, bugs, gridDrag }: BugsProgressLa
               ...gridDragStyle(gridDrag, isDragged),
             }}
           >
-            <BugsProgressBar leafCount={bug.items.length} />
+            <ResourceProgressBar collected={foodCount} max={foodRequirement.maxCount} />
+            {foodCount === 0 && <HungryBadge />}
           </div>
         );
       })}
