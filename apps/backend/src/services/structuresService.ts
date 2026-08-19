@@ -11,6 +11,7 @@ import { CreateStructureData, StructureDto, UpdateStructureData } from "../types
 const notRemoved = { removedAt: null } as const;
 const structureInclude = { items: { where: notRemoved }, bugs: true } as const;
 const itemInclude = { items: { where: notRemoved } } as const;
+const bugInclude = { items: { where: notRemoved } } as const;
 
 export const hasStructureOfType = async (
   authorId: string,
@@ -176,6 +177,7 @@ export const craftOperationalBugAtStructure = async (
       where: { id: { in: operationalItemIds } },
       data: {
         structureId: null,
+        bugId: craftedBug.id,
         x: null,
         y: null,
       },
@@ -185,13 +187,17 @@ export const craftOperationalBugAtStructure = async (
       where: { id: structureId },
       include: structureInclude,
     });
+    const updatedBug = await tx.bug.findUnique({
+      where: { id: craftedBug.id },
+      include: bugInclude,
+    });
 
-    if (!updatedStructure) {
+    if (!updatedStructure || !updatedBug) {
       throw new Error("Failed to craft operational bug at structure");
     }
 
     return {
-      bug: toBugDto({ ...craftedBug, items: [] }),
+      bug: toBugDto(updatedBug),
       structure: toStructureDto(updatedStructure),
     };
   });
