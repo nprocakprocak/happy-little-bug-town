@@ -12,7 +12,7 @@ interface BeetleHungryPopupContentProps {
 }
 
 export function BeetleHungryPopupContent({ beetle, onClose }: BeetleHungryPopupContentProps) {
-  const leafCount = beetle.itemIds.length;
+  const leafCount = beetle.items.length;
 
   return (
     <>

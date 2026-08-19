@@ -105,7 +105,7 @@ export async function dropAction(
     if (originalItem.itemType !== "leaf_part" || targetBug.bugType !== "beetle") {
       throw new Error("Item cannot be given to bug");
     }
-    if (targetBug.itemIds.length >= BEETLE_MAX_LEAF_PARTS) {
+    if (targetBug.items.length >= BEETLE_MAX_LEAF_PARTS) {
       throw new Error("Beetle is already full");
     }
     const bug = await addItemToBug(originalItem.id, targetBug.id);

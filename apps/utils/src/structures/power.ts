@@ -24,16 +24,16 @@ export interface StructureForPower {
 }
 
 export interface BugForFedCheck {
-  itemIds: string[];
+  items: { itemType: ItemType }[];
 }
 
 export interface BugForStructureDrop {
   bugType: BugType;
-  itemIds: string[];
+  items: { itemType: ItemType }[];
 }
 
 export function isBugFed(bug: BugForFedCheck): boolean {
-  return bug.itemIds.length >= BEETLE_MAX_LEAF_PARTS;
+  return bug.items.length >= BEETLE_MAX_LEAF_PARTS;
 }
 
 export function pickMostFedBug<T extends BugForFedCheck>(
@@ -44,7 +44,7 @@ export function pickMostFedBug<T extends BugForFedCheck>(
   }
 
   return bugs.reduce((mostFed, bug) =>
-    bug.itemIds.length > mostFed.itemIds.length ? bug : mostFed,
+    bug.items.length > mostFed.items.length ? bug : mostFed,
   );
 }
 

@@ -21,7 +21,7 @@ interface BugsProgressLayerProps {
 
 export function BugsProgressLayer({ cols, rows, bugs, gridDrag }: BugsProgressLayerProps) {
   const beetlesWithLeaves = useMemo(
-    () => bugs.filter((bug) => !isFlyingItem(bug) && bug.itemIds.length > 0),
+    () => bugs.filter((bug) => !isFlyingItem(bug) && bug.items.length > 0),
     [bugs],
   );
 
@@ -42,7 +42,7 @@ export function BugsProgressLayer({ cols, rows, bugs, gridDrag }: BugsProgressLa
               ...gridDragStyle(gridDrag, isDragged),
             }}
           >
-            <BugsProgressBar leafCount={bug.itemIds.length} />
+            <BugsProgressBar leafCount={bug.items.length} />
           </div>
         );
       })}

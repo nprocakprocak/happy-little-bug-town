@@ -265,7 +265,7 @@ export const attachItemToBug = async (
   if (existingBug.x == null || existingBug.y == null) {
     throw new AppError(400, "Bug must be on the grid");
   }
-  if (existingBug.itemIds.length >= BEETLE_MAX_LEAF_PARTS) {
+  if (existingBug.items.length >= BEETLE_MAX_LEAF_PARTS) {
     throw new AppError(400, "Beetle is already full");
   }
 

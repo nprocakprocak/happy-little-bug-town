@@ -16,7 +16,7 @@ interface BeetlePopupProps {
 }
 
 export function BeetlePopup({ beetle, structures, onClose, onBuild }: BeetlePopupProps) {
-  const isFed = beetle.itemIds.length >= BEETLE_MAX_LEAF_PARTS;
+  const isFed = beetle.items.length >= BEETLE_MAX_LEAF_PARTS;
 
   return (
     <GridPopup>

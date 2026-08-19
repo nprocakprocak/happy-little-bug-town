@@ -9,7 +9,7 @@ export function toBugDto(bug: Bug & { items: Item[] }): BugDto {
     y: bug.y,
     authorId: bug.authorId,
     structureId: bug.structureId,
-    itemIds: bug.items.map((item) => item.id),
+    items: bug.items.map((item) => ({ id: item.id, itemType: item.itemType })),
   };
 }
 
@@ -23,6 +23,6 @@ export function toBugOnGridDto(bug: BugDto): BugOnGridDto {
     bugType: bug.bugType,
     x: bug.x,
     y: bug.y,
-    itemIds: bug.itemIds,
+    items: bug.items,
   };
 }

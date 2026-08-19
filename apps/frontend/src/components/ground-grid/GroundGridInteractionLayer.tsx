@@ -207,7 +207,7 @@ export function GroundGridInteractionLayer({
             const canDropLeafOnBeetle =
               itemToDrop.itemType === "leaf_part" &&
               overlappingBug?.bugType === "beetle" &&
-              overlappingBug.itemIds.length < BEETLE_MAX_LEAF_PARTS;
+              overlappingBug.items.length < BEETLE_MAX_LEAF_PARTS;
             const canDropOnStructure =
               !!overlappingStructure &&
               (canDropItemOnStructure(itemToDrop, overlappingStructure) ||

@@ -283,7 +283,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
               bug.id === targetEntity.id
                 ? {
                     ...bug,
-                    itemIds: [...bug.itemIds, originalItem.id],
+                    items: [...bug.items, { id: originalItem.id, itemType: originalItem.itemType }],
                   }
                 : bug,
             ),
