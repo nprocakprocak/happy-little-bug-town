@@ -318,7 +318,10 @@ export function GroundGridInteractionLayer({
               !!overlappingStructure && canStructureAcceptBugDrop(bugToDrop, overlappingStructure);
 
             if (canDropBeetleOnStructure) {
-              const mustBeFed = structureDropRequiresFedBug(overlappingStructure.structureType);
+              const mustBeFed = structureDropRequiresFedBug(
+                overlappingStructure.structureType,
+                overlappingStructure.upgradeLevel,
+              );
               if (mustBeFed && !isBugFed(bugToDrop)) {
                 onBeetleClick(bugToDrop);
                 onItemDropCancelled(bugToDrop.id, target);

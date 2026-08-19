@@ -2,10 +2,10 @@
 
 import { useMemo } from "react";
 import {
+  getStructureBugPowerMissing,
+  getStructureBugPowerRequirements,
   getStructureItemPowerMissing,
   getStructureItemPowerRequirements,
-  getStructurePowerMissing,
-  getStructurePowerOccupantBugType,
   getStructureSpan,
   isStructureAwaitingPower,
 } from "@happy-little-bug-town/utils";
@@ -34,28 +34,33 @@ interface StructurePowerCounterEntry {
 }
 
 function getStructurePowerCounters(structure: Structure): StructurePowerCounterEntry[] {
-  const occupantBugType = getStructurePowerOccupantBugType(structure.structureType);
-  const missingBeetles = getStructurePowerMissing(structure);
   const counters: StructurePowerCounterEntry[] = [];
 
-  if (occupantBugType && missingBeetles > 0) {
-    counters.push({
-      key: `bug-${occupantBugType}`,
-      imageSrc: bugTypeToImage(occupantBugType),
-      missing: missingBeetles,
-    });
-  }
+  getStructureBugPowerRequirements(structure.structureType, structure.upgradeLevel).forEach(
+    ({ bugType }) => {
+      const missing = getStructureBugPowerMissing(structure, bugType);
+      if (missing > 0) {
+        counters.push({
+          key: `bug-${bugType}`,
+          imageSrc: bugTypeToImage(bugType),
+          missing,
+        });
+      }
+    },
+  );
 
-  getStructureItemPowerRequirements(structure.structureType).forEach(({ itemType }) => {
-    const missing = getStructureItemPowerMissing(structure, itemType);
-    if (missing > 0) {
-      counters.push({
-        key: `item-${itemType}`,
-        imageSrc: itemTypeToImageForItem(itemType),
-        missing,
-      });
-    }
-  });
+  getStructureItemPowerRequirements(structure.structureType, structure.upgradeLevel).forEach(
+    ({ itemType }) => {
+      const missing = getStructureItemPowerMissing(structure, itemType);
+      if (missing > 0) {
+        counters.push({
+          key: `item-${itemType}`,
+          imageSrc: itemTypeToImageForItem(itemType),
+          missing,
+        });
+      }
+    },
+  );
 
   return counters;
 }

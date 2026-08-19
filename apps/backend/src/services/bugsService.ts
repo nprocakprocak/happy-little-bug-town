@@ -80,6 +80,7 @@ export const attachBugToStructure = async (
   const existingStructure = await loadOwnedOr404(getStructure, parsedStructureId, authorId);
   const structureForDrop = {
     structureType: existingStructure.structureType,
+    upgradeLevel: existingStructure.upgradeLevel,
     items: existingStructure.items,
     bugs: existingStructure.bugs,
   };
@@ -88,7 +89,10 @@ export const attachBugToStructure = async (
     throw new AppError(400, "Structure cannot accept this bug");
   }
 
-  if (structureDropRequiresFedBug(existingStructure.structureType) && !isBugFed(existingBug)) {
+  if (
+    structureDropRequiresFedBug(existingStructure.structureType, existingStructure.upgradeLevel) &&
+    !isBugFed(existingBug)
+  ) {
     throw new AppError(400, "Bug must be fed before joining structure");
   }
 

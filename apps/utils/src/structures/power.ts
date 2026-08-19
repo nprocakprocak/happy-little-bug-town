@@ -1,7 +1,9 @@
 import { BEETLE_MAX_LEAF_PARTS, HOLE_ANT_CAPACITY } from "../constants/game.js";
 import {
   STRUCTURE_POWER_REQUIREMENTS,
+  StructureBugPowerRequirement,
   StructureItemPowerRequirement,
+  StructurePowerRequirement,
 } from "../constants/structurePowerRequirements.js";
 import { isItemCrafted, ItemForCraft } from "../items/craft.js";
 import { BugType } from "../types/bugType.js";
@@ -16,6 +18,7 @@ import { isStructureUpgradeIncomplete, StructureForUpgrade } from "./upgrade.js"
 
 export interface StructureForPower {
   structureType: StructureType;
+  upgradeLevel: number;
   bugs: { bugType: BugType }[];
   items: { itemType: ItemType }[];
 }
@@ -47,8 +50,9 @@ export function pickMostFedBug<T extends BugForFedCheck>(
 
 export function structureDropRequiresFedBug(
   structureType: StructureType,
+  upgradeLevel: number,
 ): boolean {
-  return structureRequiresPower(structureType);
+  return structureRequiresPower(structureType, upgradeLevel);
 }
 
 export function getHoleAntCount(structure: StructureForPower): number {
@@ -99,15 +103,18 @@ export function canStructureAcceptBugDrop(
     );
   }
 
-  const requirement = getStructurePowerRequirement(structure.structureType);
-  if (!requirement) {
+  const bugRequirement = getStructureBugPowerRequirements(
+    structure.structureType,
+    structure.upgradeLevel,
+  ).find((requirement) => requirement.bugType === bug.bugType);
+  if (!bugRequirement) {
     return false;
   }
 
   return (
     isStructureBuilt(structure) &&
-    bug.bugType === requirement.occupantBugType &&
-    getStructurePowerSuppliedCount(structure) < requirement.requiredCount
+    getStructureBugPowerSuppliedCount(structure, bug.bugType) <
+      bugRequirement.requiredCount
   );
 }
 
@@ -119,7 +126,7 @@ export function canDropBugOnStructure(
     return false;
   }
 
-  if (structureDropRequiresFedBug(structure.structureType)) {
+  if (structureDropRequiresFedBug(structure.structureType, structure.upgradeLevel)) {
     return isBugFed(bug);
   }
 
@@ -128,31 +135,48 @@ export function canDropBugOnStructure(
 
 export function getStructurePowerRequirement(
   structureType: StructureType,
-): (typeof STRUCTURE_POWER_REQUIREMENTS)[StructureType] | undefined {
-  return STRUCTURE_POWER_REQUIREMENTS[structureType];
+  upgradeLevel: number,
+): StructurePowerRequirement | undefined {
+  const requirement = STRUCTURE_POWER_REQUIREMENTS[structureType];
+  if (!requirement) {
+    return undefined;
+  }
+
+  return requirement[upgradeLevel] ?? requirement[0];
+}
+
+export function getStructureBugPowerRequirements(
+  structureType: StructureType,
+  upgradeLevel: number,
+): StructureBugPowerRequirement[] {
+  return (
+    getStructurePowerRequirement(structureType, upgradeLevel)?.bugRequirements ??
+    []
+  );
 }
 
 export function getStructureItemPowerRequirements(
   structureType: StructureType,
+  upgradeLevel: number,
 ): StructureItemPowerRequirement[] {
-  return getStructurePowerRequirement(structureType)?.itemRequirements ?? [];
+  return (
+    getStructurePowerRequirement(structureType, upgradeLevel)
+      ?.itemRequirements ?? []
+  );
 }
 
-export function structureRequiresPower(structureType: StructureType): boolean {
-  return getStructurePowerRequirement(structureType) !== undefined;
+export function structureRequiresPower(
+  structureType: StructureType,
+  upgradeLevel: number,
+): boolean {
+  return getStructurePowerRequirement(structureType, upgradeLevel) !== undefined;
 }
 
-export function getStructurePowerSuppliedCount(
+export function getStructureBugPowerSuppliedCount(
   structure: StructureForPower,
+  bugType: BugType,
 ): number {
-  const requirement = getStructurePowerRequirement(structure.structureType);
-  if (!requirement) {
-    return 0;
-  }
-
-  return structure.bugs.filter(
-    ({ bugType }) => bugType === requirement.occupantBugType,
-  ).length;
+  return structure.bugs.filter((bug) => bug.bugType === bugType).length;
 }
 
 export function getStructureItemPowerSuppliedCount(
@@ -162,15 +186,22 @@ export function getStructureItemPowerSuppliedCount(
   return structure.items.filter((item) => item.itemType === itemType).length;
 }
 
-export function getStructurePowerMissing(structure: StructureForPower): number {
-  const requirement = getStructurePowerRequirement(structure.structureType);
-  if (!requirement) {
+export function getStructureBugPowerMissing(
+  structure: StructureForPower,
+  bugType: BugType,
+): number {
+  const bugRequirement = getStructureBugPowerRequirements(
+    structure.structureType,
+    structure.upgradeLevel,
+  ).find((requirement) => requirement.bugType === bugType);
+  if (!bugRequirement) {
     return 0;
   }
 
   return Math.max(
     0,
-    requirement.requiredCount - getStructurePowerSuppliedCount(structure),
+    bugRequirement.requiredCount -
+      getStructureBugPowerSuppliedCount(structure, bugType),
   );
 }
 
@@ -180,6 +211,7 @@ export function getStructureItemPowerMissing(
 ): number {
   const itemRequirement = getStructureItemPowerRequirements(
     structure.structureType,
+    structure.upgradeLevel,
   ).find((requirement) => requirement.itemType === itemType);
   if (!itemRequirement) {
     return 0;
@@ -192,30 +224,32 @@ export function getStructureItemPowerMissing(
   );
 }
 
-export function getStructurePowerOccupantBugType(
-  structureType: StructureType,
-): BugType | undefined {
-  return getStructurePowerRequirement(structureType)?.occupantBugType;
-}
-
 export function hasStructureItemPowerRequirements(
   structureType: StructureType,
+  upgradeLevel: number,
 ): boolean {
-  return getStructureItemPowerRequirements(structureType).length > 0;
+  return getStructureItemPowerRequirements(structureType, upgradeLevel).length > 0;
 }
 
 export function isStructureBugPowered(structure: StructureForPower): boolean {
-  const requirement = getStructurePowerRequirement(structure.structureType);
-  if (!requirement) {
+  const bugRequirements = getStructureBugPowerRequirements(
+    structure.structureType,
+    structure.upgradeLevel,
+  );
+  if (bugRequirements.length === 0) {
     return true;
   }
 
-  return getStructurePowerSuppliedCount(structure) >= requirement.requiredCount;
+  return bugRequirements.every(
+    ({ bugType, requiredCount }) =>
+      getStructureBugPowerSuppliedCount(structure, bugType) >= requiredCount,
+  );
 }
 
 export function isStructureItemPowered(structure: StructureForPower): boolean {
   const itemRequirements = getStructureItemPowerRequirements(
     structure.structureType,
+    structure.upgradeLevel,
   );
   if (itemRequirements.length === 0) {
     return true;
@@ -237,6 +271,7 @@ export function canStructureAcceptItemPowerDrop(
 ): boolean {
   const itemRequirement = getStructureItemPowerRequirements(
     structure.structureType,
+    structure.upgradeLevel,
   ).find((requirement) => requirement.itemType === item.itemType);
   if (!itemRequirement) {
     return false;
@@ -254,7 +289,7 @@ export function isStructureAwaitingPower(
   structure: StructureForBuild & StructureForPower,
 ): boolean {
   return (
-    structureRequiresPower(structure.structureType) &&
+    structureRequiresPower(structure.structureType, structure.upgradeLevel) &&
     isStructureBuilt(structure) &&
     !isStructurePowered(structure)
   );

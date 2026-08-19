@@ -7,38 +7,60 @@ export interface StructureItemPowerRequirement {
   requiredCount: number;
 }
 
-export interface StructurePowerRequirement {
+export interface StructureBugPowerRequirement {
+  bugType: BugType;
   requiredCount: number;
-  occupantBugType: BugType;
+}
+
+export interface StructurePowerRequirement {
+  bugRequirements?: StructureBugPowerRequirement[];
   itemRequirements?: StructureItemPowerRequirement[];
 }
 
+export type StructurePowerRequirementsByLevel = Record<
+  number,
+  StructurePowerRequirement
+>;
+
 export const STRUCTURE_POWER_REQUIREMENTS: Partial<
-  Record<StructureType, StructurePowerRequirement>
+  Record<StructureType, StructurePowerRequirementsByLevel>
 > = {
-  workshop: { requiredCount: 2, occupantBugType: "beetle" },
+  workshop: {
+    0: {
+      bugRequirements: [{ bugType: "beetle", requiredCount: 2 }],
+    },
+  },
   stonemason: {
-    requiredCount: 2,
-    occupantBugType: "beetle",
-    itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 3 }],
+    0: {
+      bugRequirements: [{ bugType: "beetle", requiredCount: 2 }],
+      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 3 }],
+    },
+    1: {
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }],
+      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 3 }],
+    },
   },
   woodcutter: {
-    requiredCount: 2,
-    occupantBugType: "beetle",
-    itemRequirements: [{ itemType: "axe", requiredCount: 3 }],
+    0: {
+      bugRequirements: [{ bugType: "beetle", requiredCount: 2 }],
+      itemRequirements: [{ itemType: "axe", requiredCount: 3 }],
+    },
   },
   kitchen: {
-    requiredCount: 1,
-    occupantBugType: "beetle",
-    itemRequirements: [{ itemType: "knife", requiredCount: 2 }],
+    0: {
+      bugRequirements: [{ bugType: "beetle", requiredCount: 1 }],
+      itemRequirements: [{ itemType: "knife", requiredCount: 2 }],
+    },
   },
   tavern: {
-    requiredCount: 4,
-    occupantBugType: "beetle",
+    0: {
+      bugRequirements: [{ bugType: "beetle", requiredCount: 4 }],
+    },
   },
   smelter: {
-    requiredCount: 3,
-    occupantBugType: "beetle",
-    itemRequirements: [{ itemType: "crucible", requiredCount: 1 }],
+    0: {
+      bugRequirements: [{ bugType: "beetle", requiredCount: 3 }],
+      itemRequirements: [{ itemType: "crucible", requiredCount: 1 }],
+    },
   },
 };
