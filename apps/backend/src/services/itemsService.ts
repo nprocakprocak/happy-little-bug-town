@@ -1,9 +1,10 @@
 import {
-  BEETLE_MAX_LEAF_PARTS,
   canDiscardItemOnStructure,
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
+  getBugFoodCount,
+  getBugFoodRequirement,
   Position,
 } from "@happy-little-bug-town/utils";
 
@@ -254,19 +255,17 @@ export const attachItemToBug = async (
   authorId: string,
 ): Promise<BugOnGridDto> => {
   const parsedBugId = parseUuidOrThrow(bugId, "bugId");
-  if (existingItem.itemType !== "leaf_part") {
-    throw new AppError(400, "Only leaf parts can be given to bugs");
-  }
-
   const existingBug = await loadOwnedOr404(getBug, parsedBugId, authorId);
-  if (existingBug.bugType !== "beetle") {
-    throw new AppError(400, "Only beetles can carry leaf parts");
+  const foodRequirement = getBugFoodRequirement(existingBug.bugType);
+
+  if (!foodRequirement || existingItem.itemType !== foodRequirement.itemType) {
+    throw new AppError(400, "Item cannot be given to this bug");
   }
   if (existingBug.x == null || existingBug.y == null) {
     throw new AppError(400, "Bug must be on the grid");
   }
-  if (existingBug.items.length >= BEETLE_MAX_LEAF_PARTS) {
-    throw new AppError(400, "Beetle is already full");
+  if (getBugFoodCount(existingBug) >= foodRequirement.maxCount) {
+    throw new AppError(400, "Bug is already full");
   }
 
   await updateItem(itemId, { bugId: parsedBugId });

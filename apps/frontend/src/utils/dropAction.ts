@@ -1,6 +1,6 @@
 import {
-  BEETLE_MAX_LEAF_PARTS,
   canDiscardItemOnStructure,
+  canDropFoodOnBug,
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
@@ -102,11 +102,8 @@ export async function dropAction(
 
   // drop food onto a bug to feed it
   if (originalItem && targetBug) {
-    if (originalItem.itemType !== "leaf_part" || targetBug.bugType !== "beetle") {
+    if (!canDropFoodOnBug(originalItem.itemType, targetBug)) {
       throw new Error("Item cannot be given to bug");
-    }
-    if (targetBug.items.length >= BEETLE_MAX_LEAF_PARTS) {
-      throw new Error("Beetle is already full");
     }
     const bug = await addItemToBug(originalItem.id, targetBug.id);
 

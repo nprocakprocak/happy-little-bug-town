@@ -1,4 +1,4 @@
-import { BEETLE_MAX_LEAF_PARTS, HOLE_ANT_CAPACITY, LADYBUG_MAX_GRILLED_GREENFLIES } from "../constants/game.js";
+import { HOLE_ANT_CAPACITY } from "../constants/game.js";
 import {
   STRUCTURE_POWER_REQUIREMENTS,
   StructureBugPowerRequirement,
@@ -6,6 +6,7 @@ import {
   StructurePowerRequirement,
 } from "../constants/structurePowerRequirements.js";
 import { isItemCrafted, ItemForCraft } from "../items/craft.js";
+import { isBugFed } from "../bugs/feeding.js";
 import { BugType } from "../types/bugType.js";
 import { ItemType } from "../types/itemType.js";
 import { StructureType } from "../types/structureType.js";
@@ -26,17 +27,6 @@ export interface StructureForPower {
 interface Bug {
   bugType: BugType;
   items: { itemType: ItemType }[];
-}
-
-export function isBugFed(bug: Bug): boolean {
-  if (bug.bugType === "ladybug") {
-    return (
-      bug.items.filter((item) => item.itemType === "grilled_greenflies").length >=
-      LADYBUG_MAX_GRILLED_GREENFLIES
-    );
-  }
-
-  return bug.items.length >= BEETLE_MAX_LEAF_PARTS;
 }
 
 export function pickMostFedBug<T extends Bug>(
