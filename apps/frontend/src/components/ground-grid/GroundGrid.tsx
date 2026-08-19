@@ -651,6 +651,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         )}
         {selectedLadybug && (
           <LadybugPopup
+            ladybug={selectedLadybug}
             structures={structures}
             onClose={() => setSelectedLadybug(null)}
             onUpgrade={onLadybugUpgrade}

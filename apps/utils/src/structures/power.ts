@@ -1,4 +1,4 @@
-import { BEETLE_MAX_LEAF_PARTS, HOLE_ANT_CAPACITY } from "../constants/game.js";
+import { BEETLE_MAX_LEAF_PARTS, HOLE_ANT_CAPACITY, LADYBUG_MAX_GRILLED_GREENFLIES } from "../constants/game.js";
 import {
   STRUCTURE_POWER_REQUIREMENTS,
   StructureBugPowerRequirement,
@@ -23,20 +23,23 @@ export interface StructureForPower {
   items: { itemType: ItemType }[];
 }
 
-export interface BugForFedCheck {
-  items: { itemType: ItemType }[];
-}
-
-export interface BugForStructureDrop {
+interface Bug {
   bugType: BugType;
   items: { itemType: ItemType }[];
 }
 
-export function isBugFed(bug: BugForFedCheck): boolean {
+export function isBugFed(bug: Bug): boolean {
+  if (bug.bugType === "ladybug") {
+    return (
+      bug.items.filter((item) => item.itemType === "grilled_greenflies").length >=
+      LADYBUG_MAX_GRILLED_GREENFLIES
+    );
+  }
+
   return bug.items.length >= BEETLE_MAX_LEAF_PARTS;
 }
 
-export function pickMostFedBug<T extends BugForFedCheck>(
+export function pickMostFedBug<T extends Bug>(
   bugs: T[],
 ): T {
   if (bugs.length === 0) {
@@ -88,7 +91,7 @@ export function isHoleReadyToBecomeAnthill(
 }
 
 export function canStructureAcceptBugDrop(
-  bug: Pick<BugForStructureDrop, "bugType">,
+  bug: Pick<Bug, "bugType">,
   structure: StructureForBuild & StructureForPower,
 ): boolean {
   if (structure.structureType === "beetle_house") {
@@ -114,12 +117,12 @@ export function canStructureAcceptBugDrop(
   return (
     isStructureBuilt(structure) &&
     getStructureBugPowerSuppliedCount(structure, bug.bugType) <
-      bugRequirement.requiredCount
+    bugRequirement.requiredCount
   );
 }
 
 export function canDropBugOnStructure(
-  bug: BugForStructureDrop,
+  bug: Bug,
   structure: StructureForBuild & StructureForPower,
 ): boolean {
   if (!canStructureAcceptBugDrop(bug, structure)) {
@@ -201,7 +204,7 @@ export function getStructureBugPowerMissing(
   return Math.max(
     0,
     bugRequirement.requiredCount -
-      getStructureBugPowerSuppliedCount(structure, bugType),
+    getStructureBugPowerSuppliedCount(structure, bugType),
   );
 }
 
@@ -220,7 +223,7 @@ export function getStructureItemPowerMissing(
   return Math.max(
     0,
     itemRequirement.requiredCount -
-      getStructureItemPowerSuppliedCount(structure, itemType),
+    getStructureItemPowerSuppliedCount(structure, itemType),
   );
 }
 
@@ -281,7 +284,7 @@ export function canStructureAcceptItemPowerDrop(
     isStructureBuilt(structure) &&
     isItemCrafted(item) &&
     getStructureItemPowerSuppliedCount(structure, item.itemType) <
-      itemRequirement.requiredCount
+    itemRequirement.requiredCount
   );
 }
 

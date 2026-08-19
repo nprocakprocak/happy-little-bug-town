@@ -1,25 +1,32 @@
 "use client";
 
 import Image from "next/image";
-import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-bug-town/utils";
+import { ItemType } from "@happy-little-bug-town/utils";
 
 import { Bug } from "../../../types/bug";
 import { bugTypeToImage, itemTypeToImageForItem } from "../../helpers/itemTypeToImage";
 
-interface BeetleHungryPopupContentProps {
-  beetle: Bug;
+interface BugHungryPopupContentProps {
+  bug: Bug;
+  foodItemType: ItemType;
+  maxCount: number;
   onClose: () => void;
 }
 
-export function BeetleHungryPopupContent({ beetle, onClose }: BeetleHungryPopupContentProps) {
-  const leafCount = beetle.items.length;
+export function BugHungryPopupContent({
+  bug,
+  foodItemType,
+  maxCount,
+  onClose,
+}: BugHungryPopupContentProps) {
+  const foodCount = bug.items.filter((item) => item.itemType === foodItemType).length;
 
   return (
     <>
       <div className="flex justify-center pt-[4cqi]">
         <div className="relative h-[28cqi] w-[28cqi]">
           <Image
-            src={bugTypeToImage(beetle.bugType)}
+            src={bugTypeToImage(bug.bugType)}
             alt=""
             fill
             className="object-contain"
@@ -31,7 +38,7 @@ export function BeetleHungryPopupContent({ beetle, onClose }: BeetleHungryPopupC
         <div className="flex items-center gap-[2cqi]">
           <div className="relative h-[8cqi] w-[8cqi]">
             <Image
-              src={itemTypeToImageForItem("leaf_part")}
+              src={itemTypeToImageForItem(foodItemType)}
               alt=""
               fill
               className="object-contain"
@@ -39,7 +46,7 @@ export function BeetleHungryPopupContent({ beetle, onClose }: BeetleHungryPopupC
             />
           </div>
           <span className="text-[clamp(1rem,4.5cqi,1.75rem)] font-semibold text-stone-700">
-            {leafCount}/{BEETLE_MAX_LEAF_PARTS}
+            {foodCount}/{maxCount}
           </span>
         </div>
         <p className="text-center text-[clamp(1rem,5cqi,2rem)] text-stone-800">

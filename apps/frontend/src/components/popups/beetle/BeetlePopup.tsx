@@ -1,12 +1,12 @@
 "use client";
 
-import { BEETLE_MAX_LEAF_PARTS } from "@happy-little-bug-town/utils";
+import { BEETLE_MAX_LEAF_PARTS, isBugFed } from "@happy-little-bug-town/utils";
 
 import { Bug } from "../../../types/bug";
 import { Structure } from "../../../types/structure";
+import { BugHungryPopupContent } from "../shared/BugHungryPopupContent";
 import { GridPopup } from "../shared/GridPopup";
 import { BeetleBuildPopupContent } from "./BeetleBuildPopupContent";
-import { BeetleHungryPopupContent } from "./BeetleHungryPopupContent";
 
 interface BeetlePopupProps {
   beetle: Bug;
@@ -16,14 +16,17 @@ interface BeetlePopupProps {
 }
 
 export function BeetlePopup({ beetle, structures, onClose, onBuild }: BeetlePopupProps) {
-  const isFed = beetle.items.length >= BEETLE_MAX_LEAF_PARTS;
-
   return (
     <GridPopup>
-      {isFed ? (
+      {isBugFed(beetle) ? (
         <BeetleBuildPopupContent structures={structures} onClose={onClose} onBuild={onBuild} />
       ) : (
-        <BeetleHungryPopupContent beetle={beetle} onClose={onClose} />
+        <BugHungryPopupContent
+          bug={beetle}
+          foodItemType="leaf_part"
+          maxCount={BEETLE_MAX_LEAF_PARTS}
+          onClose={onClose}
+        />
       )}
     </GridPopup>
   );
