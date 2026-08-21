@@ -249,6 +249,8 @@ export function GroundGridAssetLayer({
             const isDragged =
               gridDrag?.target.kind === "stack" && gridDrag.target.stackId === stack.id;
             const span = getStackSpan();
+            const firstStackBug = (stack.bugs ?? [])[0];
+            const stackImageSizes = `${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`;
 
             return (
               <div
@@ -259,13 +261,34 @@ export function GroundGridAssetLayer({
                   ...gridDragStyle(gridDrag, isDragged),
                 }}
               >
-                <Image
-                  src={itemTypeToImageForStack(stack.itemType)}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
-                />
+                <div className="relative h-full w-full">
+                  <Image
+                    src={itemTypeToImageForStack(stack.itemType)}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes={stackImageSizes}
+                  />
+                  {firstStackBug && (
+                    <div
+                      className="absolute min-h-0 min-w-0 overflow-hidden rounded-sm"
+                      style={{
+                        left: 0,
+                        bottom: 0,
+                        width: `${100 / span}%`,
+                        height: `${100 / span}%`,
+                      }}
+                    >
+                      <Image
+                        src={bugTypeToImage(firstStackBug.bugType)}
+                        alt=""
+                        fill
+                        className="object-contain p-[8%] drop-shadow-sm -scale-x-100"
+                        sizes={stackImageSizes}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
