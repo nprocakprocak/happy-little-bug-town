@@ -1,9 +1,13 @@
+import { canDropBugOnStack } from "@happy-little-bug-town/utils";
+
 import { prisma } from "../lib/prisma.js";
+import { toBugDto } from "../mappers/bug.js";
 import { toStackDto } from "../mappers/stack.js";
 import { Stack } from "../prisma/prisma/client.js";
+import { BugDto } from "../types/bugDto.js";
 import { StackDto } from "../types/stackDto.js";
 
-const stackInclude = { items: { where: { removedAt: null } } } as const;
+const stackInclude = { items: { where: { removedAt: null } }, bugs: true } as const;
 
 type CreateStackData = Pick<Stack, "itemType" | "x" | "y" | "authorId">;
 type UpdateStackData = Pick<Stack, "x" | "y">;
@@ -87,11 +91,32 @@ export const createStackWithItems = async (
 export const mergeStacks = async (
   sourceStackId: string,
   targetStackId: string,
-): Promise<StackDto> => {
+): Promise<{ stack: StackDto; releasedBugs: BugDto[] }> => {
   return await prisma.$transaction(async (tx) => {
+    const sourceStack = await tx.stack.findUniqueOrThrow({
+      where: { id: sourceStackId },
+    });
+    const targetBugs = await tx.bug.findMany({
+      where: { stackId: targetStackId },
+      select: { bugType: true },
+    });
+    const sourceBugs = await tx.bug.findMany({
+      where: { stackId: sourceStackId },
+      include: { items: { where: { removedAt: null } } },
+    });
+    const shouldTransferSourceBugs =
+      sourceBugs.length === 1 && canDropBugOnStack(sourceBugs[0], { bugs: targetBugs });
+    const shouldReleaseSourceBugs = sourceBugs.length > 0 && !shouldTransferSourceBugs;
+
     await tx.item.updateMany({
       where: { stackId: sourceStackId },
       data: { stackId: targetStackId },
+    });
+    await tx.bug.updateMany({
+      where: { stackId: sourceStackId },
+      data: shouldReleaseSourceBugs
+        ? { stackId: null, x: sourceStack.x, y: sourceStack.y }
+        : { stackId: targetStackId },
     });
 
     await tx.stack.delete({
@@ -107,6 +132,13 @@ export const mergeStacks = async (
       throw new Error("Target stack not found after merge");
     }
 
-    return toStackDto(mergedStack);
+    return {
+      stack: toStackDto(mergedStack),
+      releasedBugs: shouldReleaseSourceBugs
+        ? sourceBugs.map((bug) =>
+            toBugDto({ ...bug, stackId: null, x: sourceStack.x, y: sourceStack.y }),
+          )
+        : [],
+    };
   });
 };

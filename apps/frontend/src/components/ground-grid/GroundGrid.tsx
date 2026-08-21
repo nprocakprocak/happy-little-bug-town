@@ -5,6 +5,7 @@ import {
   canCraftFromStructureOperationalResources,
   canCreateItemType,
   canDiscardItemOnStructure,
+  canDropBugOnStack,
   canDropItemOnItem,
   isBuildableStructureType,
   isHoleReadyToBecomeAnthill,
@@ -50,6 +51,7 @@ import {
   getBeetleHouseExtractOrigin,
   pickRandomNearestStructureCenterCell,
 } from "../helpers/structureCenterCell";
+import { AntPopup } from "../popups/ant/AntPopup";
 import { BeetlePopup } from "../popups/beetle/BeetlePopup";
 import { LadybugPopup } from "../popups/ladybug/LadybugPopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
@@ -100,6 +102,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBeetle, setSelectedBeetle] = useState<Bug | null>(null);
   const [selectedLadybug, setSelectedLadybug] = useState<Bug | null>(null);
+  const [selectedAnt, setSelectedAnt] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [preferSandySoilBackground, setPreferSandySoilBackground] = useState(false);
   const isTransformingToAnthill = useMainStore((state) => state.isTransformingToAnthill);
@@ -352,8 +355,27 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
+        // drop a bug onto a stack to assign it, assume optimistic update
+        if (originalBug && targetEntity && isStack(targetEntity)) {
+          setBugsCache((prev) => prev.filter((b) => b.id !== originalBug.id));
+          setStacksCache((prev) =>
+            prev.map((s) =>
+              s.id === targetEntity.id
+                ? {
+                    ...s,
+                    bugs: [...(s.bugs ?? []), { id: originalBug.id, bugType: originalBug.bugType }],
+                  }
+                : s,
+            ),
+          );
+        }
+
         // drop a stack onto another stack to merge them, assume optimistic update
         if (originalStack && targetEntity && isStack(targetEntity)) {
+          const sourceBugs = originalStack.bugs ?? [];
+          const canTransferSourceBugs =
+            sourceBugs.length === 1 && canDropBugOnStack(sourceBugs[0], targetEntity);
+          const shouldDropSourceBugs = sourceBugs.length > 0 && !canTransferSourceBugs;
           setStacksCache((prev) => {
             const source = prev.find((s) => s.id === originalStack.id);
             if (!source) {
@@ -363,10 +385,30 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
               .filter((s) => s.id !== originalStack.id)
               .map((s) =>
                 s.id === targetEntity.id
-                  ? { ...s, itemsCount: s.itemsCount + source.itemsCount }
+                  ? {
+                      ...s,
+                      itemsCount: s.itemsCount + source.itemsCount,
+                      bugs: canTransferSourceBugs
+                        ? [...(s.bugs ?? []), ...sourceBugs]
+                        : (s.bugs ?? []),
+                    }
                   : s,
               );
           });
+          if (shouldDropSourceBugs) {
+            setBugsCache((prev) => [
+              ...prev,
+              ...sourceBugs.map((bug) => ({
+                id: bug.id,
+                bugType: bug.bugType,
+                x: originalStack.x,
+                y: originalStack.y,
+                fromX: targetEntity.x,
+                fromY: targetEntity.y,
+                items: [],
+              })),
+            ]);
+          }
         }
 
         const {
@@ -512,6 +554,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     setSelectedLadybug(bug);
   }, []);
 
+  const onAntClick = useCallback((bug: Bug) => {
+    setSelectedAnt(bug);
+  }, []);
+
   const onBeetleBuild = useCallback(
     (structure: Structure) => {
       if (!isBuildableStructureType(structure.structureType)) {
@@ -637,6 +683,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onStackClick={onStackClick}
           onBeetleClick={onBeetleClick}
           onLadybugClick={onLadybugClick}
+          onAntClick={onAntClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
@@ -657,6 +704,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             onUpgrade={onLadybugUpgrade}
           />
         )}
+        {selectedAnt && <AntPopup ant={selectedAnt} onClose={() => setSelectedAnt(null)} />}
         {workshopPopupOpen && (
           <WorkshopPopup
             onClose={() => setWorkshopPopupOpen(false)}

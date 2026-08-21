@@ -9,6 +9,7 @@ export function toBugDto(bug: Bug & { items: Item[] }): BugDto {
     y: bug.y,
     authorId: bug.authorId,
     structureId: bug.structureId,
+    stackId: bug.stackId,
     items: bug.items.map((item) => ({ id: item.id, itemType: item.itemType })),
   };
 }

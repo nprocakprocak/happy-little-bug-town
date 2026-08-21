@@ -9,6 +9,7 @@ import { toBugOnGridDto } from "../mappers/bug.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireBug } from "../middleware/requireOwnedEntity.js";
 import {
+  attachBugToStack,
   attachBugToStructure,
   getBugs,
   updateBug as updateBugService,
@@ -35,13 +36,19 @@ const getBugById: RequestHandler<{ id: string }> = async (req, res) => {
 
 const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
-  const { x, y, structureId } = req.body;
+  const { x, y, structureId, stackId } = req.body;
   const authorId = req.authorId!;
   const existingBug = req.bug!;
 
   if (structureId) {
     const structure = await attachBugToStructure(id, structureId, existingBug, authorId);
     res.status(200).json(structure);
+    return;
+  }
+
+  if (stackId) {
+    const stack = await attachBugToStack(id, stackId, existingBug, authorId);
+    res.status(200).json(stack);
     return;
   }
 

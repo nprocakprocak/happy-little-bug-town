@@ -1,6 +1,7 @@
 import { Position } from "@happy-little-bug-town/utils";
 
 import { ExtractFromStackResult } from "../types/extractFromStackResult";
+import { MergeStacksResult } from "../types/mergeStacksResult";
 import { Stack } from "../types/stack";
 import { apiFetch } from "./client";
 
@@ -37,8 +38,11 @@ export function extractItemFromStack(stackId: string): Promise<ExtractFromStackR
   });
 }
 
-export function mergeStacks(sourceStackId: string, targetStackId: string): Promise<Stack> {
-  return apiFetch<Stack>(`/api/stacks/${sourceStackId}/merge`, {
+export function mergeStacks(
+  sourceStackId: string,
+  targetStackId: string,
+): Promise<MergeStacksResult> {
+  return apiFetch<MergeStacksResult>(`/api/stacks/${sourceStackId}/merge`, {
     method: "POST",
     body: JSON.stringify({ targetStackId }),
   });

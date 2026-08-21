@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createStack, extractItemFromStack, fetchStacks, updateStack } from "../api/stacks";
 import { queryKeys } from "../constants/queryKeys";
 import { Stack } from "../types/stack";
+import { updateBugsCache } from "./useBugs";
 import { updateItemsCache } from "./useItems";
 
 export function updateStacksCache(
@@ -55,6 +56,16 @@ export function useExtractFromStackMutation() {
         }
         return stacks.map((s) => (s.id === stack.id ? { ...s, itemsCount: s.itemsCount - 1 } : s));
       });
+      if (result.releasedBugs.length > 0) {
+        updateBugsCache(queryClient, (bugs) => [
+          ...bugs,
+          ...result.releasedBugs.map((bug) => ({
+            ...bug,
+            fromX: stack.x,
+            fromY: stack.y,
+          })),
+        ]);
+      }
     },
   });
 }

@@ -8,6 +8,7 @@ export function toStackDto(stack: StackWithItems): StackDto {
     y: stack.y,
     authorId: stack.authorId,
     itemsCount: stack.items.length,
+    bugs: stack.bugs.map((bug) => ({ id: bug.id, bugType: bug.bugType })),
   };
 }
 
@@ -18,5 +19,6 @@ export function toStackOnGridDto(stack: StackDto): StackOnGridDto {
     x: stack.x,
     y: stack.y,
     itemsCount: stack.itemsCount,
+    bugs: stack.bugs,
   };
 }

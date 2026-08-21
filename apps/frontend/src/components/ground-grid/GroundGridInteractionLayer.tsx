@@ -3,6 +3,7 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   canDiscardItemOnStructure,
+  canDropBugOnStack,
   canDropFoodOnBug,
   canDropItemOnItem,
   canDropItemOnStructure,
@@ -43,6 +44,7 @@ interface GroundGridInteractionLayerProps {
   onStackClick: (stack: Stack) => void;
   onBeetleClick: (bug: Bug) => void;
   onLadybugClick: (bug: Bug) => void;
+  onAntClick: (bug: Bug) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
   onItemDropped: (itemId: string, position: Position, targetEntity?: Positionable) => void;
@@ -59,6 +61,7 @@ export function GroundGridInteractionLayer({
   onStackClick,
   onBeetleClick,
   onLadybugClick,
+  onAntClick,
   onDragChange,
   onItemDropCancelled,
   onItemDropped,
@@ -82,6 +85,10 @@ export function GroundGridInteractionLayer({
     }
     if (bug.bugType === "beetle") {
       onBeetleClick(bug);
+      return;
+    }
+    if (bug.bugType === "ant") {
+      onAntClick(bug);
     }
   }
 
@@ -324,6 +331,8 @@ export function GroundGridInteractionLayer({
           if (bugToDrop) {
             const canDropBeetleOnStructure =
               !!overlappingStructure && canStructureAcceptBugDrop(bugToDrop, overlappingStructure);
+            const canDropOnStack =
+              !!overlappingStack && canDropBugOnStack(bugToDrop, overlappingStack);
 
             if (canDropBeetleOnStructure) {
               const mustBeFed = structureDropRequiresFedBug(
@@ -331,6 +340,13 @@ export function GroundGridInteractionLayer({
                 overlappingStructure.upgradeLevel,
               );
               if (mustBeFed && !isBugFed(bugToDrop)) {
+                openBugPopup(bugToDrop);
+                onItemDropCancelled(bugToDrop.id, target);
+              } else {
+                onItemDropped(bugToDrop.id, target, overlappingEntity);
+              }
+            } else if (canDropOnStack) {
+              if (!isBugFed(bugToDrop)) {
                 openBugPopup(bugToDrop);
                 onItemDropCancelled(bugToDrop.id, target);
               } else {

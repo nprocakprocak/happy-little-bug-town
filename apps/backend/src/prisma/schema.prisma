@@ -115,6 +115,7 @@ model Structure {
 model Stack {
   id        String   @id @default(uuid())
   items     Item[]
+  bugs      Bug[]
   itemType  ItemType
   x         Int
   y         Int
@@ -132,8 +133,10 @@ model Bug {
   y           Int?
   authorId    String
   structureId String?
+  stackId     String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   author      User       @relation(fields: [authorId], references: [id])
   structure   Structure? @relation(fields: [structureId], references: [id])
+  stack       Stack?     @relation(fields: [stackId], references: [id])
 }

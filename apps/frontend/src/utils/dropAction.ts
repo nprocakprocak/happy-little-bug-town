@@ -1,14 +1,16 @@
 import {
   canDiscardItemOnStructure,
+  canDropBugOnStack,
   canDropFoodOnBug,
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
+  isBugFed,
   Position,
   Positionable,
 } from "@happy-little-bug-town/utils";
 
-import { addBeetleToStructure, updateBugPosition } from "../api/bugs";
+import { addBeetleToStructure, addBugToStack, updateBugPosition } from "../api/bugs";
 import {
   addItemToBug,
   addItemToItem,
@@ -154,19 +156,47 @@ export async function dropAction(
     };
   }
 
+  // drop a bug onto a stack to assign it
+  if (originalBug && targetStack) {
+    if (!canDropBugOnStack(originalBug, targetStack)) {
+      throw new Error("Bug cannot be added to stack");
+    }
+    if (!isBugFed(originalBug)) {
+      throw new Error("Bug must be fed before joining stack");
+    }
+    const stack = await addBugToStack(originalBug.id, targetStack.id);
+
+    return {
+      items: items,
+      stacks: stacks.map((s) => (s.id === targetStack.id ? stack : s)),
+      bugs: bugs.filter((b) => b.id !== originalBug.id),
+      structures: structures,
+    };
+  }
+
   // drop a stack onto another stack of the same type to merge
   if (originalStack && targetStack) {
     if (!canStackItemType(originalStack.itemType, items)) {
       throw new Error("Stacks cannot be merged");
     }
-    const mergedStack = await mergeStacks(originalStack.id, targetStack.id);
+    const { stack: mergedStack, releasedBugs } = await mergeStacks(
+      originalStack.id,
+      targetStack.id,
+    );
 
     return {
       items: items,
       stacks: stacks
         .filter((s) => s.id !== originalStack.id)
         .map((s) => (s.id === targetStack.id ? mergedStack : s)),
-      bugs: bugs,
+      bugs: [
+        ...bugs,
+        ...releasedBugs.map((bug) => ({
+          ...bug,
+          fromX: targetStack.x,
+          fromY: targetStack.y,
+        })),
+      ],
       structures: structures,
     };
   }

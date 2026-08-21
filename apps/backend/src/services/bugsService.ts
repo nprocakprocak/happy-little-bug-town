@@ -1,4 +1,5 @@
 import {
+  canDropBugOnStack,
   canStructureAcceptBugDrop,
   isBugFed,
   structureDropRequiresFedBug,
@@ -8,9 +9,12 @@ import { AppError } from "../errors/AppError.js";
 import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { prisma } from "../lib/prisma.js";
 import { toBugDto } from "../mappers/bug.js";
+import { toStackOnGridDto } from "../mappers/stack.js";
 import { toStructureOnGridDto } from "../mappers/structure.js";
 import { BugDto, CreateBugData, UpdateBugData } from "../types/bugDto.js";
+import { StackOnGridDto } from "../types/stackDto.js";
 import { StructureOnGridDto } from "../types/structureDto.js";
+import { getStack } from "./stacksService.js";
 import { getStructure } from "./structuresService.js";
 
 export const getBugs = async (authorId: string): Promise<BugDto[]> => {
@@ -57,9 +61,14 @@ export const createBug = async (bug: CreateBugData): Promise<BugDto> => {
 };
 
 export const updateBug = async (id: string, data: UpdateBugData): Promise<BugDto> => {
-  const updateData = data.structureId
-    ? { structureId: data.structureId, x: null, y: null }
-    : { x: data.x, y: data.y, structureId: null };
+  let updateData;
+  if (data.stackId) {
+    updateData = { stackId: data.stackId, x: null, y: null, structureId: null };
+  } else if (data.structureId) {
+    updateData = { structureId: data.structureId, x: null, y: null, stackId: null };
+  } else {
+    updateData = { x: data.x, y: data.y, structureId: null, stackId: null };
+  }
 
   const updatedBug = await prisma.bug.update({
     where: { id },
@@ -102,4 +111,26 @@ export const attachBugToStructure = async (
     throw new AppError(500, "Structure not found after updating bug");
   }
   return toStructureOnGridDto(structure);
+};
+
+export const attachBugToStack = async (
+  bugId: string,
+  stackId: string,
+  existingBug: BugDto,
+  authorId: string,
+): Promise<StackOnGridDto> => {
+  const parsedStackId = parseUuidOrThrow(stackId, "stackId");
+  const existingStack = await loadOwnedOr404(getStack, parsedStackId, authorId);
+  if (!canDropBugOnStack(existingBug, existingStack)) {
+    throw new AppError(400, "Stack cannot accept this bug");
+  }
+  if (!isBugFed(existingBug)) {
+    throw new AppError(400, "Bug must be fed before joining stack");
+  }
+  await updateBug(bugId, { stackId: parsedStackId });
+  const stack = await getStack(parsedStackId);
+  if (!stack) {
+    throw new AppError(500, "Stack not found after updating bug");
+  }
+  return toStackOnGridDto(stack);
 };

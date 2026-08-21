@@ -11,11 +11,11 @@ import {
 import { AppError } from "../errors/AppError.js";
 import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { prisma } from "../lib/prisma.js";
-import { toBugOnGridDto } from "../mappers/bug.js";
+import { toBugDto, toBugOnGridDto } from "../mappers/bug.js";
 import { toItemDto, toItemOnGridDto } from "../mappers/item.js";
 import { toStackOnGridDto } from "../mappers/stack.js";
 import { toStructureOnGridDto } from "../mappers/structure.js";
-import { BugOnGridDto } from "../types/bugDto.js";
+import { BugDto, BugOnGridDto } from "../types/bugDto.js";
 import { CreateItemData, ItemDto, ItemOnGridDto, UpdateItemData } from "../types/itemDto.js";
 import { StackOnGridDto } from "../types/stackDto.js";
 import { StructureOnGridDto } from "../types/structureDto.js";
@@ -305,7 +305,7 @@ export const attachItemToStack = async (
 export async function takeItemFromStack(
   stackId: string,
   position: Position,
-): Promise<{ item: ItemDto; stackDissolved: boolean }> {
+): Promise<{ item: ItemDto; stackDissolved: boolean; releasedBugs: BugDto[] }> {
   return await prisma.$transaction(async (tx) => {
     const item = await tx.item.findFirst({
       where: {
@@ -330,15 +330,35 @@ export async function takeItemFromStack(
       where: { stackId, ...notRemoved },
     });
     const stackDissolved = remainingCount === 0;
-    if (stackDissolved) {
-      await tx.stack.delete({
-        where: { id: stackId },
-      });
+    if (!stackDissolved) {
+      return {
+        item: toItemDto(updatedItem),
+        stackDissolved,
+        releasedBugs: [],
+      };
     }
+
+    const stack = await tx.stack.findUniqueOrThrow({
+      where: { id: stackId },
+    });
+    const assignedBugs = await tx.bug.findMany({
+      where: { stackId },
+      include: { items: { where: notRemoved } },
+    });
+    await tx.bug.updateMany({
+      where: { stackId },
+      data: { stackId: null, x: stack.x, y: stack.y },
+    });
+    await tx.stack.delete({
+      where: { id: stackId },
+    });
 
     return {
       item: toItemDto(updatedItem),
       stackDissolved,
+      releasedBugs: assignedBugs.map((bug) =>
+        toBugDto({ ...bug, stackId: null, x: stack.x, y: stack.y }),
+      ),
     };
   });
 }

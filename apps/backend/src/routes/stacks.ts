@@ -4,6 +4,7 @@ import { canStackItemType } from "@happy-little-bug-town/utils";
 
 import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { assertFootprintFits, requireCoords, requireNearestEmpty } from "../helpers/placement.js";
+import { toBugOnGridDto } from "../mappers/bug.js";
 import { toItemOnGridDto } from "../mappers/item.js";
 import { toStackOnGridDto } from "../mappers/stack.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
@@ -138,8 +139,11 @@ const mergeStacks: RequestHandler<{ id: string }> = async (req, res) => {
     return;
   }
 
-  const stack = await mergeStacksService(id, parsedTargetStackId);
-  res.status(200).json(toStackOnGridDto(stack));
+  const { stack, releasedBugs } = await mergeStacksService(id, parsedTargetStackId);
+  res.status(200).json({
+    stack: toStackOnGridDto(stack),
+    releasedBugs: releasedBugs.map(toBugOnGridDto),
+  });
 };
 
 const extractItemFromStack: RequestHandler<{ id: string }> = async (req, res) => {
@@ -148,10 +152,11 @@ const extractItemFromStack: RequestHandler<{ id: string }> = async (req, res) =>
   const existingStack = req.stack!;
 
   const emptyPosition = await requireNearestEmpty(authorId, existingStack);
-  const { item, stackDissolved } = await takeItemFromStack(id, emptyPosition);
+  const { item, stackDissolved, releasedBugs } = await takeItemFromStack(id, emptyPosition);
   res.status(200).json({
     extractedItem: toItemOnGridDto(item),
     stackDissolved,
+    releasedBugs: releasedBugs.map(toBugOnGridDto),
   });
 };
 
