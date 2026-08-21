@@ -20,6 +20,7 @@ import { transformToAnthill } from "../../api/structures";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { queryKeys } from "../../constants/queryKeys";
 import { useAuth } from "../../context/AuthContext";
+import { useAutoStackDugItems } from "../../hooks/useAutoStackDugItems";
 import { updateBugsCache, useBugsQuery } from "../../hooks/useBugs";
 import { updateItemsCache, useCreateItemMutation, useItemsQuery } from "../../hooks/useItems";
 import {
@@ -93,10 +94,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const createStructure = useCreateStructureMutation();
   const upgradeStructureMutation = useUpgradeStructureMutation();
   const createItem = useCreateItemMutation();
+  const { autoStackFlights, beginAutoStackIfPossible, completeAutoStackFlight } =
+    useAutoStackDugItems();
 
   const animatables = useMemo(
-    () => [...items, ...stacks, ...bugs, ...structures],
-    [items, stacks, bugs, structures],
+    () => [...items, ...autoStackFlights, ...stacks, ...bugs, ...structures],
+    [items, autoStackFlights, stacks, bugs, structures],
   );
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
@@ -177,6 +180,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const handleFlightComplete = useCallback(
     (entityId: string) => {
+      if (completeAutoStackFlight(entityId)) {
+        return;
+      }
+
       setItemsCache((prev) =>
         prev.map((item) =>
           item.id === entityId ? { ...item, fromX: undefined, fromY: undefined } : item,
@@ -200,7 +207,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         ),
       );
     },
-    [setItemsCache, setBugsCache, setStructuresCache, setStacksCache],
+    [completeAutoStackFlight, setItemsCache, setBugsCache, setStructuresCache, setStacksCache],
   );
 
   const handleItemDropCancelled = useCallback(
@@ -473,7 +480,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           const origin = pickRandomNearestStructureCenterCell(structure);
 
           if (isItem(itemOrBug)) {
-            setItemsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
+            if (!beginAutoStackIfPossible(itemOrBug, origin, stacks, items)) {
+              setItemsCache((prev) => [
+                ...prev,
+                { ...itemOrBug, fromX: origin.x, fromY: origin.y },
+              ]);
+            }
           } else {
             setBugsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
           }
@@ -540,6 +552,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       animatables,
       rows,
       cols,
+      stacks,
+      items,
+      beginAutoStackIfPossible,
       setItemsCache,
       setBugsCache,
       setStructuresCache,
