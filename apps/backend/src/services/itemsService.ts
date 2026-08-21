@@ -302,7 +302,10 @@ export const attachItemToStack = async (
   return toStackOnGridDto(stack);
 };
 
-export async function takeItemFromStack(stackId: string, position: Position): Promise<ItemDto> {
+export async function takeItemFromStack(
+  stackId: string,
+  position: Position,
+): Promise<{ item: ItemDto; stackDissolved: boolean }> {
   return await prisma.$transaction(async (tx) => {
     const item = await tx.item.findFirst({
       where: {
@@ -322,51 +325,20 @@ export async function takeItemFromStack(stackId: string, position: Position): Pr
       },
       include: itemInclude,
     });
-    return toItemDto(updatedItem);
-  });
-}
 
-export async function dissolveStack(
-  stackId: string,
-  stackPosition: Position,
-  randomPosition: Position,
-): Promise<{ extractedItem: ItemDto; remainingItem: ItemDto }> {
-  return await prisma.$transaction(async (tx) => {
-    const stackItems = await tx.item.findMany({
+    const remainingCount = await tx.item.count({
       where: { stackId, ...notRemoved },
     });
-    if (stackItems.length !== 2) {
-      throw new Error(`Expected 2 items in stack ${stackId} when dissolving`);
+    const stackDissolved = remainingCount === 0;
+    if (stackDissolved) {
+      await tx.stack.delete({
+        where: { id: stackId },
+      });
     }
 
-    const itemToExtract = stackItems[0];
-    const itemToKeep = stackItems[1];
-
-    const extractedItem = await tx.item.update({
-      where: { id: itemToExtract.id },
-      data: {
-        stackId: null,
-        x: randomPosition.x,
-        y: randomPosition.y,
-      },
-      include: itemInclude,
-    });
-    const remainingItem = await tx.item.update({
-      where: { id: itemToKeep.id },
-      data: {
-        stackId: null,
-        x: stackPosition.x,
-        y: stackPosition.y,
-      },
-      include: itemInclude,
-    });
-    await tx.stack.delete({
-      where: { id: stackId },
-    });
-
     return {
-      extractedItem: toItemDto(extractedItem),
-      remainingItem: toItemDto(remainingItem),
+      item: toItemDto(updatedItem),
+      stackDissolved,
     };
   });
 }

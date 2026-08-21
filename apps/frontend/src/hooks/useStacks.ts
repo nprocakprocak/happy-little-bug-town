@@ -41,18 +41,14 @@ export function useExtractFromStackMutation() {
   return useMutation({
     mutationFn: (stack: Stack) => extractItemFromStack(stack.id),
     onSuccess: (result, stack) => {
-      updateItemsCache(queryClient, (items) => {
-        const flyingItem = {
+      updateItemsCache(queryClient, (items) => [
+        ...items,
+        {
           ...result.extractedItem,
           fromX: stack.x,
           fromY: stack.y,
-        };
-        const next = [...items, flyingItem];
-        if (result.remainingItem) {
-          next.push(result.remainingItem);
-        }
-        return next;
-      });
+        },
+      ]);
       updateStacksCache(queryClient, (stacks) => {
         if (result.stackDissolved) {
           return stacks.filter((s) => s.id !== stack.id);

@@ -9,7 +9,6 @@ import { toStackOnGridDto } from "../mappers/stack.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStack } from "../middleware/requireOwnedEntity.js";
 import {
-  dissolveStack,
   getItemsByIds,
   getItemsOnGrid,
   isItemFreeOnGrid,
@@ -149,25 +148,10 @@ const extractItemFromStack: RequestHandler<{ id: string }> = async (req, res) =>
   const existingStack = req.stack!;
 
   const emptyPosition = await requireNearestEmpty(authorId, existingStack);
-
-  if (existingStack.itemsCount === 2) {
-    const { extractedItem, remainingItem } = await dissolveStack(
-      id,
-      { x: existingStack.x, y: existingStack.y },
-      emptyPosition,
-    );
-    res.status(200).json({
-      extractedItem: toItemOnGridDto(extractedItem),
-      remainingItem: toItemOnGridDto(remainingItem),
-      stackDissolved: true,
-    });
-    return;
-  }
-
-  const item = await takeItemFromStack(id, emptyPosition);
+  const { item, stackDissolved } = await takeItemFromStack(id, emptyPosition);
   res.status(200).json({
     extractedItem: toItemOnGridDto(item),
-    stackDissolved: false,
+    stackDissolved,
   });
 };
 
