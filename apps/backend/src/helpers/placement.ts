@@ -7,8 +7,8 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { AppError } from "../errors/AppError.js";
-import { getAllEntitiesOnGrid } from "./entities.js";
-import { findNearestEmptyPosition } from "./nearestEmptyPosition.js";
+import { prisma } from "../lib/prisma.js";
+import { findNearestEmptyPositionForAuthor, getPositionedEntitiesOnGrid } from "./gridPlacement.js";
 import { getValidCoords } from "./validateCoords.js";
 
 export function requireCoords(x: unknown, y: unknown): Position {
@@ -39,7 +39,7 @@ export async function assertFootprintFits(
   spannable: Positionable,
   options?: AssertFootprintOptions,
 ): Promise<void> {
-  const entities = await getAllEntitiesOnGrid(authorId);
+  const entities = await getPositionedEntitiesOnGrid(prisma, authorId);
   const excluded = toExcludeList(options?.excludePosition);
   const entitiesForCheck =
     excluded.length === 0 ? entities : entities.filter((entity) => !isExcluded(entity, excluded));
@@ -50,10 +50,5 @@ export async function assertFootprintFits(
 }
 
 export async function requireNearestEmpty(authorId: string, near: Positionable): Promise<Position> {
-  const entities = await getAllEntitiesOnGrid(authorId);
-  const emptyPosition = findNearestEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities, near);
-  if (!emptyPosition) {
-    throw new AppError(400, "No empty position found");
-  }
-  return emptyPosition;
+  return findNearestEmptyPositionForAuthor(prisma, authorId, near);
 }

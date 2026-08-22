@@ -12,7 +12,6 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { isPrismaUniqueConstraintError } from "../errors/prismaErrors.js";
-import { generateRandomItemType } from "../helpers/diggableItems.js";
 import { assertFootprintFits, requireCoords, requireNearestEmpty } from "../helpers/placement.js";
 import { toBugOnGridDto } from "../mappers/bug.js";
 import { toItemOnGridDto } from "../mappers/item.js";
@@ -20,18 +19,13 @@ import { toStructureOnGridDto } from "../mappers/structure.js";
 import { economyRateLimit } from "../middleware/rateLimits.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStructure } from "../middleware/requireOwnedEntity.js";
-import {
-  createBug,
-  getBug,
-  getBugsByIds,
-  updateBug as updateBugService,
-} from "../services/bugsService.js";
-import { createItem } from "../services/itemsService.js";
+import { getBug, getBugsByIds, updateBug as updateBugService } from "../services/bugsService.js";
 import {
   craftOperationalBugAtStructure,
   craftOperationalItemAtStructure,
   createFirstStructure as createFirstStructureService,
   createStructure as createStructureService,
+  digAtStructure,
   getHole,
   getStructure,
   getStructures,
@@ -216,33 +210,12 @@ const transformToAnthill: RequestHandler = async (req, res) => {
 };
 
 const dig: RequestHandler<{ id: string }> = async (req, res) => {
-  const authorId = req.authorId!;
-  const structure = req.structure!;
-
-  if (structure.structureType !== "hole" && structure.structureType !== "anthill") {
-    res.status(400).json({ error: "Only holes and anthills can be dug" });
+  const itemOrBug = await digAtStructure(req.authorId!, req.structure!);
+  if ("bugType" in itemOrBug) {
+    res.status(201).json(toBugOnGridDto(itemOrBug));
     return;
   }
-
-  const emptyPosition = await requireNearestEmpty(authorId, structure);
-  const itemOrBug = generateRandomItemType(structure.structureType === "anthill");
-  if (itemOrBug === "beetle") {
-    const createdBug = await createBug({
-      bugType: itemOrBug,
-      x: emptyPosition.x,
-      y: emptyPosition.y,
-      authorId,
-    });
-    res.status(201).json(toBugOnGridDto(createdBug));
-    return;
-  }
-  const createdItem = await createItem({
-    itemType: itemOrBug,
-    x: emptyPosition.x,
-    y: emptyPosition.y,
-    authorId,
-  });
-  res.status(201).json(toItemOnGridDto(createdItem));
+  res.status(201).json(toItemOnGridDto(itemOrBug));
 };
 
 const craft: RequestHandler<{ id: string }> = async (req, res) => {
@@ -252,6 +225,7 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
 
   const structureForCraft = {
     structureType: existingStructure.structureType,
+    upgradeLevel: existingStructure.upgradeLevel,
     items: existingStructure.items,
     bugs: existingStructure.bugs,
   };

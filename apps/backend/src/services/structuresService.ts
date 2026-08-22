@@ -1,5 +1,8 @@
 import { BugType, ItemType, Position, StructureType } from "@happy-little-bug-town/utils";
 
+import { AppError } from "../errors/AppError.js";
+import { generateRandomItemType } from "../helpers/diggableItems.js";
+import { findNearestEmptyPositionForAuthor, lockAuthorGrid } from "../helpers/gridPlacement.js";
 import { prisma } from "../lib/prisma.js";
 import { toBugDto } from "../mappers/bug.js";
 import { toItemDto } from "../mappers/item.js";
@@ -106,6 +109,44 @@ export const transformHoleToAnthill = async (id: string): Promise<StructureDto> 
     include: structureInclude,
   });
   return toStructureDto(structure);
+};
+
+export const digAtStructure = async (
+  authorId: string,
+  structure: StructureDto,
+): Promise<ItemDto | BugDto> => {
+  if (structure.structureType !== "hole" && structure.structureType !== "anthill") {
+    throw new AppError(400, "Only holes and anthills can be dug");
+  }
+
+  return prisma.$transaction(async (tx) => {
+    await lockAuthorGrid(tx, authorId);
+    const emptyPosition = await findNearestEmptyPositionForAuthor(tx, authorId, structure);
+    const itemOrBug = generateRandomItemType(structure.structureType === "anthill");
+
+    if (itemOrBug === "beetle") {
+      const createdBug = await tx.bug.create({
+        data: {
+          bugType: itemOrBug,
+          x: emptyPosition.x,
+          y: emptyPosition.y,
+          authorId,
+        },
+      });
+      return toBugDto({ ...createdBug, items: [] });
+    }
+
+    const createdItem = await tx.item.create({
+      data: {
+        itemType: itemOrBug,
+        x: emptyPosition.x,
+        y: emptyPosition.y,
+        authorId,
+      },
+      include: itemInclude,
+    });
+    return toItemDto(createdItem);
+  });
 };
 
 export const craftOperationalItemAtStructure = async (

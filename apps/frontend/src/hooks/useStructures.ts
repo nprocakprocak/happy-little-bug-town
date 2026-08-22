@@ -5,12 +5,12 @@ import {
   craftOperationalResource,
   createFirstStructure,
   createStructure,
-  dig,
   extractOccupant,
   fetchStructures,
   updateStructure,
 } from "../api/structures";
 import { queryKeys } from "../constants/queryKeys";
+import { digQueue } from "../services/digQueue";
 import { Structure } from "../types/structure";
 
 export function updateStructuresCache(
@@ -68,7 +68,7 @@ export function useUpgradeStructureMutation() {
 
 export function useDigMutation() {
   return useMutation({
-    mutationFn: dig,
+    mutationFn: (structureId: string) => digQueue.enqueue(structureId),
   });
 }
 

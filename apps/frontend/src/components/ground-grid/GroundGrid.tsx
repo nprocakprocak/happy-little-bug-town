@@ -33,11 +33,11 @@ import {
   useCraftOperationalResourceMutation,
   useCreateFirstStructureMutation,
   useCreateStructureMutation,
-  useDigMutation,
   useExtractOccupantMutation,
   useStructuresQuery,
   useUpgradeStructureMutation,
 } from "../../hooks/useStructures";
+import { digQueue } from "../../services/digQueue";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
 import { DragPayload } from "../../types/dragPayload";
@@ -83,7 +83,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { data: bugs = [] } = useBugsQuery(canLoadGridData);
   const { data: stacks = [] } = useStacksQuery(canLoadGridData);
   const extractFromStack = useExtractFromStackMutation();
-  const dig = useDigMutation();
   const extractOccupantMutation = useExtractOccupantMutation();
   const craftOperationalResourceMutation = useCraftOperationalResourceMutation();
   const {
@@ -475,12 +474,14 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const onStructureClick = useCallback(
     (structure: Structure) => {
       if (structure.structureType === "hole" || structure.structureType === "anthill") {
-        (async () => {
-          const itemOrBug = await dig.mutateAsync(structure.id);
+        void (async () => {
+          const itemOrBug = await digQueue.enqueue(structure.id);
           const origin = pickRandomNearestStructureCenterCell(structure);
+          const latestItems = queryClient.getQueryData<Item[]>(queryKeys.items) ?? items;
+          const latestStacks = queryClient.getQueryData<Stack[]>(queryKeys.stacks) ?? stacks;
 
           if (isItem(itemOrBug)) {
-            if (!beginAutoStackIfPossible(itemOrBug, origin, stacks, items)) {
+            if (!beginAutoStackIfPossible(itemOrBug, origin, latestStacks, latestItems)) {
               setItemsCache((prev) => [
                 ...prev,
                 { ...itemOrBug, fromX: origin.x, fromY: origin.y },
@@ -546,7 +547,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       })();
     },
     [
-      dig,
+      queryClient,
       craftOperationalResourceMutation,
       extractOccupantMutation,
       animatables,

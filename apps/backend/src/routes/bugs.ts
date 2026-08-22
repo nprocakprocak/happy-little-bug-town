@@ -3,8 +3,9 @@ import { Router, type RequestHandler } from "express";
 import { positionOverlapsAnyEntity } from "@happy-little-bug-town/utils";
 
 import { AppError } from "../errors/AppError.js";
-import { getAllEntitiesOnGrid } from "../helpers/entities.js";
+import { getPositionedEntitiesOnGrid } from "../helpers/gridPlacement.js";
 import { requireCoords } from "../helpers/placement.js";
+import { prisma } from "../lib/prisma.js";
 import { toBugOnGridDto } from "../mappers/bug.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireBug } from "../middleware/requireOwnedEntity.js";
@@ -54,7 +55,7 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
 
   const coords = requireCoords(x, y);
 
-  const entities = await getAllEntitiesOnGrid(authorId);
+  const entities = await getPositionedEntitiesOnGrid(prisma, authorId);
 
   if (positionOverlapsAnyEntity({ x: coords.x, y: coords.y }, entities)) {
     throw new AppError(400, "Position is already occupied");
