@@ -2,6 +2,7 @@ import {
   ANT_MAX_NETTLE_SOUP,
   BEETLE_MAX_LEAF_PARTS,
   LADYBUG_MAX_GRILLED_GREENFLIES,
+  TERMITE_MAX_PASTA,
 } from "../constants/game.js";
 import { BugType } from "../types/bugType.js";
 import { ItemType } from "../types/itemType.js";
@@ -23,6 +24,7 @@ const BUG_FOOD_REQUIREMENTS: Partial<Record<BugType, BugFoodRequirement>> = {
     maxCount: LADYBUG_MAX_GRILLED_GREENFLIES,
   },
   ant: { itemType: "nettle_soup", maxCount: ANT_MAX_NETTLE_SOUP },
+  termite: { itemType: "pasta", maxCount: TERMITE_MAX_PASTA },
 };
 
 export function getBugFoodRequirement(

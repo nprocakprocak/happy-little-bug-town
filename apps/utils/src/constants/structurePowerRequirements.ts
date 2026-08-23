@@ -63,4 +63,10 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
       itemRequirements: [{ itemType: "crucible", requiredCount: 1 }],
     },
   },
+  farm: {
+    0: {
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 3 }],
+      itemRequirements: [{ itemType: "plow", requiredCount: 2 }],
+    },
+  },
 };

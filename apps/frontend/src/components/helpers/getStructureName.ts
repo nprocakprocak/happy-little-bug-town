@@ -18,6 +18,10 @@ export function structureTypeToName(structureType: StructureType): string {
       return "Tavern";
     case "smelter":
       return "Smelter";
+    case "farm":
+      return "Farm";
+    case "mushrooms_field":
+      return "Mushroom field";
     default:
       throw new Error(`Unknown structure type: ${structureType}`);
   }

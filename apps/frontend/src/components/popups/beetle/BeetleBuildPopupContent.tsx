@@ -16,26 +16,28 @@ import { SelectionPopupContent } from "../shared/SelectionPopupContent";
 
 interface BeetleBuildPopupContentProps {
   structures: Structure[];
+  buildingOptions?: Structure[];
   onClose: () => void;
   onBuild: (structure: Structure) => void;
 }
 
 export function BeetleBuildPopupContent({
   structures,
+  buildingOptions = BUILDING_OPTIONS,
   onClose,
   onBuild,
 }: BeetleBuildPopupContentProps) {
   const [selectedBuildingIndex, setSelectedBuildingIndex] = useState(0);
   const carouselOptions = useMemo(
     () =>
-      BUILDING_OPTIONS.map((structure) => ({
+      buildingOptions.map((structure) => ({
         id: structure.id,
         imageSrc: structureTypeToImage(structure.structureType),
         label: getStructureName(structure),
       })),
-    [],
+    [buildingOptions],
   );
-  const selectedStructure = BUILDING_OPTIONS[selectedBuildingIndex];
+  const selectedStructure = buildingOptions[selectedBuildingIndex];
   const selectedResourceCosts = getBuildResourceCostsForType(
     selectedStructure.structureType as BuildableStructureType,
   );

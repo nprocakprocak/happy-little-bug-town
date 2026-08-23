@@ -2,7 +2,9 @@ import {
   ANTHILL_SPAN,
   BEETLE_HOUSE_SPAN,
   HOLE_SPAN,
+  FARM_SPAN,
   KITCHEN_SPAN,
+  MUSHROOMS_FIELD_SPAN,
   SMELTER_SPAN,
   STONEMASON_SPAN,
   TAVERN_SPAN,
@@ -29,6 +31,10 @@ export function getStructureSpan(structureType: StructureType): number {
       return TAVERN_SPAN;
     case "smelter":
       return SMELTER_SPAN;
+    case "farm":
+      return FARM_SPAN;
+    case "mushrooms_field":
+      return MUSHROOMS_FIELD_SPAN;
     case "beetle_house":
       return BEETLE_HOUSE_SPAN;
   }

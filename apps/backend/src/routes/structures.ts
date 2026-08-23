@@ -7,6 +7,7 @@ import {
   getStructureOperationalResourceItems,
   isBuildableStructureType,
   isCraftableBugType,
+  isFarmBuildableStructureType,
   isHoleReadyToBecomeAnthill,
   pickMostFedBug,
 } from "@happy-little-bug-town/utils";
@@ -57,6 +58,14 @@ const createStructure: RequestHandler = async (req, res) => {
 
   if (await hasStructureOfType(authorId, structureType)) {
     res.status(400).json({ error: "Structure already built" });
+    return;
+  }
+
+  if (
+    isFarmBuildableStructureType(structureType) &&
+    !(await hasStructureOfType(authorId, "farm"))
+  ) {
+    res.status(400).json({ error: "Farm is required to create this structure" });
     return;
   }
 

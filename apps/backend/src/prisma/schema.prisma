@@ -30,6 +30,11 @@ enum ItemType {
   iron_ingot
   roof_tile
   wheelbarrel
+  paving_stone
+  plank
+  plow
+  mushroom
+  pasta
 }
 
 enum StructureType {
@@ -42,12 +47,15 @@ enum StructureType {
   kitchen
   tavern
   smelter
+  farm
+  mushrooms_field
 }
 
 enum BugType {
   beetle
   ant
   ladybug
+  termite
 }
 
 model User {

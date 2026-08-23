@@ -5,7 +5,8 @@ export type WorkshopItemType =
   | "shovel"
   | "knife"
   | "crucible"
-  | "wheelbarrel";
+  | "wheelbarrel"
+  | "plow";
 
 type DiggableItemType =
   | "leaf_part"
@@ -24,6 +25,10 @@ type CraftableItemType =
   | "nettle_soup"
   | "grilled_greenflies"
   | "iron_ingot"
-  | "roof_tile";
+  | "roof_tile"
+  | "paving_stone"
+  | "plank"
+  | "mushroom"
+  | "pasta";
 
-export type ItemType = DiggableItemType | CraftableItemType| WorkshopItemType;
+export type ItemType = DiggableItemType | CraftableItemType | WorkshopItemType;

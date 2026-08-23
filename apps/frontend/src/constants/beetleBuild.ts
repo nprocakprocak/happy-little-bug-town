@@ -10,6 +10,7 @@ const BUILDABLE_STRUCTURE_TYPES: BuildableStructureType[] = [
   "kitchen",
   "tavern",
   "smelter",
+  "farm",
 ];
 
 export const BUILDING_OPTIONS: Structure[] = BUILDABLE_STRUCTURE_TYPES.map<Structure>(

@@ -28,6 +28,10 @@ export const ITEM_CRAFT_COSTS: Record<
     { itemType: "brick", count: 1 },
     { itemType: "iron_ore", count: 1 },
   ],
+  plow: [
+    { itemType: "iron_ingot", count: 3 },
+    { itemType: "wood", count: 1 },
+  ],
   leaf_rake: [
     { itemType: "leaf_part", count: 5 },
     { itemType: "brick", count: 1 },

@@ -52,6 +52,19 @@ export const SMELTER_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "glass", count: 2 },
 ];
 
+export const FARM_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "plank", count: 2 },
+  { itemType: "paving_stone", count: 2 },
+  { itemType: "glass", count: 2 },
+  { itemType: "roof_tile", count: 2 },
+];
+
+export const MUSHROOMS_FIELD_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "paper", count: 2 },
+  { itemType: "clay", count: 2 },
+  { itemType: "root", count: 2 },
+];
+
 export const BUILD_RESOURCE_COSTS: Record<
   BuildableStructureType,
   BuildResourceCost[]
@@ -63,4 +76,6 @@ export const BUILD_RESOURCE_COSTS: Record<
   kitchen: KITCHEN_BUILD_COSTS,
   tavern: TAVERN_BUILD_COSTS,
   smelter: SMELTER_BUILD_COSTS,
+  farm: FARM_BUILD_COSTS,
+  mushrooms_field: MUSHROOMS_FIELD_BUILD_COSTS,
 };

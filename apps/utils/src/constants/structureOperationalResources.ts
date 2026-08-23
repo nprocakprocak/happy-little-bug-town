@@ -13,25 +13,55 @@ export type StructureOperationalResourceOutputs = Partial<
   Record<StructureOperationalOutputType, StructureOperationalResourceRequirement>
 >;
 
+export type StructureOperationalResourceRequirementsByLevel = Record<
+  number,
+  StructureOperationalResourceOutputs
+>;
+
 export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
-  Record<StructureType, StructureOperationalResourceOutputs>
+  Record<StructureType, StructureOperationalResourceRequirementsByLevel>
 > = {
   stonemason: {
-    brick: { itemType: "little_rock", maxCount: 3 },
+    0: {
+      brick: { itemType: "little_rock", maxCount: 3 },
+    },
+    1: {
+      paving_stone: { itemType: "brick", maxCount: 1 },
+    },
   },
   woodcutter: {
-    wood: { itemType: "stick", maxCount: 3 },
+    0: {
+      wood: { itemType: "stick", maxCount: 3 },
+    },
+    1: {
+      plank: { itemType: "wood", maxCount: 1 },
+    },
   },
   kitchen: {
-    nettle_soup: { itemType: "leaf_part", maxCount: 2 },
-    grilled_greenflies: { itemType: "greenfly", maxCount: 3 },
+    0: {
+      nettle_soup: { itemType: "leaf_part", maxCount: 2 },
+      grilled_greenflies: { itemType: "greenfly", maxCount: 3 },
+    },
+    1: {
+      pasta: { itemType: "mushroom", maxCount: 2 },
+    },
   },
   tavern: {
-    ant: { itemType: "nettle_soup", maxCount: 2 },
-    ladybug: { itemType: "grilled_greenflies", maxCount: 2 },
+    0: {
+      ant: { itemType: "nettle_soup", maxCount: 2 },
+      ladybug: { itemType: "grilled_greenflies", maxCount: 2 },
+      termite: { itemType: "pasta", maxCount: 2 },
+    },
   },
   smelter: {
-    iron_ingot: { itemType: "iron_ore", maxCount: 3 },
-    roof_tile: { itemType: "clay", maxCount: 2 },
+    0: {
+      iron_ingot: { itemType: "iron_ore", maxCount: 3 },
+      roof_tile: { itemType: "clay", maxCount: 2 },
+    },
+  },
+  mushrooms_field: {
+    0: {
+      mushroom: { itemType: "paper", maxCount: 2 },
+    },
   },
 };

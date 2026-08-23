@@ -8,11 +8,31 @@ export const STONEMASON_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "roof_tile", count: 2 },
 ];
 
+export const WOODCUTTER_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "wood", count: 1 },
+  { itemType: "paving_stone", count: 1 },
+  { itemType: "glass", count: 2 },
+  { itemType: "roof_tile", count: 2 },
+];
+
+export const KITCHEN_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "plank", count: 1 },
+  { itemType: "paving_stone", count: 1 },
+  { itemType: "iron_ingot", count: 1 },
+  { itemType: "glass", count: 1 },
+];
+
 export const UPGRADE_RESOURCE_COSTS: Record<
   UpgradableStructureType,
   Record<number, BuildResourceCost[]>
 > = {
   stonemason: {
     1: STONEMASON_LVL_2_BUILD_COSTS,
+  },
+  woodcutter: {
+    1: WOODCUTTER_LVL_2_BUILD_COSTS,
+  },
+  kitchen: {
+    1: KITCHEN_LVL_2_BUILD_COSTS,
   },
 };

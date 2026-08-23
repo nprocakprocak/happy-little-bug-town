@@ -40,6 +40,16 @@ export function getNextStructureUpgradeLevel(structure: StructureForUpgrade): nu
   return structure.upgradeLevel + 1;
 }
 
+export function getReservedItemCountForOperationalResources(
+  structure: StructureForUpgrade,
+  itemType: ItemType,
+): number {
+  const upgradeLevelToReserveUntil = isStructureUpgradeIncomplete(structure)
+    ? structure.upgradeLevel
+    : getNextStructureUpgradeLevel(structure);
+  return getReservedItemCountForUpgrade(structure, itemType, upgradeLevelToReserveUntil);
+}
+
 function getReservedItemCountForUpgrade(
   structure: StructureForUpgrade,
   itemType: ItemType,

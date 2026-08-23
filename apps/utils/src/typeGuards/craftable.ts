@@ -1,6 +1,6 @@
 import { BugType } from "../types/bugType.js";
 
-export const CRAFTABLE_BUG_TYPES: BugType[] = ["ant", "ladybug"];
+export const CRAFTABLE_BUG_TYPES: BugType[] = ["ant", "ladybug", "termite"];
 
 export function isCraftableBugType(value: string): value is BugType {
   return (CRAFTABLE_BUG_TYPES as string[]).includes(value);

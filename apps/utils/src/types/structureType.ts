@@ -1,3 +1,5 @@
+export type FarmBuildableStructureType = "mushrooms_field";
+
 export type BuildableStructureType =
   | "beetle_house"
   | "workshop"
@@ -5,8 +7,10 @@ export type BuildableStructureType =
   | "woodcutter"
   | "kitchen"
   | "tavern"
-  | "smelter";
+  | "smelter"
+  | "farm"
+  | FarmBuildableStructureType;
 
-export type UpgradableStructureType = "stonemason";
+export type UpgradableStructureType = "stonemason" | "woodcutter" | "kitchen";
 
 export type StructureType = "hole" | "anthill" | BuildableStructureType;

@@ -46,6 +46,16 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/roof-tile.webp";
     case "wheelbarrel":
       return "/items/wheelbarrel.webp";
+    case "paving_stone":
+      return "/items/paving-stone.webp";
+    case "plank":
+      return "/items/plank.webp";
+    case "plow":
+      return "/items/plow.webp";
+    case "mushroom":
+      return "/items/mushroom.webp";
+    case "pasta":
+      return "/items/pasta.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
@@ -80,6 +90,8 @@ export function bugTypeToImage(bugType: BugType): string {
       return "/bugs/ant.webp";
     case "ladybug":
       return "/bugs/ladybug.webp";
+    case "termite":
+      return "/bugs/termite.webp";
     default:
       throw new Error(`Unknown bug type: ${bugType}`);
   }
@@ -103,13 +115,21 @@ export function structureTypeToImage(
         ? "/structures/stonemason-lvl-2.webp"
         : "/structures/stonemason.webp";
     case "woodcutter":
-      return "/structures/woodcutter.webp";
+      return upgradeLevel >= 1
+        ? "/structures/woodcutter-lvl-2.webp"
+        : "/structures/woodcutter.webp";
     case "kitchen":
-      return "/structures/field-kitchen.webp";
+      return upgradeLevel >= 1
+        ? "/structures/field-kitchen-lvl-2.webp"
+        : "/structures/field-kitchen.webp";
     case "tavern":
       return "/structures/tavern.webp";
     case "smelter":
       return "/structures/smelter.webp";
+    case "farm":
+      return "/structures/farm.webp";
+    case "mushrooms_field":
+      return "/structures/mushrooms-field.webp";
     default:
       throw new Error(`Unknown structure type: ${structureType}`);
   }

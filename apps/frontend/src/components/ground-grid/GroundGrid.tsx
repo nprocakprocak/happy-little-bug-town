@@ -54,6 +54,7 @@ import {
 } from "../helpers/structureCenterCell";
 import { AntPopup } from "../popups/ant/AntPopup";
 import { BeetlePopup } from "../popups/beetle/BeetlePopup";
+import { FarmPopup } from "../popups/farm/FarmPopup";
 import { LadybugPopup } from "../popups/ladybug/LadybugPopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { BugsProgressLayer } from "./BugsProgressLayer";
@@ -106,6 +107,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [selectedLadybug, setSelectedLadybug] = useState<Bug | null>(null);
   const [selectedAnt, setSelectedAnt] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
+  const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const [preferSandySoilBackground, setPreferSandySoilBackground] = useState(false);
   const isTransformingToAnthill = useMainStore((state) => state.isTransformingToAnthill);
   const setIsTransformingToAnthill = useMainStore((state) => state.setIsTransformingToAnthill);
@@ -499,6 +501,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         return;
       }
 
+      if (structure.structureType === "farm" && isStructurePowered(structure)) {
+        setFarmPopupOpen(true);
+        return;
+      }
+
       if (canCraftFromStructureOperationalResources(structure)) {
         if (!hasEmptyGridCell(rows, cols, animatables)) {
           return;
@@ -593,6 +600,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         ...position,
       });
       setSelectedBeetle(null);
+      setFarmPopupOpen(false);
     },
     [cols, rows, structures, items, stacks, bugs, createStructure],
   );
@@ -727,6 +735,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             onCreateItem={onWorkshopCreateItem}
             items={items}
             isCreating={createItem.isPending}
+          />
+        )}
+        {farmPopupOpen && (
+          <FarmPopup
+            structures={structures}
+            onClose={() => setFarmPopupOpen(false)}
+            onBuild={onBeetleBuild}
           />
         )}
       </div>

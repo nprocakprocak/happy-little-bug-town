@@ -7,6 +7,8 @@ WHERE "parentItemId" IN (
 
 DELETE FROM "Item" WHERE "itemType"::text = 'grilled_roots';
 
+DELETE FROM "Stack" WHERE "itemType"::text = 'grilled_roots';
+
 CREATE TYPE "ItemType_new" AS ENUM (
   'leaf_part',
   'little_rock',
