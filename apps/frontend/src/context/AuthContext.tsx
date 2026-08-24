@@ -27,7 +27,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
   const setRequiresLogin = useMainStore((state) => state.setRequiresLogin);
-  const setIsTransformingToAnthill = useMainStore((state) => state.setIsTransformingToAnthill);
+  const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -95,12 +95,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     queryClient.setQueryData(queryKeys.user(registered.id), registered);
     setAuthUser(null);
     setRequiresLogin(false);
-    setIsTransformingToAnthill(false);
+    setEvolvingToStructureType(null);
     queryClient.clear();
     await queryClient.refetchQueries();
 
     google?.accounts?.id?.disableAutoSelect();
-  }, [queryClient, setRequiresLogin, setIsTransformingToAnthill]);
+  }, [queryClient, setRequiresLogin, setEvolvingToStructureType]);
 
   const value = useMemo(
     () => ({

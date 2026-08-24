@@ -1,8 +1,7 @@
 import {
-  ANTHILL_SPAN,
   BEETLE_HOUSE_SPAN,
-  HOLE_SPAN,
   FARM_SPAN,
+  GROUND_EVOLUTION_SPAN,
   KITCHEN_SPAN,
   MUSHROOMS_FIELD_SPAN,
   SMELTER_SPAN,
@@ -16,9 +15,9 @@ import { StructureType } from "../types/structureType.js";
 export function getStructureSpan(structureType: StructureType): number {
   switch (structureType) {
     case "hole":
-      return HOLE_SPAN;
     case "anthill":
-      return ANTHILL_SPAN;
+    case "termite_mound":
+      return GROUND_EVOLUTION_SPAN;
     case "workshop":
       return WORKSHOP_SPAN;
     case "stonemason":

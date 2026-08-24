@@ -3,12 +3,13 @@ import { Router, type RequestHandler } from "express";
 import {
   canStartStructureUpgrade,
   getCraftableOperationalResourceOutput,
+  getEvolutionStepFromType,
   getNextStructureUpgradeLevel,
   getStructureOperationalResourceItems,
   isBuildableStructureType,
   isCraftableBugType,
   isFarmBuildableStructureType,
-  isHoleReadyToBecomeAnthill,
+  isStructureReadyToEvolve,
   pickMostFedBug,
 } from "@happy-little-bug-town/utils";
 
@@ -27,11 +28,10 @@ import {
   createFirstStructure as createFirstStructureService,
   createStructure as createStructureService,
   digAtStructure,
-  getHole,
+  evolveStructureType as evolveStructureTypeService,
   getStructure,
   getStructures,
   hasStructureOfType,
-  transformHoleToAnthill as transformHoleToAnthillService,
   updateStructure as updateStructureService,
 } from "../services/structuresService.js";
 import { UpdateStructureData } from "../types/structureDto.js";
@@ -201,21 +201,17 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
   });
 };
 
-const transformToAnthill: RequestHandler = async (req, res) => {
-  const authorId = req.authorId!;
+const evolveStructure: RequestHandler<{ id: string }> = async (req, res) => {
+  const existingStructure = req.structure!;
+  const step = getEvolutionStepFromType(existingStructure.structureType);
 
-  const hole = await getHole(authorId);
-  if (!hole) {
-    res.status(400).json({ error: "Hole not found when transforming to anthill" });
-    return;
-  }
-  if (!isHoleReadyToBecomeAnthill(hole)) {
-    res.status(400).json({ error: "Hole is not ready to become an anthill" });
+  if (!step || !isStructureReadyToEvolve(existingStructure)) {
+    res.status(400).json({ error: "Structure is not ready to evolve" });
     return;
   }
 
-  const anthill = await transformHoleToAnthillService(hole.id);
-  res.status(200).json(toStructureOnGridDto(anthill));
+  const evolved = await evolveStructureTypeService(existingStructure.id, step.toType);
+  res.status(200).json(toStructureOnGridDto(evolved));
 };
 
 const dig: RequestHandler<{ id: string }> = async (req, res) => {
@@ -293,8 +289,8 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
 structuresRouter.get("/", listStructures);
 structuresRouter.post("/", createStructure);
 structuresRouter.post("/bootstrap", createFirstStructure);
-structuresRouter.post("/transform-to-anthill", transformToAnthill);
 structuresRouter.put("/:id", requireStructure, updateStructure);
+structuresRouter.post("/:id/evolve", requireStructure, evolveStructure);
 structuresRouter.post("/:id/extract-occupant", requireStructure, extractOccupant);
 structuresRouter.post("/:id/craft", economyRateLimit, requireStructure, craft);
 structuresRouter.post("/:id/dig", economyRateLimit, requireStructure, dig);

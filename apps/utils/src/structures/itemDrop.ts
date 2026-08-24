@@ -1,5 +1,6 @@
 import { ItemForCraft } from "../items/craft.js";
 import { canAcceptItemForBuild, StructureForBuild } from "./build.js";
+import { isGroundEvolutionStructureType } from "./evolution.js";
 import { canStructureAcceptItemPowerDrop, StructureForPower } from "./power.js";
 import { canAcceptOperationalResourceForStructure } from "./structureOperationalResources.js";
 import { canAcceptItemForUpgrade, StructureForUpgrade } from "./upgrade.js";
@@ -7,9 +8,7 @@ import { canAcceptItemForUpgrade, StructureForUpgrade } from "./upgrade.js";
 export function canDiscardItemOnStructure(
   structure: Pick<StructureForBuild, "structureType">,
 ): boolean {
-  return (
-    structure.structureType === "hole" || structure.structureType === "anthill"
-  );
+  return isGroundEvolutionStructureType(structure.structureType);
 }
 
 export function canDropItemOnStructure(

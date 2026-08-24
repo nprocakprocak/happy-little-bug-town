@@ -7,16 +7,19 @@ import {
   canDiscardItemOnStructure,
   canDropBugOnStack,
   canDropItemOnItem,
+  getEvolutionStepFromType,
   isBuildableStructureType,
-  isHoleReadyToBecomeAnthill,
+  isGroundEvolutionStructureType,
   isStructurePowered,
+  isStructureReadyToEvolve,
   ItemType,
   Position,
   Positionable,
+  StructureType,
 } from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { transformToAnthill } from "../../api/structures";
+import { evolveStructure } from "../../api/structures";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { queryKeys } from "../../constants/queryKeys";
 import { useAuth } from "../../context/AuthContext";
@@ -108,29 +111,23 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [selectedAnt, setSelectedAnt] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
-  const [preferSandySoilBackground, setPreferSandySoilBackground] = useState(false);
-  const isTransformingToAnthill = useMainStore((state) => state.isTransformingToAnthill);
-  const setIsTransformingToAnthill = useMainStore((state) => state.setIsTransformingToAnthill);
+  const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
 
-  const hasAnthill = structures.some((structure) => structure.structureType === "anthill");
-  const useSandySoilBackground = preferSandySoilBackground || hasAnthill;
-
-  const beginHoleToAnthillTransform = useCallback(
-    async (holeId: string) => {
-      setPreferSandySoilBackground(true);
-      setIsTransformingToAnthill(true);
+  const beginStructureEvolution = useCallback(
+    async (structureId: string, toType: StructureType) => {
+      setEvolvingToStructureType(toType);
       updateStructuresCache(queryClient, (prev) =>
         prev.map((structure) =>
-          structure.id === holeId ? { ...structure, structureType: "anthill" } : structure,
+          structure.id === structureId ? { ...structure, structureType: toType } : structure,
         ),
       );
 
-      const anthill = await transformToAnthill();
+      const evolved = await evolveStructure(structureId);
       updateStructuresCache(queryClient, (prev) =>
-        prev.map((structure) => (structure.id === anthill.id ? anthill : structure)),
+        prev.map((structure) => (structure.id === evolved.id ? evolved : structure)),
       );
     },
-    [queryClient, setIsTransformingToAnthill],
+    [queryClient, setEvolvingToStructureType],
   );
 
   useEffect(() => {
@@ -440,12 +437,14 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         queryClient.setQueryData(queryKeys.structures, newStructures);
 
         if (originalBug && targetEntity && isStructure(targetEntity)) {
-          const filledHole = newStructures.find(
-            (structure) =>
-              structure.id === targetEntity.id && isHoleReadyToBecomeAnthill(structure),
+          const readyStructure = newStructures.find(
+            (structure) => structure.id === targetEntity.id && isStructureReadyToEvolve(structure),
           );
-          if (filledHole) {
-            await beginHoleToAnthillTransform(filledHole.id);
+          if (readyStructure) {
+            const step = getEvolutionStepFromType(readyStructure.structureType);
+            if (step) {
+              await beginStructureEvolution(readyStructure.id, step.toType);
+            }
           }
         }
       })();
@@ -460,7 +459,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       setStacksCache,
       setBugsCache,
       setStructuresCache,
-      beginHoleToAnthillTransform,
+      beginStructureEvolution,
     ],
   );
 
@@ -475,7 +474,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onStructureClick = useCallback(
     (structure: Structure) => {
-      if (structure.structureType === "hole" || structure.structureType === "anthill") {
+      if (isGroundEvolutionStructureType(structure.structureType)) {
         void (async () => {
           const itemOrBug = await digQueue.enqueue(structure.id);
           const origin = pickRandomNearestStructureCenterCell(structure);
@@ -659,9 +658,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           stacks={stacks}
           bugs={bugs}
           gridDrag={gridDrag}
-          useSandySoilBackground={useSandySoilBackground}
-          isTransformingToAnthill={isTransformingToAnthill}
-          onAnthillTransformFadeComplete={() => setIsTransformingToAnthill(false)}
         />
         <ItemFlightLayer
           cols={cols}

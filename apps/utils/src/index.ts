@@ -1,4 +1,5 @@
 export * from "./constants/game.js";
+export * from "./constants/structureEvolution.js";
 export * from "./constants/structureBuildCosts.js";
 export * from "./constants/structureOperationalResources.js";
 export * from "./constants/structurePowerRequirements.js";
@@ -11,6 +12,7 @@ export * from "./items/span.js";
 export * from "./items/stacking.js";
 export * from "./structures/availability.js";
 export * from "./structures/build.js";
+export * from "./structures/evolution.js";
 export * from "./structures/itemDrop.js";
 export * from "./structures/span.js";
 export * from "./structures/structureOperationalResources.js";

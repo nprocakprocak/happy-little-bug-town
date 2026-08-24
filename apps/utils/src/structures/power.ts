@@ -1,4 +1,3 @@
-import { HOLE_ANT_CAPACITY } from "../constants/game.js";
 import {
   STRUCTURE_POWER_REQUIREMENTS,
   StructureBugPowerRequirement,
@@ -15,6 +14,10 @@ import {
   isStructureIncomplete,
   StructureForBuild,
 } from "./build.js";
+import {
+  canStructureAcceptEvolutionBugDrop,
+  getEvolutionStepFromType,
+} from "./evolution.js";
 import { isStructureUpgradeIncomplete, StructureForUpgrade } from "./upgrade.js";
 
 export interface StructureForPower {
@@ -48,38 +51,6 @@ export function structureDropRequiresFedBug(
   return structureRequiresPower(structureType, upgradeLevel);
 }
 
-export function getHoleAntCount(structure: StructureForPower): number {
-  if (structure.structureType !== "hole") {
-    return 0;
-  }
-
-  return structure.bugs.filter(({ bugType }) => bugType === "ant").length;
-}
-
-export function hasHoleAntOccupants(structure: StructureForPower): boolean {
-  return getHoleAntCount(structure) > 0;
-}
-
-export function getHoleAntOccupancyProgress(
-  structure: StructureForPower,
-): { count: number; max: number } | null {
-  const count = getHoleAntCount(structure);
-  if (structure.structureType !== "hole" || count <= 0) {
-    return null;
-  }
-
-  return { count, max: HOLE_ANT_CAPACITY };
-}
-
-export function isHoleReadyToBecomeAnthill(
-  structure: StructureForPower,
-): boolean {
-  return (
-    structure.structureType === "hole" &&
-    getHoleAntCount(structure) >= HOLE_ANT_CAPACITY
-  );
-}
-
 export function canStructureAcceptBugDrop(
   bug: Pick<Bug, "bugType">,
   structure: StructureForBuild & StructureForPower,
@@ -88,12 +59,8 @@ export function canStructureAcceptBugDrop(
     return isStructureBuilt(structure) && bug.bugType === "beetle";
   }
 
-  if (structure.structureType === "hole") {
-    return (
-      isStructureBuilt(structure) &&
-      bug.bugType === "ant" &&
-      getHoleAntCount(structure) < HOLE_ANT_CAPACITY
-    );
+  if (getEvolutionStepFromType(structure.structureType)) {
+    return isStructureBuilt(structure) && canStructureAcceptEvolutionBugDrop(bug, structure);
   }
 
   const bugRequirement = getStructureBugPowerRequirements(

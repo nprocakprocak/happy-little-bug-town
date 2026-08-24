@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import Image from "next/image";
 import {
-  getHoleAntOccupancyProgress,
+  getEvolutionOccupancyProgress,
+  getEvolutionStepToType,
   getItemSpan,
   getStackSpan,
   getStructureSpan,
@@ -13,12 +14,12 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import {
-  ANTHILL_TRANSFORM_FADE_MS,
   GROUND_BG_TILE_HEIGHT_PX,
   GROUND_BG_TILE_WIDTH_PX,
   GROUND_GRID_MAX_WIDTH_PX,
 } from "../../constants";
-import { useAnthillBackgroundFade } from "../../hooks/useAnthillBackgroundFade";
+import { useGroundEvolutionPresentation } from "../../hooks/useGroundEvolutionPresentation";
+import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
 import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
@@ -37,6 +38,8 @@ import {
   itemTypeToImageForStack,
   structureTypeToImage,
 } from "../helpers/itemTypeToImage";
+import { GroundBackgroundLayers } from "./GroundBackgroundLayers";
+import { StructureEvolutionSprite } from "./StructureEvolutionSprite";
 
 interface GroundGridAssetLayerProps {
   cols: number;
@@ -46,9 +49,6 @@ interface GroundGridAssetLayerProps {
   stacks: Stack[];
   bugs: Bug[];
   gridDrag: DragPayload | null;
-  useSandySoilBackground: boolean;
-  isTransformingToAnthill: boolean;
-  onAnthillTransformFadeComplete: () => void;
 }
 
 export function GroundGridAssetLayer({
@@ -59,12 +59,15 @@ export function GroundGridAssetLayer({
   stacks,
   bugs,
   gridDrag,
-  useSandySoilBackground,
-  isTransformingToAnthill,
-  onAnthillTransformFadeComplete,
 }: GroundGridAssetLayerProps) {
-  const { showSandySoil, fadeStarted, backgroundFadeClassName, backgroundFadeStyle } =
-    useAnthillBackgroundFade(isTransformingToAnthill, useSandySoilBackground);
+  const evolvingToStructureType = useMainStore((state) => state.evolvingToStructureType);
+  const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
+  const structureTypes = useMemo(
+    () => structures.map((structure) => structure.structureType),
+    [structures],
+  );
+  const { fadeStarted, visibleBackgroundId, backgroundFadeClassName, backgroundFadeStyle } =
+    useGroundEvolutionPresentation(structureTypes, evolvingToStructureType);
 
   const allGrounded = useMemo(() => {
     const groundedItems = items.filter((it) => !isFlyingItem(it));
@@ -73,31 +76,14 @@ export function GroundGridAssetLayer({
   }, [items, bugs]);
 
   const backgroundSize = `calc(100cqi * ${GROUND_BG_TILE_WIDTH_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px) calc(100cqi * ${GROUND_BG_TILE_HEIGHT_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px)`;
-  const structureFadeStyle = {
-    transitionDuration: `${ANTHILL_TRANSFORM_FADE_MS}ms`,
-  };
 
   return (
     <div className="pointer-events-none absolute inset-0 h-full w-full">
-      <div
-        className={`absolute inset-0 ${backgroundFadeClassName}`}
-        style={{
-          ...backgroundFadeStyle,
-          backgroundImage: "url('/backgrounds/bg-sand.webp')",
-          backgroundRepeat: "repeat",
-          backgroundSize,
-          opacity: showSandySoil ? 0 : 1,
-        }}
-      />
-      <div
-        className={`absolute inset-0 ${backgroundFadeClassName}`}
-        style={{
-          ...backgroundFadeStyle,
-          backgroundImage: "url('/backgrounds/bg-sandy-soil.webp')",
-          backgroundRepeat: "repeat",
-          backgroundSize,
-          opacity: showSandySoil ? 1 : 0,
-        }}
+      <GroundBackgroundLayers
+        visibleBackgroundId={visibleBackgroundId}
+        fadeClassName={backgroundFadeClassName}
+        fadeStyle={backgroundFadeStyle}
+        backgroundSize={backgroundSize}
       />
       <div
         className="absolute inset-0 grid h-full w-full gap-1"
@@ -111,13 +97,13 @@ export function GroundGridAssetLayer({
             const showActivationGlow = structureShowsActivationGlow(structure);
             const firstHouseBug =
               structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
-            const holeAntProgress =
-              structure.structureType === "hole" ? getHoleAntOccupancyProgress(structure) : null;
+            const occupantProgress = getEvolutionOccupancyProgress(structure);
             const operationalResourceProgresses =
               getVisibleStructureOperationalResourceProgresses(structure);
             const span = getStructureSpan(structure.structureType);
-            const isAnthillTransforming =
-              isTransformingToAnthill && structure.structureType === "anthill";
+            const evolutionStep = getEvolutionStepToType(structure.structureType);
+            const isEvolvingThis =
+              evolvingToStructureType === structure.structureType && evolutionStep !== undefined;
             const structureImageSizes = `${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`;
 
             return (
@@ -130,37 +116,14 @@ export function GroundGridAssetLayer({
                 }}
               >
                 <div className="relative h-full w-full">
-                  {isAnthillTransforming ? (
-                    <>
-                      <Image
-                        src={structureTypeToImage("hole")}
-                        alt=""
-                        fill
-                        className="object-cover transition-opacity"
-                        style={{
-                          ...structureFadeStyle,
-                          opacity: fadeStarted ? 0 : 1,
-                        }}
-                        sizes={structureImageSizes}
-                      />
-                      <Image
-                        src={structureTypeToImage("anthill")}
-                        alt=""
-                        fill
-                        className="object-cover transition-opacity"
-                        style={{
-                          ...structureFadeStyle,
-                          opacity: fadeStarted ? 1 : 0,
-                        }}
-                        sizes={structureImageSizes}
-                        onTransitionEnd={(event) => {
-                          if (event.propertyName !== "opacity" || !fadeStarted) {
-                            return;
-                          }
-                          onAnthillTransformFadeComplete();
-                        }}
-                      />
-                    </>
+                  {isEvolvingThis && evolutionStep ? (
+                    <StructureEvolutionSprite
+                      fromType={evolutionStep.fromType}
+                      toType={evolutionStep.toType}
+                      fadeStarted={fadeStarted}
+                      sizes={structureImageSizes}
+                      onFadeComplete={() => setEvolvingToStructureType(null)}
+                    />
                   ) : (
                     <Image
                       src={structureTypeToImage(structure.structureType, structure.upgradeLevel)}
@@ -192,7 +155,7 @@ export function GroundGridAssetLayer({
                       />
                     </div>
                   )}
-                  {holeAntProgress && (
+                  {occupantProgress && (
                     <div
                       className="absolute flex min-h-0 min-w-0 overflow-hidden rounded-sm"
                       style={{
@@ -204,7 +167,7 @@ export function GroundGridAssetLayer({
                     >
                       <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
                         <Image
-                          src={bugTypeToImage("ant")}
+                          src={bugTypeToImage(occupantProgress.bugType)}
                           alt=""
                           fill
                           className="object-contain p-[8%] drop-shadow-sm"

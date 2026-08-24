@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import {
-  getHoleAntOccupancyProgress,
+  getEvolutionOccupancyProgress,
   getStackSpan,
   getStructureSpan,
 } from "@happy-little-bug-town/utils";
@@ -58,11 +58,15 @@ export function GridCountersLayer({
     [structures],
   );
 
-  const holesWithAntProgress = useMemo(
+  const occupancyProgresses = useMemo(
     () =>
-      structures.filter(
-        (structure) => !isFlyingItem(structure) && getHoleAntOccupancyProgress(structure) !== null,
-      ),
+      structures.flatMap((structure) => {
+        if (isFlyingItem(structure)) {
+          return [];
+        }
+        const progress = getEvolutionOccupancyProgress(structure);
+        return progress ? [{ structure, progress }] : [];
+      }),
     [structures],
   );
 
@@ -112,18 +116,14 @@ export function GridCountersLayer({
           </div>
         );
       })}
-      {holesWithAntProgress.map((structure) => {
+      {occupancyProgresses.map(({ structure, progress }) => {
         const isDragged =
           gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
         const span = getStructureSpan(structure.structureType);
-        const progress = getHoleAntOccupancyProgress(structure);
-        if (!progress) {
-          return null;
-        }
 
         return (
           <div
-            key={`hole-ant-progress-${structure.id}`}
+            key={`occupancy-progress-${structure.id}`}
             className="relative min-h-0 min-w-0"
             style={{
               ...gridPlacementStyle(structure.x, structure.y, span),

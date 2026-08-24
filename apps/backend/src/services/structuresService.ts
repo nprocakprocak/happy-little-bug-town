@@ -1,4 +1,10 @@
-import { BugType, ItemType, Position, StructureType } from "@happy-little-bug-town/utils";
+import {
+  BugType,
+  isGroundEvolutionStructureType,
+  ItemType,
+  Position,
+  StructureType,
+} from "@happy-little-bug-town/utils";
 
 import { AppError } from "../errors/AppError.js";
 import { generateRandomItemType } from "../helpers/diggableItems.js";
@@ -76,20 +82,6 @@ export const getStructure = async (id: string): Promise<StructureDto | null> => 
   return toStructureDto(structure);
 };
 
-export const getHole = async (authorId: string): Promise<StructureDto | null> => {
-  const structure = await prisma.structure.findFirst({
-    where: {
-      authorId,
-      structureType: "hole",
-    },
-    include: structureInclude,
-  });
-  if (!structure) {
-    return null;
-  }
-  return toStructureDto(structure);
-};
-
 export const updateStructure = async (
   id: string,
   data: UpdateStructureData,
@@ -102,10 +94,13 @@ export const updateStructure = async (
   return toStructureDto(structure);
 };
 
-export const transformHoleToAnthill = async (id: string): Promise<StructureDto> => {
+export const evolveStructureType = async (
+  id: string,
+  toType: StructureType,
+): Promise<StructureDto> => {
   const structure = await prisma.structure.update({
     where: { id },
-    data: { structureType: "anthill" },
+    data: { structureType: toType },
     include: structureInclude,
   });
   return toStructureDto(structure);
@@ -115,14 +110,14 @@ export const digAtStructure = async (
   authorId: string,
   structure: StructureDto,
 ): Promise<ItemDto | BugDto> => {
-  if (structure.structureType !== "hole" && structure.structureType !== "anthill") {
-    throw new AppError(400, "Only holes and anthills can be dug");
+  if (!isGroundEvolutionStructureType(structure.structureType)) {
+    throw new AppError(400, "This structure type cannot be dug");
   }
 
   return prisma.$transaction(async (tx) => {
     await lockAuthorGrid(tx, authorId);
     const emptyPosition = await findNearestEmptyPositionForAuthor(tx, authorId, structure);
-    const itemOrBug = generateRandomItemType(structure.structureType === "anthill");
+    const itemOrBug = generateRandomItemType(structure.structureType !== "hole");
 
     if (itemOrBug === "beetle") {
       const createdBug = await tx.bug.create({

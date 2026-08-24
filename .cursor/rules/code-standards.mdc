@@ -17,6 +17,7 @@ alwaysApply: true
 - Don't use comments at all if not asked by user but don't remove existing comments.
 - After every work on frontend, check the code with prettier (npm run format:check).
 - Don't use "readonly" keyword or readonly types like ReadonlySet.
+- Don't cast to const to force readonly types, don't use "as const" casting.
 - Don't use then() or catch() when working with Promises unless you can't avoid it. Prefer async methods even in callbacks.
 - Component props interface should be kept in the same file as component and exported if necessary.
 - Other types and interfaces should be kept in the file where they are used and not be exported.

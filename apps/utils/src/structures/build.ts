@@ -8,6 +8,7 @@ import {
   StructureType,
 } from "../types/structureType.js";
 import { isBuildableStructureType } from "../typeGuards/buildable.js";
+import { isGroundEvolutionStructureType } from "./evolution.js";
 
 export interface StructureBuildItem {
   itemType: ItemType;
@@ -58,7 +59,7 @@ function areBuildItemsSupplied(
 }
 
 export function isStructureBuilt(structure: StructureForBuild): boolean {
-  if (structure.structureType === "hole" || structure.structureType === "anthill") {
+  if (isGroundEvolutionStructureType(structure.structureType)) {
     return true;
   }
 

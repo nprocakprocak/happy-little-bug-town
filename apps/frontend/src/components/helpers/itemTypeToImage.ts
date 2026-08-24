@@ -106,6 +106,8 @@ export function structureTypeToImage(
       return "/structures/hole.webp";
     case "anthill":
       return "/structures/anthill.webp";
+    case "termite_mound":
+      return "/structures/termite-mound.webp";
     case "beetle_house":
       return "/structures/beetle-house.webp";
     case "workshop":

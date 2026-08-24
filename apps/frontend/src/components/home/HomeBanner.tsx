@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 
 import {
@@ -10,26 +10,26 @@ import {
   HOME_BANNER_HEIGHT_PX,
 } from "../../constants";
 import { useAuth } from "../../context/AuthContext";
-import { useAnthillBackgroundFade } from "../../hooks/useAnthillBackgroundFade";
+import { useGroundEvolutionPresentation } from "../../hooks/useGroundEvolutionPresentation";
 import { useStructuresQuery } from "../../hooks/useStructures";
 import { useMainStore } from "../../stores/main";
+import { GroundBackgroundLayers } from "../ground-grid/GroundBackgroundLayers";
 import { SettingsPopup } from "./SettingsPopup";
 
 export function HomeBanner() {
   const { anonymousId, logout } = useAuth();
   const requiresLogin = useMainStore((state) => state.requiresLogin);
-  const isTransformingToAnthill = useMainStore((state) => state.isTransformingToAnthill);
+  const evolvingToStructureType = useMainStore((state) => state.evolvingToStructureType);
   const { data: structures = [] } = useStructuresQuery(Boolean(anonymousId));
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isStartingOver, setIsStartingOver] = useState(false);
 
-  const useSandySoilBackground = structures.some(
-    (structure) => structure.structureType === "anthill",
+  const structureTypes = useMemo(
+    () => structures.map((structure) => structure.structureType),
+    [structures],
   );
-  const { showSandySoil, backgroundFadeClassName, backgroundFadeStyle } = useAnthillBackgroundFade(
-    isTransformingToAnthill,
-    useSandySoilBackground,
-  );
+  const { visibleBackgroundId, backgroundFadeClassName, backgroundFadeStyle } =
+    useGroundEvolutionPresentation(structureTypes, evolvingToStructureType);
   const backgroundSize = `calc(100cqi * ${GROUND_BG_TILE_WIDTH_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px) calc(100cqi * ${GROUND_BG_TILE_HEIGHT_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px)`;
   const backgroundPosition = `0 calc(100cqi * ${HOME_BANNER_HEIGHT_PX}px / ${GROUND_GRID_MAX_WIDTH_PX}px)`;
 
@@ -50,27 +50,12 @@ export function HomeBanner() {
           aspectRatio: `${GROUND_GRID_MAX_WIDTH_PX} / ${HOME_BANNER_HEIGHT_PX}`,
         }}
       >
-        <div
-          className={`absolute inset-0 ${backgroundFadeClassName}`}
-          style={{
-            ...backgroundFadeStyle,
-            backgroundImage: "url('/backgrounds/bg-sand.webp')",
-            backgroundRepeat: "repeat",
-            backgroundSize,
-            backgroundPosition,
-            opacity: showSandySoil ? 0 : 1,
-          }}
-        />
-        <div
-          className={`absolute inset-0 ${backgroundFadeClassName}`}
-          style={{
-            ...backgroundFadeStyle,
-            backgroundImage: "url('/backgrounds/bg-sandy-soil.webp')",
-            backgroundRepeat: "repeat",
-            backgroundSize,
-            backgroundPosition,
-            opacity: showSandySoil ? 1 : 0,
-          }}
+        <GroundBackgroundLayers
+          visibleBackgroundId={visibleBackgroundId}
+          fadeClassName={backgroundFadeClassName}
+          fadeStyle={backgroundFadeStyle}
+          backgroundSize={backgroundSize}
+          backgroundPosition={backgroundPosition}
         />
         <button
           type="button"
