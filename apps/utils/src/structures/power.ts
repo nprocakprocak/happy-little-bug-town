@@ -18,7 +18,10 @@ import {
   canStructureAcceptEvolutionBugDrop,
   getEvolutionStepFromType,
 } from "./evolution.js";
-import { canStructureAcceptAssignedTermite } from "./termiteAssignment.js";
+import {
+  canStructureAcceptAssignedTermite,
+  isTermiteAssignableStructureType,
+} from "./termiteAssignment.js";
 import { isStructureUpgradeIncomplete, StructureForUpgrade } from "./upgrade.js";
 
 export interface StructureForPower {
@@ -49,7 +52,10 @@ export function structureDropRequiresFedBug(
   structureType: StructureType,
   upgradeLevel: number,
 ): boolean {
-  return structureRequiresPower(structureType, upgradeLevel);
+  return (
+    structureRequiresPower(structureType, upgradeLevel) ||
+    isTermiteAssignableStructureType(structureType)
+  );
 }
 
 export function canStructureAcceptBugDrop(
