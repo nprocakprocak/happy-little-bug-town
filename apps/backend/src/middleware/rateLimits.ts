@@ -4,7 +4,7 @@ const rateLimitMessage = { error: "Too many requests" };
 
 export const apiRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 600,
+  limit: 1000,
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: rateLimitMessage,
@@ -12,7 +12,7 @@ export const apiRateLimit = rateLimit({
 
 export const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 20,
+  limit: 60,
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: rateLimitMessage,
@@ -20,7 +20,7 @@ export const authRateLimit = rateLimit({
 
 export const economyRateLimit = rateLimit({
   windowMs: 60 * 1000,
-  limit: 60,
+  limit: 360,
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: rateLimitMessage,
