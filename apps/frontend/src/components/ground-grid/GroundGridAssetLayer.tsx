@@ -9,6 +9,7 @@ import {
   getStackSpan,
   getStructureSpan,
   getVisibleStructureOperationalResourceProgresses,
+  isTermiteAssignableStructureType,
   itemShowsActivationGlow,
   structureShowsActivationGlow,
 } from "@happy-little-bug-town/utils";
@@ -97,6 +98,9 @@ export function GroundGridAssetLayer({
             const showActivationGlow = structureShowsActivationGlow(structure);
             const firstHouseBug =
               structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
+            const assignedTermite = isTermiteAssignableStructureType(structure.structureType)
+              ? (structure.bugs ?? []).find((bug) => bug.bugType === "termite")
+              : undefined;
             const occupantProgress = getEvolutionOccupancyProgress(structure);
             const operationalResourceProgresses =
               getVisibleStructureOperationalResourceProgresses(structure);
@@ -151,6 +155,25 @@ export function GroundGridAssetLayer({
                         alt=""
                         fill
                         className="object-contain p-[8%] drop-shadow-sm"
+                        sizes={structureImageSizes}
+                      />
+                    </div>
+                  )}
+                  {assignedTermite && (
+                    <div
+                      className="absolute min-h-0 min-w-0 overflow-hidden rounded-sm"
+                      style={{
+                        left: 0,
+                        bottom: 0,
+                        width: `${100 / span}%`,
+                        height: `${100 / span}%`,
+                      }}
+                    >
+                      <Image
+                        src={bugTypeToImage(assignedTermite.bugType)}
+                        alt=""
+                        fill
+                        className="object-contain p-[8%] drop-shadow-sm -scale-y-100 -scale-x-100"
                         sizes={structureImageSizes}
                       />
                     </div>

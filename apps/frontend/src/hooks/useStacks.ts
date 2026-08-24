@@ -1,11 +1,10 @@
 import { Position } from "@happy-little-bug-town/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { createStack, extractItemFromStack, fetchStacks, updateStack } from "../api/stacks";
+import { extractItemFromStack, fetchStacks, updateStack } from "../api/stacks";
 import { queryKeys } from "../constants/queryKeys";
 import { Stack } from "../types/stack";
 import { updateBugsCache } from "./useBugs";
-import { updateItemsCache } from "./useItems";
 
 export function updateStacksCache(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -42,14 +41,6 @@ export function useExtractFromStackMutation() {
   return useMutation({
     mutationFn: (stack: Stack) => extractItemFromStack(stack.id),
     onSuccess: (result, stack) => {
-      updateItemsCache(queryClient, (items) => [
-        ...items,
-        {
-          ...result.extractedItem,
-          fromX: stack.x,
-          fromY: stack.y,
-        },
-      ]);
       updateStacksCache(queryClient, (stacks) => {
         if (result.stackDissolved) {
           return stacks.filter((s) => s.id !== stack.id);

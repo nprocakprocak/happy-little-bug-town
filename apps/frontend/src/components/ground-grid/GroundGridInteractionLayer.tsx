@@ -45,6 +45,7 @@ interface GroundGridInteractionLayerProps {
   onBeetleClick: (bug: Bug) => void;
   onLadybugClick: (bug: Bug) => void;
   onAntClick: (bug: Bug) => void;
+  onTermiteClick: (bug: Bug) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
   onItemDropped: (itemId: string, position: Position, targetEntity?: Positionable) => void;
@@ -62,6 +63,7 @@ export function GroundGridInteractionLayer({
   onBeetleClick,
   onLadybugClick,
   onAntClick,
+  onTermiteClick,
   onDragChange,
   onItemDropCancelled,
   onItemDropped,
@@ -89,6 +91,10 @@ export function GroundGridInteractionLayer({
     }
     if (bug.bugType === "ant") {
       onAntClick(bug);
+      return;
+    }
+    if (bug.bugType === "termite") {
+      onTermiteClick(bug);
     }
   }
 

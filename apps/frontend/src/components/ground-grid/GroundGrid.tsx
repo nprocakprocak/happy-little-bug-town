@@ -23,7 +23,7 @@ import { evolveStructure } from "../../api/structures";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
 import { queryKeys } from "../../constants/queryKeys";
 import { useAuth } from "../../context/AuthContext";
-import { useAutoStackDugItems } from "../../hooks/useAutoStackDugItems";
+import { useAutoRouteItems } from "../../hooks/useAutoRouteItems";
 import { updateBugsCache, useBugsQuery } from "../../hooks/useBugs";
 import { updateItemsCache, useCreateItemMutation, useItemsQuery } from "../../hooks/useItems";
 import {
@@ -59,6 +59,7 @@ import { AntPopup } from "../popups/ant/AntPopup";
 import { BeetlePopup } from "../popups/beetle/BeetlePopup";
 import { FarmPopup } from "../popups/farm/FarmPopup";
 import { LadybugPopup } from "../popups/ladybug/LadybugPopup";
+import { TermitePopup } from "../popups/termite/TermitePopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
@@ -97,18 +98,19 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const createStructure = useCreateStructureMutation();
   const upgradeStructureMutation = useUpgradeStructureMutation();
   const createItem = useCreateItemMutation();
-  const { autoStackFlights, beginAutoStackIfPossible, completeAutoStackFlight } =
-    useAutoStackDugItems();
+  const { autoRouteFlights, beginAutoRouteIfPossible, completeAutoRouteFlight } =
+    useAutoRouteItems();
 
   const animatables = useMemo(
-    () => [...items, ...autoStackFlights, ...stacks, ...bugs, ...structures],
-    [items, autoStackFlights, stacks, bugs, structures],
+    () => [...items, ...autoRouteFlights, ...stacks, ...bugs, ...structures],
+    [items, autoRouteFlights, stacks, bugs, structures],
   );
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBeetle, setSelectedBeetle] = useState<Bug | null>(null);
   const [selectedLadybug, setSelectedLadybug] = useState<Bug | null>(null);
   const [selectedAnt, setSelectedAnt] = useState<Bug | null>(null);
+  const [selectedTermite, setSelectedTermite] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
@@ -178,7 +180,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const handleFlightComplete = useCallback(
     (entityId: string) => {
-      if (completeAutoStackFlight(entityId)) {
+      if (completeAutoRouteFlight(entityId)) {
         return;
       }
 
@@ -205,7 +207,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         ),
       );
     },
-    [completeAutoStackFlight, setItemsCache, setBugsCache, setStructuresCache, setStacksCache],
+    [completeAutoRouteFlight, setItemsCache, setBugsCache, setStructuresCache, setStacksCache],
   );
 
   const handleItemDropCancelled = useCallback(
@@ -466,10 +468,41 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const onStackClick = useCallback(
     (stack: Stack) => {
       (async () => {
-        await extractFromStack.mutateAsync(stack);
+        const result = await extractFromStack.mutateAsync(stack);
+        const latestStructures =
+          queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
+        const latestStacks = queryClient.getQueryData<Stack[]>(queryKeys.stacks) ?? stacks;
+        const latestItems = queryClient.getQueryData<Item[]>(queryKeys.items) ?? items;
+
+        if (
+          !beginAutoRouteIfPossible(
+            result.extractedItem,
+            { x: stack.x, y: stack.y },
+            latestStructures,
+            latestStacks,
+            latestItems,
+          )
+        ) {
+          setItemsCache((prev) => [
+            ...prev,
+            {
+              ...result.extractedItem,
+              fromX: stack.x,
+              fromY: stack.y,
+            },
+          ]);
+        }
       })();
     },
-    [extractFromStack],
+    [
+      beginAutoRouteIfPossible,
+      extractFromStack,
+      items,
+      queryClient,
+      setItemsCache,
+      stacks,
+      structures,
+    ],
   );
 
   const onStructureClick = useCallback(
@@ -480,9 +513,19 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           const origin = pickRandomNearestStructureCenterCell(structure);
           const latestItems = queryClient.getQueryData<Item[]>(queryKeys.items) ?? items;
           const latestStacks = queryClient.getQueryData<Stack[]>(queryKeys.stacks) ?? stacks;
+          const latestStructures =
+            queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
 
           if (isItem(itemOrBug)) {
-            if (!beginAutoStackIfPossible(itemOrBug, origin, latestStacks, latestItems)) {
+            if (
+              !beginAutoRouteIfPossible(
+                itemOrBug,
+                origin,
+                latestStructures,
+                latestStacks,
+                latestItems,
+              )
+            ) {
               setItemsCache((prev) => [
                 ...prev,
                 { ...itemOrBug, fromX: origin.x, fromY: origin.y },
@@ -523,10 +566,25 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           }
           if (result.item) {
             const craftedItem = result.item;
-            setItemsCache((prev) => [
-              ...prev,
-              { ...craftedItem, fromX: origin.x, fromY: origin.y },
-            ]);
+            const latestStructures =
+              queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
+            const latestStacks = queryClient.getQueryData<Stack[]>(queryKeys.stacks) ?? stacks;
+            const latestItems = queryClient.getQueryData<Item[]>(queryKeys.items) ?? items;
+
+            if (
+              !beginAutoRouteIfPossible(
+                craftedItem,
+                origin,
+                latestStructures,
+                latestStacks,
+                latestItems,
+              )
+            ) {
+              setItemsCache((prev) => [
+                ...prev,
+                { ...craftedItem, fromX: origin.x, fromY: origin.y },
+              ]);
+            }
           }
         })();
         return;
@@ -561,7 +619,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       cols,
       stacks,
       items,
-      beginAutoStackIfPossible,
+      structures,
+      beginAutoRouteIfPossible,
       setItemsCache,
       setBugsCache,
       setStructuresCache,
@@ -578,6 +637,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onAntClick = useCallback((bug: Bug) => {
     setSelectedAnt(bug);
+  }, []);
+
+  const onTermiteClick = useCallback((bug: Bug) => {
+    setSelectedTermite(bug);
   }, []);
 
   const onBeetleBuild = useCallback(
@@ -704,6 +767,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onBeetleClick={onBeetleClick}
           onLadybugClick={onLadybugClick}
           onAntClick={onAntClick}
+          onTermiteClick={onTermiteClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
@@ -725,6 +789,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           />
         )}
         {selectedAnt && <AntPopup ant={selectedAnt} onClose={() => setSelectedAnt(null)} />}
+        {selectedTermite && (
+          <TermitePopup termite={selectedTermite} onClose={() => setSelectedTermite(null)} />
+        )}
         {workshopPopupOpen && (
           <WorkshopPopup
             onClose={() => setWorkshopPopupOpen(false)}

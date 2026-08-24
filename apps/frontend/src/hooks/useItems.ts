@@ -1,10 +1,17 @@
 import { Position } from "@happy-little-bug-town/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { addItemToStack, createCraftableItem, fetchItems, updateItemPosition } from "../api/items";
+import {
+  addItemToStack,
+  addItemToStructure,
+  createCraftableItem,
+  fetchItems,
+  updateItemPosition,
+} from "../api/items";
 import { queryKeys } from "../constants/queryKeys";
 import { Item } from "../types/item";
 import { updateStacksCache } from "./useStacks";
+import { updateStructuresCache } from "./useStructures";
 
 export function updateItemsCache(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -54,6 +61,21 @@ export function useAddItemToStackMutation() {
       updateItemsCache(queryClient, (items) => items.filter((it) => it.id !== itemId));
       updateStacksCache(queryClient, (stacks) =>
         stacks.map((s) => (s.id === stack.id ? stack : s)),
+      );
+    },
+  });
+}
+
+export function useAddItemToStructureMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ itemId, structureId }: { itemId: string; structureId: string }) =>
+      addItemToStructure(itemId, structureId),
+    onSuccess: (structure, { itemId }) => {
+      updateItemsCache(queryClient, (items) => items.filter((it) => it.id !== itemId));
+      updateStructuresCache(queryClient, (structures) =>
+        structures.map((s) => (s.id === structure.id ? structure : s)),
       );
     },
   });

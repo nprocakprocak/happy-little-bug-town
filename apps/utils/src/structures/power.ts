@@ -18,6 +18,7 @@ import {
   canStructureAcceptEvolutionBugDrop,
   getEvolutionStepFromType,
 } from "./evolution.js";
+import { canStructureAcceptAssignedTermite } from "./termiteAssignment.js";
 import { isStructureUpgradeIncomplete, StructureForUpgrade } from "./upgrade.js";
 
 export interface StructureForPower {
@@ -61,6 +62,10 @@ export function canStructureAcceptBugDrop(
 
   if (getEvolutionStepFromType(structure.structureType)) {
     return isStructureBuilt(structure) && canStructureAcceptEvolutionBugDrop(bug, structure);
+  }
+
+  if (canStructureAcceptAssignedTermite(bug, structure)) {
+    return true;
   }
 
   const bugRequirement = getStructureBugPowerRequirements(
