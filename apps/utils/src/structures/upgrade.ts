@@ -27,6 +27,17 @@ export function getUpgradeResourceCosts(
   return UPGRADE_RESOURCE_COSTS[structureType][upgradeLevel] ?? [];
 }
 
+export function getUpgradeResourceCostsForType(
+  structureType: UpgradableStructureType,
+  upgradeLevel: number,
+): BuildResourceCost[] {
+  return (
+    UPGRADE_RESOURCE_COSTS[structureType][upgradeLevel] ??
+    UPGRADE_RESOURCE_COSTS[structureType][1] ??
+    []
+  );
+}
+
 export function getCurrentOrNextUpgradeLevel(
   structure: StructureForUpgrade,
 ): number {
