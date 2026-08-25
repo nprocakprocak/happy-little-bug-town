@@ -481,6 +481,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             latestStructures,
             latestStacks,
             latestItems,
+            { stackId: stack.id },
           )
         ) {
           setItemsCache((prev) => [
@@ -524,6 +525,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
                 latestStructures,
                 latestStacks,
                 latestItems,
+                { structureId: structure.id },
               )
             ) {
               setItemsCache((prev) => [
@@ -578,6 +580,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
                 latestStructures,
                 latestStacks,
                 latestItems,
+                { structureId: structure.id },
               )
             ) {
               setItemsCache((prev) => [

@@ -24,6 +24,11 @@ interface AutoRouteToStack {
   y: number;
 }
 
+interface AutoRouteExclude {
+  structureId?: string;
+  stackId?: string;
+}
+
 function gridDistance(origin: Position, target: Position): number {
   return Math.abs(target.x - origin.x) + Math.abs(target.y - origin.y);
 }
@@ -46,10 +51,12 @@ function findStructureWithAssignedTermite(
   itemType: ItemType,
   structures: Structure[],
   origin?: Position,
+  excludeStructureId?: string,
 ): Structure | undefined {
   return pickNearest(
     structures.filter(
       (structure) =>
+        structure.id !== excludeStructureId &&
         hasStructureAssignedTermite(structure) &&
         canAcceptOperationalResourceForStructure(structure, itemType),
     ),
@@ -61,11 +68,14 @@ function findStackWithAssignedAnt(
   itemType: ItemType,
   stacks: Stack[],
   origin?: Position,
+  excludeStackId?: string,
 ): Stack | undefined {
   return pickNearest(
     stacks.filter(
       (stack) =>
-        stack.itemType === itemType && (stack.bugs ?? []).some((bug) => bug.bugType === "ant"),
+        stack.id !== excludeStackId &&
+        stack.itemType === itemType &&
+        (stack.bugs ?? []).some((bug) => bug.bugType === "ant"),
     ),
     origin,
   );
@@ -77,8 +87,14 @@ export function findAutoRouteTarget(
   stacks: Stack[],
   gridItems: Item[],
   origin?: Position,
+  exclude?: AutoRouteExclude,
 ): AutoRouteToStructure | AutoRouteToStack | undefined {
-  const structure = findStructureWithAssignedTermite(itemType, structures, origin);
+  const structure = findStructureWithAssignedTermite(
+    itemType,
+    structures,
+    origin,
+    exclude?.structureId,
+  );
   if (structure) {
     return {
       kind: "structure",
@@ -92,7 +108,7 @@ export function findAutoRouteTarget(
     return undefined;
   }
 
-  const stack = findStackWithAssignedAnt(itemType, stacks, origin);
+  const stack = findStackWithAssignedAnt(itemType, stacks, origin, exclude?.stackId);
   if (!stack) {
     return undefined;
   }

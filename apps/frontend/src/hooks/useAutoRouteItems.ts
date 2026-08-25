@@ -15,6 +15,11 @@ interface PendingAutoRoute {
   item: Item;
 }
 
+interface AutoRouteExclude {
+  structureId?: string;
+  stackId?: string;
+}
+
 export function useAutoRouteItems() {
   const queryClient = useQueryClient();
   const addItemToStackMutation = useAddItemToStackMutation();
@@ -29,8 +34,16 @@ export function useAutoRouteItems() {
       structures: Structure[],
       stacks: Stack[],
       gridItems: Item[],
+      exclude?: AutoRouteExclude,
     ): boolean => {
-      const target = findAutoRouteTarget(item.itemType, structures, stacks, gridItems, origin);
+      const target = findAutoRouteTarget(
+        item.itemType,
+        structures,
+        stacks,
+        gridItems,
+        origin,
+        exclude,
+      );
       if (!target) {
         return false;
       }
