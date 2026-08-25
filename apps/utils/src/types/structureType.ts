@@ -2,6 +2,7 @@ export type FarmBuildableStructureType = "mushrooms_field";
 
 export type BuildableStructureType =
   | "beetle_house"
+  | "greenfly_house"
   | "workshop"
   | "stonemason"
   | "woodcutter"

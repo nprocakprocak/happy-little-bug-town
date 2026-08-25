@@ -1,6 +1,7 @@
 import { Bug } from "../types/bug";
 import { CraftOperationalResourceResult } from "../types/craftOperationalResourceResult";
 import { ExtractOccupantResult } from "../types/extractOccupantResult";
+import { ExtractStoredItemResult } from "../types/extractStoredItemResult";
 import { Item } from "../types/item";
 import { Structure } from "../types/structure";
 import { apiFetch } from "./client";
@@ -42,6 +43,12 @@ export function dig(structureId: string): Promise<Item | Bug> {
 
 export function extractOccupant(structureId: string): Promise<ExtractOccupantResult> {
   return apiFetch<ExtractOccupantResult>(`/api/structures/${structureId}/extract-occupant`, {
+    method: "POST",
+  });
+}
+
+export function extractStoredItem(structureId: string): Promise<ExtractStoredItemResult> {
+  return apiFetch<ExtractStoredItemResult>(`/api/structures/${structureId}/extract-item`, {
     method: "POST",
   });
 }

@@ -42,6 +42,7 @@ enum StructureType {
   anthill
   termite_mound
   beetle_house
+  greenfly_house
   workshop
   stonemason
   woodcutter

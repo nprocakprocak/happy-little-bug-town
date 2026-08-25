@@ -6,6 +6,7 @@ import {
   createFirstStructure,
   createStructure,
   extractOccupant,
+  extractStoredItem,
   fetchStructures,
   updateStructure,
 } from "../api/structures";
@@ -75,6 +76,12 @@ export function useDigMutation() {
 export function useExtractOccupantMutation() {
   return useMutation({
     mutationFn: extractOccupant,
+  });
+}
+
+export function useExtractStoredItemMutation() {
+  return useMutation({
+    mutationFn: extractStoredItem,
   });
 }
 

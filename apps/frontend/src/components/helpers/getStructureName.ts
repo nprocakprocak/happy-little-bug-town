@@ -6,6 +6,8 @@ export function structureTypeToName(structureType: StructureType): string {
   switch (structureType) {
     case "beetle_house":
       return "Beetle house";
+    case "greenfly_house":
+      return "Greenfly house";
     case "workshop":
       return "Workshop";
     case "stonemason":

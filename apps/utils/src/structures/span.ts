@@ -1,6 +1,7 @@
 import {
   BEETLE_HOUSE_SPAN,
   FARM_SPAN,
+  GREENFLY_HOUSE_SPAN,
   GROUND_EVOLUTION_SPAN,
   KITCHEN_SPAN,
   MUSHROOMS_FIELD_SPAN,
@@ -36,5 +37,7 @@ export function getStructureSpan(structureType: StructureType): number {
       return MUSHROOMS_FIELD_SPAN;
     case "beetle_house":
       return BEETLE_HOUSE_SPAN;
+    case "greenfly_house":
+      return GREENFLY_HOUSE_SPAN;
   }
 }

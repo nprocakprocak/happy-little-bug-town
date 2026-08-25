@@ -8,6 +8,7 @@ export const HOLE_ANT_CAPACITY = 3;
 export const ANTHILL_TERMITE_CAPACITY = 3;
 export const GROUND_EVOLUTION_SPAN = 2;
 export const BEETLE_HOUSE_SPAN = 3;
+export const GREENFLY_HOUSE_SPAN = 2;
 export const WORKSHOP_SPAN = 3;
 export const STONEMASON_SPAN = 3;
 export const WOODCUTTER_SPAN = 3;

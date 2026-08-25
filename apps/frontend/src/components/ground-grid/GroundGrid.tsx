@@ -8,6 +8,7 @@ import {
   canDropBugOnStack,
   canDropItemOnItem,
   getEvolutionStepFromType,
+  getGreenflyHouseOccupants,
   isBuildableStructureType,
   isGroundEvolutionStructureType,
   isStructurePowered,
@@ -37,6 +38,7 @@ import {
   useCreateFirstStructureMutation,
   useCreateStructureMutation,
   useExtractOccupantMutation,
+  useExtractStoredItemMutation,
   useStructuresQuery,
   useUpgradeStructureMutation,
 } from "../../hooks/useStructures";
@@ -89,6 +91,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { data: stacks = [] } = useStacksQuery(canLoadGridData);
   const extractFromStack = useExtractFromStackMutation();
   const extractOccupantMutation = useExtractOccupantMutation();
+  const extractStoredItemMutation = useExtractStoredItemMutation();
   const craftOperationalResourceMutation = useCraftOperationalResourceMutation();
   const {
     mutate: createFirstStructureMutate,
@@ -593,23 +596,45 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         return;
       }
 
-      if (structure.structureType !== "beetle_house") {
+      if (structure.structureType === "beetle_house") {
+        if ((structure.bugs ?? []).length === 0 || !hasEmptyGridCell(rows, cols, animatables)) {
+          return;
+        }
+
+        (async () => {
+          const result = await extractOccupantMutation.mutateAsync(structure.id);
+          const origin = getBeetleHouseExtractOrigin(structure);
+          setStructuresCache((prev) =>
+            prev.map((s) => (s.id === result.structure.id ? result.structure : s)),
+          );
+          setBugsCache((prev) => [
+            ...prev,
+            { ...result.extractedOccupant, fromX: origin.x, fromY: origin.y },
+          ]);
+        })();
         return;
       }
 
-      if ((structure.bugs ?? []).length === 0 || !hasEmptyGridCell(rows, cols, animatables)) {
+      if (structure.structureType !== "greenfly_house") {
+        return;
+      }
+
+      if (
+        getGreenflyHouseOccupants(structure).length === 0 ||
+        !hasEmptyGridCell(rows, cols, animatables)
+      ) {
         return;
       }
 
       (async () => {
-        const result = await extractOccupantMutation.mutateAsync(structure.id);
+        const result = await extractStoredItemMutation.mutateAsync(structure.id);
         const origin = getBeetleHouseExtractOrigin(structure);
         setStructuresCache((prev) =>
           prev.map((s) => (s.id === result.structure.id ? result.structure : s)),
         );
-        setBugsCache((prev) => [
+        setItemsCache((prev) => [
           ...prev,
-          { ...result.extractedOccupant, fromX: origin.x, fromY: origin.y },
+          { ...result.extractedItem, fromX: origin.x, fromY: origin.y },
         ]);
       })();
     },
@@ -617,6 +642,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       queryClient,
       craftOperationalResourceMutation,
       extractOccupantMutation,
+      extractStoredItemMutation,
       animatables,
       rows,
       cols,

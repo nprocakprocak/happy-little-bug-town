@@ -5,6 +5,7 @@ import {
 
 const BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<BuildableStructureType, true> = {
   beetle_house: true,
+  greenfly_house: true,
   workshop: true,
   stonemason: true,
   woodcutter: true,

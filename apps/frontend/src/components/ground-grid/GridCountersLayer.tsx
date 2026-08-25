@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import {
   getEvolutionOccupancyProgress,
+  getGreenflyHouseOccupants,
   getStackSpan,
   getStructureSpan,
 } from "@happy-little-bug-town/utils";
@@ -38,6 +39,13 @@ function CounterBadge({ count }: { count: number }) {
   );
 }
 
+function getHouseOccupantCount(structure: Structure): number {
+  if (structure.structureType === "beetle_house") {
+    return (structure.bugs ?? []).length;
+  }
+  return getGreenflyHouseOccupants(structure).length;
+}
+
 export function GridCountersLayer({
   cols,
   rows,
@@ -47,14 +55,15 @@ export function GridCountersLayer({
 }: GridCountersLayerProps) {
   const groundedStacks = useMemo(() => stacks.filter((stack) => !isFlyingItem(stack)), [stacks]);
 
-  const beetleHousesWithOccupants = useMemo(
+  const housesWithOccupants = useMemo(
     () =>
-      structures.filter(
-        (structure) =>
-          !isFlyingItem(structure) &&
-          structure.structureType === "beetle_house" &&
-          (structure.bugs ?? []).length > 0,
-      ),
+      structures.flatMap((structure) => {
+        if (isFlyingItem(structure)) {
+          return [];
+        }
+        const count = getHouseOccupantCount(structure);
+        return count > 0 ? [{ structure, count }] : [];
+      }),
     [structures],
   );
 
@@ -93,7 +102,7 @@ export function GridCountersLayer({
           </div>
         );
       })}
-      {beetleHousesWithOccupants.map((structure) => {
+      {housesWithOccupants.map(({ structure, count }) => {
         const isDragged =
           gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
         const { col, row } = footprintBottomRightCell(
@@ -104,7 +113,7 @@ export function GridCountersLayer({
 
         return (
           <div
-            key={`beetle-house-count-${structure.id}`}
+            key={`house-count-${structure.id}`}
             className="relative min-h-0 min-w-0"
             style={{
               gridColumn: col,
@@ -112,7 +121,7 @@ export function GridCountersLayer({
               ...gridDragStyle(gridDrag, isDragged),
             }}
           >
-            <CounterBadge count={(structure.bugs ?? []).length} />
+            <CounterBadge count={count} />
           </div>
         );
       })}

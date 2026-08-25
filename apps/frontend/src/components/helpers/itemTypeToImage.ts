@@ -110,6 +110,8 @@ export function structureTypeToImage(
       return "/structures/termite-mound.webp";
     case "beetle_house":
       return "/structures/beetle-house.webp";
+    case "greenfly_house":
+      return "/structures/greenfly-house.webp";
     case "workshop":
       return "/structures/workshop.webp";
     case "stonemason":

@@ -10,6 +10,7 @@ const BUILDABLE_STRUCTURE_TYPES: BuildableStructureType[] = [
   "kitchen",
   "tavern",
   "smelter",
+  "greenfly_house",
   "farm",
 ];
 

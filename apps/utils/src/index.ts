@@ -13,6 +13,7 @@ export * from "./items/stacking.js";
 export * from "./structures/availability.js";
 export * from "./structures/build.js";
 export * from "./structures/evolution.js";
+export * from "./structures/greenflyHouse.js";
 export * from "./structures/itemDrop.js";
 export * from "./structures/span.js";
 export * from "./structures/structureOperationalResources.js";

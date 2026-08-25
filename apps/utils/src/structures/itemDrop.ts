@@ -1,6 +1,7 @@
 import { ItemForCraft } from "../items/craft.js";
 import { canAcceptItemForBuild, StructureForBuild } from "./build.js";
 import { isGroundEvolutionStructureType } from "./evolution.js";
+import { canStructureAcceptGreenflyDrop } from "./greenflyHouse.js";
 import { canStructureAcceptItemPowerDrop, StructureForPower } from "./power.js";
 import { canAcceptOperationalResourceForStructure } from "./structureOperationalResources.js";
 import { canAcceptItemForUpgrade, StructureForUpgrade } from "./upgrade.js";
@@ -24,6 +25,10 @@ export function canDropItemOnStructure(
   }
 
   if (canStructureAcceptItemPowerDrop(item, structure)) {
+    return true;
+  }
+
+  if (canStructureAcceptGreenflyDrop(item, structure)) {
     return true;
   }
 

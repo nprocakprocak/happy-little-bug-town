@@ -12,6 +12,13 @@ export const BEETLE_HOUSE_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "stick", count: 3 },
 ];
 
+export const GREENFLY_HOUSE_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "roof_tile", count: 1 },
+  { itemType: "wood", count: 1 },
+  { itemType: "brick", count: 1 },
+  { itemType: "leaf_part", count: 4 },
+];
+
 export const WORKSHOP_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 5 },
   { itemType: "little_rock", count: 3 },
@@ -70,6 +77,7 @@ export const BUILD_RESOURCE_COSTS: Record<
   BuildResourceCost[]
 > = {
   beetle_house: BEETLE_HOUSE_BUILD_COSTS,
+  greenfly_house: GREENFLY_HOUSE_BUILD_COSTS,
   workshop: WORKSHOP_BUILD_COSTS,
   stonemason: STONEMASON_BUILD_COSTS,
   woodcutter: WOODCUTTER_BUILD_COSTS,
