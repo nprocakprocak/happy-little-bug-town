@@ -35,6 +35,7 @@ type PendingAutoRoute = PendingItemAutoRoute | PendingBugAutoRoute;
 interface AutoRouteExclude {
   structureId?: string;
   stackId?: string;
+  onlyOperational?: boolean;
 }
 
 export function useAutoRouteItems() {

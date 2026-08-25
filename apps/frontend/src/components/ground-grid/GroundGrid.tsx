@@ -648,10 +648,26 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         setStructuresCache((prev) =>
           prev.map((s) => (s.id === result.structure.id ? result.structure : s)),
         );
-        setItemsCache((prev) => [
-          ...prev,
-          { ...result.extractedItem, fromX: origin.x, fromY: origin.y },
-        ]);
+        const latestStructures =
+          queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
+        const latestStacks = queryClient.getQueryData<Stack[]>(queryKeys.stacks) ?? stacks;
+        const latestItems = queryClient.getQueryData<Item[]>(queryKeys.items) ?? items;
+
+        if (
+          !beginAutoRouteIfPossible(
+            result.extractedItem,
+            origin,
+            latestStructures,
+            latestStacks,
+            latestItems,
+            { structureId: structure.id, onlyOperational: true },
+          )
+        ) {
+          setItemsCache((prev) => [
+            ...prev,
+            { ...result.extractedItem, fromX: origin.x, fromY: origin.y },
+          ]);
+        }
       })();
     },
     [

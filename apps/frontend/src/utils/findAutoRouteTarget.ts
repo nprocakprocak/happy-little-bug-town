@@ -30,6 +30,7 @@ interface AutoRouteToStack {
 interface AutoRouteExclude {
   structureId?: string;
   stackId?: string;
+  onlyOperational?: boolean;
 }
 
 interface PendingAutoRouteStructureItem {
@@ -168,11 +169,6 @@ export function findAutoRouteTarget(
   origin?: Position,
   exclude?: AutoRouteExclude,
 ): AutoRouteToStructure | AutoRouteToStack | undefined {
-  const house = findHouseForItem(itemType, structures, origin, exclude?.structureId);
-  if (house) {
-    return toStructureTarget(house);
-  }
-
   const structure = findStructureWithAssignedTermite(
     itemType,
     structures,
@@ -181,6 +177,15 @@ export function findAutoRouteTarget(
   );
   if (structure) {
     return toStructureTarget(structure);
+  }
+
+  if (exclude?.onlyOperational) {
+    return undefined;
+  }
+
+  const house = findHouseForItem(itemType, structures, origin, exclude?.structureId);
+  if (house) {
+    return toStructureTarget(house);
   }
 
   if (!canStackItemType(itemType, gridItems)) {
