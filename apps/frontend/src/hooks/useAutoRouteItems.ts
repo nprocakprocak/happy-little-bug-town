@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
-import { findAutoRouteTarget } from "../utils/findAutoRouteTarget";
+import { findAutoRouteTarget, structuresWithPendingAutoRoutes } from "../utils/findAutoRouteTarget";
 import { useAddItemToStackMutation, useAddItemToStructureMutation } from "./useItems";
 import { updateStacksCache } from "./useStacks";
 import { updateStructuresCache } from "./useStructures";
@@ -36,9 +36,23 @@ export function useAutoRouteItems() {
       gridItems: Item[],
       exclude?: AutoRouteExclude,
     ): boolean => {
+      const structuresConsideringPending = structuresWithPendingAutoRoutes(
+        structures,
+        [...pendingByItemIdRef.current.values()].flatMap((pending) =>
+          pending.target.kind === "structure"
+            ? [
+                {
+                  structureId: pending.target.structureId,
+                  id: pending.item.id,
+                  itemType: pending.item.itemType,
+                },
+              ]
+            : [],
+        ),
+      );
       const target = findAutoRouteTarget(
         item.itemType,
-        structures,
+        structuresConsideringPending,
         stacks,
         gridItems,
         origin,

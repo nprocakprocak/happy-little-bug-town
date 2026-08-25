@@ -29,6 +29,40 @@ interface AutoRouteExclude {
   stackId?: string;
 }
 
+interface PendingAutoRouteStructureItem {
+  structureId: string;
+  id: string;
+  itemType: ItemType;
+}
+
+export function structuresWithPendingAutoRoutes(
+  structures: Structure[],
+  pendingItems: PendingAutoRouteStructureItem[],
+): Structure[] {
+  if (pendingItems.length === 0) {
+    return structures;
+  }
+
+  const pendingByStructureId = new Map<string, { id: string; itemType: ItemType }[]>();
+  for (const pendingItem of pendingItems) {
+    const existing = pendingByStructureId.get(pendingItem.structureId) ?? [];
+    existing.push({ id: pendingItem.id, itemType: pendingItem.itemType });
+    pendingByStructureId.set(pendingItem.structureId, existing);
+  }
+
+  return structures.map((structure) => {
+    const pendingForStructure = pendingByStructureId.get(structure.id);
+    if (!pendingForStructure) {
+      return structure;
+    }
+
+    return {
+      ...structure,
+      items: [...structure.items, ...pendingForStructure],
+    };
+  });
+}
+
 function gridDistance(origin: Position, target: Position): number {
   return Math.abs(target.x - origin.x) + Math.abs(target.y - origin.y);
 }
