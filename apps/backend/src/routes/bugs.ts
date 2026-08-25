@@ -12,6 +12,7 @@ import { requireBug } from "../middleware/requireOwnedEntity.js";
 import {
   attachBugToStack,
   attachBugToStructure,
+  discardBugIntoStructure,
   getBugs,
   updateBug as updateBugService,
 } from "../services/bugsService.js";
@@ -65,6 +66,17 @@ const updateBug: RequestHandler<{ id: string }> = async (req, res) => {
   res.status(200).json(toBugOnGridDto(bug));
 };
 
+const deleteBug: RequestHandler<{ id: string }> = async (req, res) => {
+  const { id } = req.params;
+  const { structureId } = req.body;
+  const authorId = req.authorId!;
+  const existingBug = req.bug!;
+
+  await discardBugIntoStructure(id, structureId, existingBug, authorId);
+  res.status(204).end();
+};
+
 bugsRouter.get("/", listBugs);
 bugsRouter.get("/:id", requireBug, getBugById);
 bugsRouter.put("/:id", requireBug, updateBug);
+bugsRouter.delete("/:id", requireBug, deleteBug);

@@ -23,8 +23,8 @@ import { getBug } from "./bugsService.js";
 import { getStack } from "./stacksService.js";
 import { getStructure } from "./structuresService.js";
 
-const notRemoved = { removedAt: null } as const;
-const itemInclude = { items: { where: notRemoved } } as const;
+const notRemoved = { removedAt: null };
+const itemInclude = { items: { where: notRemoved } };
 
 export const getItemsOnGrid = async (authorId: string): Promise<ItemDto[]> => {
   const items = await prisma.item.findMany({
@@ -342,7 +342,7 @@ export async function takeItemFromStack(
       where: { id: stackId },
     });
     const assignedBugs = await tx.bug.findMany({
-      where: { stackId },
+      where: { stackId, ...notRemoved },
       include: { items: { where: notRemoved } },
     });
     await tx.bug.updateMany({

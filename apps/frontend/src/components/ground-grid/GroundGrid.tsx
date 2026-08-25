@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   canCraftFromStructureOperationalResources,
   canCreateItemType,
+  canDiscardBugOnStructure,
   canDiscardItemOnStructure,
   canDropBugOnStack,
   canDropItemOnItem,
@@ -354,19 +355,21 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         // drop a bug onto a structure to add it to its workforce, assume optimistic update
         if (originalBug && targetEntity && isStructure(targetEntity)) {
           setBugsCache((prev) => prev.filter((b) => b.id !== originalBug.id));
-          setStructuresCache((prev) =>
-            prev.map((structure) =>
-              structure.id === targetEntity.id
-                ? {
-                    ...structure,
-                    bugs: [
-                      ...(structure.bugs ?? []),
-                      { id: originalBug.id, bugType: originalBug.bugType },
-                    ],
-                  }
-                : structure,
-            ),
-          );
+          if (!canDiscardBugOnStructure(originalBug, targetEntity)) {
+            setStructuresCache((prev) =>
+              prev.map((structure) =>
+                structure.id === targetEntity.id
+                  ? {
+                      ...structure,
+                      bugs: [
+                        ...(structure.bugs ?? []),
+                        { id: originalBug.id, bugType: originalBug.bugType },
+                      ],
+                    }
+                  : structure,
+              ),
+            );
+          }
         }
 
         // drop a bug onto a stack to assign it, assume optimistic update
@@ -445,7 +448,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         queryClient.setQueryData(queryKeys.bugs, newBugs);
         queryClient.setQueryData(queryKeys.structures, newStructures);
 
-        if (originalBug && targetEntity && isStructure(targetEntity)) {
+        if (
+          originalBug &&
+          targetEntity &&
+          isStructure(targetEntity) &&
+          !canDiscardBugOnStructure(originalBug, targetEntity)
+        ) {
           const readyStructure = newStructures.find(
             (structure) => structure.id === targetEntity.id && isStructureReadyToEvolve(structure),
           );

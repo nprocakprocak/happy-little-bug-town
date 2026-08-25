@@ -7,7 +7,10 @@ import { Stack } from "../prisma/prisma/client.js";
 import { BugDto } from "../types/bugDto.js";
 import { StackDto } from "../types/stackDto.js";
 
-const stackInclude = { items: { where: { removedAt: null } }, bugs: true } as const;
+const stackInclude = {
+  items: { where: { removedAt: null } },
+  bugs: { where: { removedAt: null } },
+};
 
 type CreateStackData = Pick<Stack, "itemType" | "x" | "y" | "authorId">;
 type UpdateStackData = Pick<Stack, "x" | "y">;
@@ -97,11 +100,11 @@ export const mergeStacks = async (
       where: { id: sourceStackId },
     });
     const targetBugs = await tx.bug.findMany({
-      where: { stackId: targetStackId },
+      where: { stackId: targetStackId, removedAt: null },
       select: { bugType: true },
     });
     const sourceBugs = await tx.bug.findMany({
-      where: { stackId: sourceStackId },
+      where: { stackId: sourceStackId, removedAt: null },
       include: { items: { where: { removedAt: null } } },
     });
     const shouldTransferSourceBugs =

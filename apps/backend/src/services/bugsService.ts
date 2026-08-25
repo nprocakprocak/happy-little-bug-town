@@ -1,4 +1,5 @@
 import {
+  canDiscardBugOnStructure,
   canDropBugOnStack,
   canStructureAcceptBugDrop,
   isBugFed,
@@ -17,10 +18,13 @@ import { StructureOnGridDto } from "../types/structureDto.js";
 import { getStack } from "./stacksService.js";
 import { getStructure } from "./structuresService.js";
 
+const notRemoved = { removedAt: null };
+const bugInclude = { items: { where: { removedAt: null } } };
+
 export const getBugs = async (authorId: string): Promise<BugDto[]> => {
   const bugs = await prisma.bug.findMany({
-    where: { authorId },
-    include: { items: { where: { removedAt: null } } },
+    where: { authorId, ...notRemoved },
+    include: bugInclude,
   });
   return bugs.map(toBugDto);
 };
@@ -28,9 +32,9 @@ export const getBugs = async (authorId: string): Promise<BugDto[]> => {
 export const getBug = async (id: string): Promise<BugDto | null> => {
   const bug = await prisma.bug.findUnique({
     where: { id },
-    include: { items: { where: { removedAt: null } } },
+    include: bugInclude,
   });
-  if (!bug) {
+  if (!bug || bug.removedAt) {
     return null;
   }
   return toBugDto(bug);
@@ -42,8 +46,8 @@ export const getBugsByIds = async (ids: string[]): Promise<BugDto[]> => {
   }
 
   const bugs = await prisma.bug.findMany({
-    where: { id: { in: ids } },
-    include: { items: { where: { removedAt: null } } },
+    where: { id: { in: ids }, ...notRemoved },
+    include: bugInclude,
   });
   return bugs.map(toBugDto);
 };
@@ -73,9 +77,44 @@ export const updateBug = async (id: string, data: UpdateBugData): Promise<BugDto
   const updatedBug = await prisma.bug.update({
     where: { id },
     data: updateData,
-    include: { items: { where: { removedAt: null } } },
+    include: bugInclude,
   });
   return toBugDto({ ...updatedBug, items: updatedBug.items });
+};
+
+export const discardBug = async (id: string): Promise<void> => {
+  await prisma.bug.update({
+    where: { id },
+    data: {
+      removedAt: new Date(),
+      x: null,
+      y: null,
+      stackId: null,
+      structureId: null,
+    },
+  });
+};
+
+export const discardBugIntoStructure = async (
+  bugId: string,
+  structureId: unknown,
+  existingBug: BugDto,
+  authorId: string,
+): Promise<void> => {
+  const parsedStructureId = parseUuidOrThrow(structureId, "structureId");
+  const existingStructure = await loadOwnedOr404(getStructure, parsedStructureId, authorId);
+  const structureForDrop = {
+    structureType: existingStructure.structureType,
+    upgradeLevel: existingStructure.upgradeLevel,
+    items: existingStructure.items,
+    bugs: existingStructure.bugs,
+  };
+
+  if (!canDiscardBugOnStructure(existingBug, structureForDrop)) {
+    throw new AppError(400, "Bug cannot be discarded into structure");
+  }
+
+  await discardBug(bugId);
 };
 
 export const attachBugToStructure = async (

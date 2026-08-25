@@ -1,7 +1,7 @@
 export const queryKeys = {
-  user: (id: string) => ["users", id] as const,
-  stacks: ["stacks"] as const,
-  structures: ["structures"] as const,
-  items: ["items"] as const,
-  bugs: ["bugs"] as const,
+  user: (id: string) => ["users", id],
+  stacks: ["stacks"],
+  structures: ["structures"],
+  items: ["items"],
+  bugs: ["bugs"],
 };

@@ -1,4 +1,4 @@
-export const APP_LOCALE = "en" as const;
+export const APP_LOCALE = "en";
 
 export const GROUND_GRID_MAX_WIDTH_PX = 450;
 export const HOME_BANNER_HEIGHT_PX = 36;

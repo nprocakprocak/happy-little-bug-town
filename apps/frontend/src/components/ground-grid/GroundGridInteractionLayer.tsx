@@ -2,6 +2,7 @@
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
+  canDiscardBugOnStructure,
   canDiscardItemOnStructure,
   canDropBugOnStack,
   canDropFoodOnBug,
@@ -340,6 +341,9 @@ export function GroundGridInteractionLayer({
             const canDropOnStack =
               !!overlappingStack && canDropBugOnStack(bugToDrop, overlappingStack);
 
+            const canDiscardOnStructure =
+              !!overlappingStructure && canDiscardBugOnStructure(bugToDrop, overlappingStructure);
+
             if (canDropBeetleOnStructure) {
               const mustBeFed = structureDropRequiresFedBug(
                 overlappingStructure.structureType,
@@ -351,6 +355,8 @@ export function GroundGridInteractionLayer({
               } else {
                 onItemDropped(bugToDrop.id, target, overlappingEntity);
               }
+            } else if (canDiscardOnStructure) {
+              onItemDropped(bugToDrop.id, target, overlappingEntity);
             } else if (canDropOnStack) {
               if (!isBugFed(bugToDrop)) {
                 openBugPopup(bugToDrop);

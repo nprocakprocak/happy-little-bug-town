@@ -17,10 +17,13 @@ import { BugDto } from "../types/bugDto.js";
 import { ItemDto } from "../types/itemDto.js";
 import { CreateStructureData, StructureDto, UpdateStructureData } from "../types/structureDto.js";
 
-const notRemoved = { removedAt: null } as const;
-const structureInclude = { items: { where: notRemoved }, bugs: true } as const;
-const itemInclude = { items: { where: notRemoved } } as const;
-const bugInclude = { items: { where: notRemoved } } as const;
+const notRemoved = { removedAt: null };
+const structureInclude = {
+  items: { where: notRemoved },
+  bugs: { where: notRemoved },
+};
+const itemInclude = { items: { where: notRemoved } };
+const bugInclude = { items: { where: notRemoved } };
 
 export const hasStructureOfType = async (
   authorId: string,

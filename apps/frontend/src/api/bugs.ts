@@ -29,3 +29,10 @@ export function addBugToStack(bugId: string, stackId: string): Promise<Stack> {
     body: JSON.stringify({ stackId }),
   });
 }
+
+export function deleteBug(bugId: string, structureId: string): Promise<void> {
+  return apiFetch<void>(`/api/bugs/${bugId}`, {
+    method: "DELETE",
+    body: JSON.stringify({ structureId }),
+  });
+}

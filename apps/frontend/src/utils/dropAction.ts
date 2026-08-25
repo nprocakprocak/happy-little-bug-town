@@ -1,4 +1,5 @@
 import {
+  canDiscardBugOnStructure,
   canDiscardItemOnStructure,
   canDropBugOnStack,
   canDropFoodOnBug,
@@ -10,7 +11,7 @@ import {
   Positionable,
 } from "@happy-little-bug-town/utils";
 
-import { addBeetleToStructure, addBugToStack, updateBugPosition } from "../api/bugs";
+import { addBeetleToStructure, addBugToStack, deleteBug, updateBugPosition } from "../api/bugs";
 import {
   addItemToBug,
   addItemToItem,
@@ -141,6 +142,18 @@ export async function dropAction(
       stacks: stacks,
       bugs: bugs,
       structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
+    };
+  }
+
+  // drop a bug to discard it
+  if (originalBug && targetStructure && canDiscardBugOnStructure(originalBug, targetStructure)) {
+    await deleteBug(originalBug.id, targetStructure.id);
+
+    return {
+      items: items,
+      stacks: stacks,
+      bugs: bugs.filter((b) => b.id !== originalBug.id),
+      structures: structures,
     };
   }
 

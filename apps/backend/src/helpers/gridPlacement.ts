@@ -64,6 +64,7 @@ export async function getPositionedEntitiesOnGrid(
         authorId,
         x: { not: null },
         y: { not: null },
+        removedAt: null,
       },
       select: { x: true, y: true },
     }),
