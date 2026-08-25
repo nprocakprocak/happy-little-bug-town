@@ -9,6 +9,7 @@ import {
   getStackSpan,
   getStructureSpan,
   getVisibleStructureOperationalResourceProgresses,
+  hasStructureAssignedTermite,
   isTermiteAssignableStructureType,
   itemShowsActivationGlow,
   structureShowsActivationGlow,
@@ -39,6 +40,7 @@ import {
   itemTypeToImageForStack,
   structureTypeToImage,
 } from "../helpers/itemTypeToImage";
+import { AutomationMarker } from "./AutomationMarker";
 import { GroundBackgroundLayers } from "./GroundBackgroundLayers";
 import { StructureEvolutionSprite } from "./StructureEvolutionSprite";
 
@@ -98,9 +100,9 @@ export function GroundGridAssetLayer({
             const showActivationGlow = structureShowsActivationGlow(structure);
             const firstHouseBug =
               structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
-            const assignedTermite = isTermiteAssignableStructureType(structure.structureType)
-              ? (structure.bugs ?? []).find((bug) => bug.bugType === "termite")
-              : undefined;
+            const isAutomated =
+              isTermiteAssignableStructureType(structure.structureType) &&
+              hasStructureAssignedTermite(structure);
             const occupantProgress = getEvolutionOccupancyProgress(structure);
             const operationalResourceProgresses =
               getVisibleStructureOperationalResourceProgresses(structure);
@@ -159,25 +161,7 @@ export function GroundGridAssetLayer({
                       />
                     </div>
                   )}
-                  {assignedTermite && (
-                    <div
-                      className="absolute min-h-0 min-w-0 overflow-hidden rounded-sm"
-                      style={{
-                        left: 0,
-                        bottom: 0,
-                        width: `${100 / span}%`,
-                        height: `${100 / span}%`,
-                      }}
-                    >
-                      <Image
-                        src={bugTypeToImage(assignedTermite.bugType)}
-                        alt=""
-                        fill
-                        className="object-contain p-[8%] drop-shadow-sm -scale-y-100 -scale-x-100"
-                        sizes={structureImageSizes}
-                      />
-                    </div>
-                  )}
+                  {isAutomated && <AutomationMarker />}
                   {occupantProgress && (
                     <div
                       className="absolute flex min-h-0 min-w-0 overflow-hidden rounded-sm"
@@ -235,7 +219,7 @@ export function GroundGridAssetLayer({
             const isDragged =
               gridDrag?.target.kind === "stack" && gridDrag.target.stackId === stack.id;
             const span = getStackSpan();
-            const firstStackBug = (stack.bugs ?? [])[0];
+            const isAutomated = stack.bugs.length > 0;
             const stackImageSizes = `${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`;
 
             return (
@@ -255,25 +239,7 @@ export function GroundGridAssetLayer({
                     className="object-cover"
                     sizes={stackImageSizes}
                   />
-                  {firstStackBug && (
-                    <div
-                      className="absolute min-h-0 min-w-0 overflow-hidden rounded-sm"
-                      style={{
-                        left: 0,
-                        bottom: 0,
-                        width: `${100 / span}%`,
-                        height: `${100 / span}%`,
-                      }}
-                    >
-                      <Image
-                        src={bugTypeToImage(firstStackBug.bugType)}
-                        alt=""
-                        fill
-                        className="object-contain p-[8%] drop-shadow-sm -scale-x-100"
-                        sizes={stackImageSizes}
-                      />
-                    </div>
-                  )}
+                  {isAutomated && <AutomationMarker />}
                 </div>
               </div>
             );
