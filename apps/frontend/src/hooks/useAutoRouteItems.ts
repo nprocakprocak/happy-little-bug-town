@@ -2,18 +2,35 @@ import { useCallback, useRef, useState } from "react";
 import { Position } from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { Bug } from "../types/bug";
 import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
-import { findAutoRouteTarget, structuresWithPendingAutoRoutes } from "../utils/findAutoRouteTarget";
+import {
+  findAutoRouteBugTarget,
+  findAutoRouteTarget,
+  structuresWithPendingAutoRoutes,
+} from "../utils/findAutoRouteTarget";
+import { useAddBeetleToStructureMutation } from "./useBugs";
 import { useAddItemToStackMutation, useAddItemToStructureMutation } from "./useItems";
 import { updateStacksCache } from "./useStacks";
 import { updateStructuresCache } from "./useStructures";
 
-interface PendingAutoRoute {
+type AutoRouteFlight = Item | Bug;
+
+interface PendingItemAutoRoute {
+  entityKind: "item";
   target: NonNullable<ReturnType<typeof findAutoRouteTarget>>;
   item: Item;
 }
+
+interface PendingBugAutoRoute {
+  entityKind: "bug";
+  target: NonNullable<ReturnType<typeof findAutoRouteBugTarget>>;
+  bug: Bug;
+}
+
+type PendingAutoRoute = PendingItemAutoRoute | PendingBugAutoRoute;
 
 interface AutoRouteExclude {
   structureId?: string;
@@ -24,8 +41,9 @@ export function useAutoRouteItems() {
   const queryClient = useQueryClient();
   const addItemToStackMutation = useAddItemToStackMutation();
   const addItemToStructureMutation = useAddItemToStructureMutation();
-  const [autoRouteFlights, setAutoRouteFlights] = useState<Item[]>([]);
-  const pendingByItemIdRef = useRef(new Map<string, PendingAutoRoute>());
+  const addBeetleToStructureMutation = useAddBeetleToStructureMutation();
+  const [autoRouteFlights, setAutoRouteFlights] = useState<AutoRouteFlight[]>([]);
+  const pendingByEntityIdRef = useRef(new Map<string, PendingAutoRoute>());
 
   const beginAutoRouteIfPossible = useCallback(
     (
@@ -38,8 +56,8 @@ export function useAutoRouteItems() {
     ): boolean => {
       const structuresConsideringPending = structuresWithPendingAutoRoutes(
         structures,
-        [...pendingByItemIdRef.current.values()].flatMap((pending) =>
-          pending.target.kind === "structure"
+        [...pendingByEntityIdRef.current.values()].flatMap((pending) =>
+          pending.entityKind === "item" && pending.target.kind === "structure"
             ? [
                 {
                   structureId: pending.target.structureId,
@@ -62,7 +80,7 @@ export function useAutoRouteItems() {
         return false;
       }
 
-      pendingByItemIdRef.current.set(item.id, { target, item });
+      pendingByEntityIdRef.current.set(item.id, { entityKind: "item", target, item });
       setAutoRouteFlights((prev) => [
         ...prev,
         {
@@ -78,15 +96,56 @@ export function useAutoRouteItems() {
     [],
   );
 
+  const beginAutoRouteBugIfPossible = useCallback(
+    (bug: Bug, origin: Position, structures: Structure[], exclude?: AutoRouteExclude): boolean => {
+      const target = findAutoRouteBugTarget(bug.bugType, structures, origin, exclude?.structureId);
+      if (!target) {
+        return false;
+      }
+
+      pendingByEntityIdRef.current.set(bug.id, { entityKind: "bug", target, bug });
+      setAutoRouteFlights((prev) => [
+        ...prev,
+        {
+          ...bug,
+          x: target.x,
+          y: target.y,
+          fromX: origin.x,
+          fromY: origin.y,
+        },
+      ]);
+      return true;
+    },
+    [],
+  );
+
   const completeAutoRouteFlight = useCallback(
     (entityId: string): boolean => {
-      const pending = pendingByItemIdRef.current.get(entityId);
+      const pending = pendingByEntityIdRef.current.get(entityId);
       if (!pending) {
         return false;
       }
 
-      pendingByItemIdRef.current.delete(entityId);
-      setAutoRouteFlights((prev) => prev.filter((item) => item.id !== entityId));
+      pendingByEntityIdRef.current.delete(entityId);
+      setAutoRouteFlights((prev) => prev.filter((flight) => flight.id !== entityId));
+
+      if (pending.entityKind === "bug") {
+        updateStructuresCache(queryClient, (structures) =>
+          structures.map((structure) =>
+            structure.id === pending.target.structureId
+              ? {
+                  ...structure,
+                  bugs: [...structure.bugs, { id: pending.bug.id, bugType: pending.bug.bugType }],
+                }
+              : structure,
+          ),
+        );
+        addBeetleToStructureMutation.mutate({
+          bugId: entityId,
+          structureId: pending.target.structureId,
+        });
+        return true;
+      }
 
       const { target } = pending;
       if (target.kind === "structure") {
@@ -121,8 +180,13 @@ export function useAutoRouteItems() {
       });
       return true;
     },
-    [addItemToStackMutation, addItemToStructureMutation, queryClient],
+    [addBeetleToStructureMutation, addItemToStackMutation, addItemToStructureMutation, queryClient],
   );
 
-  return { autoRouteFlights, beginAutoRouteIfPossible, completeAutoRouteFlight };
+  return {
+    autoRouteFlights,
+    beginAutoRouteIfPossible,
+    beginAutoRouteBugIfPossible,
+    completeAutoRouteFlight,
+  };
 }

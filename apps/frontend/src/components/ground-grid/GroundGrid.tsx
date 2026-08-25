@@ -101,8 +101,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const createStructure = useCreateStructureMutation();
   const upgradeStructureMutation = useUpgradeStructureMutation();
   const createItem = useCreateItemMutation();
-  const { autoRouteFlights, beginAutoRouteIfPossible, completeAutoRouteFlight } =
-    useAutoRouteItems();
+  const {
+    autoRouteFlights,
+    beginAutoRouteIfPossible,
+    beginAutoRouteBugIfPossible,
+    completeAutoRouteFlight,
+  } = useAutoRouteItems();
 
   const animatables = useMemo(
     () => [...items, ...autoRouteFlights, ...stacks, ...bugs, ...structures],
@@ -536,7 +540,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
                 { ...itemOrBug, fromX: origin.x, fromY: origin.y },
               ]);
             }
-          } else {
+          } else if (
+            !beginAutoRouteBugIfPossible(itemOrBug, origin, latestStructures, {
+              structureId: structure.id,
+            })
+          ) {
             setBugsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
           }
         })();
@@ -650,6 +658,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       items,
       structures,
       beginAutoRouteIfPossible,
+      beginAutoRouteBugIfPossible,
       setItemsCache,
       setBugsCache,
       setStructuresCache,

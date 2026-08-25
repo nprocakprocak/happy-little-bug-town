@@ -1,6 +1,9 @@
 import {
+  BugType,
   canAcceptOperationalResourceForStructure,
   canStackItemType,
+  canStructureAcceptBugDrop,
+  canStructureAcceptGreenflyDrop,
   hasStructureAssignedTermite,
   ItemType,
   Position,
@@ -81,6 +84,39 @@ function pickNearest<T extends Position>(candidates: T[], origin?: Position): T 
   );
 }
 
+function findHouseForItem(
+  itemType: ItemType,
+  structures: Structure[],
+  origin?: Position,
+  excludeStructureId?: string,
+): Structure | undefined {
+  return pickNearest(
+    structures.filter(
+      (structure) =>
+        structure.id !== excludeStructureId &&
+        canStructureAcceptGreenflyDrop({ itemType }, structure),
+    ),
+    origin,
+  );
+}
+
+function findHouseForBug(
+  bugType: BugType,
+  structures: Structure[],
+  origin?: Position,
+  excludeStructureId?: string,
+): Structure | undefined {
+  return pickNearest(
+    structures.filter(
+      (structure) =>
+        structure.id !== excludeStructureId &&
+        structure.structureType === "beetle_house" &&
+        canStructureAcceptBugDrop({ bugType }, structure),
+    ),
+    origin,
+  );
+}
+
 function findStructureWithAssignedTermite(
   itemType: ItemType,
   structures: Structure[],
@@ -115,6 +151,15 @@ function findStackWithAssignedAnt(
   );
 }
 
+function toStructureTarget(structure: Structure): AutoRouteToStructure {
+  return {
+    kind: "structure",
+    structureId: structure.id,
+    x: structure.x,
+    y: structure.y,
+  };
+}
+
 export function findAutoRouteTarget(
   itemType: ItemType,
   structures: Structure[],
@@ -123,6 +168,11 @@ export function findAutoRouteTarget(
   origin?: Position,
   exclude?: AutoRouteExclude,
 ): AutoRouteToStructure | AutoRouteToStack | undefined {
+  const house = findHouseForItem(itemType, structures, origin, exclude?.structureId);
+  if (house) {
+    return toStructureTarget(house);
+  }
+
   const structure = findStructureWithAssignedTermite(
     itemType,
     structures,
@@ -130,12 +180,7 @@ export function findAutoRouteTarget(
     exclude?.structureId,
   );
   if (structure) {
-    return {
-      kind: "structure",
-      structureId: structure.id,
-      x: structure.x,
-      y: structure.y,
-    };
+    return toStructureTarget(structure);
   }
 
   if (!canStackItemType(itemType, gridItems)) {
@@ -153,4 +198,18 @@ export function findAutoRouteTarget(
     x: stack.x,
     y: stack.y,
   };
+}
+
+export function findAutoRouteBugTarget(
+  bugType: BugType,
+  structures: Structure[],
+  origin?: Position,
+  excludeStructureId?: string,
+): AutoRouteToStructure | undefined {
+  const house = findHouseForBug(bugType, structures, origin, excludeStructureId);
+  if (!house) {
+    return undefined;
+  }
+
+  return toStructureTarget(house);
 }
