@@ -1,3 +1,4 @@
+import { getBugFoodRequirement } from "../bugs/feeding.js";
 import { ItemForCraft } from "../items/craft.js";
 import { BugType } from "../types/bugType.js";
 import { canAcceptItemForBuild, StructureForBuild } from "./build.js";
@@ -5,6 +6,7 @@ import { isGroundEvolutionStructureType } from "./evolution.js";
 import {
   canStructureAcceptBugDrop,
   canStructureAcceptItemPowerDrop,
+  structureDropRequiresFedBug,
   StructureForPower,
 } from "./power.js";
 import {
@@ -26,6 +28,23 @@ export function canStructureAcceptDroppedBug(
   return (
     canStructureAcceptBugDrop(bug, structure) ||
     canAcceptOperationalBugForStructure(structure, bug.bugType)
+  );
+}
+
+export function droppedBugMustBeFed(
+  bug: { bugType: BugType },
+  structure: StructureForBuild & StructureForPower & StructureForUpgrade,
+): boolean {
+  if (
+    canStructureAcceptBugDrop(bug, structure) &&
+    structureDropRequiresFedBug(structure.structureType, structure.upgradeLevel)
+  ) {
+    return true;
+  }
+
+  return (
+    canAcceptOperationalBugForStructure(structure, bug.bugType) &&
+    getBugFoodRequirement(bug.bugType) !== undefined
   );
 }
 

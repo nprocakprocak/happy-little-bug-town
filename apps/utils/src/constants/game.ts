@@ -1,6 +1,7 @@
 export const GROUND_WIDTH = 10;
 export const GROUND_HEIGHT = 16;
 export const BEETLE_MAX_LEAF_PARTS = 2;
+export const GREENFLY_MAX_LEAF_PARTS = 2;
 export const LADYBUG_MAX_GRILLED_GREENFLIES = 2;
 export const ANT_MAX_NETTLE_SOUP = 2;
 export const TERMITE_MAX_PASTA = 2;

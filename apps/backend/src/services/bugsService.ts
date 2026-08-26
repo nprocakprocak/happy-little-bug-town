@@ -1,10 +1,9 @@
 import {
   canDiscardBugOnStructure,
   canDropBugOnStack,
-  canStructureAcceptBugDrop,
   canStructureAcceptDroppedBug,
+  droppedBugMustBeFed,
   isBugFed,
-  structureDropRequiresFedBug,
 } from "@happy-little-bug-town/utils";
 
 import { AppError } from "../errors/AppError.js";
@@ -138,12 +137,7 @@ export const attachBugToStructure = async (
     throw new AppError(400, "Structure cannot accept this bug");
   }
 
-  const isWorkerDrop = canStructureAcceptBugDrop(existingBug, structureForDrop);
-  if (
-    isWorkerDrop &&
-    structureDropRequiresFedBug(existingStructure.structureType, existingStructure.upgradeLevel) &&
-    !isBugFed(existingBug)
-  ) {
+  if (droppedBugMustBeFed(existingBug, structureForDrop) && !isBugFed(existingBug)) {
     throw new AppError(400, "Bug must be fed before joining structure");
   }
 

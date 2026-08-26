@@ -7,6 +7,7 @@ import {
   canDropItemOnStructure,
   canStackItemType,
   canStructureAcceptDroppedBug,
+  droppedBugMustBeFed,
   isBugFed,
   Position,
   Positionable,
@@ -162,6 +163,9 @@ export async function dropAction(
   if (originalBug && targetStructure) {
     if (!canStructureAcceptDroppedBug(originalBug, targetStructure)) {
       throw new Error("Bug cannot be added to structure");
+    }
+    if (droppedBugMustBeFed(originalBug, targetStructure) && !isBugFed(originalBug)) {
+      throw new Error("Bug must be fed before joining structure");
     }
     const structure = await addBeetleToStructure(originalBug.id, targetStructure.id);
 

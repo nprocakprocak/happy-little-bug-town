@@ -4,7 +4,9 @@ import {
   canAcceptOperationalResourceForStructure,
   canStackItemType,
   canStructureAcceptBugDrop,
+  getBugFoodRequirement,
   hasStructureAssignedTermite,
+  isBugFed,
   ItemType,
   Position,
 } from "@happy-little-bug-town/utils";
@@ -223,17 +225,15 @@ export function findAutoRouteTarget(
 }
 
 export function findAutoRouteBugTarget(
-  bugType: BugType,
+  bug: { bugType: BugType; items: { itemType: ItemType }[] },
   structures: Structure[],
   origin?: Position,
   exclude?: AutoRouteExclude,
 ): AutoRouteToStructure | undefined {
-  const operational = findStructureWithAssignedTermiteForBug(
-    bugType,
-    structures,
-    origin,
-    exclude?.structureId,
-  );
+  const canUseOperational = getBugFoodRequirement(bug.bugType) === undefined || isBugFed(bug);
+  const operational = canUseOperational
+    ? findStructureWithAssignedTermiteForBug(bug.bugType, structures, origin, exclude?.structureId)
+    : undefined;
   if (operational) {
     return toStructureTarget(operational);
   }
@@ -242,7 +242,7 @@ export function findAutoRouteBugTarget(
     return undefined;
   }
 
-  const house = findHouseForBug(bugType, structures, origin, exclude?.structureId);
+  const house = findHouseForBug(bug.bugType, structures, origin, exclude?.structureId);
   if (!house) {
     return undefined;
   }

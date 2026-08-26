@@ -37,6 +37,7 @@ import {
 } from "../helpers/groundGridStyles";
 import { isFlyingItem } from "../helpers/isFlyingItem";
 import {
+  bugToImage,
   bugTypeToImage,
   itemTypeToImageForItem,
   itemTypeToImageForStack,
@@ -157,7 +158,10 @@ export function GroundGridAssetLayer({
                       }}
                     >
                       <Image
-                        src={bugTypeToImage(firstHouseBug.bugType)}
+                        src={bugTypeToImage(
+                          firstHouseBug.bugType,
+                          structure.structureType !== "greenfly_house",
+                        )}
                         alt=""
                         fill
                         className="object-contain p-[8%] drop-shadow-sm"
@@ -259,7 +263,7 @@ export function GroundGridAssetLayer({
               (gridDrag.target.kind === "stack" && gridDrag.target.stackId === item.id) ||
               (gridDrag.target.kind === "bug" && gridDrag.target.bugId === item.id));
           const imageSource = isBug(item)
-            ? bugTypeToImage(item.bugType)
+            ? bugToImage(item)
             : itemTypeToImageForItem(item.itemType);
           const span = isBug(item) ? 1 : getItemSpan(item.itemType);
 

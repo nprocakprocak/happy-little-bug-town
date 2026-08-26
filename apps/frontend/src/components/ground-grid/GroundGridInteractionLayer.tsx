@@ -9,8 +9,8 @@ import {
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
-  canStructureAcceptBugDrop,
   canStructureAcceptDroppedBug,
+  droppedBugMustBeFed,
   findOverlappingEntity,
   getItemSpan,
   getStackSpan,
@@ -19,7 +19,6 @@ import {
   Position,
   Positionable,
   positionOverlapsAnyEntity,
-  structureDropRequiresFedBug,
   structureFootprintFits,
 } from "@happy-little-bug-town/utils";
 
@@ -48,6 +47,7 @@ interface GroundGridInteractionLayerProps {
   onLadybugClick: (bug: Bug) => void;
   onAntClick: (bug: Bug) => void;
   onTermiteClick: (bug: Bug) => void;
+  onGreenflyClick: (bug: Bug) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
   onItemDropped: (itemId: string, position: Position, targetEntity?: Positionable) => void;
@@ -66,6 +66,7 @@ export function GroundGridInteractionLayer({
   onLadybugClick,
   onAntClick,
   onTermiteClick,
+  onGreenflyClick,
   onDragChange,
   onItemDropCancelled,
   onItemDropped,
@@ -97,6 +98,10 @@ export function GroundGridInteractionLayer({
     }
     if (bug.bugType === "termite") {
       onTermiteClick(bug);
+      return;
+    }
+    if (bug.bugType === "greenfly") {
+      onGreenflyClick(bug);
     }
   }
 
@@ -337,24 +342,17 @@ export function GroundGridInteractionLayer({
           }
 
           if (bugToDrop) {
-            const canDropBeetleOnStructure =
-              !!overlappingStructure &&
-              canStructureAcceptDroppedBug(bugToDrop, overlappingStructure);
             const canDropOnStack =
               !!overlappingStack && canDropBugOnStack(bugToDrop, overlappingStack);
 
             const canDiscardOnStructure =
               !!overlappingStructure && canDiscardBugOnStructure(bugToDrop, overlappingStructure);
 
-            if (canDropBeetleOnStructure) {
-              const isWorkerDrop = canStructureAcceptBugDrop(bugToDrop, overlappingStructure);
-              const mustBeFed =
-                isWorkerDrop &&
-                structureDropRequiresFedBug(
-                  overlappingStructure.structureType,
-                  overlappingStructure.upgradeLevel,
-                );
-              if (mustBeFed && !isBugFed(bugToDrop)) {
+            if (
+              overlappingStructure &&
+              canStructureAcceptDroppedBug(bugToDrop, overlappingStructure)
+            ) {
+              if (droppedBugMustBeFed(bugToDrop, overlappingStructure) && !isBugFed(bugToDrop)) {
                 openBugPopup(bugToDrop);
                 onItemDropCancelled(bugToDrop.id, target);
               } else {
@@ -388,7 +386,11 @@ export function GroundGridInteractionLayer({
       onStructureClick(structure);
     } else if (stack) {
       onStackClick(stack);
-    } else if (bug?.bugType === "beetle" || bug?.bugType === "ladybug") {
+    } else if (
+      bug?.bugType === "beetle" ||
+      bug?.bugType === "ladybug" ||
+      (bug?.bugType === "greenfly" && !isBugFed(bug))
+    ) {
       openBugPopup(bug);
     } else {
       setSelectedPosition({ x: gridCol, y: gridRow });

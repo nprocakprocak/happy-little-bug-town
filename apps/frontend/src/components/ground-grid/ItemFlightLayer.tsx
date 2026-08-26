@@ -11,7 +11,7 @@ import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
 import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
 import { isFlyingItem } from "../helpers/isFlyingItem";
 import {
-  bugTypeToImage,
+  bugToImage,
   itemTypeToImageForItem,
   itemTypeToImageForStack,
   structureTypeToImage,
@@ -22,7 +22,7 @@ type Animatable = GridAnimatable & WithId & Positionable;
 
 function animatableImageSrc(animatable: Animatable): string {
   if (isBug(animatable)) {
-    return bugTypeToImage(animatable.bugType);
+    return bugToImage(animatable);
   }
   if (isStack(animatable)) {
     return itemTypeToImageForStack(animatable.itemType);

@@ -4,13 +4,14 @@ import Image from "next/image";
 import { ItemType } from "@happy-little-bug-town/utils";
 
 import { Bug } from "../../../types/bug";
-import { bugTypeToImage, itemTypeToImageForItem } from "../../helpers/itemTypeToImage";
+import { bugToImage, itemTypeToImageForItem } from "../../helpers/itemTypeToImage";
 
 interface BugHungryPopupContentProps {
   bug: Bug;
   foodItemType: ItemType;
   maxCount: number;
   onClose: () => void;
+  message?: string;
 }
 
 export function BugHungryPopupContent({
@@ -18,6 +19,7 @@ export function BugHungryPopupContent({
   foodItemType,
   maxCount,
   onClose,
+  message = "I'm too hungry to work",
 }: BugHungryPopupContentProps) {
   const foodCount = bug.items.filter((item) => item.itemType === foodItemType).length;
 
@@ -25,13 +27,7 @@ export function BugHungryPopupContent({
     <>
       <div className="flex justify-center pt-[4cqi]">
         <div className="relative h-[28cqi] w-[28cqi]">
-          <Image
-            src={bugTypeToImage(bug.bugType)}
-            alt=""
-            fill
-            className="object-contain"
-            sizes="28cqi"
-          />
+          <Image src={bugToImage(bug)} alt="" fill className="object-contain" sizes="28cqi" />
         </div>
       </div>
       <div className="flex flex-col items-center gap-[3cqi] px-[4cqi] pb-[2cqi]">
@@ -49,9 +45,7 @@ export function BugHungryPopupContent({
             {foodCount}/{maxCount}
           </span>
         </div>
-        <p className="text-center text-[clamp(1rem,5cqi,2rem)] text-stone-800">
-          I&apos;m too hungry to work
-        </p>
+        <p className="text-center text-[clamp(1rem,5cqi,2rem)] text-stone-800">{message}</p>
       </div>
       <div className="flex justify-center p-[3cqi]">
         <button

@@ -1,6 +1,7 @@
 import {
   ANT_MAX_NETTLE_SOUP,
   BEETLE_MAX_LEAF_PARTS,
+  GREENFLY_MAX_LEAF_PARTS,
   LADYBUG_MAX_GRILLED_GREENFLIES,
   TERMITE_MAX_PASTA,
 } from "../constants/game.js";
@@ -19,6 +20,7 @@ interface BugForFeeding {
 
 const BUG_FOOD_REQUIREMENTS: Partial<Record<BugType, BugFoodRequirement>> = {
   beetle: { itemType: "leaf_part", maxCount: BEETLE_MAX_LEAF_PARTS },
+  greenfly: { itemType: "leaf_part", maxCount: GREENFLY_MAX_LEAF_PARTS },
   ladybug: {
     itemType: "grilled_greenflies",
     maxCount: LADYBUG_MAX_GRILLED_GREENFLIES,

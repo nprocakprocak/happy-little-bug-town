@@ -125,12 +125,7 @@ export function useAutoRouteItems() {
         getPendingStructureItems(pending),
         getPendingStructureBugs(pending),
       );
-      const target = findAutoRouteBugTarget(
-        bug.bugType,
-        structuresConsideringPending,
-        origin,
-        exclude,
-      );
+      const target = findAutoRouteBugTarget(bug, structuresConsideringPending, origin, exclude);
       if (!target) {
         return false;
       }

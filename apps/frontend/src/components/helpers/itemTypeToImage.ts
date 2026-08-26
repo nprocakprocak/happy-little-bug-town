@@ -1,4 +1,4 @@
-import { BugType, ItemType, StructureType } from "@happy-little-bug-town/utils";
+import { BugType, isBugFed, ItemType, StructureType } from "@happy-little-bug-town/utils";
 
 export function itemTypeToImageForItem(itemType: ItemType): string {
   switch (itemType) {
@@ -84,7 +84,7 @@ export function itemTypeToImageForStack(itemType: ItemType): string {
   }
 }
 
-export function bugTypeToImage(bugType: BugType): string {
+export function bugTypeToImage(bugType: BugType, isFed: boolean = true): string {
   switch (bugType) {
     case "beetle":
       return "/bugs/beetle.webp";
@@ -99,10 +99,14 @@ export function bugTypeToImage(bugType: BugType): string {
     case "spider":
       return "/bugs/spider.webp";
     case "greenfly":
-      return "/bugs/greenfly.webp";
+      return isFed ? "/bugs/greenfly.webp" : "/items/greenfly-hungry.webp";
     default:
       throw new Error(`Unknown bug type: ${bugType}`);
   }
+}
+
+export function bugToImage(bug: { bugType: BugType; items: { itemType: ItemType }[] }): string {
+  return bugTypeToImage(bug.bugType, isBugFed(bug));
 }
 
 export function structureTypeToImage(

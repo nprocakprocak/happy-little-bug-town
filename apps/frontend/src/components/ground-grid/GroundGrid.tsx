@@ -60,6 +60,7 @@ import {
 import { AntPopup } from "../popups/ant/AntPopup";
 import { BeetlePopup } from "../popups/beetle/BeetlePopup";
 import { FarmPopup } from "../popups/farm/FarmPopup";
+import { GreenflyPopup } from "../popups/greenfly/GreenflyPopup";
 import { LadybugPopup } from "../popups/ladybug/LadybugPopup";
 import { TermitePopup } from "../popups/termite/TermitePopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
@@ -117,6 +118,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [selectedLadybug, setSelectedLadybug] = useState<Bug | null>(null);
   const [selectedAnt, setSelectedAnt] = useState<Bug | null>(null);
   const [selectedTermite, setSelectedTermite] = useState<Bug | null>(null);
+  const [selectedGreenfly, setSelectedGreenfly] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
@@ -708,6 +710,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     setSelectedTermite(bug);
   }, []);
 
+  const onGreenflyClick = useCallback((bug: Bug) => {
+    setSelectedGreenfly(bug);
+  }, []);
+
   const onBeetleBuild = useCallback(
     (structure: Structure) => {
       if (!isBuildableStructureType(structure.structureType)) {
@@ -833,6 +839,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onLadybugClick={onLadybugClick}
           onAntClick={onAntClick}
           onTermiteClick={onTermiteClick}
+          onGreenflyClick={onGreenflyClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
@@ -856,6 +863,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         {selectedAnt && <AntPopup ant={selectedAnt} onClose={() => setSelectedAnt(null)} />}
         {selectedTermite && (
           <TermitePopup termite={selectedTermite} onClose={() => setSelectedTermite(null)} />
+        )}
+        {selectedGreenfly && (
+          <GreenflyPopup greenfly={selectedGreenfly} onClose={() => setSelectedGreenfly(null)} />
         )}
         {workshopPopupOpen && (
           <WorkshopPopup
