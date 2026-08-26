@@ -1,5 +1,6 @@
 import {
   BugType,
+  canAcceptOperationalBugForStructure,
   canAcceptOperationalResourceForStructure,
   canStackItemType,
   canStructureAcceptBugDrop,
@@ -39,30 +40,50 @@ interface PendingAutoRouteStructureItem {
   itemType: ItemType;
 }
 
+interface PendingAutoRouteStructureBug {
+  structureId: string;
+  id: string;
+  bugType: BugType;
+}
+
 export function structuresWithPendingAutoRoutes(
   structures: Structure[],
   pendingItems: PendingAutoRouteStructureItem[],
+  pendingBugs: PendingAutoRouteStructureBug[] = [],
 ): Structure[] {
-  if (pendingItems.length === 0) {
+  if (pendingItems.length === 0 && pendingBugs.length === 0) {
     return structures;
   }
 
-  const pendingByStructureId = new Map<string, { id: string; itemType: ItemType }[]>();
+  const pendingItemsByStructureId = new Map<string, { id: string; itemType: ItemType }[]>();
   for (const pendingItem of pendingItems) {
-    const existing = pendingByStructureId.get(pendingItem.structureId) ?? [];
+    const existing = pendingItemsByStructureId.get(pendingItem.structureId) ?? [];
     existing.push({ id: pendingItem.id, itemType: pendingItem.itemType });
-    pendingByStructureId.set(pendingItem.structureId, existing);
+    pendingItemsByStructureId.set(pendingItem.structureId, existing);
+  }
+
+  const pendingBugsByStructureId = new Map<string, { id: string; bugType: BugType }[]>();
+  for (const pendingBug of pendingBugs) {
+    const existing = pendingBugsByStructureId.get(pendingBug.structureId) ?? [];
+    existing.push({ id: pendingBug.id, bugType: pendingBug.bugType });
+    pendingBugsByStructureId.set(pendingBug.structureId, existing);
   }
 
   return structures.map((structure) => {
-    const pendingForStructure = pendingByStructureId.get(structure.id);
-    if (!pendingForStructure) {
+    const pendingItemsForStructure = pendingItemsByStructureId.get(structure.id);
+    const pendingBugsForStructure = pendingBugsByStructureId.get(structure.id);
+    if (!pendingItemsForStructure && !pendingBugsForStructure) {
       return structure;
     }
 
     return {
       ...structure,
-      items: [...structure.items, ...pendingForStructure],
+      items: pendingItemsForStructure
+        ? [...structure.items, ...pendingItemsForStructure]
+        : structure.items,
+      bugs: pendingBugsForStructure
+        ? [...structure.bugs, ...pendingBugsForStructure]
+        : structure.bugs,
     };
   });
 }
@@ -130,6 +151,23 @@ function findStructureWithAssignedTermite(
         structure.id !== excludeStructureId &&
         hasStructureAssignedTermite(structure) &&
         canAcceptOperationalResourceForStructure(structure, itemType),
+    ),
+    origin,
+  );
+}
+
+function findStructureWithAssignedTermiteForBug(
+  bugType: BugType,
+  structures: Structure[],
+  origin?: Position,
+  excludeStructureId?: string,
+): Structure | undefined {
+  return pickNearest(
+    structures.filter(
+      (structure) =>
+        structure.id !== excludeStructureId &&
+        hasStructureAssignedTermite(structure) &&
+        canAcceptOperationalBugForStructure(structure, bugType),
     ),
     origin,
   );
@@ -209,9 +247,23 @@ export function findAutoRouteBugTarget(
   bugType: BugType,
   structures: Structure[],
   origin?: Position,
-  excludeStructureId?: string,
+  exclude?: AutoRouteExclude,
 ): AutoRouteToStructure | undefined {
-  const house = findHouseForBug(bugType, structures, origin, excludeStructureId);
+  const operational = findStructureWithAssignedTermiteForBug(
+    bugType,
+    structures,
+    origin,
+    exclude?.structureId,
+  );
+  if (operational) {
+    return toStructureTarget(operational);
+  }
+
+  if (exclude?.onlyOperational) {
+    return undefined;
+  }
+
+  const house = findHouseForBug(bugType, structures, origin, exclude?.structureId);
   if (!house) {
     return undefined;
   }

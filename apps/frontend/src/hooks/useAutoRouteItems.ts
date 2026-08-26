@@ -38,6 +38,34 @@ interface AutoRouteExclude {
   onlyOperational?: boolean;
 }
 
+function getPendingStructureItems(pending: PendingAutoRoute[]) {
+  return pending.flatMap((entry) =>
+    entry.entityKind === "item" && entry.target.kind === "structure"
+      ? [
+          {
+            structureId: entry.target.structureId,
+            id: entry.item.id,
+            itemType: entry.item.itemType,
+          },
+        ]
+      : [],
+  );
+}
+
+function getPendingStructureBugs(pending: PendingAutoRoute[]) {
+  return pending.flatMap((entry) =>
+    entry.entityKind === "bug"
+      ? [
+          {
+            structureId: entry.target.structureId,
+            id: entry.bug.id,
+            bugType: entry.bug.bugType,
+          },
+        ]
+      : [],
+  );
+}
+
 export function useAutoRouteItems() {
   const queryClient = useQueryClient();
   const addItemToStackMutation = useAddItemToStackMutation();
@@ -55,19 +83,11 @@ export function useAutoRouteItems() {
       gridItems: Item[],
       exclude?: AutoRouteExclude,
     ): boolean => {
+      const pending = [...pendingByEntityIdRef.current.values()];
       const structuresConsideringPending = structuresWithPendingAutoRoutes(
         structures,
-        [...pendingByEntityIdRef.current.values()].flatMap((pending) =>
-          pending.entityKind === "item" && pending.target.kind === "structure"
-            ? [
-                {
-                  structureId: pending.target.structureId,
-                  id: pending.item.id,
-                  itemType: pending.item.itemType,
-                },
-              ]
-            : [],
-        ),
+        getPendingStructureItems(pending),
+        getPendingStructureBugs(pending),
       );
       const target = findAutoRouteTarget(
         item.itemType,
@@ -99,7 +119,18 @@ export function useAutoRouteItems() {
 
   const beginAutoRouteBugIfPossible = useCallback(
     (bug: Bug, origin: Position, structures: Structure[], exclude?: AutoRouteExclude): boolean => {
-      const target = findAutoRouteBugTarget(bug.bugType, structures, origin, exclude?.structureId);
+      const pending = [...pendingByEntityIdRef.current.values()];
+      const structuresConsideringPending = structuresWithPendingAutoRoutes(
+        structures,
+        getPendingStructureItems(pending),
+        getPendingStructureBugs(pending),
+      );
+      const target = findAutoRouteBugTarget(
+        bug.bugType,
+        structuresConsideringPending,
+        origin,
+        exclude,
+      );
       if (!target) {
         return false;
       }

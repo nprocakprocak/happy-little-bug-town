@@ -10,6 +10,7 @@ import {
   canDropItemOnStructure,
   canStackItemType,
   canStructureAcceptBugDrop,
+  canStructureAcceptDroppedBug,
   findOverlappingEntity,
   getItemSpan,
   getStackSpan,
@@ -337,7 +338,8 @@ export function GroundGridInteractionLayer({
 
           if (bugToDrop) {
             const canDropBeetleOnStructure =
-              !!overlappingStructure && canStructureAcceptBugDrop(bugToDrop, overlappingStructure);
+              !!overlappingStructure &&
+              canStructureAcceptDroppedBug(bugToDrop, overlappingStructure);
             const canDropOnStack =
               !!overlappingStack && canDropBugOnStack(bugToDrop, overlappingStack);
 
@@ -345,10 +347,13 @@ export function GroundGridInteractionLayer({
               !!overlappingStructure && canDiscardBugOnStructure(bugToDrop, overlappingStructure);
 
             if (canDropBeetleOnStructure) {
-              const mustBeFed = structureDropRequiresFedBug(
-                overlappingStructure.structureType,
-                overlappingStructure.upgradeLevel,
-              );
+              const isWorkerDrop = canStructureAcceptBugDrop(bugToDrop, overlappingStructure);
+              const mustBeFed =
+                isWorkerDrop &&
+                structureDropRequiresFedBug(
+                  overlappingStructure.structureType,
+                  overlappingStructure.upgradeLevel,
+                );
               if (mustBeFed && !isBugFed(bugToDrop)) {
                 openBugPopup(bugToDrop);
                 onItemDropCancelled(bugToDrop.id, target);

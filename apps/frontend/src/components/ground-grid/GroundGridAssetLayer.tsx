@@ -11,6 +11,7 @@ import {
   getStructureSpan,
   getVisibleStructureOperationalResourceProgresses,
   hasStructureAssignedTermite,
+  isOperationalBugRequirement,
   isTermiteAssignableStructureType,
   itemShowsActivationGlow,
   structureShowsActivationGlow,
@@ -220,7 +221,11 @@ export function GroundGridAssetLayer({
                           className="relative min-h-0 min-w-0 flex-1 overflow-hidden"
                         >
                           <Image
-                            src={itemTypeToImageForItem(progress.requirement.itemType)}
+                            src={
+                              isOperationalBugRequirement(progress.requirement)
+                                ? bugTypeToImage(progress.requirement.bugType)
+                                : itemTypeToImageForItem(progress.requirement.itemType)
+                            }
                             alt=""
                             fill
                             className="object-contain p-[8%] drop-shadow-sm"

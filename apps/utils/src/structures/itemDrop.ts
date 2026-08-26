@@ -8,7 +8,10 @@ import {
   canStructureAcceptItemPowerDrop,
   StructureForPower,
 } from "./power.js";
-import { canAcceptOperationalResourceForStructure } from "./structureOperationalResources.js";
+import {
+  canAcceptOperationalBugForStructure,
+  canAcceptOperationalResourceForStructure,
+} from "./structureOperationalResources.js";
 import { canAcceptItemForUpgrade, StructureForUpgrade } from "./upgrade.js";
 
 export function canDiscardItemOnStructure(
@@ -17,11 +20,24 @@ export function canDiscardItemOnStructure(
   return isGroundEvolutionStructureType(structure.structureType);
 }
 
+export function canStructureAcceptDroppedBug(
+  bug: { bugType: BugType },
+  structure: StructureForBuild & StructureForPower & StructureForUpgrade,
+): boolean {
+  return (
+    canStructureAcceptBugDrop(bug, structure) ||
+    canAcceptOperationalBugForStructure(structure, bug.bugType)
+  );
+}
+
 export function canDiscardBugOnStructure(
   bug: { bugType: BugType },
-  structure: StructureForBuild & StructureForPower,
+  structure: StructureForBuild & StructureForPower & StructureForUpgrade,
 ): boolean {
-  return canDiscardItemOnStructure(structure) && !canStructureAcceptBugDrop(bug, structure);
+  return (
+    canDiscardItemOnStructure(structure) &&
+    !canStructureAcceptDroppedBug(bug, structure)
+  );
 }
 
 export function canDropItemOnStructure(

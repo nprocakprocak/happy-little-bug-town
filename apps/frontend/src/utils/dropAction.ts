@@ -6,6 +6,7 @@ import {
   canDropItemOnItem,
   canDropItemOnStructure,
   canStackItemType,
+  canStructureAcceptDroppedBug,
   isBugFed,
   Position,
   Positionable,
@@ -159,6 +160,9 @@ export async function dropAction(
 
   // drop a bug onto a structure to add it to its habitat
   if (originalBug && targetStructure) {
+    if (!canStructureAcceptDroppedBug(originalBug, targetStructure)) {
+      throw new Error("Bug cannot be added to structure");
+    }
     const structure = await addBeetleToStructure(originalBug.id, targetStructure.id);
 
     return {

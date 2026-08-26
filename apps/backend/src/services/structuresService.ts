@@ -152,6 +152,7 @@ export const craftOperationalItemAtStructure = async (
   authorId: string,
   outputItemType: ItemType,
   operationalItemIds: string[],
+  operationalBugIds: string[],
   position: Position,
 ): Promise<{ item: ItemDto; structure: StructureDto }> => {
   return prisma.$transaction(async (tx) => {
@@ -165,15 +166,30 @@ export const craftOperationalItemAtStructure = async (
       include: itemInclude,
     });
 
-    await tx.item.updateMany({
-      where: { id: { in: operationalItemIds } },
-      data: {
-        structureId: null,
-        parentItemId: craftedItem.id,
-        x: null,
-        y: null,
-      },
-    });
+    if (operationalItemIds.length > 0) {
+      await tx.item.updateMany({
+        where: { id: { in: operationalItemIds } },
+        data: {
+          structureId: null,
+          parentItemId: craftedItem.id,
+          x: null,
+          y: null,
+        },
+      });
+    }
+
+    if (operationalBugIds.length > 0) {
+      await tx.bug.updateMany({
+        where: { id: { in: operationalBugIds } },
+        data: {
+          removedAt: new Date(),
+          structureId: null,
+          stackId: null,
+          x: null,
+          y: null,
+        },
+      });
+    }
 
     const updatedStructure = await tx.structure.findUnique({
       where: { id: structureId },
@@ -200,6 +216,7 @@ export const craftOperationalBugAtStructure = async (
   authorId: string,
   outputBugType: BugType,
   operationalItemIds: string[],
+  operationalBugIds: string[],
   position: Position,
 ): Promise<{ bug: BugDto; structure: StructureDto }> => {
   return prisma.$transaction(async (tx) => {
@@ -212,15 +229,30 @@ export const craftOperationalBugAtStructure = async (
       },
     });
 
-    await tx.item.updateMany({
-      where: { id: { in: operationalItemIds } },
-      data: {
-        structureId: null,
-        bugId: craftedBug.id,
-        x: null,
-        y: null,
-      },
-    });
+    if (operationalItemIds.length > 0) {
+      await tx.item.updateMany({
+        where: { id: { in: operationalItemIds } },
+        data: {
+          structureId: null,
+          bugId: craftedBug.id,
+          x: null,
+          y: null,
+        },
+      });
+    }
+
+    if (operationalBugIds.length > 0) {
+      await tx.bug.updateMany({
+        where: { id: { in: operationalBugIds } },
+        data: {
+          removedAt: new Date(),
+          structureId: null,
+          stackId: null,
+          x: null,
+          y: null,
+        },
+      });
+    }
 
     const updatedStructure = await tx.structure.findUnique({
       where: { id: structureId },

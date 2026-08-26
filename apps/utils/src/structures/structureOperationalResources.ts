@@ -1,16 +1,24 @@
 import {
   STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS,
+  StructureOperationalBugRequirement,
+  StructureOperationalItemRequirement,
   StructureOperationalOutputType,
   StructureOperationalResourceOutputs,
   StructureOperationalResourceRequirement,
 } from "../constants/structureOperationalResources.js";
+import { BugType } from "../types/bugType.js";
 import { ItemType } from "../types/itemType.js";
 import {
   isStructureBuilt,
   StructureForBuild,
   StructureWithIdentifiableItems,
 } from "./build.js";
-import { isStructurePowered, StructureForPower } from "./power.js";
+import {
+  getStructureBugPowerRequirements,
+  isStructurePowered,
+  StructureForPower,
+} from "./power.js";
+import { getAssignedTermiteCapacity } from "./termiteAssignment.js";
 import {
   getReservedItemCountForOperationalResources,
   isStructureUpgradeIncomplete,
@@ -28,8 +36,14 @@ export interface StructureOperationalResourceProgress {
   count: number;
 }
 
+export interface StructureWithIdentifiableBugs {
+  bugs: { id: string; bugType: BugType }[];
+}
+
 export type StructureForOperationalResources = StructureForBuild &
-  StructureForUpgrade;
+  StructureForUpgrade & {
+    bugs: { bugType: BugType }[];
+  };
 
 function getAllOperationalRequirements(
   outputs: StructureOperationalResourceOutputs,
@@ -46,11 +60,30 @@ function getOperationalOutputEntries(
   ][];
 }
 
+export function isOperationalItemRequirement(
+  requirement: StructureOperationalResourceRequirement,
+): requirement is StructureOperationalItemRequirement {
+  return "itemType" in requirement;
+}
+
+export function isOperationalBugRequirement(
+  requirement: StructureOperationalResourceRequirement,
+): requirement is StructureOperationalBugRequirement {
+  return "bugType" in requirement;
+}
+
 function getStructureItemCount(
   structure: StructureForBuild,
   itemType: ItemType,
 ): number {
   return structure.items.filter((item) => item.itemType === itemType).length;
+}
+
+function getStructureBugCount(
+  structure: StructureForOperationalResources,
+  bugType: BugType,
+): number {
+  return structure.bugs.filter((bug) => bug.bugType === bugType).length;
 }
 
 function getOperationalUpgradeLevel(structure: StructureForUpgrade): number {
@@ -60,12 +93,37 @@ function getOperationalUpgradeLevel(structure: StructureForUpgrade): number {
   return structure.upgradeLevel;
 }
 
+function getReservedBugCountForOperationalResources(
+  structure: Pick<StructureForPower, "structureType" | "upgradeLevel">,
+  bugType: BugType,
+): number {
+  const powerRequired =
+    getStructureBugPowerRequirements(
+      structure.structureType,
+      structure.upgradeLevel,
+    ).find((requirement) => requirement.bugType === bugType)?.requiredCount ?? 0;
+  const termiteReserved =
+    bugType === "termite"
+      ? getAssignedTermiteCapacity(structure.structureType)
+      : 0;
+  return powerRequired + termiteReserved;
+}
+
 function getOperationalResourceCountForRequirement(
   structure: StructureForOperationalResources,
   requirement: StructureOperationalResourceRequirement,
 ): number {
   if (!isStructureBuilt(structure)) {
     return 0;
+  }
+
+  if (isOperationalBugRequirement(requirement)) {
+    const suppliedBugs = getStructureBugCount(structure, requirement.bugType);
+    const reservedBugs = getReservedBugCountForOperationalResources(
+      structure,
+      requirement.bugType,
+    );
+    return Math.max(0, suppliedBugs - reservedBugs);
   }
 
   const suppliedItems = getStructureItemCount(structure, requirement.itemType);
@@ -136,9 +194,11 @@ export function hasStructureOperationalResources(
   return getVisibleStructureOperationalResourceProgresses(structure).length > 0;
 }
 
-export function canAcceptOperationalResourceForStructure(
+function canAcceptOperationalRequirement(
   structure: StructureForOperationalResources & StructureForPower,
-  itemType: ItemType,
+  matchesRequirement: (
+    requirement: StructureOperationalResourceRequirement,
+  ) => boolean,
 ): boolean {
   const outputs = getStructureOperationalResourceOutputs(structure);
   if (
@@ -151,9 +211,33 @@ export function canAcceptOperationalResourceForStructure(
 
   return getAllOperationalRequirements(outputs).some(
     (requirement) =>
-      requirement.itemType === itemType &&
+      matchesRequirement(requirement) &&
       getOperationalResourceCountForRequirement(structure, requirement) <
         requirement.maxCount,
+  );
+}
+
+export function canAcceptOperationalResourceForStructure(
+  structure: StructureForOperationalResources & StructureForPower,
+  itemType: ItemType,
+): boolean {
+  return canAcceptOperationalRequirement(
+    structure,
+    (requirement) =>
+      isOperationalItemRequirement(requirement) &&
+      requirement.itemType === itemType,
+  );
+}
+
+export function canAcceptOperationalBugForStructure(
+  structure: StructureForOperationalResources & StructureForPower,
+  bugType: BugType,
+): boolean {
+  return canAcceptOperationalRequirement(
+    structure,
+    (requirement) =>
+      isOperationalBugRequirement(requirement) &&
+      requirement.bugType === bugType,
   );
 }
 
@@ -161,7 +245,10 @@ export function getStructureOperationalResourceItems(
   structure: StructureWithIdentifiableItems & StructureForUpgrade,
   requirement: StructureOperationalResourceRequirement,
 ): { id: string; itemType: ItemType }[] {
-  if (!isStructureBuilt(structure)) {
+  if (
+    !isStructureBuilt(structure) ||
+    !isOperationalItemRequirement(requirement)
+  ) {
     return [];
   }
 
@@ -173,6 +260,27 @@ export function getStructureOperationalResourceItems(
     requirement.itemType,
   );
   return matchingItems.slice(reservedItems);
+}
+
+export function getStructureOperationalResourceBugs(
+  structure: StructureWithIdentifiableBugs & StructureForOperationalResources,
+  requirement: StructureOperationalResourceRequirement,
+): { id: string; bugType: BugType }[] {
+  if (
+    !isStructureBuilt(structure) ||
+    !isOperationalBugRequirement(requirement)
+  ) {
+    return [];
+  }
+
+  const matchingBugs = structure.bugs.filter(
+    (bug) => bug.bugType === requirement.bugType,
+  );
+  const reservedBugs = getReservedBugCountForOperationalResources(
+    structure,
+    requirement.bugType,
+  );
+  return matchingBugs.slice(reservedBugs);
 }
 
 export function getCraftableOperationalResourceOutput(

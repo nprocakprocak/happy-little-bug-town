@@ -2,6 +2,7 @@ import {
   canDiscardBugOnStructure,
   canDropBugOnStack,
   canStructureAcceptBugDrop,
+  canStructureAcceptDroppedBug,
   isBugFed,
   structureDropRequiresFedBug,
 } from "@happy-little-bug-town/utils";
@@ -133,11 +134,13 @@ export const attachBugToStructure = async (
     bugs: existingStructure.bugs,
   };
 
-  if (!canStructureAcceptBugDrop(existingBug, structureForDrop)) {
+  if (!canStructureAcceptDroppedBug(existingBug, structureForDrop)) {
     throw new AppError(400, "Structure cannot accept this bug");
   }
 
+  const isWorkerDrop = canStructureAcceptBugDrop(existingBug, structureForDrop);
   if (
+    isWorkerDrop &&
     structureDropRequiresFedBug(existingStructure.structureType, existingStructure.upgradeLevel) &&
     !isBugFed(existingBug)
   ) {

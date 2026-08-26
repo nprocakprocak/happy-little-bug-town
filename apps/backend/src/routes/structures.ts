@@ -6,6 +6,7 @@ import {
   getEvolutionStepFromType,
   getGreenflyHouseOccupants,
   getNextStructureUpgradeLevel,
+  getStructureOperationalResourceBugs,
   getStructureOperationalResourceItems,
   isBuildableStructureType,
   isCraftableBugType,
@@ -285,7 +286,12 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
     existingStructure,
     requirement,
   ).slice(0, requirement.maxCount);
-  if (operationalItems.length < requirement.maxCount) {
+  const operationalBugs = getStructureOperationalResourceBugs(existingStructure, requirement).slice(
+    0,
+    requirement.maxCount,
+  );
+  const operationalCount = operationalItems.length + operationalBugs.length;
+  if (operationalCount < requirement.maxCount) {
     res
       .status(400)
       .json({ error: "Structure does not have enough operational resources to craft" });
@@ -295,12 +301,16 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
   const emptyPosition = await requireNearestEmpty(authorId, existingStructure);
   await assertFootprintFits(authorId, { x: emptyPosition.x, y: emptyPosition.y });
 
+  const operationalItemIds = operationalItems.map((item) => item.id);
+  const operationalBugIds = operationalBugs.map((bug) => bug.id);
+
   if (isCraftableBugType(craftableOutput.outputType)) {
     const result = await craftOperationalBugAtStructure(
       id,
       authorId,
       craftableOutput.outputType,
-      operationalItems.map((item) => item.id),
+      operationalItemIds,
+      operationalBugIds,
       emptyPosition,
     );
 
@@ -315,7 +325,8 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
     id,
     authorId,
     craftableOutput.outputType,
-    operationalItems.map((item) => item.id),
+    operationalItemIds,
+    operationalBugIds,
     emptyPosition,
   );
 

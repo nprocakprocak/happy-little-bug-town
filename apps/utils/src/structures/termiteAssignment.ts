@@ -29,6 +29,13 @@ export function isTermiteAssignableStructureType(
   return TERMITE_ASSIGNABLE_STRUCTURE_TYPES.has(structureType);
 }
 
+export function getAssignedTermiteCapacity(structureType: StructureType): number {
+  if (!isTermiteAssignableStructureType(structureType)) {
+    return 0;
+  }
+  return STRUCTURE_TERMITE_CAPACITY;
+}
+
 export function hasStructureAssignedTermite(
   structure: StructureForTermiteAssignment,
 ): boolean {

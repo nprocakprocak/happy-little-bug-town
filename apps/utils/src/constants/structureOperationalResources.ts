@@ -2,10 +2,19 @@ import { BugType } from "../types/bugType.js";
 import { ItemType } from "../types/itemType.js";
 import { StructureType } from "../types/structureType.js";
 
-export interface StructureOperationalResourceRequirement {
+export interface StructureOperationalItemRequirement {
   itemType: ItemType;
   maxCount: number;
 }
+
+export interface StructureOperationalBugRequirement {
+  bugType: BugType;
+  maxCount: number;
+}
+
+export type StructureOperationalResourceRequirement =
+  | StructureOperationalItemRequirement
+  | StructureOperationalBugRequirement;
 
 export type StructureOperationalOutputType = ItemType | BugType;
 
