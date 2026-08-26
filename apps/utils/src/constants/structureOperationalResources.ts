@@ -49,7 +49,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   kitchen: {
     0: {
       nettle_soup: { itemType: "leaf_part", maxCount: 2 },
-      grilled_greenflies: { itemType: "greenfly", maxCount: 3 },
+      grilled_greenflies: { bugType: "greenfly", maxCount: 3 },
       stuffed_fly: { bugType: "fly", maxCount: 1 },
     },
     1: {

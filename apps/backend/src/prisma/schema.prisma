@@ -23,7 +23,6 @@ enum ItemType {
   grilled_greenflies
   iron_ore
   clay
-  greenfly
   glass
   paper
   crucible
@@ -63,6 +62,7 @@ enum BugType {
   termite
   fly
   spider
+  greenfly
 }
 
 model User {

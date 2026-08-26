@@ -16,7 +16,6 @@ const ITEM_TYPE_BY_KEY: Record<ItemType, true> = {
   grilled_greenflies: true,
   iron_ore: true,
   clay: true,
-  greenfly: true,
   glass: true,
   paper: true,
   crucible: true,

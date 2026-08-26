@@ -66,6 +66,10 @@ export function canStructureAcceptBugDrop(
     return isStructureBuilt(structure) && bug.bugType === "beetle";
   }
 
+  if (structure.structureType === "greenfly_house") {
+    return isStructureBuilt(structure) && bug.bugType === "greenfly";
+  }
+
   if (getEvolutionStepFromType(structure.structureType)) {
     return isStructureBuilt(structure) && canStructureAcceptEvolutionBugDrop(bug, structure);
   }

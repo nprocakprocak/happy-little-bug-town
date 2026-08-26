@@ -4,7 +4,6 @@ import {
   canAcceptOperationalResourceForStructure,
   canStackItemType,
   canStructureAcceptBugDrop,
-  canStructureAcceptGreenflyDrop,
   hasStructureAssignedTermite,
   ItemType,
   Position,
@@ -106,22 +105,6 @@ function pickNearest<T extends Position>(candidates: T[], origin?: Position): T 
   );
 }
 
-function findHouseForItem(
-  itemType: ItemType,
-  structures: Structure[],
-  origin?: Position,
-  excludeStructureId?: string,
-): Structure | undefined {
-  return pickNearest(
-    structures.filter(
-      (structure) =>
-        structure.id !== excludeStructureId &&
-        canStructureAcceptGreenflyDrop({ itemType }, structure),
-    ),
-    origin,
-  );
-}
-
 function findHouseForBug(
   bugType: BugType,
   structures: Structure[],
@@ -132,7 +115,8 @@ function findHouseForBug(
     structures.filter(
       (structure) =>
         structure.id !== excludeStructureId &&
-        structure.structureType === "beetle_house" &&
+        (structure.structureType === "beetle_house" ||
+          structure.structureType === "greenfly_house") &&
         canStructureAcceptBugDrop({ bugType }, structure),
     ),
     origin,
@@ -219,11 +203,6 @@ export function findAutoRouteTarget(
 
   if (exclude?.onlyOperational) {
     return undefined;
-  }
-
-  const house = findHouseForItem(itemType, structures, origin, exclude?.structureId);
-  if (house) {
-    return toStructureTarget(house);
   }
 
   if (!canStackItemType(itemType, gridItems)) {

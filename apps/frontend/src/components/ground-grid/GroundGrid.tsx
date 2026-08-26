@@ -39,7 +39,6 @@ import {
   useCreateFirstStructureMutation,
   useCreateStructureMutation,
   useExtractOccupantMutation,
-  useExtractStoredItemMutation,
   useStructuresQuery,
   useUpgradeStructureMutation,
 } from "../../hooks/useStructures";
@@ -92,7 +91,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { data: stacks = [] } = useStacksQuery(canLoadGridData);
   const extractFromStack = useExtractFromStackMutation();
   const extractOccupantMutation = useExtractOccupantMutation();
-  const extractStoredItemMutation = useExtractStoredItemMutation();
   const craftOperationalResourceMutation = useCraftOperationalResourceMutation();
   const {
     mutate: createFirstStructureMutate,
@@ -655,29 +653,23 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       }
 
       (async () => {
-        const result = await extractStoredItemMutation.mutateAsync(structure.id);
+        const result = await extractOccupantMutation.mutateAsync(structure.id);
         const origin = getBeetleHouseExtractOrigin(structure);
         setStructuresCache((prev) =>
           prev.map((s) => (s.id === result.structure.id ? result.structure : s)),
         );
         const latestStructures =
           queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
-        const latestStacks = queryClient.getQueryData<Stack[]>(queryKeys.stacks) ?? stacks;
-        const latestItems = queryClient.getQueryData<Item[]>(queryKeys.items) ?? items;
 
         if (
-          !beginAutoRouteIfPossible(
-            result.extractedItem,
-            origin,
-            latestStructures,
-            latestStacks,
-            latestItems,
-            { structureId: structure.id, onlyOperational: true },
-          )
+          !beginAutoRouteBugIfPossible(result.extractedOccupant, origin, latestStructures, {
+            structureId: structure.id,
+            onlyOperational: true,
+          })
         ) {
-          setItemsCache((prev) => [
+          setBugsCache((prev) => [
             ...prev,
-            { ...result.extractedItem, fromX: origin.x, fromY: origin.y },
+            { ...result.extractedOccupant, fromX: origin.x, fromY: origin.y },
           ]);
         }
       })();
@@ -686,7 +678,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       queryClient,
       craftOperationalResourceMutation,
       extractOccupantMutation,
-      extractStoredItemMutation,
       animatables,
       rows,
       cols,

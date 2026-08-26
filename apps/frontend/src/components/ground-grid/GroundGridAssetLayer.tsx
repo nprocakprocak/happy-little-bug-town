@@ -101,8 +101,9 @@ export function GroundGridAssetLayer({
               gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
             const showActivationGlow = structureShowsActivationGlow(structure);
             const firstHouseBug =
-              structure.structureType === "beetle_house" ? (structure.bugs ?? [])[0] : undefined;
-            const firstHouseGreenfly = getGreenflyHouseOccupants(structure)[0];
+              structure.structureType === "beetle_house"
+                ? (structure.bugs ?? [])[0]
+                : getGreenflyHouseOccupants(structure)[0];
             const isAutomated =
               isTermiteAssignableStructureType(structure.structureType) &&
               hasStructureAssignedTermite(structure);
@@ -157,25 +158,6 @@ export function GroundGridAssetLayer({
                     >
                       <Image
                         src={bugTypeToImage(firstHouseBug.bugType)}
-                        alt=""
-                        fill
-                        className="object-contain p-[8%] drop-shadow-sm"
-                        sizes={structureImageSizes}
-                      />
-                    </div>
-                  )}
-                  {firstHouseGreenfly && (
-                    <div
-                      className="absolute min-h-0 min-w-0 overflow-hidden rounded-sm"
-                      style={{
-                        right: 0,
-                        bottom: 0,
-                        width: `${100 / span}%`,
-                        height: `${100 / span}%`,
-                      }}
-                    >
-                      <Image
-                        src={itemTypeToImageForItem(firstHouseGreenfly.itemType)}
                         alt=""
                         fill
                         className="object-contain p-[8%] drop-shadow-sm"

@@ -122,7 +122,7 @@ export const digAtStructure = async (
     const emptyPosition = await findNearestEmptyPositionForAuthor(tx, authorId, structure);
     const itemOrBug = generateRandomItemType(structure.structureType);
 
-    if (itemOrBug === "beetle") {
+    if (itemOrBug === "beetle" || itemOrBug === "greenfly") {
       const createdBug = await tx.bug.create({
         data: {
           bugType: itemOrBug,

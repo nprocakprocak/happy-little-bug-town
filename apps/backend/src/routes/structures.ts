@@ -24,7 +24,6 @@ import { economyRateLimit } from "../middleware/rateLimits.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStructure } from "../middleware/requireOwnedEntity.js";
 import { getBug, getBugsByIds, updateBug as updateBugService } from "../services/bugsService.js";
-import { getItem, updateItem as updateItemService } from "../services/itemsService.js";
 import {
   craftOperationalBugAtStructure,
   craftOperationalItemAtStructure,
@@ -172,19 +171,28 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
   const authorId = req.authorId!;
   const existingStructure = req.structure!;
 
-  if (existingStructure.structureType !== "beetle_house") {
-    res.status(400).json({ error: "Only beetle houses can extract occupants" });
+  if (
+    existingStructure.structureType !== "beetle_house" &&
+    existingStructure.structureType !== "greenfly_house"
+  ) {
+    res.status(400).json({ error: "This structure cannot extract occupants" });
     return;
   }
-  if (existingStructure.bugs.length === 0) {
+
+  const occupants =
+    existingStructure.structureType === "greenfly_house"
+      ? getGreenflyHouseOccupants(existingStructure)
+      : existingStructure.bugs;
+  if (occupants.length === 0) {
     res.status(400).json({ error: "No occupants in house" });
     return;
   }
 
   const emptyPosition = await requireNearestEmpty(authorId, existingStructure);
 
-  const occupants = await getBugsByIds(existingStructure.bugs.map((bug) => bug.id));
-  const occupantToExtract = pickMostFedBug(occupants);
+  const occupantIds = occupants.map((occupant) => occupant.id);
+  const occupantBugs = await getBugsByIds(occupantIds);
+  const occupantToExtract = pickMostFedBug(occupantBugs);
 
   await updateBugService(occupantToExtract.id, {
     x: emptyPosition.x,
@@ -200,43 +208,6 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
 
   res.status(200).json({
     extractedOccupant: toBugOnGridDto(bug),
-    structure: toStructureOnGridDto(structure),
-  });
-};
-
-const extractStoredItem: RequestHandler<{ id: string }> = async (req, res) => {
-  const { id } = req.params;
-  const authorId = req.authorId!;
-  const existingStructure = req.structure!;
-
-  if (existingStructure.structureType !== "greenfly_house") {
-    res.status(400).json({ error: "This structure cannot extract stored items" });
-    return;
-  }
-
-  const occupants = getGreenflyHouseOccupants(existingStructure);
-  if (occupants.length === 0) {
-    res.status(400).json({ error: "No items in structure" });
-    return;
-  }
-
-  const emptyPosition = await requireNearestEmpty(authorId, existingStructure);
-  const occupantToExtract = occupants[0];
-
-  await updateItemService(occupantToExtract.id, {
-    x: emptyPosition.x,
-    y: emptyPosition.y,
-  });
-
-  const item = await getItem(occupantToExtract.id);
-  const structure = await getStructure(id);
-  if (!item || !structure) {
-    res.status(500).json({ error: "Failed to extract item from structure" });
-    return;
-  }
-
-  res.status(200).json({
-    extractedItem: toItemOnGridDto(item),
     structure: toStructureOnGridDto(structure),
   });
 };
@@ -342,6 +313,5 @@ structuresRouter.post("/bootstrap", createFirstStructure);
 structuresRouter.put("/:id", requireStructure, updateStructure);
 structuresRouter.post("/:id/evolve", requireStructure, evolveStructure);
 structuresRouter.post("/:id/extract-occupant", requireStructure, extractOccupant);
-structuresRouter.post("/:id/extract-item", requireStructure, extractStoredItem);
 structuresRouter.post("/:id/craft", economyRateLimit, requireStructure, craft);
 structuresRouter.post("/:id/dig", economyRateLimit, requireStructure, dig);

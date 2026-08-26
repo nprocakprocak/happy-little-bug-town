@@ -32,8 +32,6 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/iron-ore.webp";
     case "clay":
       return "/items/clay.webp";
-    case "greenfly":
-      return "/items/greenfly.webp";
     case "glass":
       return "/items/glass.webp";
     case "paper":
@@ -100,6 +98,8 @@ export function bugTypeToImage(bugType: BugType): string {
       return "/bugs/fly.webp";
     case "spider":
       return "/bugs/spider.webp";
+    case "greenfly":
+      return "/bugs/greenfly.webp";
     default:
       throw new Error(`Unknown bug type: ${bugType}`);
   }

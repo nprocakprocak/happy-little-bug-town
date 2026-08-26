@@ -15,7 +15,6 @@ type DiggableItemType =
   | "stick"
   | "iron_ore"
   | "clay"
-  | "greenfly"
   | "glass"
   | "paper"
   | "rotten_apple";
