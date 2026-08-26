@@ -1,4 +1,4 @@
-export type FarmBuildableStructureType = "mushrooms_field";
+export type FarmBuildableStructureType = "mushrooms_field" | "composter";
 
 export type BuildableStructureType =
   | "beetle_house"

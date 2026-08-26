@@ -1,1 +1,1 @@
-export type BugType = "beetle" | "ant" | "ladybug" | "termite";
+export type BugType = "beetle" | "ant" | "ladybug" | "termite" | "fly";

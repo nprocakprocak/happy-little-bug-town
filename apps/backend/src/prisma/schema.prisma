@@ -52,6 +52,7 @@ enum StructureType {
   smelter
   farm
   mushrooms_field
+  composter
 }
 
 enum BugType {
@@ -59,6 +60,7 @@ enum BugType {
   ant
   ladybug
   termite
+  fly
 }
 
 model User {

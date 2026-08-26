@@ -73,4 +73,9 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
       mushroom: { itemType: "paper", maxCount: 2 },
     },
   },
+  composter: {
+    0: {
+      fly: { itemType: "rotten_apple", maxCount: 2 },
+    },
+  },
 };

@@ -14,6 +14,7 @@ const BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<BuildableStructureType, true> = {
   smelter: true,
   farm: true,
   mushrooms_field: true,
+  composter: true,
 };
 
 const FARM_BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<
@@ -21,6 +22,7 @@ const FARM_BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<
   true
 > = {
   mushrooms_field: true,
+  composter: true,
 };
 
 const BUILDABLE_STRUCTURE_TYPE_SET: Set<string> = new Set(

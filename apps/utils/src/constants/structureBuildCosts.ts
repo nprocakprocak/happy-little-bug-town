@@ -72,6 +72,12 @@ export const MUSHROOMS_FIELD_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "root", count: 2 },
 ];
 
+export const COMPOSTER_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "clay", count: 2 },
+  { itemType: "rotten_apple", count: 2 },
+  { itemType: "leaf_part", count: 4 },
+];
+
 export const BUILD_RESOURCE_COSTS: Record<
   BuildableStructureType,
   BuildResourceCost[]
@@ -86,4 +92,5 @@ export const BUILD_RESOURCE_COSTS: Record<
   smelter: SMELTER_BUILD_COSTS,
   farm: FARM_BUILD_COSTS,
   mushrooms_field: MUSHROOMS_FIELD_BUILD_COSTS,
+  composter: COMPOSTER_BUILD_COSTS,
 };

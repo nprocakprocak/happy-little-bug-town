@@ -94,6 +94,8 @@ export function bugTypeToImage(bugType: BugType): string {
       return "/bugs/ladybug.webp";
     case "termite":
       return "/bugs/termite.webp";
+    case "fly":
+      return "/bugs/fly.webp";
     default:
       throw new Error(`Unknown bug type: ${bugType}`);
   }
@@ -136,6 +138,8 @@ export function structureTypeToImage(
       return "/structures/farm.webp";
     case "mushrooms_field":
       return "/structures/mushrooms-field.webp";
+    case "composter":
+      return "/structures/composter.webp";
     default:
       throw new Error(`Unknown structure type: ${structureType}`);
   }

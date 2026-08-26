@@ -24,6 +24,8 @@ export function structureTypeToName(structureType: StructureType): string {
       return "Farm";
     case "mushrooms_field":
       return "Mushroom field";
+    case "composter":
+      return "Composter";
     default:
       throw new Error(`Unknown structure type: ${structureType}`);
   }
