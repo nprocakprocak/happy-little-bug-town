@@ -120,7 +120,7 @@ export const digAtStructure = async (
   return prisma.$transaction(async (tx) => {
     await lockAuthorGrid(tx, authorId);
     const emptyPosition = await findNearestEmptyPositionForAuthor(tx, authorId, structure);
-    const itemOrBug = generateRandomItemType(structure.structureType !== "hole");
+    const itemOrBug = generateRandomItemType(structure.structureType);
 
     if (itemOrBug === "beetle") {
       const createdBug = await tx.bug.create({

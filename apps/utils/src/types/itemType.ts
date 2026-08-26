@@ -17,7 +17,8 @@ type DiggableItemType =
   | "clay"
   | "greenfly"
   | "glass"
-  | "paper";
+  | "paper"
+  | "rotten_apple";
 
 type CraftableItemType =
   | "brick"

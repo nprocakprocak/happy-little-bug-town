@@ -1,4 +1,4 @@
-import { DiggableType } from "@happy-little-bug-town/utils";
+import { DiggableType, StructureType } from "@happy-little-bug-town/utils";
 
 const ITEM_TYPES_WEIGHTS_FOR_HOLE = {
   beetle: 0.2,
@@ -16,41 +16,48 @@ const ITEM_TYPES_WEIGHTS_FOR_ANTHILL = {
   paper: 1,
 };
 
+const ITEM_TYPES_WEIGHTS_FOR_TERMITE_HILL = {
+  rotten_apple: 1,
+};
+
 const HOLE_SHARE_WHEN_ANTHILL_EXISTS = 0.3;
 const ANTHILL_SHARE_WHEN_ANTHILL_EXISTS = 0.7;
 
+const HOLE_SHARE_WHEN_TERMITE_HILL_EXISTS = 0.2;
+const ANTHILL_SHARE_WHEN_TERMITE_HILL_EXISTS = 0.3;
+const TERMITE_HILL_SHARE_WHEN_TERMITE_HILL_EXISTS = 0.5;
+
 function combineCumulativeWeights(
-  firstWeights: Record<string, number>,
-  secondWeights: Record<string, number>,
-  firstShare: number,
-  secondShare: number,
+  tables: { weights: Record<string, number>; share: number }[],
 ): Record<string, number> {
   const combined: Record<string, number> = {};
-  let previousThreshold = 0;
   let cumulative = 0;
 
-  for (const itemType of Object.keys(firstWeights)) {
-    cumulative += (firstWeights[itemType] - previousThreshold) * firstShare;
-    combined[itemType] = cumulative;
-    previousThreshold = firstWeights[itemType];
-  }
-
-  previousThreshold = 0;
-  for (const itemType of Object.keys(secondWeights)) {
-    cumulative += (secondWeights[itemType] - previousThreshold) * secondShare;
-    combined[itemType] = cumulative;
-    previousThreshold = secondWeights[itemType];
+  for (const table of tables) {
+    let previousThreshold = 0;
+    for (const itemType of Object.keys(table.weights)) {
+      cumulative += (table.weights[itemType] - previousThreshold) * table.share;
+      combined[itemType] = cumulative;
+      previousThreshold = table.weights[itemType];
+    }
   }
 
   return combined;
 }
 
-const ITEM_TYPES_WEIGHTS_FOR_ANTHILL_WITH_HOLE = combineCumulativeWeights(
-  ITEM_TYPES_WEIGHTS_FOR_HOLE,
-  ITEM_TYPES_WEIGHTS_FOR_ANTHILL,
-  HOLE_SHARE_WHEN_ANTHILL_EXISTS,
-  ANTHILL_SHARE_WHEN_ANTHILL_EXISTS,
-);
+const ANTHILL_WEIGHTS = combineCumulativeWeights([
+  { weights: ITEM_TYPES_WEIGHTS_FOR_HOLE, share: HOLE_SHARE_WHEN_ANTHILL_EXISTS },
+  { weights: ITEM_TYPES_WEIGHTS_FOR_ANTHILL, share: ANTHILL_SHARE_WHEN_ANTHILL_EXISTS },
+]);
+
+const TERMITE_HILL_WEIGHTS = combineCumulativeWeights([
+  { weights: ITEM_TYPES_WEIGHTS_FOR_HOLE, share: HOLE_SHARE_WHEN_TERMITE_HILL_EXISTS },
+  { weights: ITEM_TYPES_WEIGHTS_FOR_ANTHILL, share: ANTHILL_SHARE_WHEN_TERMITE_HILL_EXISTS },
+  {
+    weights: ITEM_TYPES_WEIGHTS_FOR_TERMITE_HILL,
+    share: TERMITE_HILL_SHARE_WHEN_TERMITE_HILL_EXISTS,
+  },
+]);
 
 function pickRandomItemType(weights: Record<string, number>, fallback: DiggableType): DiggableType {
   const seed = Math.random();
@@ -61,9 +68,15 @@ function pickRandomItemType(weights: Record<string, number>, fallback: DiggableT
   return itemType as DiggableType;
 }
 
-export function generateRandomItemType(includeAnthillItems: boolean): DiggableType {
-  if (includeAnthillItems) {
-    return pickRandomItemType(ITEM_TYPES_WEIGHTS_FOR_ANTHILL_WITH_HOLE, "iron_ore");
+export function generateRandomItemType(structureType: StructureType): DiggableType {
+  if (structureType === "termite_mound") {
+    return pickRandomItemType(
+      TERMITE_HILL_WEIGHTS,
+      "rotten_apple",
+    );
+  }
+  if (structureType === "anthill") {
+    return pickRandomItemType(ANTHILL_WEIGHTS, "iron_ore");
   }
   return pickRandomItemType(ITEM_TYPES_WEIGHTS_FOR_HOLE, "leaf_part");
 }
