@@ -582,7 +582,19 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
           if (result.bug) {
             const craftedBug = result.bug;
-            setBugsCache((prev) => [...prev, { ...craftedBug, fromX: origin.x, fromY: origin.y }]);
+            const latestStructures =
+              queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
+
+            if (
+              !beginAutoRouteBugIfPossible(craftedBug, origin, latestStructures, {
+                structureId: structure.id,
+              })
+            ) {
+              setBugsCache((prev) => [
+                ...prev,
+                { ...craftedBug, fromX: origin.x, fromY: origin.y },
+              ]);
+            }
             return;
           }
           if (result.item) {
