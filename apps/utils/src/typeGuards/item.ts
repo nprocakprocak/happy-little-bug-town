@@ -29,6 +29,7 @@ const ITEM_TYPE_BY_KEY: Record<ItemType, true> = {
   mushroom: true,
   pasta: true,
   rotten_apple: true,
+  stuffed_fly: true,
 };
 
 export const ITEM_TYPES = Object.keys(ITEM_TYPE_BY_KEY) as ItemType[];

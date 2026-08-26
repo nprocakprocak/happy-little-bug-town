@@ -50,6 +50,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
     0: {
       nettle_soup: { itemType: "leaf_part", maxCount: 2 },
       grilled_greenflies: { itemType: "greenfly", maxCount: 3 },
+      stuffed_fly: { bugType: "fly", maxCount: 1 },
     },
     1: {
       pasta: { itemType: "mushroom", maxCount: 2 },
@@ -60,6 +61,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
       ant: { itemType: "nettle_soup", maxCount: 2 },
       ladybug: { itemType: "grilled_greenflies", maxCount: 2 },
       termite: { itemType: "pasta", maxCount: 2 },
+      spider: { itemType: "stuffed_fly", maxCount: 2 },
     },
   },
   smelter: {

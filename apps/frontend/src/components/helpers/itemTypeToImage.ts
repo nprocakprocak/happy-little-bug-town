@@ -58,6 +58,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/pasta.webp";
     case "rotten_apple":
       return "/items/rotten-apple.webp";
+    case "stuffed_fly":
+      return "/items/stuffed-fly.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
@@ -96,6 +98,8 @@ export function bugTypeToImage(bugType: BugType): string {
       return "/bugs/termite.webp";
     case "fly":
       return "/bugs/fly.webp";
+    case "spider":
+      return "/bugs/spider.webp";
     default:
       throw new Error(`Unknown bug type: ${bugType}`);
   }

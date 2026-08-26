@@ -36,6 +36,7 @@ enum ItemType {
   mushroom
   pasta
   rotten_apple
+  stuffed_fly
 }
 
 enum StructureType {
@@ -61,6 +62,7 @@ enum BugType {
   ladybug
   termite
   fly
+  spider
 }
 
 model User {

@@ -30,6 +30,7 @@ type CraftableItemType =
   | "paving_stone"
   | "plank"
   | "mushroom"
-  | "pasta";
+  | "pasta"
+  | "stuffed_fly";
 
 export type ItemType = DiggableItemType | CraftableItemType | WorkshopItemType;
