@@ -37,6 +37,9 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
     1: {
       paving_stone: { itemType: "brick", maxCount: 1 },
     },
+    2: {
+      sculpture: { itemType: "paving_stone", maxCount: 1 },
+    },
   },
   woodcutter: {
     0: {
@@ -44,6 +47,9 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
     },
     1: {
       plank: { itemType: "wood", maxCount: 1 },
+    },
+    2: {
+      furniture: { itemType: "plank", maxCount: 1 },
     },
   },
   kitchen: {
@@ -59,7 +65,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   tavern: {
     0: {
       ant: { itemType: "nettle_soup", maxCount: 2 },
-      ladybug: { itemType: "grilled_greenflies", maxCount: 2 },
+      ladybug: { itemType: "grilled_greenflies", maxCount: 1 },
       termite: { itemType: "pasta", maxCount: 2 },
       spider: { itemType: "stuffed_fly", maxCount: 2 },
     },

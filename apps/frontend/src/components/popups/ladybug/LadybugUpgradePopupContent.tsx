@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from "react";
 import {
-  canStartStructureUpgrade,
-  getCurrentOrNextUpgradeLevel,
+  canStartStructureUpgradeToLevel,
   getUpgradeResourceCostsForType,
 } from "@happy-little-bug-town/utils";
 
@@ -30,20 +29,22 @@ export function LadybugUpgradePopupContent({
     () =>
       UPGRADE_OPTIONS.map((structure) => ({
         id: structure.id,
-        imageSrc: structureTypeToImage(structure.structureType, 1),
+        imageSrc: structureTypeToImage(structure.structureType, structure.upgradeLevel),
         label: structureTypeToName(structure.structureType),
       })),
     [],
   );
-  const selectedStructure = UPGRADE_OPTIONS[selectedBuildingIndex];
+  const selectedOption = UPGRADE_OPTIONS[selectedBuildingIndex];
   const existingStructure = structures.find(
-    (structure) => structure.structureType === selectedStructure.structureType,
+    (structure) => structure.structureType === selectedOption.structureType,
   );
   const selectedResourceCosts = getUpgradeResourceCostsForType(
-    selectedStructure.structureType,
-    existingStructure ? getCurrentOrNextUpgradeLevel(existingStructure) : 1,
+    selectedOption.structureType,
+    selectedOption.upgradeLevel,
   );
-  const canUpgrade = existingStructure ? canStartStructureUpgrade(existingStructure) : false;
+  const canUpgrade = existingStructure
+    ? canStartStructureUpgradeToLevel(existingStructure, selectedOption.upgradeLevel)
+    : false;
 
   function handleUpgradeClick() {
     if (!existingStructure || !canUpgrade) {

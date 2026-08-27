@@ -38,6 +38,14 @@ export function getUpgradeResourceCostsForType(
   );
 }
 
+export function getStructureUpgradeLevels(
+  structureType: UpgradableStructureType,
+): number[] {
+  return Object.keys(UPGRADE_RESOURCE_COSTS[structureType])
+    .map((level) => Number(level))
+    .sort((left, right) => left - right);
+}
+
 export function getCurrentOrNextUpgradeLevel(
   structure: StructureForUpgrade,
 ): number {
@@ -149,4 +157,14 @@ export function canStartStructureUpgrade(
   const nextLevel = structure.upgradeLevel + 1;
   const costs = UPGRADE_RESOURCE_COSTS[structure.structureType][nextLevel];
   return costs !== undefined && costs.length > 0;
+}
+
+export function canStartStructureUpgradeToLevel(
+  structure: StructureForUpgrade & StructureForBuild,
+  upgradeLevel: number,
+): boolean {
+  return (
+    canStartStructureUpgrade(structure) &&
+    getNextStructureUpgradeLevel(structure) === upgradeLevel
+  );
 }

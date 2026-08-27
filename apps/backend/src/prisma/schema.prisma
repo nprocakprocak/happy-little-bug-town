@@ -41,6 +41,8 @@ enum ItemType {
   concrete
   steel
   basket
+  furniture
+  sculpture
 }
 
 enum StructureType {

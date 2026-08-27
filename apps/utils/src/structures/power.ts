@@ -214,6 +214,35 @@ export function hasStructureItemPowerRequirements(
   return getStructureItemPowerRequirements(structureType, upgradeLevel).length > 0;
 }
 
+export function isStructurePoweredAtLevel(
+  structure: StructureForPower,
+  upgradeLevel: number,
+): boolean {
+  const bugRequirements = getStructureBugPowerRequirements(
+    structure.structureType,
+    upgradeLevel,
+  );
+  const bugsPowered =
+    bugRequirements.length === 0 ||
+    bugRequirements.every(
+      ({ bugType, requiredCount }) =>
+        getStructureBugPowerSuppliedCount(structure, bugType) >= requiredCount,
+    );
+
+  const itemRequirements = getStructureItemPowerRequirements(
+    structure.structureType,
+    upgradeLevel,
+  );
+  const itemsPowered =
+    itemRequirements.length === 0 ||
+    itemRequirements.every(
+      ({ itemType, requiredCount }) =>
+        getStructureItemPowerSuppliedCount(structure, itemType) >= requiredCount,
+    );
+
+  return bugsPowered && itemsPowered;
+}
+
 export function isStructureBugPowered(structure: StructureForPower): boolean {
   const bugRequirements = getStructureBugPowerRequirements(
     structure.structureType,
@@ -245,7 +274,19 @@ export function isStructureItemPowered(structure: StructureForPower): boolean {
 }
 
 export function isStructurePowered(structure: StructureForPower): boolean {
-  return isStructureBugPowered(structure) && isStructureItemPowered(structure);
+  return isStructurePoweredAtLevel(structure, getCompletedUpgradeLevel(structure));
+}
+
+export function getOperationalUpgradeLevel(structure: StructureForPower): number {
+  const completedLevel = getCompletedUpgradeLevel(structure);
+  if (completedLevel > 0 && !isStructurePoweredAtLevel(structure, completedLevel)) {
+    return completedLevel - 1;
+  }
+  return completedLevel;
+}
+
+export function isStructureOperationallyPowered(structure: StructureForPower): boolean {
+  return isStructurePoweredAtLevel(structure, getOperationalUpgradeLevel(structure));
 }
 
 export function canStructureAcceptItemPowerDrop(

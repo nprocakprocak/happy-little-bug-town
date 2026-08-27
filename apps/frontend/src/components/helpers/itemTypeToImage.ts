@@ -68,6 +68,10 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/steel.webp";
     case "basket":
       return "/items/basket.webp";
+    case "furniture":
+      return "/items/furniture.webp";
+    case "sculpture":
+      return "/items/sculpture.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
@@ -145,10 +149,16 @@ export function structureTypeToImage(
     case "workshop":
       return "/structures/workshop.webp";
     case "stonemason":
+      if (upgradeLevel >= 2) {
+        return "/structures/stonemason-lvl-3.webp";
+      }
       return upgradeLevel >= 1
         ? "/structures/stonemason-lvl-2.webp"
         : "/structures/stonemason.webp";
     case "woodcutter":
+      if (upgradeLevel >= 2) {
+        return "/structures/woodcutter-lvl-3.webp";
+      }
       return upgradeLevel >= 1
         ? "/structures/woodcutter-lvl-2.webp"
         : "/structures/woodcutter.webp";

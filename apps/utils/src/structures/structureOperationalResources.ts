@@ -14,16 +14,13 @@ import {
   StructureWithIdentifiableItems,
 } from "./build.js";
 import {
+  getOperationalUpgradeLevel,
   getStructureBugPowerRequirements,
-  isStructurePowered,
+  isStructureOperationallyPowered,
   StructureForPower,
 } from "./power.js";
 import { getAssignedTermiteCapacity } from "./termiteAssignment.js";
-import {
-  getCompletedUpgradeLevel,
-  getReservedItemCountForOperationalResources,
-  StructureForUpgrade,
-} from "./upgrade.js";
+import { getReservedItemCountForOperationalResources, StructureForUpgrade } from "./upgrade.js";
 
 export interface CraftableOperationalResourceOutput {
   outputType: StructureOperationalOutputType;
@@ -87,13 +84,13 @@ function getStructureBugCount(
 }
 
 function getReservedBugCountForOperationalResources(
-  structure: StructureForUpgrade,
+  structure: StructureForOperationalResources,
   bugType: BugType,
 ): number {
   const powerRequired =
     getStructureBugPowerRequirements(
       structure.structureType,
-      getCompletedUpgradeLevel(structure),
+      getOperationalUpgradeLevel(structure),
     ).find((requirement) => requirement.bugType === bugType)?.requiredCount ?? 0;
   const termiteReserved =
     bugType === "termite"
@@ -128,7 +125,7 @@ function getOperationalResourceCountForRequirement(
 }
 
 export function getStructureOperationalResourceOutputs(
-  structure: StructureForUpgrade,
+  structure: StructureForOperationalResources,
 ): StructureOperationalResourceOutputs | undefined {
   const outputsByLevel =
     STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS[structure.structureType];
@@ -136,7 +133,7 @@ export function getStructureOperationalResourceOutputs(
     return undefined;
   }
 
-  const operationalLevel = getCompletedUpgradeLevel(structure);
+  const operationalLevel = getOperationalUpgradeLevel(structure);
   const mergedOutputs: StructureOperationalResourceOutputs = {};
   let hasOutputs = false;
 
@@ -197,7 +194,7 @@ function canAcceptOperationalRequirement(
   if (
     !outputs ||
     !isStructureBuilt(structure) ||
-    !isStructurePowered(structure)
+    !isStructureOperationallyPowered(structure)
   ) {
     return false;
   }
@@ -279,7 +276,7 @@ export function getStructureOperationalResourceBugs(
 export function getCraftableOperationalResourceOutput(
   structure: StructureForOperationalResources & StructureForPower,
 ): CraftableOperationalResourceOutput | undefined {
-  if (!isStructureBuilt(structure) || !isStructurePowered(structure)) {
+  if (!isStructureBuilt(structure) || !isStructureOperationallyPowered(structure)) {
     return undefined;
   }
 
@@ -291,7 +288,7 @@ export function getCraftableOperationalResourceOutput(
 export function getCraftableOperationalResourceOutputs(
   structure: StructureForOperationalResources & StructureForPower,
 ): CraftableOperationalResourceOutput[] {
-  if (!isStructureBuilt(structure) || !isStructurePowered(structure)) {
+  if (!isStructureBuilt(structure) || !isStructureOperationallyPowered(structure)) {
     return [];
   }
 
