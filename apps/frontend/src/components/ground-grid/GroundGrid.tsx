@@ -58,6 +58,7 @@ import {
   pickRandomNearestStructureCenterCell,
 } from "../helpers/structureCenterCell";
 import { AntPopup } from "../popups/ant/AntPopup";
+import { BeePopup } from "../popups/bee/BeePopup";
 import { BeetlePopup } from "../popups/beetle/BeetlePopup";
 import { FarmPopup } from "../popups/farm/FarmPopup";
 import { FlyPopup } from "../popups/fly/FlyPopup";
@@ -123,6 +124,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [selectedSpider, setSelectedSpider] = useState<Bug | null>(null);
   const [selectedFly, setSelectedFly] = useState<Bug | null>(null);
   const [selectedGreenfly, setSelectedGreenfly] = useState<Bug | null>(null);
+  const [selectedBee, setSelectedBee] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
@@ -726,6 +728,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     setSelectedGreenfly(bug);
   }, []);
 
+  const onBeeClick = useCallback((bug: Bug) => {
+    setSelectedBee(bug);
+  }, []);
+
   const onBeetleBuild = useCallback(
     (structure: Structure) => {
       if (!isBuildableStructureType(structure.structureType)) {
@@ -854,6 +860,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onSpiderClick={onSpiderClick}
           onFlyClick={onFlyClick}
           onGreenflyClick={onGreenflyClick}
+          onBeeClick={onBeeClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
@@ -885,6 +892,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         {selectedGreenfly && (
           <GreenflyPopup greenfly={selectedGreenfly} onClose={() => setSelectedGreenfly(null)} />
         )}
+        {selectedBee && <BeePopup bee={selectedBee} onClose={() => setSelectedBee(null)} />}
         {workshopPopupOpen && (
           <WorkshopPopup
             onClose={() => setWorkshopPopupOpen(false)}

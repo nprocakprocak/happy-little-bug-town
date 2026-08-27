@@ -40,6 +40,7 @@ type CraftableItemType =
   | "steel"
   | "furniture"
   | "sculpture"
-  | "book";
+  | "book"
+  | "flower";
 
 export type ItemType = DiggableItemType | CraftableItemType | WorkshopItemType;

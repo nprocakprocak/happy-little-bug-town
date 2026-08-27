@@ -85,6 +85,11 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
       mushroom: { itemType: "paper", maxCount: 2 },
     },
   },
+  flowers_field: {
+    0: {
+      flower: { itemType: "seeds", maxCount: 2 },
+    },
+  },
   composter: {
     0: {
       fly: { itemType: "rotten_apple", maxCount: 2 },
@@ -93,6 +98,11 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   library: {
     0: {
       book: { itemType: "paper", maxCount: 1 },
+    },
+  },
+  town_hall: {
+    0: {
+      bee: { itemType: "flower", maxCount: 3 },
     },
   },
 };

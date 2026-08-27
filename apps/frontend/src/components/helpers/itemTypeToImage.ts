@@ -78,6 +78,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/fountain.webp";
     case "book":
       return "/items/book.webp";
+    case "flower":
+      return "/items/flowers.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
@@ -128,6 +130,8 @@ export function bugTypeToImage(bugType: BugType, isFed: boolean = true): string 
       return "/bugs/spider.webp";
     case "greenfly":
       return isFed ? "/bugs/greenfly.webp" : "/items/greenfly-hungry.webp";
+    case "bee":
+      return "/bugs/bee.webp";
     default:
       throw new Error(`Unknown bug type: ${bugType}`);
   }
@@ -184,6 +188,8 @@ export function structureTypeToImage(
       return "/structures/town-hall.webp";
     case "mushrooms_field":
       return "/structures/mushrooms-field.webp";
+    case "flowers_field":
+      return "/items/flower-bed.webp";
     case "composter":
       return "/structures/composter.webp";
     default:

@@ -28,6 +28,8 @@ export function structureTypeToName(structureType: StructureType): string {
       return "Town hall";
     case "mushrooms_field":
       return "Mushroom field";
+    case "flowers_field":
+      return "Flower field";
     case "composter":
       return "Composter";
     default:

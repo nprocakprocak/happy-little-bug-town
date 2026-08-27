@@ -1,5 +1,6 @@
 import {
   ANT_MAX_NETTLE_SOUP,
+  BEE_MAX_FLOWERS,
   BEETLE_MAX_LEAF_PARTS,
   FLY_MAX_ROTTEN_APPLES,
   GREENFLY_MAX_LEAF_PARTS,
@@ -31,6 +32,7 @@ const BUG_FOOD_REQUIREMENTS: Partial<Record<BugType, BugFoodRequirement>> = {
   termite: { itemType: "pasta", maxCount: TERMITE_MAX_PASTA },
   spider: { itemType: "stuffed_fly", maxCount: SPIDER_MAX_STUFFED_FLIES },
   fly: { itemType: "rotten_apple", maxCount: FLY_MAX_ROTTEN_APPLES },
+  bee: { itemType: "flower", maxCount: BEE_MAX_FLOWERS },
 };
 
 export function getBugFoodRequirement(

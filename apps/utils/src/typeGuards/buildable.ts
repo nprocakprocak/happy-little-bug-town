@@ -16,6 +16,7 @@ const BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<BuildableStructureType, true> = {
   library: true,
   town_hall: true,
   mushrooms_field: true,
+  flowers_field: true,
   composter: true,
 };
 
@@ -24,6 +25,7 @@ const FARM_BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<
   true
 > = {
   mushrooms_field: true,
+  flowers_field: true,
   composter: true,
 };
 
