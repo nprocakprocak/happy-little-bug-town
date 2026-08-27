@@ -22,6 +22,10 @@ export function structureTypeToName(structureType: StructureType): string {
       return "Smelter";
     case "farm":
       return "Farm";
+    case "library":
+      return "Library";
+    case "town_hall":
+      return "Town hall";
     case "mushrooms_field":
       return "Mushroom field";
     case "composter":

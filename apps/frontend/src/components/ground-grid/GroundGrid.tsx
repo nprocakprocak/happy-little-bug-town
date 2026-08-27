@@ -60,8 +60,10 @@ import {
 import { AntPopup } from "../popups/ant/AntPopup";
 import { BeetlePopup } from "../popups/beetle/BeetlePopup";
 import { FarmPopup } from "../popups/farm/FarmPopup";
+import { FlyPopup } from "../popups/fly/FlyPopup";
 import { GreenflyPopup } from "../popups/greenfly/GreenflyPopup";
 import { LadybugPopup } from "../popups/ladybug/LadybugPopup";
+import { SpiderPopup } from "../popups/spider/SpiderPopup";
 import { TermitePopup } from "../popups/termite/TermitePopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { BugsProgressLayer } from "./BugsProgressLayer";
@@ -118,6 +120,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [selectedLadybug, setSelectedLadybug] = useState<Bug | null>(null);
   const [selectedAnt, setSelectedAnt] = useState<Bug | null>(null);
   const [selectedTermite, setSelectedTermite] = useState<Bug | null>(null);
+  const [selectedSpider, setSelectedSpider] = useState<Bug | null>(null);
+  const [selectedFly, setSelectedFly] = useState<Bug | null>(null);
   const [selectedGreenfly, setSelectedGreenfly] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
@@ -710,6 +714,14 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     setSelectedTermite(bug);
   }, []);
 
+  const onSpiderClick = useCallback((bug: Bug) => {
+    setSelectedSpider(bug);
+  }, []);
+
+  const onFlyClick = useCallback((bug: Bug) => {
+    setSelectedFly(bug);
+  }, []);
+
   const onGreenflyClick = useCallback((bug: Bug) => {
     setSelectedGreenfly(bug);
   }, []);
@@ -839,6 +851,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           onLadybugClick={onLadybugClick}
           onAntClick={onAntClick}
           onTermiteClick={onTermiteClick}
+          onSpiderClick={onSpiderClick}
+          onFlyClick={onFlyClick}
           onGreenflyClick={onGreenflyClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
@@ -864,6 +878,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         {selectedTermite && (
           <TermitePopup termite={selectedTermite} onClose={() => setSelectedTermite(null)} />
         )}
+        {selectedSpider && (
+          <SpiderPopup spider={selectedSpider} onClose={() => setSelectedSpider(null)} />
+        )}
+        {selectedFly && <FlyPopup fly={selectedFly} onClose={() => setSelectedFly(null)} />}
         {selectedGreenfly && (
           <GreenflyPopup greenfly={selectedGreenfly} onClose={() => setSelectedGreenfly(null)} />
         )}

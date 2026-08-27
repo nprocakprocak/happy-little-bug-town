@@ -7,7 +7,9 @@ export type WorkshopItemType =
   | "crucible"
   | "wheelbarrel"
   | "plow"
-  | "basket";
+  | "basket"
+  | "desk"
+  | "fountain";
 
 type DiggableItemType =
   | "leaf_part"
@@ -37,6 +39,7 @@ type CraftableItemType =
   | "concrete"
   | "steel"
   | "furniture"
-  | "sculpture";
+  | "sculpture"
+  | "book";
 
 export type ItemType = DiggableItemType | CraftableItemType | WorkshopItemType;

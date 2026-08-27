@@ -90,4 +90,9 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
       fly: { itemType: "rotten_apple", maxCount: 2 },
     },
   },
+  library: {
+    0: {
+      book: { itemType: "paper", maxCount: 1 },
+    },
+  },
 };

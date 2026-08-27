@@ -1,4 +1,3 @@
-import { getBugFoodRequirement } from "../bugs/feeding.js";
 import { ItemForCraft } from "../items/craft.js";
 import { BugType } from "../types/bugType.js";
 import { canAcceptItemForBuild, StructureForBuild } from "./build.js";
@@ -42,10 +41,7 @@ export function droppedBugMustBeFed(
     return true;
   }
 
-  return (
-    canAcceptOperationalBugForStructure(structure, bug.bugType) &&
-    getBugFoodRequirement(bug.bugType) !== undefined
-  );
+  return canAcceptOperationalBugForStructure(structure, bug.bugType);
 }
 
 export function canDiscardBugOnStructure(

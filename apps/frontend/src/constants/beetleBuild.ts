@@ -12,6 +12,8 @@ const BUILDABLE_STRUCTURE_TYPES: BuildableStructureType[] = [
   "smelter",
   "greenfly_house",
   "farm",
+  "library",
+  "town_hall",
 ];
 
 export const BUILDING_OPTIONS: Structure[] = BUILDABLE_STRUCTURE_TYPES.map<Structure>(

@@ -4,7 +4,6 @@ import {
   canAcceptOperationalResourceForStructure,
   canStackItemType,
   canStructureAcceptBugDrop,
-  getBugFoodRequirement,
   hasStructureAssignedTermite,
   isBugFed,
   ItemType,
@@ -230,7 +229,7 @@ export function findAutoRouteBugTarget(
   origin?: Position,
   exclude?: AutoRouteExclude,
 ): AutoRouteToStructure | undefined {
-  const canUseOperational = getBugFoodRequirement(bug.bugType) === undefined || isBugFed(bug);
+  const canUseOperational = isBugFed(bug);
   const operational = canUseOperational
     ? findStructureWithAssignedTermiteForBug(bug.bugType, structures, origin, exclude?.structureId)
     : undefined;

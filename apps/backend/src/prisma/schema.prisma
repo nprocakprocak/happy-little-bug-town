@@ -43,6 +43,9 @@ enum ItemType {
   basket
   furniture
   sculpture
+  desk
+  fountain
+  book
 }
 
 enum StructureType {
@@ -60,6 +63,8 @@ enum StructureType {
   farm
   mushrooms_field
   composter
+  library
+  town_hall
 }
 
 enum BugType {

@@ -13,6 +13,8 @@ const BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<BuildableStructureType, true> = {
   tavern: true,
   smelter: true,
   farm: true,
+  library: true,
+  town_hall: true,
   mushrooms_field: true,
   composter: true,
 };

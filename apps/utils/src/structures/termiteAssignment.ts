@@ -13,6 +13,7 @@ const TERMITE_ASSIGNABLE_STRUCTURE_TYPES: Set<StructureType> = new Set([
   "smelter",
   "mushrooms_field",
   "composter",
+  "library",
 ]);
 
 interface BugForTermiteAssignment {

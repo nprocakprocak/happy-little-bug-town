@@ -5,10 +5,12 @@ import {
   GREENFLY_HOUSE_SPAN,
   GROUND_EVOLUTION_SPAN,
   KITCHEN_SPAN,
+  LIBRARY_SPAN,
   MUSHROOMS_FIELD_SPAN,
   SMELTER_SPAN,
   STONEMASON_SPAN,
   TAVERN_SPAN,
+  TOWN_HALL_SPAN,
   WOODCUTTER_SPAN,
   WORKSHOP_SPAN,
 } from "../constants/game.js";
@@ -34,6 +36,10 @@ export function getStructureSpan(structureType: StructureType): number {
       return SMELTER_SPAN;
     case "farm":
       return FARM_SPAN;
+    case "library":
+      return LIBRARY_SPAN;
+    case "town_hall":
+      return TOWN_HALL_SPAN;
     case "mushrooms_field":
       return MUSHROOMS_FIELD_SPAN;
     case "composter":

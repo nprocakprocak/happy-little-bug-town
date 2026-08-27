@@ -47,6 +47,8 @@ interface GroundGridInteractionLayerProps {
   onLadybugClick: (bug: Bug) => void;
   onAntClick: (bug: Bug) => void;
   onTermiteClick: (bug: Bug) => void;
+  onSpiderClick: (bug: Bug) => void;
+  onFlyClick: (bug: Bug) => void;
   onGreenflyClick: (bug: Bug) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
@@ -66,6 +68,8 @@ export function GroundGridInteractionLayer({
   onLadybugClick,
   onAntClick,
   onTermiteClick,
+  onSpiderClick,
+  onFlyClick,
   onGreenflyClick,
   onDragChange,
   onItemDropCancelled,
@@ -98,6 +102,14 @@ export function GroundGridInteractionLayer({
     }
     if (bug.bugType === "termite") {
       onTermiteClick(bug);
+      return;
+    }
+    if (bug.bugType === "spider") {
+      onSpiderClick(bug);
+      return;
+    }
+    if (bug.bugType === "fly") {
+      onFlyClick(bug);
       return;
     }
     if (bug.bugType === "greenfly") {

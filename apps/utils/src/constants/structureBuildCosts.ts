@@ -78,6 +78,20 @@ export const COMPOSTER_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 4 },
 ];
 
+export const LIBRARY_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "concrete", count: 1 },
+  { itemType: "steel", count: 1 },
+  { itemType: "furniture", count: 2 },
+  { itemType: "sculpture", count: 2 },
+];
+
+export const TOWN_HALL_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "concrete", count: 1 },
+  { itemType: "steel", count: 1 },
+  { itemType: "furniture", count: 2 },
+  { itemType: "fountain", count: 1 },
+];
+
 export const BUILD_RESOURCE_COSTS: Record<
   BuildableStructureType,
   BuildResourceCost[]
@@ -93,4 +107,6 @@ export const BUILD_RESOURCE_COSTS: Record<
   farm: FARM_BUILD_COSTS,
   mushrooms_field: MUSHROOMS_FIELD_BUILD_COSTS,
   composter: COMPOSTER_BUILD_COSTS,
+  library: LIBRARY_BUILD_COSTS,
+  town_hall: TOWN_HALL_BUILD_COSTS,
 };

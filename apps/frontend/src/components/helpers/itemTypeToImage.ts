@@ -72,6 +72,12 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/furniture.webp";
     case "sculpture":
       return "/items/sculpture.webp";
+    case "desk":
+      return "/items/desk.webp";
+    case "fountain":
+      return "/items/fountain.webp";
+    case "book":
+      return "/items/book.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
@@ -172,6 +178,10 @@ export function structureTypeToImage(
       return upgradeLevel >= 1 ? "/structures/smelter-lvl-2.webp" : "/structures/smelter.webp";
     case "farm":
       return "/structures/farm.webp";
+    case "library":
+      return "/structures/library.webp";
+    case "town_hall":
+      return "/structures/town-hall.webp";
     case "mushrooms_field":
       return "/structures/mushrooms-field.webp";
     case "composter":

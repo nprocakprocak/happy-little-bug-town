@@ -10,6 +10,8 @@ export type BuildableStructureType =
   | "tavern"
   | "smelter"
   | "farm"
+  | "library"
+  | "town_hall"
   | FarmBuildableStructureType;
 
 export type UpgradableStructureType = "stonemason" | "woodcutter" | "kitchen" | "smelter";

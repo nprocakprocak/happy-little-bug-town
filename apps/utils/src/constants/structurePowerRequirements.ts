@@ -85,4 +85,16 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
       itemRequirements: [{ itemType: "plow", requiredCount: 2 }],
     },
   },
+  library: {
+    0: {
+      bugRequirements: [{ bugType: "spider", requiredCount: 3 }],
+      itemRequirements: [{ itemType: "desk", requiredCount: 3 }],
+    },
+  },
+  town_hall: {
+    0: {
+      bugRequirements: [{ bugType: "spider", requiredCount: 3 }],
+      itemRequirements: [{ itemType: "book", requiredCount: 3 }],
+    },
+  },
 };
