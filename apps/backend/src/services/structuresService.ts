@@ -1,6 +1,6 @@
 import {
   BugType,
-  isGroundEvolutionStructureType,
+  canDigAtStructureType,
   ItemType,
   Position,
   StructureType,
@@ -113,7 +113,7 @@ export const digAtStructure = async (
   authorId: string,
   structure: StructureDto,
 ): Promise<ItemDto | BugDto> => {
-  if (!isGroundEvolutionStructureType(structure.structureType)) {
+  if (!canDigAtStructureType(structure.structureType)) {
     throw new AppError(400, "This structure type cannot be dug");
   }
 

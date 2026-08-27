@@ -1,8 +1,12 @@
-import { ANTHILL_TERMITE_CAPACITY, HOLE_ANT_CAPACITY } from "./game.js";
+import {
+  ANTHILL_TERMITE_CAPACITY,
+  HOLE_ANT_CAPACITY,
+  TERMITE_MOUND_BEE_CAPACITY,
+} from "./game.js";
 import { BugType } from "../types/bugType.js";
 import { StructureType } from "../types/structureType.js";
 
-export const GROUND_BACKGROUND_IDS = ["sand", "sandy_soil", "fertile_soil"];
+export const GROUND_BACKGROUND_IDS = ["sand", "sandy_soil", "fertile_soil", "grass"];
 
 export type GroundBackgroundId = (typeof GROUND_BACKGROUND_IDS)[number];
 
@@ -28,5 +32,12 @@ export const STRUCTURE_EVOLUTION_STEPS: StructureEvolutionStep[] = [
     occupantBugType: "termite",
     occupantCapacity: ANTHILL_TERMITE_CAPACITY,
     backgroundId: "fertile_soil",
+  },
+  {
+    fromType: "termite_mound",
+    toType: "beehive",
+    occupantBugType: "bee",
+    occupantCapacity: TERMITE_MOUND_BEE_CAPACITY,
+    backgroundId: "grass",
   },
 ];

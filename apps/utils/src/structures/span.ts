@@ -22,6 +22,7 @@ export function getStructureSpan(structureType: StructureType): number {
     case "hole":
     case "anthill":
     case "termite_mound":
+    case "beehive":
       return GROUND_EVOLUTION_SPAN;
     case "workshop":
       return WORKSHOP_SPAN;

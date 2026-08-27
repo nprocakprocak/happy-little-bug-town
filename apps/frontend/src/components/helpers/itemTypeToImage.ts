@@ -152,6 +152,8 @@ export function structureTypeToImage(
       return "/structures/anthill.webp";
     case "termite_mound":
       return "/structures/termite-mound.webp";
+    case "beehive":
+      return "/structures/beehive.webp";
     case "beetle_house":
       return "/structures/beetle-house.webp";
     case "greenfly_house":

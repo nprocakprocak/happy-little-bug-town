@@ -53,6 +53,7 @@ enum StructureType {
   hole
   anthill
   termite_mound
+  beehive
   beetle_house
   greenfly_house
   workshop

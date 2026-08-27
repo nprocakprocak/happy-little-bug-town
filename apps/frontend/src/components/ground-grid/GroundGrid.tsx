@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   canCraftFromStructureOperationalResources,
   canCreateItemType,
+  canDigAtStructureType,
   canDiscardBugOnStructure,
   canDiscardItemOnStructure,
   canDropBugOnStack,
@@ -11,7 +12,6 @@ import {
   getEvolutionStepFromType,
   getGreenflyHouseOccupants,
   isBuildableStructureType,
-  isGroundEvolutionStructureType,
   isStructurePowered,
   isStructureReadyToEvolve,
   ItemType,
@@ -529,7 +529,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onStructureClick = useCallback(
     (structure: Structure) => {
-      if (isGroundEvolutionStructureType(structure.structureType)) {
+      if (canDigAtStructureType(structure.structureType)) {
         void (async () => {
           const itemOrBug = await digQueue.enqueue(structure.id);
           const origin = pickRandomNearestStructureCenterCell(structure);

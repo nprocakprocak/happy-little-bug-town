@@ -72,10 +72,7 @@ function pickRandomItemType(weights: Record<string, number>, fallback: DiggableT
 
 export function generateRandomItemType(structureType: StructureType): DiggableType {
   if (structureType === "termite_mound") {
-    return pickRandomItemType(
-      TERMITE_HILL_WEIGHTS,
-      "rotten_apple",
-    );
+    return pickRandomItemType(TERMITE_HILL_WEIGHTS, "rotten_apple");
   }
   if (structureType === "anthill") {
     return pickRandomItemType(ANTHILL_WEIGHTS, "iron_ore");

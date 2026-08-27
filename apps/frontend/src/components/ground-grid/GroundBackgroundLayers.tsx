@@ -5,6 +5,7 @@ const GROUND_BACKGROUND_IMAGE_SRC: Record<GroundBackgroundId, string> = {
   sand: "/backgrounds/bg-sand.webp",
   sandy_soil: "/backgrounds/bg-sandy-soil.webp",
   fertile_soil: "/backgrounds/bg-fertile-soil.webp",
+  grass: "/backgrounds/bg-grass.webp",
 };
 
 interface GroundBackgroundLayersProps {

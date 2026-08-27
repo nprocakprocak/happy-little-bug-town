@@ -19,4 +19,9 @@ export type BuildableStructureType =
 
 export type UpgradableStructureType = "stonemason" | "woodcutter" | "kitchen" | "smelter";
 
-export type StructureType = "hole" | "anthill" | "termite_mound" | BuildableStructureType;
+export type StructureType =
+  | "hole"
+  | "anthill"
+  | "termite_mound"
+  | "beehive"
+  | BuildableStructureType;

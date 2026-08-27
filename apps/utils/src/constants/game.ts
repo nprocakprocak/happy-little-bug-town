@@ -10,6 +10,7 @@ export const FLY_MAX_ROTTEN_APPLES = 2;
 export const BEE_MAX_FLOWERS = 3;
 export const HOLE_ANT_CAPACITY = 3;
 export const ANTHILL_TERMITE_CAPACITY = 3;
+export const TERMITE_MOUND_BEE_CAPACITY = 3;
 export const GROUND_EVOLUTION_SPAN = 2;
 export const BEETLE_HOUSE_SPAN = 2;
 export const GREENFLY_HOUSE_SPAN = 2;
