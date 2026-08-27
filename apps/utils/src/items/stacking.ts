@@ -3,6 +3,7 @@ import { isItemCrafted, ItemForCraft } from "./craft.js";
 
 const LEAF_RAKE_ITEM_TYPE: ItemType = "leaf_rake";
 const WHEELBARREL_ITEM_TYPE: ItemType = "wheelbarrel";
+const BASKET_ITEM_TYPE: ItemType = "basket";
 
 const LEAF_RAKE_STACKABLE_ITEM_TYPES: Set<ItemType> = new Set([
   "leaf_part",
@@ -15,6 +16,13 @@ const WHEELBARREL_STACKABLE_ITEM_TYPES: Set<ItemType> = new Set([
   "iron_ore",
   "clay",
   "glass",
+  "gravel",
+]);
+
+const BASKET_STACKABLE_ITEM_TYPES: Set<ItemType> = new Set([
+  "rotten_apple",
+  "paper",
+  "seeds",
 ]);
 
 export function hasCraftedItem(
@@ -36,6 +44,10 @@ export function canStackItemType(
 
   if (WHEELBARREL_STACKABLE_ITEM_TYPES.has(itemType)) {
     return hasCraftedItem(items, WHEELBARREL_ITEM_TYPE);
+  }
+
+  if (BASKET_STACKABLE_ITEM_TYPES.has(itemType)) {
+    return hasCraftedItem(items, BASKET_ITEM_TYPE);
   }
 
   return false;

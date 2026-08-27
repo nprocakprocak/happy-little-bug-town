@@ -66,6 +66,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/concrete.webp";
     case "steel":
       return "/items/steel.webp";
+    case "basket":
+      return "/items/basket.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
@@ -87,6 +89,14 @@ export function itemTypeToImageForStack(itemType: ItemType): string {
       return "/stacks/clay-pile.webp";
     case "glass":
       return "/stacks/glass-pile.webp";
+    case "rotten_apple":
+      return "/stacks/apples-stack.webp";
+    case "paper":
+      return "/stacks/paper-stack.webp";
+    case "seeds":
+      return "/stacks/seeds-pile.webp";
+    case "gravel":
+      return "/stacks/gravel-stack.webp";
     default:
       throw new Error(`Unstackable item type: ${itemType}`);
   }

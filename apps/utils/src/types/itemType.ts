@@ -6,7 +6,8 @@ export type WorkshopItemType =
   | "knife"
   | "crucible"
   | "wheelbarrel"
-  | "plow";
+  | "plow"
+  | "basket";
 
 type DiggableItemType =
   | "leaf_part"

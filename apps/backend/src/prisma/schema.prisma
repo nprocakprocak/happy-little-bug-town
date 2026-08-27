@@ -40,6 +40,7 @@ enum ItemType {
   gravel
   concrete
   steel
+  basket
 }
 
 enum StructureType {

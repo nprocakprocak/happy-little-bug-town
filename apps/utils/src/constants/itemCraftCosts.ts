@@ -42,6 +42,10 @@ export const ITEM_CRAFT_COSTS: Record<
     { itemType: "wood", count: 2 },
     { itemType: "iron_ingot", count: 2 },
   ],
+  basket: [
+    { itemType: "iron_ingot", count: 2 },
+    { itemType: "steel", count: 1 },
+  ],
   shovel: [
     { itemType: "little_rock", count: 2 },
     { itemType: "stick", count: 1 },

@@ -5,6 +5,7 @@ const UNIQUE_CRAFTABLE_ITEM_TYPES = new Set<WorkshopItemType>([
   "leaf_rake",
   "shovel",
   "wheelbarrel",
+  "basket",
 ]);
 
 export function canCreateMultipleOfItemType(itemType: ItemType): boolean {

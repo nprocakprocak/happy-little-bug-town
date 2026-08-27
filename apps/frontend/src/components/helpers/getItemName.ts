@@ -18,5 +18,7 @@ export function itemTypeToName(itemType: WorkshopItemType): string {
       return "Wheelbarrel";
     case "plow":
       return "Plow";
+    case "basket":
+      return "Basket";
   }
 }
