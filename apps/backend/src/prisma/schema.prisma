@@ -36,6 +36,10 @@ enum ItemType {
   pasta
   rotten_apple
   stuffed_fly
+  seeds
+  gravel
+  concrete
+  steel
 }
 
 enum StructureType {

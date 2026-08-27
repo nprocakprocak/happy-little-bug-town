@@ -4,6 +4,7 @@ const UPGRADABLE_STRUCTURE_TYPES: UpgradableStructureType[] = [
   "stonemason",
   "woodcutter",
   "kitchen",
+  "smelter",
 ];
 
 export const UPGRADE_OPTIONS = UPGRADABLE_STRUCTURE_TYPES.map((structureType) => ({

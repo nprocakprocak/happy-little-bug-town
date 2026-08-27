@@ -51,6 +51,13 @@ export function getNextStructureUpgradeLevel(structure: StructureForUpgrade): nu
   return structure.upgradeLevel + 1;
 }
 
+export function getCompletedUpgradeLevel(structure: StructureForUpgrade): number {
+  if (isStructureUpgradeIncomplete(structure)) {
+    return Math.max(0, structure.upgradeLevel - 1);
+  }
+  return structure.upgradeLevel;
+}
+
 export function getReservedItemCountForOperationalResources(
   structure: StructureForUpgrade,
   itemType: ItemType,

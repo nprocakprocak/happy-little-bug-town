@@ -22,7 +22,11 @@ import {
   canStructureAcceptAssignedTermite,
   isTermiteAssignableStructureType,
 } from "./termiteAssignment.js";
-import { isStructureUpgradeIncomplete, StructureForUpgrade } from "./upgrade.js";
+import {
+  getCompletedUpgradeLevel,
+  isStructureUpgradeIncomplete,
+  StructureForUpgrade,
+} from "./upgrade.js";
 
 export interface StructureForPower {
   structureType: StructureType;
@@ -76,6 +80,10 @@ export function canStructureAcceptBugDrop(
 
   if (canStructureAcceptAssignedTermite(bug, structure)) {
     return true;
+  }
+
+  if (isStructureUpgradeIncomplete(structure)) {
+    return false;
   }
 
   const bugRequirement = getStructureBugPowerRequirements(
@@ -209,7 +217,7 @@ export function hasStructureItemPowerRequirements(
 export function isStructureBugPowered(structure: StructureForPower): boolean {
   const bugRequirements = getStructureBugPowerRequirements(
     structure.structureType,
-    structure.upgradeLevel,
+    getCompletedUpgradeLevel(structure),
   );
   if (bugRequirements.length === 0) {
     return true;
@@ -224,7 +232,7 @@ export function isStructureBugPowered(structure: StructureForPower): boolean {
 export function isStructureItemPowered(structure: StructureForPower): boolean {
   const itemRequirements = getStructureItemPowerRequirements(
     structure.structureType,
-    structure.upgradeLevel,
+    getCompletedUpgradeLevel(structure),
   );
   if (itemRequirements.length === 0) {
     return true;
@@ -244,6 +252,10 @@ export function canStructureAcceptItemPowerDrop(
   item: ItemForCraft,
   structure: StructureForBuild & StructureForPower,
 ): boolean {
+  if (isStructureUpgradeIncomplete(structure)) {
+    return false;
+  }
+
   const itemRequirement = getStructureItemPowerRequirements(
     structure.structureType,
     structure.upgradeLevel,
@@ -266,6 +278,7 @@ export function isStructureAwaitingPower(
   return (
     structureRequiresPower(structure.structureType, structure.upgradeLevel) &&
     isStructureBuilt(structure) &&
+    !isStructureUpgradeIncomplete(structure) &&
     !isStructurePowered(structure)
   );
 }

@@ -9,4 +9,6 @@ export type DiggableType =
   | "greenfly"
   | "glass"
   | "paper"
-  | "rotten_apple";
+  | "rotten_apple"
+  | "seeds"
+  | "gravel";

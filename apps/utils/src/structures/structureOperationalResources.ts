@@ -20,8 +20,8 @@ import {
 } from "./power.js";
 import { getAssignedTermiteCapacity } from "./termiteAssignment.js";
 import {
+  getCompletedUpgradeLevel,
   getReservedItemCountForOperationalResources,
-  isStructureUpgradeIncomplete,
   StructureForUpgrade,
 } from "./upgrade.js";
 
@@ -86,21 +86,14 @@ function getStructureBugCount(
   return structure.bugs.filter((bug) => bug.bugType === bugType).length;
 }
 
-function getOperationalUpgradeLevel(structure: StructureForUpgrade): number {
-  if (isStructureUpgradeIncomplete(structure)) {
-    return Math.max(0, structure.upgradeLevel - 1);
-  }
-  return structure.upgradeLevel;
-}
-
 function getReservedBugCountForOperationalResources(
-  structure: Pick<StructureForPower, "structureType" | "upgradeLevel">,
+  structure: StructureForUpgrade,
   bugType: BugType,
 ): number {
   const powerRequired =
     getStructureBugPowerRequirements(
       structure.structureType,
-      structure.upgradeLevel,
+      getCompletedUpgradeLevel(structure),
     ).find((requirement) => requirement.bugType === bugType)?.requiredCount ?? 0;
   const termiteReserved =
     bugType === "termite"
@@ -143,7 +136,7 @@ export function getStructureOperationalResourceOutputs(
     return undefined;
   }
 
-  const operationalLevel = getOperationalUpgradeLevel(structure);
+  const operationalLevel = getCompletedUpgradeLevel(structure);
   const mergedOutputs: StructureOperationalResourceOutputs = {};
   let hasOutputs = false;
 

@@ -17,6 +17,8 @@ const ITEM_TYPES_WEIGHTS_FOR_ANTHILL = {
 };
 
 const ITEM_TYPES_WEIGHTS_FOR_TERMITE_HILL = {
+  gravel: 0.3,
+  seeds: 0.65,
   rotten_apple: 1,
 };
 

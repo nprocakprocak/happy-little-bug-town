@@ -62,6 +62,10 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
       bugRequirements: [{ bugType: "beetle", requiredCount: 3 }],
       itemRequirements: [{ itemType: "crucible", requiredCount: 1 }],
     },
+    1: {
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }],
+      itemRequirements: [{ itemType: "crucible", requiredCount: 2 }],
+    },
   },
   farm: {
     0: {

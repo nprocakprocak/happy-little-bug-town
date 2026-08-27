@@ -22,6 +22,13 @@ export const KITCHEN_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "glass", count: 1 },
 ];
 
+export const SMELTER_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "iron_ingot", count: 2 },
+  { itemType: "paving_stone", count: 1 },
+  { itemType: "roof_tile", count: 1 },
+  { itemType: "gravel", count: 2 },
+];
+
 export const UPGRADE_RESOURCE_COSTS: Record<
   UpgradableStructureType,
   Record<number, BuildResourceCost[]>
@@ -34,5 +41,8 @@ export const UPGRADE_RESOURCE_COSTS: Record<
   },
   kitchen: {
     1: KITCHEN_LVL_2_BUILD_COSTS,
+  },
+  smelter: {
+    1: SMELTER_LVL_2_BUILD_COSTS,
   },
 };

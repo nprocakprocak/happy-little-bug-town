@@ -17,7 +17,9 @@ type DiggableItemType =
   | "clay"
   | "glass"
   | "paper"
-  | "rotten_apple";
+  | "rotten_apple"
+  | "seeds"
+  | "gravel";
 
 type CraftableItemType =
   | "brick"
@@ -30,6 +32,8 @@ type CraftableItemType =
   | "plank"
   | "mushroom"
   | "pasta"
-  | "stuffed_fly";
+  | "stuffed_fly"
+  | "concrete"
+  | "steel";
 
 export type ItemType = DiggableItemType | CraftableItemType | WorkshopItemType;

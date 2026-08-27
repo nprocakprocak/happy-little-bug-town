@@ -4,6 +4,7 @@ const UPGRADABLE_STRUCTURE_TYPE_BY_KEY: Record<UpgradableStructureType, true> = 
   stonemason: true,
   woodcutter: true,
   kitchen: true,
+  smelter: true,
 };
 
 const UPGRADABLE_STRUCTURE_TYPE_SET: Set<string> = new Set(

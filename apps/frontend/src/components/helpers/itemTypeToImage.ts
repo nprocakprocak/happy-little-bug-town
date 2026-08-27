@@ -58,6 +58,14 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/rotten-apple.webp";
     case "stuffed_fly":
       return "/items/stuffed-fly.webp";
+    case "seeds":
+      return "/items/seeds.webp";
+    case "gravel":
+      return "/items/gravel.webp";
+    case "concrete":
+      return "/items/concrete.webp";
+    case "steel":
+      return "/items/steel.webp";
     default:
       throw new Error(`Unknown item type: ${itemType}`);
   }
@@ -141,7 +149,7 @@ export function structureTypeToImage(
     case "tavern":
       return "/structures/tavern.webp";
     case "smelter":
-      return "/structures/smelter.webp";
+      return upgradeLevel >= 1 ? "/structures/smelter-lvl-2.webp" : "/structures/smelter.webp";
     case "farm":
       return "/structures/farm.webp";
     case "mushrooms_field":

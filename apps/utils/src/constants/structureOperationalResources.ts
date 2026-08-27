@@ -69,6 +69,10 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
       iron_ingot: { itemType: "iron_ore", maxCount: 3 },
       roof_tile: { itemType: "clay", maxCount: 2 },
     },
+    1: {
+      concrete: { itemType: "gravel", maxCount: 1 },
+      steel: { itemType: "iron_ingot", maxCount: 1 },
+    },
   },
   mushrooms_field: {
     0: {
