@@ -1,7 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { canCreateItemType, getItemCraftCosts, ItemType } from "@happy-little-bug-town/utils";
+import {
+  canCreateItemType,
+  getItemCraftCosts,
+  isWorkshopItemUnlocked,
+  ItemType,
+} from "@happy-little-bug-town/utils";
 
 import { WORKSHOP_ITEM_OPTIONS } from "../../../constants/workshopItems";
 import { Item } from "../../../types/item";
@@ -14,6 +19,7 @@ interface WorkshopItemsPopupContentProps {
   onClose: () => void;
   onCreateItem: (itemType: ItemType) => void;
   items: Item[];
+  workshopUpgradeLevel: number;
   isCreating?: boolean;
 }
 
@@ -21,6 +27,7 @@ export function WorkshopItemsPopupContent({
   onClose,
   onCreateItem,
   items,
+  workshopUpgradeLevel,
   isCreating,
 }: WorkshopItemsPopupContentProps) {
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
@@ -35,7 +42,9 @@ export function WorkshopItemsPopupContent({
   );
   const selectedItem = WORKSHOP_ITEM_OPTIONS[selectedItemIndex];
   const selectedResourceCosts = getItemCraftCosts(selectedItem.itemType);
-  const canCreate = canCreateItemType(items, selectedItem.itemType);
+  const canCreate =
+    isWorkshopItemUnlocked(selectedItem.itemType, workshopUpgradeLevel) &&
+    canCreateItemType(items, selectedItem.itemType);
 
   function handleCreateClick() {
     if (!canCreate) {

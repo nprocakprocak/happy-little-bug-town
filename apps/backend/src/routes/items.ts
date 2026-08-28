@@ -1,6 +1,12 @@
 import { Router, type RequestHandler } from "express";
 
-import { canCreateItemType, isCraftableItemType, isItemType } from "@happy-little-bug-town/utils";
+import {
+  canCreateItemType,
+  getCompletedUpgradeLevel,
+  isCraftableItemType,
+  isItemType,
+  isWorkshopItemUnlocked,
+} from "@happy-little-bug-town/utils";
 
 import { assertFootprintFits, requireCoords } from "../helpers/placement.js";
 import { toItemOnGridDto } from "../mappers/item.js";
@@ -16,7 +22,7 @@ import {
   getItemsOnGrid,
   updateItem as updateItemService,
 } from "../services/itemsService.js";
-import { hasStructureOfType } from "../services/structuresService.js";
+import { getStructures } from "../services/structuresService.js";
 import { UpdateItemData } from "../types/itemDto.js";
 
 export const itemsRouter = Router();
@@ -37,8 +43,14 @@ const createItem: RequestHandler = async (req, res) => {
     return;
   }
   const coords = requireCoords(x, y);
-  if (!(await hasStructureOfType(authorId, "workshop"))) {
+  const structures = await getStructures(authorId);
+  const workshop = structures.find((structure) => structure.structureType === "workshop");
+  if (!workshop) {
     res.status(400).json({ error: "Workshop is required to create items" });
+    return;
+  }
+  if (!isWorkshopItemUnlocked(itemType, getCompletedUpgradeLevel(workshop))) {
+    res.status(400).json({ error: "Workshop upgrade required" });
     return;
   }
 

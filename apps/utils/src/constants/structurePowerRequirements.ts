@@ -29,6 +29,12 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
     0: {
       bugRequirements: [{ bugType: "beetle", requiredCount: 2 }],
     },
+    1: {
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }],
+    },
+    2: {
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 4 }],
+    },
   },
   stonemason: {
     0: {

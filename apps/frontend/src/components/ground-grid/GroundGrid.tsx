@@ -9,12 +9,14 @@ import {
   canDiscardItemOnStructure,
   canDropBugOnStack,
   canDropItemOnItem,
+  getCompletedUpgradeLevel,
   getEvolutionStepFromType,
   getGreenflyHouseOccupants,
   isBuildableStructureType,
   isFoodForBug,
   isStructurePowered,
   isStructureReadyToEvolve,
+  isWorkshopItemUnlocked,
   ItemType,
   Position,
   Positionable,
@@ -118,6 +120,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     () => [...items, ...autoRouteFlights, ...stacks, ...bugs, ...structures],
     [items, autoRouteFlights, stacks, bugs, structures],
   );
+  const workshopUpgradeLevel = useMemo(() => {
+    const workshop = structures.find((structure) => structure.structureType === "workshop");
+    return workshop ? getCompletedUpgradeLevel(workshop) : 0;
+  }, [structures]);
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBeetle, setSelectedBeetle] = useState<Bug | null>(null);
@@ -802,7 +808,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onWorkshopCreateItem = useCallback(
     (itemType: ItemType) => {
-      if (!canCreateItemType(items, itemType)) {
+      if (
+        !isWorkshopItemUnlocked(itemType, workshopUpgradeLevel) ||
+        !canCreateItemType(items, itemType)
+      ) {
         return;
       }
       const position = findFirstStructurePlacement({ itemType }, cols, rows, [
@@ -821,7 +830,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         },
       );
     },
-    [cols, rows, structures, items, stacks, bugs, createItem],
+    [cols, rows, structures, items, stacks, bugs, createItem, workshopUpgradeLevel],
   );
 
   return (
@@ -934,6 +943,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             onClose={() => setWorkshopPopupOpen(false)}
             onCreateItem={onWorkshopCreateItem}
             items={items}
+            workshopUpgradeLevel={workshopUpgradeLevel}
             isCreating={createItem.isPending}
           />
         )}

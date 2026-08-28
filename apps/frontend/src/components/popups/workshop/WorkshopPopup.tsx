@@ -10,16 +10,24 @@ interface WorkshopPopupProps {
   onClose: () => void;
   onCreateItem: (itemType: ItemType) => void;
   items: Item[];
+  workshopUpgradeLevel: number;
   isCreating?: boolean;
 }
 
-export function WorkshopPopup({ onClose, onCreateItem, items, isCreating }: WorkshopPopupProps) {
+export function WorkshopPopup({
+  onClose,
+  onCreateItem,
+  items,
+  workshopUpgradeLevel,
+  isCreating,
+}: WorkshopPopupProps) {
   return (
     <GridPopup>
       <WorkshopItemsPopupContent
         onClose={onClose}
         onCreateItem={onCreateItem}
         items={items}
+        workshopUpgradeLevel={workshopUpgradeLevel}
         isCreating={isCreating}
       />
     </GridPopup>

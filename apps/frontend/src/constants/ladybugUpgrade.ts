@@ -1,6 +1,7 @@
 import { getStructureUpgradeLevels, UpgradableStructureType } from "@happy-little-bug-town/utils";
 
 const UPGRADABLE_STRUCTURE_TYPES: UpgradableStructureType[] = [
+  "workshop",
   "stonemason",
   "woodcutter",
   "kitchen",

@@ -1,6 +1,7 @@
 import { UpgradableStructureType } from "../types/structureType.js";
 
 const UPGRADABLE_STRUCTURE_TYPE_BY_KEY: Record<UpgradableStructureType, true> = {
+  workshop: true,
   stonemason: true,
   woodcutter: true,
   kitchen: true,

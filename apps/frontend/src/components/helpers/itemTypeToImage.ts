@@ -159,7 +159,10 @@ export function structureTypeToImage(
     case "greenfly_house":
       return "/structures/greenfly-house.webp";
     case "workshop":
-      return "/structures/workshop.webp";
+      if (upgradeLevel >= 2) {
+        return "/structures/workshop-lvl-3.webp";
+      }
+      return upgradeLevel >= 1 ? "/structures/workshop-lvl-2.webp" : "/structures/workshop.webp";
     case "stonemason":
       if (upgradeLevel >= 2) {
         return "/structures/stonemason-lvl-3.webp";

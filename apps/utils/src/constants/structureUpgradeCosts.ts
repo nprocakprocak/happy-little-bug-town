@@ -1,6 +1,20 @@
 import { UpgradableStructureType } from "../types/structureType.js";
 import { BuildResourceCost } from "./structureBuildCosts.js";
 
+export const WORKSHOP_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "wood", count: 1 },
+  { itemType: "brick", count: 1 },
+  { itemType: "iron_ingot", count: 1 },
+  { itemType: "glass", count: 1 },
+];
+
+export const WORKSHOP_LVL_3_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "concrete", count: 1 },
+  { itemType: "steel", count: 1 },
+  { itemType: "glass", count: 1 },
+  { itemType: "furniture", count: 1 },
+];
+
 export const STONEMASON_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "wood", count: 1 },
   { itemType: "brick", count: 2 },
@@ -47,6 +61,10 @@ export const UPGRADE_RESOURCE_COSTS: Record<
   UpgradableStructureType,
   Record<number, BuildResourceCost[]>
 > = {
+  workshop: {
+    1: WORKSHOP_LVL_2_BUILD_COSTS,
+    2: WORKSHOP_LVL_3_BUILD_COSTS,
+  },
   stonemason: {
     1: STONEMASON_LVL_2_BUILD_COSTS,
     2: STONEMASON_LVL_3_BUILD_COSTS,

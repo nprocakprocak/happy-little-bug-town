@@ -17,7 +17,12 @@ export type BuildableStructureType =
   | "town_hall"
   | FarmBuildableStructureType;
 
-export type UpgradableStructureType = "stonemason" | "woodcutter" | "kitchen" | "smelter";
+export type UpgradableStructureType =
+  | "workshop"
+  | "stonemason"
+  | "woodcutter"
+  | "kitchen"
+  | "smelter";
 
 export type StructureType =
   | "hole"
