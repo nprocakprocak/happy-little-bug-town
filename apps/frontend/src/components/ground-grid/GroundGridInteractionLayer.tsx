@@ -36,6 +36,7 @@ import { buildGridDragPayload } from "../helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
 import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
 import { DRAG_THRESHOLD_PX } from "./constants";
+import { StackCreateBlockedHintLayer } from "./StackCreateBlockedHintLayer";
 
 interface GroundGridInteractionLayerProps {
   cols: number;
@@ -90,6 +91,10 @@ export function GroundGridInteractionLayer({
   const [dragState, setDragState] = useState<{ index: number; dx: number; dy: number } | null>(
     null,
   );
+  const [blockedStackHint, setBlockedStackHint] = useState<{
+    origin: Position;
+    nonce: number;
+  } | null>(null);
 
   const gridContainerRef = useRef<HTMLDivElement>(null);
   const pointerStartRef = useRef<{ x: number; y: number; index: number } | null>(null);
@@ -313,6 +318,12 @@ export function GroundGridInteractionLayer({
               (!!dropTarget && !hasDedicatedAction && !canSwapWithTarget);
 
             if (shouldCancel) {
+              if (stackFootprintBlocked) {
+                setBlockedStackHint((prev) => ({
+                  origin: target,
+                  nonce: (prev?.nonce ?? 0) + 1,
+                }));
+              }
               onItemDropCancelled(itemToDrop.id, target);
             } else {
               onItemDropped(itemToDrop.id, target, targetId, dropTarget);
@@ -454,70 +465,85 @@ export function GroundGridInteractionLayer({
   }
 
   return (
-    <div
-      ref={gridContainerRef}
-      className="absolute inset-0 grid h-full w-full gap-1"
-      style={groundGridTemplateStyle(cols, rows)}
-    >
-      {Array.from({ length: cellCount }, (_, index) => {
-        const gridRow = Math.floor(index / cols) + 1;
-        const gridCol = (index % cols) + 1;
-        const structure = structures.find((s) => s.x === gridCol && s.y === gridRow);
-        const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
-        const item = items.find((i) => i.x === gridCol && i.y === gridRow);
-        const bug = bugs.find((b) => b.x === gridCol && b.y === gridRow);
+    <div className="absolute inset-0">
+      <div
+        ref={gridContainerRef}
+        className="absolute inset-0 grid h-full w-full gap-1"
+        style={groundGridTemplateStyle(cols, rows)}
+      >
+        {Array.from({ length: cellCount }, (_, index) => {
+          const gridRow = Math.floor(index / cols) + 1;
+          const gridCol = (index % cols) + 1;
+          const structure = structures.find((s) => s.x === gridCol && s.y === gridRow);
+          const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
+          const item = items.find((i) => i.x === gridCol && i.y === gridRow);
+          const bug = bugs.find((b) => b.x === gridCol && b.y === gridRow);
 
-        if (!structure && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structures)) {
-          return null;
-        }
+          if (!structure && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structures)) {
+            return null;
+          }
 
-        if (!stack && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, stacks)) {
-          return null;
-        }
+          if (!stack && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, stacks)) {
+            return null;
+          }
 
-        if (!item && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, items)) {
-          return null;
-        }
+          if (!item && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, items)) {
+            return null;
+          }
 
-        const canDrag =
-          (!!structure && canRelocateStructureType(structure.structureType)) ||
-          !!stack ||
-          !!item ||
-          positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, bugs);
+          const canDrag =
+            (!!structure && canRelocateStructureType(structure.structureType)) ||
+            !!stack ||
+            !!item ||
+            positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, bugs);
 
-        const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
-        const isDragging = dragState?.index === index;
-        const cellBackgroundClass = isSelected
-          ? "bg-amber-300/20"
-          : gridCellsVisible
-            ? "bg-zinc-200/20"
-            : "bg-transparent";
-        const placementStyle = structure
-          ? gridPlacementStyle(structure.x, structure.y, getStructureSpan(structure.structureType))
-          : stack
-            ? gridPlacementStyle(stack.x, stack.y, getStackSpan())
-            : item
-              ? gridPlacementStyle(item.x, item.y, getItemSpan(item.itemType))
-              : gridPlacementStyle(gridCol, gridRow);
-        const dragStyle =
-          isDragging && dragState
-            ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }
-            : {};
+          const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
+          const isDragging = dragState?.index === index;
+          const cellBackgroundClass = isSelected
+            ? "bg-amber-300/20"
+            : gridCellsVisible
+              ? "bg-zinc-200/20"
+              : "bg-transparent";
+          const placementStyle = structure
+            ? gridPlacementStyle(
+                structure.x,
+                structure.y,
+                getStructureSpan(structure.structureType),
+              )
+            : stack
+              ? gridPlacementStyle(stack.x, stack.y, getStackSpan())
+              : item
+                ? gridPlacementStyle(item.x, item.y, getItemSpan(item.itemType))
+                : gridPlacementStyle(gridCol, gridRow);
+          const dragStyle =
+            isDragging && dragState
+              ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }
+              : {};
 
-        return (
-          <div
-            key={index}
-            className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${cellBackgroundClass}`}
-            style={{ ...placementStyle, ...dragStyle }}
-            onPointerDown={(event) => handlePointerDown(index, event)}
-            onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
-            onPointerUp={(event) =>
-              handlePointerUp(structure, stack, bug, gridCol, gridRow, index, event)
-            }
-            onPointerCancel={handlePointerCancel}
-          />
-        );
-      })}
+          return (
+            <div
+              key={index}
+              className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${cellBackgroundClass}`}
+              style={{ ...placementStyle, ...dragStyle }}
+              onPointerDown={(event) => handlePointerDown(index, event)}
+              onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
+              onPointerUp={(event) =>
+                handlePointerUp(structure, stack, bug, gridCol, gridRow, index, event)
+              }
+              onPointerCancel={handlePointerCancel}
+            />
+          );
+        })}
+      </div>
+      {blockedStackHint ? (
+        <StackCreateBlockedHintLayer
+          key={blockedStackHint.nonce}
+          cols={cols}
+          rows={rows}
+          origin={blockedStackHint.origin}
+          onComplete={() => setBlockedStackHint(null)}
+        />
+      ) : null}
     </div>
   );
 }
