@@ -48,8 +48,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/paving-stone.webp";
     case "plank":
       return "/items/plank.webp";
-    case "plow":
-      return "/items/plow.webp";
+    case "hoe":
+      return "/items/hoe.webp";
     case "mushroom":
       return "/items/mushroom.webp";
     case "pasta":

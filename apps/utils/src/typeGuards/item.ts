@@ -24,7 +24,7 @@ const ITEM_TYPE_BY_KEY: Record<ItemType, true> = {
   wheelbarrel: true,
   paving_stone: true,
   plank: true,
-  plow: true,
+  hoe: true,
   mushroom: true,
   pasta: true,
   rotten_apple: true,

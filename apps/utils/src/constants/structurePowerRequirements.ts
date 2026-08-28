@@ -82,7 +82,7 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
   farm: {
     0: {
       bugRequirements: [{ bugType: "ladybug", requiredCount: 3 }],
-      itemRequirements: [{ itemType: "plow", requiredCount: 2 }],
+      itemRequirements: [{ itemType: "hoe", requiredCount: 2 }],
     },
   },
   library: {

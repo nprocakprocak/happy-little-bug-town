@@ -31,7 +31,7 @@ enum ItemType {
   wheelbarrel
   paving_stone
   plank
-  plow
+  hoe
   mushroom
   pasta
   rotten_apple

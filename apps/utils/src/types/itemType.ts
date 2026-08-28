@@ -6,7 +6,7 @@ export type WorkshopItemType =
   | "knife"
   | "crucible"
   | "wheelbarrel"
-  | "plow"
+  | "hoe"
   | "basket"
   | "desk"
   | "fountain";
