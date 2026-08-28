@@ -331,7 +331,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         }
 
         // drop an item onto a bug to feed it
-        if (originalItem && targetEntity && isBug(targetEntity) && isFoodForBug(originalItem.itemType, targetEntity)) {
+        if (
+          originalItem &&
+          targetEntity &&
+          isBug(targetEntity) &&
+          isFoodForBug(originalItem.itemType, targetEntity)
+        ) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
           setBugsCache((prev) =>
             prev.map((bug) =>

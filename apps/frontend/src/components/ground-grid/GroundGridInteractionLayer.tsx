@@ -8,6 +8,7 @@ import {
   canDropFoodOnBug,
   canDropItemOnItem,
   canDropItemOnStructure,
+  canRelocateStructureType,
   canStackItemType,
   canStructureAcceptDroppedBug,
   canSwapOnGrid,
@@ -55,7 +56,12 @@ interface GroundGridInteractionLayerProps {
   onBeeClick: (bug: Bug) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
-  onItemDropped: (itemId: string, position: Position, targetId?: string, targetEntity?: Positionable) => void;
+  onItemDropped: (
+    itemId: string,
+    position: Position,
+    targetId?: string,
+    targetEntity?: Positionable,
+  ) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -237,7 +243,11 @@ export function GroundGridInteractionLayer({
           overlappingEntity.id !== structureToDrop?.id
             ? overlappingEntity
             : undefined;
-        const targetId = overlappingItem?.id ?? overlappingStack?.id ?? overlappingBug?.id ?? overlappingStructure?.id;
+        const targetId =
+          overlappingItem?.id ??
+          overlappingStack?.id ??
+          overlappingBug?.id ??
+          overlappingStructure?.id;
 
         if (!entityToDrop) {
           throw new Error("No entity to drop found on cell: " + gridCol + "," + gridRow);
@@ -362,7 +372,7 @@ export function GroundGridInteractionLayer({
               ],
             );
 
-            if (fits) {
+            if (fits && canRelocateStructureType(structureToDrop.structureType)) {
               onItemDropped(structureToDrop.id, target);
             } else {
               onItemDropCancelled(structureToDrop.id, target);
@@ -470,7 +480,7 @@ export function GroundGridInteractionLayer({
         }
 
         const canDrag =
-          !!structure ||
+          (!!structure && canRelocateStructureType(structure.structureType)) ||
           !!stack ||
           !!item ||
           positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, bugs);

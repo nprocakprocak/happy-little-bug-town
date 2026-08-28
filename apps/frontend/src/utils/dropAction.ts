@@ -230,8 +230,7 @@ export async function dropAction(
 
   const sourceId =
     originalItem?.id ?? originalStack?.id ?? originalBug?.id ?? originalStructure?.id;
-  const targetId = 
-    targetItem?.id ?? targetStack?.id ?? targetBug?.id ?? targetStructure?.id;
+  const targetId = targetItem?.id ?? targetStack?.id ?? targetBug?.id ?? targetStructure?.id;
 
   if (targetEntity && sourceId && targetId && canSwapOnGrid(entity, targetEntity)) {
     await swapGridPositions(sourceId, targetId);

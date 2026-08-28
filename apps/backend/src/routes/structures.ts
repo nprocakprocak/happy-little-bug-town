@@ -1,6 +1,7 @@
 import { Router, type RequestHandler } from "express";
 
 import {
+  canRelocateStructureType,
   canStartStructureUpgrade,
   getCraftableOperationalResourceOutput,
   getEvolutionStepFromType,
@@ -129,6 +130,11 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   const data: UpdateStructureData = {};
 
   if (hasPositionUpdate) {
+    if (!canRelocateStructureType(existingStructure.structureType)) {
+      res.status(400).json({ error: "This structure cannot be moved" });
+      return;
+    }
+
     const coords = requireCoords(x, y);
 
     await assertFootprintFits(

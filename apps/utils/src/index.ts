@@ -19,6 +19,7 @@ export * from "./structures/itemDrop.js";
 export * from "./structures/span.js";
 export * from "./structures/structureOperationalResources.js";
 export * from "./structures/power.js";
+export * from "./structures/relocation.js";
 export * from "./structures/termiteAssignment.js";
 export * from "./structures/upgrade.js";
 export * from "./stacks/span.js";
