@@ -69,7 +69,7 @@ export function SettingsPopup({ onClose }: SettingsPopupProps) {
       : "Log in to save your progress (we do not store your data)";
 
   return createPortal(
-    <div className="fixed inset-0 z-30">
+    <div className="fixed inset-0">
       <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
       <div
         className="absolute inset-x-0 flex justify-center"

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import { hasCraftedItem } from "@happy-little-bug-town/utils";
 
 import {
   GROUND_BG_TILE_HEIGHT_PX,
@@ -11,18 +12,24 @@ import {
 } from "../../constants";
 import { useAuth } from "../../context/AuthContext";
 import { useGroundEvolutionPresentation } from "../../hooks/useGroundEvolutionPresentation";
+import { useItemsQuery } from "../../hooks/useItems";
 import { useStructuresQuery } from "../../hooks/useStructures";
 import { useMainStore } from "../../stores/main";
 import { GroundBackgroundLayers } from "../ground-grid/GroundBackgroundLayers";
+import { itemTypeToImageForItem } from "../helpers/itemTypeToImage";
 import { SettingsPopup } from "./SettingsPopup";
 
 export function HomeBanner() {
   const { anonymousId, logout } = useAuth();
   const requiresLogin = useMainStore((state) => state.requiresLogin);
   const evolvingToStructureType = useMainStore((state) => state.evolvingToStructureType);
+  const isDemolishMode = useMainStore((state) => state.isDemolishMode);
+  const setIsDemolishMode = useMainStore((state) => state.setIsDemolishMode);
   const { data: structures = [] } = useStructuresQuery(Boolean(anonymousId));
+  const { data: items = [] } = useItemsQuery(Boolean(anonymousId) && structures.length > 0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isStartingOver, setIsStartingOver] = useState(false);
+  const hasHammer = hasCraftedItem(items, "hammer");
 
   const structureTypes = useMemo(
     () => structures.map((structure) => structure.structureType),
@@ -45,7 +52,7 @@ export function HomeBanner() {
   return (
     <>
       <div
-        className="relative z-10 w-full"
+        className="relative w-full"
         style={{
           aspectRatio: `${GROUND_GRID_MAX_WIDTH_PX} / ${HOME_BANNER_HEIGHT_PX}`,
         }}
@@ -57,6 +64,29 @@ export function HomeBanner() {
           backgroundSize={backgroundSize}
           backgroundPosition={backgroundPosition}
         />
+        {hasHammer && (
+          <button
+            type="button"
+            aria-label="Demolish"
+            aria-pressed={isDemolishMode}
+            onClick={() => setIsDemolishMode(!isDemolishMode)}
+            className="absolute top-1/2 left-0 h-[8cqi] w-[8cqi] -translate-y-1/2 cursor-pointer"
+          >
+            <span className="relative block h-full w-full">
+              <span
+                className="absolute inset-[12%] rounded-full bg-sky-500/50 blur-md"
+                aria-hidden
+              />
+              <Image
+                src={itemTypeToImageForItem("hammer")}
+                alt=""
+                fill
+                className="object-contain [filter:drop-shadow(0_0_6px_rgb(14,165,233))]"
+                sizes="8cqi"
+              />
+            </span>
+          </button>
+        )}
         <button
           type="button"
           aria-label="Settings"

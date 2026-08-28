@@ -2,6 +2,7 @@
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
+  canDemolishStructureType,
   canDiscardBugOnStructure,
   canDiscardItemOnStructure,
   canDropBugOnStack,
@@ -26,6 +27,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { useGridVisibility } from "../../context/GridVisibilityContext";
+import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
 import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
@@ -87,6 +89,7 @@ export function GroundGridInteractionLayer({
   onItemDropped,
 }: GroundGridInteractionLayerProps) {
   const { gridCellsVisible } = useGridVisibility();
+  const isDemolishMode = useMainStore((state) => state.isDemolishMode);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [dragState, setDragState] = useState<{ index: number; dx: number; dy: number } | null>(
     null,
@@ -438,6 +441,9 @@ export function GroundGridInteractionLayer({
     }
 
     if (structure) {
+      if (isDemolishMode && canDemolishStructureType(structure.structureType, items)) {
+        return;
+      }
       onStructureClick(structure);
     } else if (stack) {
       onStackClick(stack);
@@ -491,8 +497,14 @@ export function GroundGridInteractionLayer({
             return null;
           }
 
+          const isDemolishLocked =
+            isDemolishMode &&
+            !!structure &&
+            canDemolishStructureType(structure.structureType, items);
           const canDrag =
-            (!!structure && canRelocateStructureType(structure.structureType, items)) ||
+            (!!structure &&
+              !isDemolishLocked &&
+              canRelocateStructureType(structure.structureType, items)) ||
             !!stack ||
             !!item ||
             positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, bugs);
@@ -523,7 +535,7 @@ export function GroundGridInteractionLayer({
           return (
             <div
               key={index}
-              className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${cellBackgroundClass}`}
+              className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${isDemolishLocked ? "cursor-default" : canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${cellBackgroundClass}`}
               style={{ ...placementStyle, ...dragStyle }}
               onPointerDown={(event) => handlePointerDown(index, event)}
               onPointerMove={(event) => handlePointerMove(canDrag, index, event)}

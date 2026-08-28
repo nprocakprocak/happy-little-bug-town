@@ -7,4 +7,6 @@ export const useMainStore = create<MainState>((set) => ({
   setRequiresLogin: (value) => set({ requiresLogin: value }),
   evolvingToStructureType: null,
   setEvolvingToStructureType: (value) => set({ evolvingToStructureType: value }),
+  isDemolishMode: false,
+  setIsDemolishMode: (value) => set({ isDemolishMode: value }),
 }));

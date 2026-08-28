@@ -79,6 +79,7 @@ import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { ItemCraftProgressLayer } from "./ItemCraftProgressLayer";
 import { ItemFlightLayer } from "./ItemFlightLayer";
 import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
+import { StructureDemolishHighlightLayer } from "./StructureDemolishHighlightLayer";
 import { StructurePowerProgressLayer } from "./StructurePowerProgressLayer";
 import { StructureResourceProgressLayer } from "./StructureResourceProgressLayer";
 
@@ -887,6 +888,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           cols={cols}
           rows={rows}
           structures={structures}
+          gridDrag={gridDrag}
+        />
+        <StructureDemolishHighlightLayer
+          cols={cols}
+          rows={rows}
+          structures={structures}
+          items={items}
           gridDrag={gridDrag}
         />
         <GroundGridInteractionLayer

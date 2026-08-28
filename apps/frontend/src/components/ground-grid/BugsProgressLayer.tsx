@@ -39,7 +39,7 @@ export function BugsProgressLayer({ cols, rows, bugs, gridDrag }: BugsProgressLa
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-10 grid h-full w-full gap-1"
+      className="pointer-events-none absolute inset-0 grid h-full w-full gap-1"
       style={groundGridTemplateStyle(cols, rows)}
     >
       {hungryBugs.map((bug) => {

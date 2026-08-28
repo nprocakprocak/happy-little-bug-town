@@ -28,6 +28,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isSessionLoading, setIsSessionLoading] = useState(true);
   const setRequiresLogin = useMainStore((state) => state.setRequiresLogin);
   const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
+  const setIsDemolishMode = useMainStore((state) => state.setIsDemolishMode);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -72,6 +73,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setAnonymousId(user.id);
         setAuthUser(user);
         setRequiresLogin(false);
+        setIsDemolishMode(false);
         queryClient.clear();
         await queryClient.refetchQueries();
       },
@@ -83,7 +85,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => {
       setGoogleAuthHandlers(null);
     };
-  }, [queryClient, setRequiresLogin]);
+  }, [queryClient, setRequiresLogin, setIsDemolishMode]);
 
   const logout = useCallback(async () => {
     await logoutRequest();
@@ -96,11 +98,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAuthUser(null);
     setRequiresLogin(false);
     setEvolvingToStructureType(null);
+    setIsDemolishMode(false);
     queryClient.clear();
     await queryClient.refetchQueries();
 
     google?.accounts?.id?.disableAutoSelect();
-  }, [queryClient, setRequiresLogin, setEvolvingToStructureType]);
+  }, [queryClient, setRequiresLogin, setEvolvingToStructureType, setIsDemolishMode]);
 
   const value = useMemo(
     () => ({
