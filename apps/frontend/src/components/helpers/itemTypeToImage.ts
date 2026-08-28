@@ -16,6 +16,8 @@ export function itemTypeToImageForItem(itemType: ItemType): string {
       return "/items/wood.webp";
     case "axe":
       return "/items/axe.webp";
+    case "hammer":
+      return "/items/hammer.webp";
     case "hammer_and_chisel":
       return "/items/hammer-and-chisel.webp";
     case "leaf_rake":

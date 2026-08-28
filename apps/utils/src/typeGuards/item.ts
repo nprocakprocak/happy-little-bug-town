@@ -8,6 +8,7 @@ const ITEM_TYPE_BY_KEY: Record<ItemType, true> = {
   brick: true,
   wood: true,
   axe: true,
+  hammer: true,
   hammer_and_chisel: true,
   leaf_rake: true,
   shovel: true,

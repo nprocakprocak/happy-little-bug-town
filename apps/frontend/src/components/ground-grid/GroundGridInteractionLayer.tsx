@@ -383,7 +383,7 @@ export function GroundGridInteractionLayer({
               ],
             );
 
-            if (fits && canRelocateStructureType(structureToDrop.structureType)) {
+            if (fits && canRelocateStructureType(structureToDrop.structureType, items)) {
               onItemDropped(structureToDrop.id, target);
             } else {
               onItemDropCancelled(structureToDrop.id, target);
@@ -492,7 +492,7 @@ export function GroundGridInteractionLayer({
           }
 
           const canDrag =
-            (!!structure && canRelocateStructureType(structure.structureType)) ||
+            (!!structure && canRelocateStructureType(structure.structureType, items)) ||
             !!stack ||
             !!item ||
             positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, bugs);

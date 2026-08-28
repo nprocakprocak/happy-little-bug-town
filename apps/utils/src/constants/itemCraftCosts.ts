@@ -19,9 +19,20 @@ export const ITEM_CRAFT_COSTS: Record<
     { itemType: "stick", count: 2 },
     { itemType: "root", count: 4 },
   ],
+  leaf_rake: [
+    { itemType: "leaf_part", count: 5 },
+    { itemType: "brick", count: 1 },
+    { itemType: "wood", count: 1 },
+    { itemType: "root", count: 2 },
+  ],
   knife: [
     { itemType: "brick", count: 1 },
     { itemType: "wood", count: 1 },
+  ],
+  hammer: [
+    { itemType: "brick", count: 1 },
+    { itemType: "wood", count: 2 },
+    { itemType: "root", count: 2 },
   ],
   crucible: [
     { itemType: "wood", count: 1 },
@@ -32,26 +43,20 @@ export const ITEM_CRAFT_COSTS: Record<
     { itemType: "iron_ingot", count: 2 },
     { itemType: "wood", count: 1 },
   ],
+  wheelbarrel: [
+    { itemType: "wood", count: 2 },
+    { itemType: "iron_ingot", count: 2 },
+  ],
   desk: [
     { itemType: "furniture", count: 1 },
     { itemType: "iron_ingot", count: 1 },
     { itemType: "paper", count: 3 },
   ],
-  fountain: [{ itemType: "sculpture", count: 2 }],
-  leaf_rake: [
-    { itemType: "leaf_part", count: 5 },
-    { itemType: "brick", count: 1 },
-    { itemType: "wood", count: 1 },
-    { itemType: "root", count: 2 },
-  ],
-  wheelbarrel: [
-    { itemType: "wood", count: 2 },
-    { itemType: "iron_ingot", count: 2 },
-  ],
   basket: [
     { itemType: "iron_ingot", count: 2 },
     { itemType: "steel", count: 1 },
   ],
+  fountain: [{ itemType: "sculpture", count: 2 }],
   shovel: [
     { itemType: "little_rock", count: 2 },
     { itemType: "stick", count: 1 },

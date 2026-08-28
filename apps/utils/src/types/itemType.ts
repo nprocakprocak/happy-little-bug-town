@@ -1,5 +1,6 @@
 export type WorkshopItemType =
   | "axe"
+  | "hammer"
   | "hammer_and_chisel"
   | "leaf_rake"
   | "shovel"

@@ -25,6 +25,7 @@ import { economyRateLimit } from "../middleware/rateLimits.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStructure } from "../middleware/requireOwnedEntity.js";
 import { getBug, getBugsByIds, updateBug as updateBugService } from "../services/bugsService.js";
+import { getItemsOnGrid } from "../services/itemsService.js";
 import {
   craftOperationalBugAtStructure,
   craftOperationalItemAtStructure,
@@ -130,7 +131,8 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
   const data: UpdateStructureData = {};
 
   if (hasPositionUpdate) {
-    if (!canRelocateStructureType(existingStructure.structureType)) {
+    const itemsOnGrid = await getItemsOnGrid(authorId);
+    if (!canRelocateStructureType(existingStructure.structureType, itemsOnGrid)) {
       res.status(400).json({ error: "This structure cannot be moved" });
       return;
     }

@@ -6,7 +6,8 @@ export function getItemSpan(itemType: ItemType): number {
     itemType === "leaf_rake" ||
     itemType === "shovel" ||
     itemType === "wheelbarrel" ||
-    itemType === "basket"
+    itemType === "basket" ||
+    itemType === "hammer"
   ) {
     return 2;
   }

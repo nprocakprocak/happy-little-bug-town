@@ -6,6 +6,7 @@ const UNIQUE_CRAFTABLE_ITEM_TYPES = new Set<WorkshopItemType>([
   "shovel",
   "wheelbarrel",
   "basket",
+  "hammer",
 ]);
 
 const WORKSHOP_ITEM_REQUIRED_UPGRADE_LEVEL: Partial<Record<WorkshopItemType, number>> = {
