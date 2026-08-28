@@ -60,17 +60,21 @@ export function isBugFed(bug: BugForFeeding): boolean {
   return getBugFoodCount(bug) >= requirement.maxCount;
 }
 
+export function isFoodForBug(
+  itemType: ItemType,
+  bug: Pick<BugForFeeding, "bugType">,
+): boolean {
+  return getBugFoodRequirement(bug.bugType)?.itemType === itemType;
+}
+
 export function canDropFoodOnBug(
   itemType: ItemType,
   bug: BugForFeeding,
 ): boolean {
   const requirement = getBugFoodRequirement(bug.bugType);
-  if (!requirement) {
+  if (!requirement || itemType !== requirement.itemType) {
     return false;
   }
 
-  return (
-    itemType === requirement.itemType &&
-    getBugFoodCount(bug) < requirement.maxCount
-  );
+  return getBugFoodCount(bug) < requirement.maxCount;
 }

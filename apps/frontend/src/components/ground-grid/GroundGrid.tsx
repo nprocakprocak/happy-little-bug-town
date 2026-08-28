@@ -12,6 +12,7 @@ import {
   getEvolutionStepFromType,
   getGreenflyHouseOccupants,
   isBuildableStructureType,
+  isFoodForBug,
   isStructurePowered,
   isStructureReadyToEvolve,
   ItemType,
@@ -50,7 +51,9 @@ import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
 import { dropAction } from "../../utils/dropAction";
+import { isSwapDrop } from "../../utils/isSwapDrop";
 import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
+import { withSwappedPositions } from "../../utils/withSwappedPositions";
 import { findFirstStructurePlacement } from "../helpers/findFirstStructurePlacement";
 import { hasEmptyGridCell } from "../helpers/hasEmptyGridCell";
 import {
@@ -254,20 +257,22 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   // todo: either { x, y } or targetEntity (or separate handlers)
   const handleItemDropped = useCallback(
-    (itemId: string, { x, y }: Position, targetEntity?: Positionable) => {
+    (entityId: string, { x, y }: Position, targetId?: string, targetEntity?: Positionable) => {
       (async () => {
-        const originalItem = items.find((item) => item.id === itemId);
-        const originalStack = stacks.find((stack) => stack.id === itemId);
-        const originalBug = bugs.find((bug) => bug.id === itemId);
-        const originalStructure = structures.find((structure) => structure.id === itemId);
+        const originalItem = items.find((item) => item.id === entityId);
+        const originalStack = stacks.find((stack) => stack.id === entityId);
+        const originalBug = bugs.find((bug) => bug.id === entityId);
+        const originalStructure = structures.find((structure) => structure.id === entityId);
         const originalEntity = originalItem ?? originalStack ?? originalBug ?? originalStructure;
 
         if (!originalEntity) {
-          console.error("Can't drop the item, could not find entity with id:", itemId);
+          console.error("Can't drop the item, could not find entity with id:", entityId);
           return;
         }
 
-        // drop onto an empty position, assume optimistic update
+        // optimistic updates depending on origin and drop target types
+
+        // drop onto an empty position
         if (!targetEntity) {
           if (originalItem) {
             setItemsCache((prev) =>
@@ -289,7 +294,33 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           }
         }
 
-        // drop an item onto a stack to add it to its items, assume optimistic update
+        const swapping = !!targetEntity && isSwapDrop(originalEntity, targetEntity, items);
+
+        // swap the positions of items or bugs
+        if (swapping && targetEntity && targetId) {
+          const sourcePosition = { x: originalEntity.x, y: originalEntity.y };
+          const occupantPosition = { x: targetEntity.x, y: targetEntity.y };
+          setItemsCache((prev) =>
+            withSwappedPositions(
+              prev,
+              originalEntity.id,
+              targetId,
+              sourcePosition,
+              occupantPosition,
+            ),
+          );
+          setBugsCache((prev) =>
+            withSwappedPositions(
+              prev,
+              originalEntity.id,
+              targetId,
+              sourcePosition,
+              occupantPosition,
+            ),
+          );
+        }
+
+        // drop an item onto a stack to add it to its items
         if (originalItem && targetEntity && isStack(targetEntity)) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
           setStacksCache((prev) =>
@@ -299,8 +330,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
-        // drop an item onto a bug to feed it, assume optimistic update
-        if (originalItem && targetEntity && isBug(targetEntity)) {
+        // drop an item onto a bug to feed it
+        if (originalItem && targetEntity && isBug(targetEntity) && isFoodForBug(originalItem.itemType, targetEntity)) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
           setBugsCache((prev) =>
             prev.map((bug) =>
@@ -314,7 +345,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
-        // drop an item onto a structure to add it to its items or build it, assume optimistic update
+        // drop an item onto a structure to add it to its items or build it
         if (originalItem && targetEntity && isStructure(targetEntity)) {
           setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
           if (!canDiscardItemOnStructure(targetEntity)) {
@@ -334,7 +365,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           }
         }
 
-        // drop an item onto another item to craft it, assume optimistic update
+        // drop an item onto another item to craft it
         if (
           originalItem &&
           targetEntity &&
@@ -358,7 +389,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
-        // drop a bug onto a structure to add it to its workforce, assume optimistic update
+        // drop a bug onto a structure to add it to its workforce
         if (originalBug && targetEntity && isStructure(targetEntity)) {
           setBugsCache((prev) => prev.filter((b) => b.id !== originalBug.id));
           if (!canDiscardBugOnStructure(originalBug, targetEntity)) {
@@ -378,7 +409,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           }
         }
 
-        // drop a bug onto a stack to assign it, assume optimistic update
+        // drop a bug onto a stack to assign it
         if (originalBug && targetEntity && isStack(targetEntity)) {
           setBugsCache((prev) => prev.filter((b) => b.id !== originalBug.id));
           setStacksCache((prev) =>
@@ -393,7 +424,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           );
         }
 
-        // drop a stack onto another stack to merge them, assume optimistic update
+        // drop a stack onto another stack to merge them
         if (originalStack && targetEntity && isStack(targetEntity)) {
           const sourceBugs = originalStack.bugs ?? [];
           const canTransferSourceBugs =

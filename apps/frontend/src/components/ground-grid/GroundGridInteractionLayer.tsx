@@ -10,12 +10,14 @@ import {
   canDropItemOnStructure,
   canStackItemType,
   canStructureAcceptDroppedBug,
+  canSwapOnGrid,
   droppedBugMustBeFed,
   findOverlappingEntity,
   getItemSpan,
   getStackSpan,
   getStructureSpan,
   isBugFed,
+  isFoodForBug,
   Position,
   Positionable,
   positionOverlapsAnyEntity,
@@ -53,7 +55,7 @@ interface GroundGridInteractionLayerProps {
   onBeeClick: (bug: Bug) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
-  onItemDropped: (itemId: string, position: Position, targetEntity?: Positionable) => void;
+  onItemDropped: (itemId: string, position: Position, targetId?: string, targetEntity?: Positionable) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -235,6 +237,7 @@ export function GroundGridInteractionLayer({
           overlappingEntity.id !== structureToDrop?.id
             ? overlappingEntity
             : undefined;
+        const targetId = overlappingItem?.id ?? overlappingStack?.id ?? overlappingBug?.id ?? overlappingStructure?.id;
 
         if (!entityToDrop) {
           throw new Error("No entity to drop found on cell: " + gridCol + "," + gridRow);
@@ -252,8 +255,10 @@ export function GroundGridInteractionLayer({
             const stackNotAllowed =
               wouldCreateOrJoinStack &&
               (!canStackItemType(itemToDrop.itemType, items) || !typeAllowed);
+            const foodForOverlappingBug =
+              !!overlappingBug && isFoodForBug(itemToDrop.itemType, overlappingBug);
             const canDropFoodOnOverlappingBug =
-              !!overlappingBug && canDropFoodOnBug(itemToDrop.itemType, overlappingBug);
+              foodForOverlappingBug && canDropFoodOnBug(itemToDrop.itemType, overlappingBug);
             const canDropOnStructure =
               !!overlappingStructure &&
               (canDropItemOnStructure(itemToDrop, overlappingStructure) ||
@@ -277,6 +282,7 @@ export function GroundGridInteractionLayer({
               isItem(overlappingEntity) &&
               overlappingEntity.id === itemToDrop.id;
             const dropTarget = overlapsSelf ? undefined : overlappingEntity;
+            const canSwapWithTarget = !!dropTarget && canSwapOnGrid(itemToDrop, dropTarget);
             const emptyCellBlocked =
               !dropTarget &&
               !structureFootprintFits(
@@ -285,17 +291,21 @@ export function GroundGridInteractionLayer({
                 rows,
                 [...structures, ...items.filter((i) => i.id !== itemToDrop.id), ...stacks, ...bugs],
               );
+            const hasDedicatedAction =
+              canDropOnItemCraft ||
+              canDropFoodOnOverlappingBug ||
+              canDropOnStructure ||
+              (wouldCreateOrJoinStack && !stackNotAllowed);
             const shouldCancel =
-              (!!overlappingStructure && !canDropOnStructure) ||
-              stackNotAllowed ||
               stackFootprintBlocked ||
-              (!!overlappingBug && !canDropFoodOnOverlappingBug) ||
-              emptyCellBlocked;
+              emptyCellBlocked ||
+              (foodForOverlappingBug && !canDropFoodOnOverlappingBug) ||
+              (!!dropTarget && !hasDedicatedAction && !canSwapWithTarget);
 
             if (shouldCancel) {
               onItemDropCancelled(itemToDrop.id, target);
             } else {
-              onItemDropped(itemToDrop.id, target, dropTarget);
+              onItemDropped(itemToDrop.id, target, targetId, dropTarget);
             }
           }
 
@@ -313,7 +323,7 @@ export function GroundGridInteractionLayer({
             if (shouldCancel) {
               onItemDropCancelled(stackToDrop.id, target);
             } else if (isMerge) {
-              onItemDropped(stackToDrop.id, target, overlappingStack);
+              onItemDropped(stackToDrop.id, target, targetId, overlappingStack);
             } else {
               const fits = structureFootprintFits(
                 { x: target.x, y: target.y, itemsCount: stackToDrop.itemsCount },
@@ -374,18 +384,24 @@ export function GroundGridInteractionLayer({
                 openBugPopup(bugToDrop);
                 onItemDropCancelled(bugToDrop.id, target);
               } else {
-                onItemDropped(bugToDrop.id, target, overlappingEntity);
+                onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
               }
             } else if (canDiscardOnStructure) {
-              onItemDropped(bugToDrop.id, target, overlappingEntity);
+              onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
             } else if (canDropOnStack) {
               if (!isBugFed(bugToDrop)) {
                 openBugPopup(bugToDrop);
                 onItemDropCancelled(bugToDrop.id, target);
               } else {
-                onItemDropped(bugToDrop.id, target, overlappingEntity);
+                onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
               }
-            } else if (!!overlappingEntity) {
+            } else if (
+              overlappingEntity &&
+              !(isBug(overlappingEntity) && overlappingEntity.id === bugToDrop.id) &&
+              canSwapOnGrid(bugToDrop, overlappingEntity)
+            ) {
+              onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
+            } else if (overlappingEntity) {
               onItemDropCancelled(bugToDrop.id, target);
             } else {
               onItemDropped(bugToDrop.id, target);

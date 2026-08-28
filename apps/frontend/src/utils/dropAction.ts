@@ -7,13 +7,16 @@ import {
   canDropItemOnStructure,
   canStackItemType,
   canStructureAcceptDroppedBug,
+  canSwapOnGrid,
   droppedBugMustBeFed,
   isBugFed,
+  isFoodForBug,
   Position,
   Positionable,
 } from "@happy-little-bug-town/utils";
 
 import { addBeetleToStructure, addBugToStack, deleteBug, updateBugPosition } from "../api/bugs";
+import { swapGridPositions } from "../api/grid";
 import {
   addItemToBug,
   addItemToItem,
@@ -29,6 +32,7 @@ import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { Structure } from "../types/structure";
 import { isBug, isItem, isStack, isStructure } from "./typeGuards";
+import { withSwappedPositions } from "./withSwappedPositions";
 
 export async function dropAction(
   targetPosition: Position,
@@ -73,10 +77,12 @@ export async function dropAction(
   }
 
   // drop one item onto another to create a stack
-  if (originalItem && targetItem) {
-    if (!canStackItemType(originalItem.itemType, items)) {
-      throw new Error("Items cannot be stacked");
-    }
+  if (
+    originalItem &&
+    targetItem &&
+    originalItem.itemType === targetItem.itemType &&
+    canStackItemType(originalItem.itemType, items)
+  ) {
     const stack = await createStack({
       position: targetPosition,
       itemIds: [originalItem.id, targetItem.id],
@@ -91,10 +97,12 @@ export async function dropAction(
   }
 
   // drop an item onto a stack to add it to its items
-  if (originalItem && targetStack) {
-    if (!canStackItemType(originalItem.itemType, items)) {
-      throw new Error("Item cannot be added to stack");
-    }
+  if (
+    originalItem &&
+    targetStack &&
+    originalItem.itemType === targetStack.itemType &&
+    canStackItemType(originalItem.itemType, items)
+  ) {
     const stack = await addItemToStack(originalItem.id, targetStack.id);
 
     return {
@@ -106,8 +114,9 @@ export async function dropAction(
   }
 
   // drop food onto a bug to feed it
-  if (originalItem && targetBug) {
+  if (originalItem && targetBug && isFoodForBug(originalItem.itemType, targetBug)) {
     if (!canDropFoodOnBug(originalItem.itemType, targetBug)) {
+      // todo: remove all errors from dropAction - this handler should receive validated parameters
       throw new Error("Item cannot be given to bug");
     }
     const bug = await addItemToBug(originalItem.id, targetBug.id);
@@ -133,10 +142,7 @@ export async function dropAction(
   }
 
   // drop an item onto a structure to add it to its items
-  if (originalItem && targetStructure) {
-    if (!canDropItemOnStructure(originalItem, targetStructure)) {
-      throw new Error("Item cannot be added to structure");
-    }
+  if (originalItem && targetStructure && canDropItemOnStructure(originalItem, targetStructure)) {
     const structure = await addItemToStructure(originalItem.id, targetStructure.id);
 
     return {
@@ -160,10 +166,11 @@ export async function dropAction(
   }
 
   // drop a bug onto a structure to add it to its habitat
-  if (originalBug && targetStructure) {
-    if (!canStructureAcceptDroppedBug(originalBug, targetStructure)) {
-      throw new Error("Bug cannot be added to structure");
-    }
+  if (
+    originalBug &&
+    targetStructure &&
+    canStructureAcceptDroppedBug(originalBug, targetStructure)
+  ) {
     if (droppedBugMustBeFed(originalBug, targetStructure) && !isBugFed(originalBug)) {
       throw new Error("Bug must be fed before joining structure");
     }
@@ -178,10 +185,7 @@ export async function dropAction(
   }
 
   // drop a bug onto a stack to assign it
-  if (originalBug && targetStack) {
-    if (!canDropBugOnStack(originalBug, targetStack)) {
-      throw new Error("Bug cannot be added to stack");
-    }
+  if (originalBug && targetStack && canDropBugOnStack(originalBug, targetStack)) {
     if (!isBugFed(originalBug)) {
       throw new Error("Bug must be fed before joining stack");
     }
@@ -196,10 +200,12 @@ export async function dropAction(
   }
 
   // drop a stack onto another stack of the same type to merge
-  if (originalStack && targetStack) {
-    if (!canStackItemType(originalStack.itemType, items)) {
-      throw new Error("Stacks cannot be merged");
-    }
+  if (
+    originalStack &&
+    targetStack &&
+    originalStack.itemType === targetStack.itemType &&
+    canStackItemType(originalStack.itemType, items)
+  ) {
     const { stack: mergedStack, releasedBugs } = await mergeStacks(
       originalStack.id,
       targetStack.id,
@@ -220,6 +226,28 @@ export async function dropAction(
       ],
       structures: structures,
     };
+  }
+
+  const sourceId =
+    originalItem?.id ?? originalStack?.id ?? originalBug?.id ?? originalStructure?.id;
+  const targetId = 
+    targetItem?.id ?? targetStack?.id ?? targetBug?.id ?? targetStructure?.id;
+
+  if (targetEntity && sourceId && targetId && canSwapOnGrid(entity, targetEntity)) {
+    await swapGridPositions(sourceId, targetId);
+    const sourcePosition = { x: entity.x, y: entity.y };
+    const occupantPosition = { x: targetEntity.x, y: targetEntity.y };
+
+    return {
+      items: withSwappedPositions(items, sourceId, targetId, sourcePosition, occupantPosition),
+      bugs: withSwappedPositions(bugs, sourceId, targetId, sourcePosition, occupantPosition),
+      stacks: stacks,
+      structures: structures,
+    };
+  }
+
+  if (targetEntity) {
+    throw new Error("Invalid drop action");
   }
 
   // drop an entity onto an empty position
