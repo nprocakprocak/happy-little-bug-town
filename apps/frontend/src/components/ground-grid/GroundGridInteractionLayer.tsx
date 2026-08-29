@@ -51,14 +51,7 @@ interface GroundGridInteractionLayerProps {
   bugs: Bug[];
   onStructureClick: (structure: Structure) => void;
   onStackClick: (stack: Stack) => void;
-  onBeetleClick: (bug: Bug) => void;
-  onLadybugClick: (bug: Bug) => void;
-  onAntClick: (bug: Bug) => void;
-  onTermiteClick: (bug: Bug) => void;
-  onSpiderClick: (bug: Bug) => void;
-  onFlyClick: (bug: Bug) => void;
-  onGreenflyClick: (bug: Bug) => void;
-  onBeeClick: (bug: Bug) => void;
+  onBugClick: (bug: Bug) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
   onItemDropped: (
@@ -78,14 +71,7 @@ export function GroundGridInteractionLayer({
   bugs,
   onStructureClick,
   onStackClick,
-  onBeetleClick,
-  onLadybugClick,
-  onAntClick,
-  onTermiteClick,
-  onSpiderClick,
-  onFlyClick,
-  onGreenflyClick,
-  onBeeClick,
+  onBugClick,
   onDragChange,
   onItemDropCancelled,
   onItemDropped,
@@ -107,40 +93,6 @@ export function GroundGridInteractionLayer({
   const hasDraggedRef = useRef(false);
 
   const cellCount = rows * cols;
-
-  function openBugPopup(bug: Bug) {
-    if (bug.bugType === "ladybug") {
-      onLadybugClick(bug);
-      return;
-    }
-    if (bug.bugType === "beetle") {
-      onBeetleClick(bug);
-      return;
-    }
-    if (bug.bugType === "ant") {
-      onAntClick(bug);
-      return;
-    }
-    if (bug.bugType === "termite") {
-      onTermiteClick(bug);
-      return;
-    }
-    if (bug.bugType === "spider") {
-      onSpiderClick(bug);
-      return;
-    }
-    if (bug.bugType === "fly") {
-      onFlyClick(bug);
-      return;
-    }
-    if (bug.bugType === "greenfly") {
-      onGreenflyClick(bug);
-      return;
-    }
-    if (bug.bugType === "bee") {
-      onBeeClick(bug);
-    }
-  }
 
   function handlePointerDown(index: number, event: ReactPointerEvent<HTMLDivElement>) {
     if (event.button !== 0) {
@@ -418,7 +370,7 @@ export function GroundGridInteractionLayer({
               canStructureAcceptDroppedBug(bugToDrop, overlappingStructure)
             ) {
               if (droppedBugMustBeFed(bugToDrop, overlappingStructure) && !isBugFed(bugToDrop)) {
-                openBugPopup(bugToDrop);
+                onBugClick(bugToDrop);
                 onItemDropCancelled(bugToDrop.id, target);
               } else {
                 onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
@@ -427,7 +379,7 @@ export function GroundGridInteractionLayer({
               onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
             } else if (canDropOnStack) {
               if (!isBugFed(bugToDrop)) {
-                openBugPopup(bugToDrop);
+                onBugClick(bugToDrop);
                 onItemDropCancelled(bugToDrop.id, target);
               } else {
                 onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
@@ -464,7 +416,7 @@ export function GroundGridInteractionLayer({
       bug?.bugType === "ladybug" ||
       (bug?.bugType === "greenfly" && !isBugFed(bug))
     ) {
-      openBugPopup(bug);
+      onBugClick(bug);
     } else {
       setSelectedPosition({ x: gridCol, y: gridRow });
     }

@@ -64,16 +64,9 @@ import {
 } from "../helpers/structurePosition";
 import { isBug, isItem, isStack, isStructure } from "../helpers/typeGuards";
 import { withSwappedPositions } from "../helpers/withSwappedPositions";
-import { AntPopup } from "../popups/ant/AntPopup";
-import { BeePopup } from "../popups/bee/BeePopup";
-import { BeetlePopup } from "../popups/beetle/BeetlePopup";
+import { BugPopups } from "../popups/BugPopups";
 import { FarmPopup } from "../popups/farm/FarmPopup";
-import { FlyPopup } from "../popups/fly/FlyPopup";
-import { GreenflyPopup } from "../popups/greenfly/GreenflyPopup";
 import { HouseOccupiedPopup } from "../popups/house/HouseOccupiedPopup";
-import { LadybugPopup } from "../popups/ladybug/LadybugPopup";
-import { SpiderPopup } from "../popups/spider/SpiderPopup";
-import { TermitePopup } from "../popups/termite/TermitePopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { DragPayload } from "../types/dragPayload";
 import { BugsProgressLayer } from "./BugsProgressLayer";
@@ -131,14 +124,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   }, [structures]);
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
-  const [selectedBeetle, setSelectedBeetle] = useState<Bug | null>(null);
-  const [selectedLadybug, setSelectedLadybug] = useState<Bug | null>(null);
-  const [selectedAnt, setSelectedAnt] = useState<Bug | null>(null);
-  const [selectedTermite, setSelectedTermite] = useState<Bug | null>(null);
-  const [selectedSpider, setSelectedSpider] = useState<Bug | null>(null);
-  const [selectedFly, setSelectedFly] = useState<Bug | null>(null);
-  const [selectedGreenfly, setSelectedGreenfly] = useState<Bug | null>(null);
-  const [selectedBee, setSelectedBee] = useState<Bug | null>(null);
+  const [selectedBug, setSelectedBug] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const [occupiedHouseType, setOccupiedHouseType] = useState<StructureType | null>(null);
@@ -799,36 +785,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     ],
   );
 
-  const onBeetleClick = useCallback((bug: Bug) => {
-    setSelectedBeetle(bug);
-  }, []);
-
-  const onLadybugClick = useCallback((bug: Bug) => {
-    setSelectedLadybug(bug);
-  }, []);
-
-  const onAntClick = useCallback((bug: Bug) => {
-    setSelectedAnt(bug);
-  }, []);
-
-  const onTermiteClick = useCallback((bug: Bug) => {
-    setSelectedTermite(bug);
-  }, []);
-
-  const onSpiderClick = useCallback((bug: Bug) => {
-    setSelectedSpider(bug);
-  }, []);
-
-  const onFlyClick = useCallback((bug: Bug) => {
-    setSelectedFly(bug);
-  }, []);
-
-  const onGreenflyClick = useCallback((bug: Bug) => {
-    setSelectedGreenfly(bug);
-  }, []);
-
-  const onBeeClick = useCallback((bug: Bug) => {
-    setSelectedBee(bug);
+  const onBugClick = useCallback((bug: Bug) => {
+    setSelectedBug(bug);
   }, []);
 
   const onBeetleBuild = useCallback(
@@ -849,7 +807,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         structureType: structure.structureType,
         ...position,
       });
-      setSelectedBeetle(null);
+      setSelectedBug(null);
       setFarmPopupOpen(false);
     },
     [cols, rows, structures, items, stacks, bugs, createStructure],
@@ -858,7 +816,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const onLadybugUpgrade = useCallback(
     (structure: Structure) => {
       upgradeStructureMutation.mutate(structure);
-      setSelectedLadybug(null);
+      setSelectedBug(null);
     },
     [upgradeStructureMutation],
   );
@@ -962,46 +920,18 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           bugs={bugs}
           onStructureClick={onStructureClick}
           onStackClick={onStackClick}
-          onBeetleClick={onBeetleClick}
-          onLadybugClick={onLadybugClick}
-          onAntClick={onAntClick}
-          onTermiteClick={onTermiteClick}
-          onSpiderClick={onSpiderClick}
-          onFlyClick={onFlyClick}
-          onGreenflyClick={onGreenflyClick}
-          onBeeClick={onBeeClick}
+          onBugClick={onBugClick}
           onDragChange={setGridDrag}
           onItemDropCancelled={handleItemDropCancelled}
           onItemDropped={handleItemDropped}
         />
-        {selectedBeetle && (
-          <BeetlePopup
-            beetle={selectedBeetle}
-            structures={structures}
-            onClose={() => setSelectedBeetle(null)}
-            onBuild={onBeetleBuild}
-          />
-        )}
-        {selectedLadybug && (
-          <LadybugPopup
-            ladybug={selectedLadybug}
-            structures={structures}
-            onClose={() => setSelectedLadybug(null)}
-            onUpgrade={onLadybugUpgrade}
-          />
-        )}
-        {selectedAnt && <AntPopup ant={selectedAnt} onClose={() => setSelectedAnt(null)} />}
-        {selectedTermite && (
-          <TermitePopup termite={selectedTermite} onClose={() => setSelectedTermite(null)} />
-        )}
-        {selectedSpider && (
-          <SpiderPopup spider={selectedSpider} onClose={() => setSelectedSpider(null)} />
-        )}
-        {selectedFly && <FlyPopup fly={selectedFly} onClose={() => setSelectedFly(null)} />}
-        {selectedGreenfly && (
-          <GreenflyPopup greenfly={selectedGreenfly} onClose={() => setSelectedGreenfly(null)} />
-        )}
-        {selectedBee && <BeePopup bee={selectedBee} onClose={() => setSelectedBee(null)} />}
+        <BugPopups
+          selectedBug={selectedBug}
+          structures={structures}
+          onClose={() => setSelectedBug(null)}
+          onBuild={onBeetleBuild}
+          onUpgrade={onLadybugUpgrade}
+        />
         {workshopPopupOpen && (
           <WorkshopPopup
             onClose={() => setWorkshopPopupOpen(false)}
