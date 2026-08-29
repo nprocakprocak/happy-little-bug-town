@@ -152,12 +152,10 @@ export function GroundGridInteractionLayer({
 
   function handlePointerMove(
     canDrag: boolean,
+    isDemolishLocked: boolean,
     index: number,
     event: ReactPointerEvent<HTMLDivElement>,
   ) {
-    if (!canDrag) {
-      return;
-    }
     if (!pointerStartRef.current) {
       return;
     }
@@ -166,6 +164,13 @@ export function GroundGridInteractionLayer({
     }
     const dx = event.clientX - pointerStartRef.current.x;
     const dy = event.clientY - pointerStartRef.current.y;
+
+    if (!canDrag) {
+      if (isDemolishLocked && Math.hypot(dx, dy) >= DRAG_THRESHOLD_PX) {
+        hasDraggedRef.current = true;
+      }
+      return;
+    }
 
     if (hasDraggedRef.current) {
       setDragState({ index, dx, dy });
@@ -210,6 +215,10 @@ export function GroundGridInteractionLayer({
       hasDraggedRef.current = false;
       setDragState(null);
       onDragChange(null);
+
+      if (structure && isDemolishMode && canDemolishStructureType(structure.structureType, items)) {
+        return;
+      }
 
       const container = gridContainerRef.current;
       if (container) {
@@ -537,10 +546,10 @@ export function GroundGridInteractionLayer({
           return (
             <div
               key={index}
-              className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${isDemolishLocked ? "cursor-default" : canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${cellBackgroundClass}`}
+              className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${isDemolishLocked ? "cursor-pointer" : canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${cellBackgroundClass}`}
               style={{ ...placementStyle, ...dragStyle }}
               onPointerDown={(event) => handlePointerDown(index, event)}
-              onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
+              onPointerMove={(event) => handlePointerMove(canDrag, isDemolishLocked, index, event)}
               onPointerUp={(event) =>
                 handlePointerUp(structure, stack, bug, item, gridCol, gridRow, index, event)
               }
