@@ -8,8 +8,12 @@ const UPGRADABLE_STRUCTURE_TYPE_BY_KEY: Record<UpgradableStructureType, true> = 
   smelter: true,
 };
 
+export const UPGRADABLE_STRUCTURE_TYPES = Object.keys(
+  UPGRADABLE_STRUCTURE_TYPE_BY_KEY,
+) as UpgradableStructureType[];
+
 const UPGRADABLE_STRUCTURE_TYPE_SET: Set<string> = new Set(
-  Object.keys(UPGRADABLE_STRUCTURE_TYPE_BY_KEY),
+  UPGRADABLE_STRUCTURE_TYPES,
 );
 
 export function isUpgradableStructureType(

@@ -1,12 +1,7 @@
-import { getStructureUpgradeLevels, UpgradableStructureType } from "@happy-little-bug-town/utils";
-
-const UPGRADABLE_STRUCTURE_TYPES: UpgradableStructureType[] = [
-  "workshop",
-  "stonemason",
-  "woodcutter",
-  "kitchen",
-  "smelter",
-];
+import {
+  getStructureUpgradeLevels,
+  UPGRADABLE_STRUCTURE_TYPES,
+} from "@happy-little-bug-town/utils";
 
 const UPGRADE_LEVELS = Array.from(
   new Set(UPGRADABLE_STRUCTURE_TYPES.flatMap(getStructureUpgradeLevels)),

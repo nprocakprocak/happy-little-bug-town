@@ -3,7 +3,15 @@ import {
   FarmBuildableStructureType,
 } from "../types/structureType.js";
 
-const BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<BuildableStructureType, true> = {
+type NonFarmBuildableStructureType = Exclude<
+  BuildableStructureType,
+  FarmBuildableStructureType
+>;
+
+const BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<
+  NonFarmBuildableStructureType,
+  true
+> = {
   beetle_house: true,
   greenfly_house: true,
   workshop: true,
@@ -15,9 +23,6 @@ const BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<BuildableStructureType, true> = {
   farm: true,
   library: true,
   town_hall: true,
-  mushrooms_field: true,
-  flowers_field: true,
-  composter: true,
 };
 
 const FARM_BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<
@@ -29,12 +34,21 @@ const FARM_BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<
   composter: true,
 };
 
-const BUILDABLE_STRUCTURE_TYPE_SET: Set<string> = new Set(
-  Object.keys(BUILDABLE_STRUCTURE_TYPE_BY_KEY),
-);
+export const BUILDABLE_STRUCTURE_TYPES = Object.keys(
+  BUILDABLE_STRUCTURE_TYPE_BY_KEY,
+) as NonFarmBuildableStructureType[];
+
+export const FARM_BUILDABLE_STRUCTURE_TYPES = Object.keys(
+  FARM_BUILDABLE_STRUCTURE_TYPE_BY_KEY,
+) as FarmBuildableStructureType[];
+
+const BUILDABLE_STRUCTURE_TYPE_SET: Set<string> = new Set([
+  ...BUILDABLE_STRUCTURE_TYPES,
+  ...FARM_BUILDABLE_STRUCTURE_TYPES,
+]);
 
 const FARM_BUILDABLE_STRUCTURE_TYPE_SET: Set<string> = new Set(
-  Object.keys(FARM_BUILDABLE_STRUCTURE_TYPE_BY_KEY),
+  FARM_BUILDABLE_STRUCTURE_TYPES,
 );
 
 export function isBuildableStructureType(
