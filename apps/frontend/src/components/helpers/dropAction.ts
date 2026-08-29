@@ -1,38 +1,26 @@
-import {
-  canDiscardBugOnStructure,
-  canDiscardItemOnStructure,
-  canDropBugOnStack,
-  canDropFoodOnBug,
-  canDropItemOnItem,
-  canDropItemOnStructure,
-  canStackItemType,
-  canStructureAcceptDroppedBug,
-  canSwapOnGrid,
-  droppedBugMustBeFed,
-  isBugFed,
-  isFoodForBug,
-  Position,
-  Positionable,
-} from "@happy-little-bug-town/utils";
+import { Position, Positionable } from "@happy-little-bug-town/utils";
 
-import { addBeetleToStructure, addBugToStack, deleteBug, updateBugPosition } from "../../api/bugs";
-import { swapGridPositions } from "../../api/grid";
-import {
-  addItemToBug,
-  addItemToItem,
-  addItemToStack,
-  addItemToStructure,
-  deleteItem,
-  updateItemPosition,
-} from "../../api/items";
-import { createStack, mergeStacks, updateStack } from "../../api/stacks";
-import { updateStructure } from "../../api/structures";
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
+import { DropActionState } from "../types/dropActionState";
+import { dropBugOnEmpty } from "./dropActions/dropBugOnEmpty";
+import { dropBugOnStack } from "./dropActions/dropBugOnStack";
+import { dropBugOnStructure } from "./dropActions/dropBugOnStructure";
+import { dropBugToDiscard } from "./dropActions/dropBugToDiscard";
+import { dropFoodOnBug } from "./dropActions/dropFoodOnBug";
+import { dropItemOnEmpty } from "./dropActions/dropItemOnEmpty";
+import { dropItemOnItemToCraft } from "./dropActions/dropItemOnItemToCraft";
+import { dropItemOnItemToStack } from "./dropActions/dropItemOnItemToStack";
+import { dropItemOnStack } from "./dropActions/dropItemOnStack";
+import { dropItemOnStructure } from "./dropActions/dropItemOnStructure";
+import { dropItemToDiscard } from "./dropActions/dropItemToDiscard";
+import { dropStackOnEmpty } from "./dropActions/dropStackOnEmpty";
+import { dropStackOnStack } from "./dropActions/dropStackOnStack";
+import { dropStructureOnEmpty } from "./dropActions/dropStructureOnEmpty";
+import { dropToSwap } from "./dropActions/dropToSwap";
 import { isBug, isItem, isStack, isStructure } from "./typeGuards";
-import { withSwappedPositions } from "./withSwappedPositions";
 
 export async function dropAction(
   targetPosition: Position,
@@ -42,257 +30,110 @@ export async function dropAction(
   structures: Structure[],
   entity: Positionable,
   targetEntity?: Positionable,
-): Promise<{
-  items: Item[];
-  stacks: Stack[];
-  bugs: Bug[];
-  structures: Structure[];
-}> {
+): Promise<DropActionState> {
   const originalItem = isItem(entity) ? entity : undefined;
   const originalStack = isStack(entity) ? entity : undefined;
   const originalBug = isBug(entity) ? entity : undefined;
   const originalStructure = isStructure(entity) ? entity : undefined;
 
-  const targetItem = targetEntity ? (isItem(targetEntity) ? targetEntity : undefined) : undefined;
-  const targetStack = targetEntity ? (isStack(targetEntity) ? targetEntity : undefined) : undefined;
-  const targetBug = targetEntity ? (isBug(targetEntity) ? targetEntity : undefined) : undefined;
-  const targetStructure = targetEntity
-    ? isStructure(targetEntity)
-      ? targetEntity
-      : undefined
-    : undefined;
+  const targetItem = targetEntity && isItem(targetEntity) ? targetEntity : undefined;
+  const targetStack = targetEntity && isStack(targetEntity) ? targetEntity : undefined;
+  const targetBug = targetEntity && isBug(targetEntity) ? targetEntity : undefined;
+  const targetStructure = targetEntity && isStructure(targetEntity) ? targetEntity : undefined;
 
-  // drop an item onto another item to craft it
-  if (originalItem && targetItem && canDropItemOnItem(originalItem, targetItem)) {
-    const parentItem = await addItemToItem(originalItem.id, targetItem.id);
+  const state: DropActionState = { items, stacks, bugs, structures };
 
-    return {
-      items: items
-        .filter((it) => it.id !== originalItem.id)
-        .map((it) => (it.id === targetItem.id ? parentItem : it)),
-      stacks: stacks,
-      bugs: bugs,
-      structures: structures,
-    };
-  }
-
-  // drop one item onto another to create a stack
-  if (
-    originalItem &&
-    targetItem &&
-    originalItem.itemType === targetItem.itemType &&
-    canStackItemType(originalItem.itemType, items)
-  ) {
-    const stack = await createStack({
-      position: targetPosition,
-      itemIds: [originalItem.id, targetItem.id],
-    });
-
-    return {
-      items: items.filter((it) => it.id !== originalItem.id && it.id !== targetItem.id),
-      stacks: [...stacks, stack],
-      bugs: bugs,
-      structures: structures,
-    };
-  }
-
-  // drop an item onto a stack to add it to its items
-  if (
-    originalItem &&
-    targetStack &&
-    originalItem.itemType === targetStack.itemType &&
-    canStackItemType(originalItem.itemType, items)
-  ) {
-    const stack = await addItemToStack(originalItem.id, targetStack.id);
-
-    return {
-      items: items.filter((it) => it.id !== originalItem.id),
-      stacks: stacks.map((s) => (s.id === targetStack.id ? stack : s)),
-      bugs: bugs,
-      structures: structures,
-    };
-  }
-
-  // drop food onto a bug to feed it
-  if (originalItem && targetBug && isFoodForBug(originalItem.itemType, targetBug)) {
-    if (!canDropFoodOnBug(originalItem.itemType, targetBug)) {
-      // todo: remove all errors from dropAction - this handler should receive validated parameters
-      throw new Error("Item cannot be given to bug");
+  if (originalItem && targetItem) {
+    const crafted = await dropItemOnItemToCraft(originalItem, targetItem, state);
+    if (crafted) {
+      return crafted;
     }
-    const bug = await addItemToBug(originalItem.id, targetBug.id);
 
-    return {
-      items: items.filter((it) => it.id !== originalItem.id),
-      stacks: stacks,
-      bugs: bugs.map((b) => (b.id === targetBug.id ? bug : b)),
-      structures: structures,
-    };
-  }
-
-  // drop an item to discard it
-  if (originalItem && targetStructure && canDiscardItemOnStructure(targetStructure)) {
-    await deleteItem(originalItem.id, targetStructure.id);
-
-    return {
-      items: items.filter((it) => it.id !== originalItem.id),
-      stacks: stacks,
-      bugs: bugs,
-      structures: structures,
-    };
-  }
-
-  // drop an item onto a structure to add it to its items
-  if (originalItem && targetStructure && canDropItemOnStructure(originalItem, targetStructure)) {
-    const structure = await addItemToStructure(originalItem.id, targetStructure.id);
-
-    return {
-      items: items.filter((it) => it.id !== originalItem.id),
-      stacks: stacks,
-      bugs: bugs,
-      structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
-    };
-  }
-
-  // drop a bug to discard it
-  if (originalBug && targetStructure && canDiscardBugOnStructure(originalBug, targetStructure)) {
-    await deleteBug(originalBug.id, targetStructure.id);
-
-    return {
-      items: items,
-      stacks: stacks,
-      bugs: bugs.filter((b) => b.id !== originalBug.id),
-      structures: structures,
-    };
-  }
-
-  // drop a bug onto a structure to add it to its habitat
-  if (
-    originalBug &&
-    targetStructure &&
-    canStructureAcceptDroppedBug(originalBug, targetStructure)
-  ) {
-    if (droppedBugMustBeFed(originalBug, targetStructure) && !isBugFed(originalBug)) {
-      throw new Error("Bug must be fed before joining structure");
+    const stacked = await dropItemOnItemToStack(originalItem, targetItem, targetPosition, state);
+    if (stacked) {
+      return stacked;
     }
-    const structure = await addBeetleToStructure(originalBug.id, targetStructure.id);
-
-    return {
-      items: items,
-      stacks: stacks,
-      bugs: bugs.filter((b) => b.id !== originalBug.id),
-      structures: structures.map((s) => (s.id === targetStructure.id ? structure : s)),
-    };
   }
 
-  // drop a bug onto a stack to assign it
-  if (originalBug && targetStack && canDropBugOnStack(originalBug, targetStack)) {
-    if (!isBugFed(originalBug)) {
-      throw new Error("Bug must be fed before joining stack");
+  if (originalItem && targetStack) {
+    const stacked = await dropItemOnStack(originalItem, targetStack, state);
+    if (stacked) {
+      return stacked;
     }
-    const stack = await addBugToStack(originalBug.id, targetStack.id);
-
-    return {
-      items: items,
-      stacks: stacks.map((s) => (s.id === targetStack.id ? stack : s)),
-      bugs: bugs.filter((b) => b.id !== originalBug.id),
-      structures: structures,
-    };
   }
 
-  // drop a stack onto another stack of the same type to merge
-  if (
-    originalStack &&
-    targetStack &&
-    originalStack.itemType === targetStack.itemType &&
-    canStackItemType(originalStack.itemType, items)
-  ) {
-    const { stack: mergedStack, releasedBugs } = await mergeStacks(
-      originalStack.id,
-      targetStack.id,
-    );
+  if (originalItem && targetBug) {
+    const fed = await dropFoodOnBug(originalItem, targetBug, state);
+    if (fed) {
+      return fed;
+    }
+  }
 
-    return {
-      items: items,
-      stacks: stacks
-        .filter((s) => s.id !== originalStack.id)
-        .map((s) => (s.id === targetStack.id ? mergedStack : s)),
-      bugs: [
-        ...bugs,
-        ...releasedBugs.map((bug) => ({
-          ...bug,
-          fromX: targetStack.x,
-          fromY: targetStack.y,
-        })),
-      ],
-      structures: structures,
-    };
+  if (originalItem && targetStructure) {
+    const discarded = await dropItemToDiscard(originalItem, targetStructure, state);
+    if (discarded) {
+      return discarded;
+    }
+
+    const added = await dropItemOnStructure(originalItem, targetStructure, state);
+    if (added) {
+      return added;
+    }
+  }
+
+  if (originalBug && targetStructure) {
+    const discarded = await dropBugToDiscard(originalBug, targetStructure, state);
+    if (discarded) {
+      return discarded;
+    }
+
+    const added = await dropBugOnStructure(originalBug, targetStructure, state);
+    if (added) {
+      return added;
+    }
+  }
+
+  if (originalBug && targetStack) {
+    const assigned = await dropBugOnStack(originalBug, targetStack, state);
+    if (assigned) {
+      return assigned;
+    }
+  }
+
+  if (originalStack && targetStack) {
+    const merged = await dropStackOnStack(originalStack, targetStack, state);
+    if (merged) {
+      return merged;
+    }
   }
 
   const sourceId =
     originalItem?.id ?? originalStack?.id ?? originalBug?.id ?? originalStructure?.id;
   const targetId = targetItem?.id ?? targetStack?.id ?? targetBug?.id ?? targetStructure?.id;
 
-  if (targetEntity && sourceId && targetId && canSwapOnGrid(entity, targetEntity)) {
-    await swapGridPositions(sourceId, targetId);
-    const sourcePosition = { x: entity.x, y: entity.y };
-    const occupantPosition = { x: targetEntity.x, y: targetEntity.y };
-
-    return {
-      items: withSwappedPositions(items, sourceId, targetId, sourcePosition, occupantPosition),
-      bugs: withSwappedPositions(bugs, sourceId, targetId, sourcePosition, occupantPosition),
-      stacks: stacks,
-      structures: structures,
-    };
-  }
-
   if (targetEntity) {
+    const swapped = await dropToSwap(entity, targetEntity, sourceId, targetId, state);
+    if (swapped) {
+      return swapped;
+    }
+
     throw new Error("Invalid drop action");
   }
 
-  // drop an entity onto an empty position
-
   if (originalStack) {
-    const stack = await updateStack(originalStack.id, targetPosition);
-
-    return {
-      items: items,
-      stacks: stacks.map((s) => (s.id === originalStack.id ? stack : s)),
-      bugs: bugs,
-      structures: structures,
-    };
+    return dropStackOnEmpty(originalStack, targetPosition, state);
   }
 
   if (originalItem) {
-    const item = await updateItemPosition(originalItem.id, targetPosition);
-
-    return {
-      items: items.map((it) => (it.id === originalItem.id ? item : it)),
-      stacks: stacks,
-      bugs: bugs,
-      structures: structures,
-    };
+    return dropItemOnEmpty(originalItem, targetPosition, state);
   }
 
   if (originalBug) {
-    const bug = await updateBugPosition(originalBug.id, targetPosition);
-
-    return {
-      items: items,
-      stacks: stacks,
-      bugs: bugs.map((b) => (b.id === originalBug.id ? bug : b)),
-      structures: structures,
-    };
+    return dropBugOnEmpty(originalBug, targetPosition, state);
   }
 
   if (originalStructure) {
-    const structure = await updateStructure(originalStructure.id, targetPosition);
-
-    return {
-      items: items,
-      stacks: stacks,
-      bugs: bugs,
-      structures: structures.map((s) => (s.id === originalStructure.id ? structure : s)),
-    };
+    return dropStructureOnEmpty(originalStructure, targetPosition, state);
   }
 
   throw new Error("Invalid drop action");
