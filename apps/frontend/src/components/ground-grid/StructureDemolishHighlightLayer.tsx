@@ -30,10 +30,6 @@ export function StructureDemolishHighlightLayer({
 }: StructureDemolishHighlightLayerProps) {
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
 
-  if (!isDemolishMode) {
-    return null;
-  }
-
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div className="grid h-full w-full gap-1" style={groundGridTemplateStyle(cols, rows)}>
@@ -51,7 +47,7 @@ export function StructureDemolishHighlightLayer({
               <div
                 key={structure.id}
                 aria-hidden
-                className="rounded-sm bg-red-500/30"
+                className={`rounded-sm bg-red-500/30 transition-opacity duration-200 motion-reduce:transition-none ${isDemolishMode ? "opacity-100" : "opacity-0"}`}
                 style={{
                   ...gridPlacementStyle(structure.x, structure.y, span),
                   ...gridDragStyle(gridDrag, isDragged),

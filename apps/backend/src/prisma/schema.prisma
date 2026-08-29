@@ -139,9 +139,10 @@ model Structure {
   authorId      String
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  removedAt     DateTime?     @map("removed_at")
   author        User          @relation(fields: [authorId], references: [id])
 
-  @@unique([authorId, structureType])
+  @@index([authorId, structureType])
 }
 
 model Stack {

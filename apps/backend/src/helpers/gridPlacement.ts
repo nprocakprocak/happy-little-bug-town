@@ -43,7 +43,7 @@ export async function getPositionedEntitiesOnGrid(
 ): Promise<Positionable[]> {
   const [structures, items, stacks, bugs] = await Promise.all([
     db.structure.findMany({
-      where: { authorId },
+      where: { authorId, removedAt: null },
       select: { x: true, y: true, structureType: true },
     }),
     db.item.findMany({

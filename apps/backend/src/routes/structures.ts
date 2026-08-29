@@ -31,6 +31,7 @@ import {
   craftOperationalItemAtStructure,
   createFirstStructure as createFirstStructureService,
   createStructure as createStructureService,
+  demolishAtStructure,
   digAtStructure,
   evolveStructureType as evolveStructureTypeService,
   getStructure,
@@ -315,6 +316,15 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
   });
 };
 
+const demolish: RequestHandler<{ id: string }> = async (req, res) => {
+  const result = await demolishAtStructure(req.authorId!, req.structure!);
+  res.status(200).json({
+    item: result.item ? toItemOnGridDto(result.item) : undefined,
+    bug: result.bug ? toBugOnGridDto(result.bug) : undefined,
+    structure: result.structure ? toStructureOnGridDto(result.structure) : null,
+  });
+};
+
 structuresRouter.get("/", listStructures);
 structuresRouter.post("/", createStructure);
 structuresRouter.post("/bootstrap", createFirstStructure);
@@ -323,3 +333,4 @@ structuresRouter.post("/:id/evolve", requireStructure, evolveStructure);
 structuresRouter.post("/:id/extract-occupant", requireStructure, extractOccupant);
 structuresRouter.post("/:id/craft", economyRateLimit, requireStructure, craft);
 structuresRouter.post("/:id/dig", economyRateLimit, requireStructure, dig);
+structuresRouter.post("/:id/demolish", economyRateLimit, requireStructure, demolish);

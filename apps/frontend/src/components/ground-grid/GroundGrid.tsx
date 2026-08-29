@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   canCraftFromStructureOperationalResources,
   canCreateItemType,
+  canDemolishStructureType,
   canDigAtStructureType,
   canDiscardBugOnStructure,
   canDiscardItemOnStructure,
@@ -45,6 +46,7 @@ import {
   useStructuresQuery,
   useUpgradeStructureMutation,
 } from "../../hooks/useStructures";
+import { demolishQueue } from "../../services/demolishQueue";
 import { digQueue } from "../../services/digQueue";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
@@ -138,6 +140,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
+  const isDemolishMode = useMainStore((state) => state.isDemolishMode);
 
   const beginStructureEvolution = useCallback(
     async (structureId: string, toType: StructureType) => {
@@ -572,6 +575,43 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onStructureClick = useCallback(
     (structure: Structure) => {
+      if (isDemolishMode && canDemolishStructureType(structure.structureType, items)) {
+        const remainingCount = structure.items.length + structure.bugs.length;
+        if (remainingCount > 1 && !hasEmptyGridCell(rows, cols, animatables)) {
+          return;
+        }
+
+        void (async () => {
+          const result = await demolishQueue.enqueue(structure.id);
+          const origin = pickRandomNearestStructureCenterCell(structure);
+          if (result.structure) {
+            const updatedStructure = result.structure;
+            setStructuresCache((prev) =>
+              prev.map((existing) =>
+                existing.id === updatedStructure.id ? updatedStructure : existing,
+              ),
+            );
+          } else {
+            setStructuresCache((prev) => prev.filter((existing) => existing.id !== structure.id));
+          }
+          if (result.item) {
+            const extractedItem = result.item;
+            setItemsCache((prev) => [
+              ...prev,
+              { ...extractedItem, fromX: origin.x, fromY: origin.y },
+            ]);
+          }
+          if (result.bug) {
+            const extractedBug = result.bug;
+            setBugsCache((prev) => [
+              ...prev,
+              { ...extractedBug, fromX: origin.x, fromY: origin.y },
+            ]);
+          }
+        })();
+        return;
+      }
+
       if (canDigAtStructureType(structure.structureType)) {
         void (async () => {
           const itemOrBug = await digQueue.enqueue(structure.id);
@@ -735,6 +775,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       stacks,
       items,
       structures,
+      isDemolishMode,
       beginAutoRouteIfPossible,
       beginAutoRouteBugIfPossible,
       setItemsCache,

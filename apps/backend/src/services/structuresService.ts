@@ -1,5 +1,6 @@
 import {
   BugType,
+  canDemolishStructureType,
   canDigAtStructureType,
   ItemType,
   Position,
@@ -7,6 +8,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { AppError } from "../errors/AppError.js";
+import { getDemolishResultingUpgradeLevel, getNextDemolishTarget } from "../helpers/demolition.js";
 import { generateRandomItemType } from "../helpers/diggableItems.js";
 import { findNearestEmptyPositionForAuthor, lockAuthorGrid } from "../helpers/gridPlacement.js";
 import { prisma } from "../lib/prisma.js";
@@ -33,6 +35,7 @@ export const hasStructureOfType = async (
     where: {
       authorId,
       structureType,
+      ...notRemoved,
     },
   });
   return count > 0;
@@ -42,6 +45,7 @@ export const getStructures = async (authorId: string): Promise<StructureDto[]> =
   const structures = await prisma.structure.findMany({
     where: {
       authorId,
+      ...notRemoved,
     },
     include: structureInclude,
   });
@@ -79,7 +83,7 @@ export const getStructure = async (id: string): Promise<StructureDto | null> => 
     where: { id },
     include: structureInclude,
   });
-  if (!structure) {
+  if (!structure || structure.removedAt) {
     return null;
   }
   return toStructureDto(structure);
@@ -270,6 +274,123 @@ export const craftOperationalBugAtStructure = async (
     return {
       bug: toBugDto(updatedBug),
       structure: toStructureDto(updatedStructure),
+    };
+  });
+};
+
+export const demolishAtStructure = async (
+  authorId: string,
+  structure: StructureDto,
+): Promise<{ item: ItemDto | null; bug: BugDto | null; structure: StructureDto | null }> => {
+  return prisma.$transaction(async (tx) => {
+    await lockAuthorGrid(tx, authorId);
+
+    const latest = await tx.structure.findUnique({
+      where: { id: structure.id },
+      include: structureInclude,
+    });
+    if (!latest || latest.removedAt || latest.authorId !== authorId) {
+      throw new AppError(404, "Not found");
+    }
+
+    const itemsOnGrid = await tx.item.findMany({
+      where: {
+        authorId,
+        x: { not: null },
+        y: { not: null },
+        ...notRemoved,
+      },
+      include: itemInclude,
+    });
+    if (!canDemolishStructureType(latest.structureType, itemsOnGrid)) {
+      throw new AppError(400, "This structure cannot be demolished");
+    }
+
+    const structureForDemolish = toStructureDto(latest);
+    const target = getNextDemolishTarget(structureForDemolish);
+
+    if (target.kind === "structure") {
+      await tx.structure.update({
+        where: { id: structure.id },
+        data: { removedAt: new Date() },
+      });
+      return { item: null, bug: null, structure: null };
+    }
+
+    const remainingAfterExtract = {
+      ...structureForDemolish,
+      items: structureForDemolish.items.filter((item) => item.id !== target.id),
+      bugs: structureForDemolish.bugs.filter((bug) => bug.id !== target.id),
+    };
+    const isLastEntity =
+      remainingAfterExtract.items.length === 0 && remainingAfterExtract.bugs.length === 0;
+    const nextUpgradeLevel = getDemolishResultingUpgradeLevel(remainingAfterExtract);
+
+    if (isLastEntity) {
+      await tx.structure.update({
+        where: { id: structure.id },
+        data: { removedAt: new Date() },
+      });
+    } else if (nextUpgradeLevel !== latest.upgradeLevel) {
+      await tx.structure.update({
+        where: { id: structure.id },
+        data: { upgradeLevel: nextUpgradeLevel },
+      });
+    }
+
+    const emptyPosition = await findNearestEmptyPositionForAuthor(tx, authorId, {
+      x: latest.x,
+      y: latest.y,
+      structureType: latest.structureType,
+    });
+
+    if (target.kind === "item") {
+      const updatedItem = await tx.item.update({
+        where: { id: target.id },
+        data: {
+          structureId: null,
+          x: emptyPosition.x,
+          y: emptyPosition.y,
+        },
+        include: itemInclude,
+      });
+      const updatedStructure = isLastEntity
+        ? null
+        : await tx.structure.findUnique({
+            where: { id: structure.id },
+            include: structureInclude,
+          });
+
+      return {
+        item: toItemDto(updatedItem),
+        bug: null,
+        structure:
+          updatedStructure && !updatedStructure.removedAt ? toStructureDto(updatedStructure) : null,
+      };
+    }
+
+    const updatedBug = await tx.bug.update({
+      where: { id: target.id },
+      data: {
+        structureId: null,
+        stackId: null,
+        x: emptyPosition.x,
+        y: emptyPosition.y,
+      },
+      include: bugInclude,
+    });
+    const updatedStructure = isLastEntity
+      ? null
+      : await tx.structure.findUnique({
+          where: { id: structure.id },
+          include: structureInclude,
+        });
+
+    return {
+      item: null,
+      bug: toBugDto(updatedBug),
+      structure:
+        updatedStructure && !updatedStructure.removedAt ? toStructureDto(updatedStructure) : null,
     };
   });
 };

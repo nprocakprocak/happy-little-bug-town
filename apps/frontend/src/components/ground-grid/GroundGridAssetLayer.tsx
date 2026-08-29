@@ -11,6 +11,7 @@ import {
   getStructureSpan,
   getVisibleStructureOperationalResourceProgresses,
   hasStructureAssignedTermite,
+  isItemCrafted,
   isOperationalBugRequirement,
   isTermiteAssignableStructureType,
   itemShowsActivationGlow,
@@ -68,6 +69,7 @@ export function GroundGridAssetLayer({
 }: GroundGridAssetLayerProps) {
   const evolvingToStructureType = useMainStore((state) => state.evolvingToStructureType);
   const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
+  const isDemolishMode = useMainStore((state) => state.isDemolishMode);
   const structureTypes = useMemo(
     () => structures.map((structure) => structure.structureType),
     [structures],
@@ -145,7 +147,10 @@ export function GroundGridAssetLayer({
                     />
                   )}
                   {showActivationGlow && (
-                    <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
+                    <div
+                      className={`absolute inset-0 rounded-sm bg-sky-500/40 transition-opacity duration-200 motion-reduce:transition-none ${isDemolishMode ? "opacity-0" : "opacity-100"}`}
+                      aria-hidden
+                    />
                   )}
                   {firstHouseBug && (
                     <div
@@ -266,6 +271,9 @@ export function GroundGridAssetLayer({
             ? bugToImage(item)
             : itemTypeToImageForItem(item.itemType);
           const span = isBug(item) ? 1 : getItemSpan(item.itemType);
+          const showActivationGlow = !isBug(item) && itemShowsActivationGlow(item);
+          const showDemolishGlow =
+            !isBug(item) && item.itemType === "hammer" && isItemCrafted(item);
 
           return (
             <div
@@ -284,8 +292,14 @@ export function GroundGridAssetLayer({
                   className="object-cover"
                   sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
                 />
-                {!isBug(item) && itemShowsActivationGlow(item) && (
+                {showActivationGlow && (
                   <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
+                )}
+                {showDemolishGlow && (
+                  <div
+                    className={`absolute inset-0 rounded-sm bg-sky-500/40 transition-opacity duration-200 motion-reduce:transition-none ${isDemolishMode ? "opacity-100" : "opacity-0"}`}
+                    aria-hidden
+                  />
                 )}
               </div>
             </div>

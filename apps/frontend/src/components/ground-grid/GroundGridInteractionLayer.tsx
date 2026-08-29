@@ -20,6 +20,7 @@ import {
   getStructureSpan,
   isBugFed,
   isFoodForBug,
+  isItemCrafted,
   Position,
   Positionable,
   positionOverlapsAnyEntity,
@@ -90,6 +91,7 @@ export function GroundGridInteractionLayer({
 }: GroundGridInteractionLayerProps) {
   const { gridCellsVisible } = useGridVisibility();
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
+  const setIsDemolishMode = useMainStore((state) => state.setIsDemolishMode);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [dragState, setDragState] = useState<{ index: number; dx: number; dy: number } | null>(
     null,
@@ -189,6 +191,7 @@ export function GroundGridInteractionLayer({
     structure: Structure | undefined,
     stack: Stack | undefined,
     bug: Bug | undefined,
+    item: Item | undefined,
     gridCol: number,
     gridRow: number,
     index: number,
@@ -441,12 +444,11 @@ export function GroundGridInteractionLayer({
     }
 
     if (structure) {
-      if (isDemolishMode && canDemolishStructureType(structure.structureType, items)) {
-        return;
-      }
       onStructureClick(structure);
     } else if (stack) {
       onStackClick(stack);
+    } else if (item?.itemType === "hammer" && isItemCrafted(item)) {
+      setIsDemolishMode(!isDemolishMode);
     } else if (
       bug?.bugType === "beetle" ||
       bug?.bugType === "ladybug" ||
@@ -540,7 +542,7 @@ export function GroundGridInteractionLayer({
               onPointerDown={(event) => handlePointerDown(index, event)}
               onPointerMove={(event) => handlePointerMove(canDrag, index, event)}
               onPointerUp={(event) =>
-                handlePointerUp(structure, stack, bug, gridCol, gridRow, index, event)
+                handlePointerUp(structure, stack, bug, item, gridCol, gridRow, index, event)
               }
               onPointerCancel={handlePointerCancel}
             />
