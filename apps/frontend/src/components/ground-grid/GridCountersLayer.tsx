@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import {
   getEvolutionOccupancyProgress,
-  getGreenflyHouseOccupants,
+  getHouseOccupants,
   getStackSpan,
   getStructureSpan,
 } from "@happy-little-bug-town/utils";
@@ -39,13 +39,6 @@ function CounterBadge({ count }: { count: number }) {
   );
 }
 
-function getHouseOccupantCount(structure: Structure): number {
-  if (structure.structureType === "beetle_house") {
-    return (structure.bugs ?? []).length;
-  }
-  return getGreenflyHouseOccupants(structure).length;
-}
-
 export function GridCountersLayer({
   cols,
   rows,
@@ -61,7 +54,7 @@ export function GridCountersLayer({
         if (isFlyingItem(structure)) {
           return [];
         }
-        const count = getHouseOccupantCount(structure);
+        const count = getHouseOccupants(structure).length;
         return count > 0 ? [{ structure, count }] : [];
       }),
     [structures],

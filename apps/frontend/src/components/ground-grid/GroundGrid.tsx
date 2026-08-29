@@ -13,6 +13,7 @@ import {
   getCompletedUpgradeLevel,
   getEvolutionStepFromType,
   getGreenflyHouseOccupants,
+  getHouseOccupants,
   isBuildableStructureType,
   isFoodForBug,
   isStructurePowered,
@@ -70,6 +71,7 @@ import { BeetlePopup } from "../popups/beetle/BeetlePopup";
 import { FarmPopup } from "../popups/farm/FarmPopup";
 import { FlyPopup } from "../popups/fly/FlyPopup";
 import { GreenflyPopup } from "../popups/greenfly/GreenflyPopup";
+import { HouseOccupiedPopup } from "../popups/house/HouseOccupiedPopup";
 import { LadybugPopup } from "../popups/ladybug/LadybugPopup";
 import { SpiderPopup } from "../popups/spider/SpiderPopup";
 import { TermitePopup } from "../popups/termite/TermitePopup";
@@ -139,6 +141,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [selectedBee, setSelectedBee] = useState<Bug | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
+  const [occupiedHouseType, setOccupiedHouseType] = useState<StructureType | null>(null);
   const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
 
@@ -176,6 +179,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     firstStructureCreateFailed,
     createFirstStructureMutate,
   ]);
+
+  useEffect(() => {
+    if (!isDemolishMode) {
+      setOccupiedHouseType(null);
+    }
+  }, [isDemolishMode]);
 
   const setItemsCache = useCallback(
     (updater: (items: Item[]) => Item[]) => {
@@ -576,6 +585,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const onStructureClick = useCallback(
     (structure: Structure) => {
       if (isDemolishMode && canDemolishStructureType(structure.structureType, items)) {
+        if (getHouseOccupants(structure).length > 0) {
+          setOccupiedHouseType(structure.structureType);
+          return;
+        }
+
+        setOccupiedHouseType(null);
         const remainingCount = structure.items.length + structure.bugs.length;
         if (remainingCount > 1 && !hasEmptyGridCell(rows, cols, animatables)) {
           return;
@@ -1001,6 +1016,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
             structures={structures}
             onClose={() => setFarmPopupOpen(false)}
             onBuild={onBeetleBuild}
+          />
+        )}
+        {occupiedHouseType && (
+          <HouseOccupiedPopup
+            structureType={occupiedHouseType}
+            onClose={() => setOccupiedHouseType(null)}
           />
         )}
       </div>

@@ -2,6 +2,7 @@ import {
   BugType,
   canDemolishStructureType,
   canDigAtStructureType,
+  getHouseOccupants,
   ItemType,
   Position,
   StructureType,
@@ -304,6 +305,10 @@ export const demolishAtStructure = async (
     });
     if (!canDemolishStructureType(latest.structureType, itemsOnGrid)) {
       throw new AppError(400, "This structure cannot be demolished");
+    }
+
+    if (getHouseOccupants(latest).length > 0) {
+      throw new AppError(400, "This house still has inhabitants");
     }
 
     const structureForDemolish = toStructureDto(latest);

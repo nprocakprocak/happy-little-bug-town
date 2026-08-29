@@ -10,3 +10,13 @@ export function getGreenflyHouseOccupants<T extends { id: string; bugType: BugTy
 
   return structure.bugs.filter((bug) => bug.bugType === "greenfly");
 }
+
+export function getHouseOccupants<T extends { id: string; bugType: BugType }>(
+  structure: { structureType: StructureType; bugs: T[] },
+): T[] {
+  if (structure.structureType === "beetle_house") {
+    return structure.bugs;
+  }
+
+  return getGreenflyHouseOccupants(structure);
+}

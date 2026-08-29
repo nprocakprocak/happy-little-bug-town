@@ -5,7 +5,7 @@ import {
   canStartStructureUpgrade,
   getCraftableOperationalResourceOutput,
   getEvolutionStepFromType,
-  getGreenflyHouseOccupants,
+  getHouseOccupants,
   getNextStructureUpgradeLevel,
   getStructureOperationalResourceBugs,
   getStructureOperationalResourceItems,
@@ -188,10 +188,7 @@ const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
     return;
   }
 
-  const occupants =
-    existingStructure.structureType === "greenfly_house"
-      ? getGreenflyHouseOccupants(existingStructure)
-      : existingStructure.bugs;
+  const occupants = getHouseOccupants(existingStructure);
   if (occupants.length === 0) {
     res.status(400).json({ error: "No occupants in house" });
     return;
