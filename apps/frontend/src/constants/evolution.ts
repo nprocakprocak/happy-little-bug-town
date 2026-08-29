@@ -1,0 +1,1 @@
+export const STRUCTURE_EVOLUTION_FADE_MS = 1200;

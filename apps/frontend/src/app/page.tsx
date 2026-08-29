@@ -1,6 +1,6 @@
 import { GroundGrid } from "../components/ground-grid/GroundGrid";
 import { HomeBanner } from "../components/home/HomeBanner";
-import { GROUND_GRID_MAX_WIDTH_PX } from "../constants";
+import { GROUND_GRID_MAX_WIDTH_PX } from "../constants/layout";
 
 export default async function HomePage() {
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/grid`, {

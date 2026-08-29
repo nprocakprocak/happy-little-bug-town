@@ -29,7 +29,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 
 import { evolveStructure } from "../../api/structures";
-import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
+import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
 import { queryKeys } from "../../constants/queryKeys";
 import { useAuth } from "../../context/AuthContext";
 import { useAutoRouteItems } from "../../hooks/useAutoRouteItems";
@@ -53,18 +53,17 @@ import { demolishQueue } from "../../services/demolishQueue";
 import { digQueue } from "../../services/digQueue";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
-import { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
-import { dropAction } from "../../utils/dropAction";
-import { isSwapDrop } from "../../utils/isSwapDrop";
-import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
-import { withSwappedPositions } from "../../utils/withSwappedPositions";
+import { dropAction } from "../helpers/dropAction";
+import { isSwapDrop } from "../helpers/isSwapDrop";
 import {
   getBeetleHouseExtractOrigin,
   pickRandomNearestStructureCenterCell,
-} from "../helpers/structureCenterCell";
+} from "../helpers/structurePosition";
+import { isBug, isItem, isStack, isStructure } from "../helpers/typeGuards";
+import { withSwappedPositions } from "../helpers/withSwappedPositions";
 import { AntPopup } from "../popups/ant/AntPopup";
 import { BeePopup } from "../popups/bee/BeePopup";
 import { BeetlePopup } from "../popups/beetle/BeetlePopup";
@@ -76,6 +75,7 @@ import { LadybugPopup } from "../popups/ladybug/LadybugPopup";
 import { SpiderPopup } from "../popups/spider/SpiderPopup";
 import { TermitePopup } from "../popups/termite/TermitePopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
+import { DragPayload } from "../types/dragPayload";
 import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";

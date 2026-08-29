@@ -1,10 +1,19 @@
 import { Bug } from "../types/bug";
-import { CraftOperationalResourceResult } from "../types/craftOperationalResourceResult";
 import { DemolishStructureResult } from "../types/demolishStructureResult";
-import { ExtractOccupantResult } from "../types/extractOccupantResult";
 import { Item } from "../types/item";
 import { Structure } from "../types/structure";
 import { apiFetch } from "./client";
+
+interface ExtractOccupantResult {
+  extractedOccupant: Bug;
+  structure: Structure;
+}
+
+interface CraftOperationalResourceResult {
+  item?: Item;
+  bug?: Bug;
+  structure: Structure;
+}
 
 export function fetchStructures(): Promise<Structure[]> {
   return apiFetch<Structure[]>("/api/structures");

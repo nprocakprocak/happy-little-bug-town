@@ -1,8 +1,8 @@
 import type { Bug } from "../../types/bug";
-import type { DragPayload } from "../../types/dragPayload";
 import type { Item } from "../../types/item";
 import type { Stack } from "../../types/stack";
 import type { Structure } from "../../types/structure";
+import type { DragPayload } from "../types/dragPayload";
 
 export function buildGridDragPayload(
   index: number,

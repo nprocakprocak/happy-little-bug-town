@@ -18,32 +18,25 @@ import {
   structureShowsActivationGlow,
 } from "@happy-little-bug-town/utils";
 
-import {
-  GROUND_BG_TILE_HEIGHT_PX,
-  GROUND_BG_TILE_WIDTH_PX,
-  GROUND_GRID_MAX_WIDTH_PX,
-} from "../../constants";
+import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
 import { useGroundEvolutionPresentation } from "../../hooks/useGroundEvolutionPresentation";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
-import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
-import { isBug } from "../../utils/typeGuards";
+import { GROUND_BG_TILE_HEIGHT_PX, GROUND_BG_TILE_WIDTH_PX } from "../constants/layout";
+import { bugToImage, bugTypeToImage } from "../helpers/bugImages";
 import {
   gridDragStyle,
   gridPlacementStyle,
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
-import { isFlyingItem } from "../helpers/isFlyingItem";
-import {
-  bugToImage,
-  bugTypeToImage,
-  itemTypeToImageForItem,
-  itemTypeToImageForStack,
-  structureTypeToImage,
-} from "../helpers/itemTypeToImage";
+import { isFlying } from "../helpers/isFlying";
+import { itemTypeToImageForItem, itemTypeToImageForStack } from "../helpers/itemImages";
+import { structureTypeToImage } from "../helpers/structureImages";
+import { isBug } from "../helpers/typeGuards";
+import type { DragPayload } from "../types/dragPayload";
 import { AutomationMarker } from "./AutomationMarker";
 import { GroundBackgroundLayers } from "./GroundBackgroundLayers";
 import { StructureEvolutionSprite } from "./StructureEvolutionSprite";
@@ -78,8 +71,8 @@ export function GroundGridAssetLayer({
     useGroundEvolutionPresentation(structureTypes, evolvingToStructureType);
 
   const allGrounded = useMemo(() => {
-    const groundedItems = items.filter((it) => !isFlyingItem(it));
-    const groundedBugs = bugs.filter((bug) => !isFlyingItem(bug));
+    const groundedItems = items.filter((it) => !isFlying(it));
+    const groundedBugs = bugs.filter((bug) => !isFlying(bug));
     return [...groundedItems, ...groundedBugs];
   }, [items, bugs]);
 
@@ -98,7 +91,7 @@ export function GroundGridAssetLayer({
         style={groundGridTemplateStyle(cols, rows)}
       >
         {structures
-          .filter((structure) => !isFlyingItem(structure))
+          .filter((structure) => !isFlying(structure))
           .map((structure) => {
             const isDragged =
               gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
@@ -231,7 +224,7 @@ export function GroundGridAssetLayer({
             );
           })}
         {stacks
-          .filter((stack) => !isFlyingItem(stack))
+          .filter((stack) => !isFlying(stack))
           .map((stack) => {
             const isDragged =
               gridDrag?.target.kind === "stack" && gridDrag.target.stackId === stack.id;

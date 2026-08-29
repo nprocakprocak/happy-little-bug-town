@@ -4,7 +4,8 @@ import { useLayoutEffect, useRef } from "react";
 import { getStackSpan, Position } from "@happy-little-bug-town/utils";
 
 import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
-import { STACK_CREATE_BLOCKED_FLASH_MS } from "./constants";
+
+const STACK_CREATE_BLOCKED_FLASH_MS = 1000;
 
 interface StackCreateBlockedHintLayerProps {
   cols: number;

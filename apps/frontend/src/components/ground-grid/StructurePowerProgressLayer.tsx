@@ -10,14 +10,15 @@ import {
   isStructureAwaitingPower,
 } from "@happy-little-bug-town/utils";
 
-import type { DragPayload } from "../../types/dragPayload";
 import { Structure } from "../../types/structure";
+import { bugTypeToImage } from "../helpers/bugImages";
 import {
   gridDragStyle,
   groundGridTemplateStyle,
   spanCellGridPosition,
 } from "../helpers/groundGridStyles";
-import { bugTypeToImage, itemTypeToImageForItem } from "../helpers/itemTypeToImage";
+import { itemTypeToImageForItem } from "../helpers/itemImages";
+import type { DragPayload } from "../types/dragPayload";
 import { MissingResourceCounter } from "../ui/MissingResourceCounter";
 
 interface StructurePowerProgressLayerProps {

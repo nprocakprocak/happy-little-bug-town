@@ -7,14 +7,14 @@ import {
   hasStructureOperationalResources,
 } from "@happy-little-bug-town/utils";
 
-import type { DragPayload } from "../../types/dragPayload";
 import { Structure } from "../../types/structure";
 import {
   gridDragStyle,
   gridPlacementStyle,
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
-import { isFlyingItem } from "../helpers/isFlyingItem";
+import { isFlying } from "../helpers/isFlying";
+import type { DragPayload } from "../types/dragPayload";
 import { ResourceProgressBar } from "../ui/ResourceProgressBar";
 
 interface StructureResourceProgressLayerProps {
@@ -33,7 +33,7 @@ export function StructureResourceProgressLayer({
   const structuresWithResources = useMemo(
     () =>
       structures.filter(
-        (structure) => !isFlyingItem(structure) && hasStructureOperationalResources(structure),
+        (structure) => !isFlying(structure) && hasStructureOperationalResources(structure),
       ),
     [structures],
   );

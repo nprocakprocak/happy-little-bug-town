@@ -2,17 +2,27 @@
 
 import { useMemo, useState } from "react";
 import {
+  BUILDABLE_STRUCTURE_TYPES,
   BuildableStructureType,
   getBuildResourceCostsForType,
   hasStructureType,
 } from "@happy-little-bug-town/utils";
 
-import { BUILDING_OPTIONS } from "../../../constants/beetleBuild";
 import { Structure } from "../../../types/structure";
-import { getStructureName } from "../../helpers/getStructureName";
-import { structureTypeToImage } from "../../helpers/itemTypeToImage";
+import { structureTypeToImage } from "../../helpers/structureImages";
+import { getStructureName } from "../../helpers/structureName";
 import { CarouselSlider } from "../../ui/CarouselSlider";
 import { SelectionPopupContent } from "../shared/SelectionPopupContent";
+
+const BUILDING_OPTIONS: Structure[] = BUILDABLE_STRUCTURE_TYPES.map<Structure>((structureType) => ({
+  id: `build-option-${structureType}`,
+  x: 0,
+  y: 0,
+  structureType,
+  upgradeLevel: 0,
+  items: [],
+  bugs: [],
+}));
 
 interface BeetleBuildPopupContentProps {
   structures: Structure[];

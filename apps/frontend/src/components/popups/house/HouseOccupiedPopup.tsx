@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { StructureType } from "@happy-little-bug-town/utils";
 
-import { structureTypeToImage } from "../../helpers/itemTypeToImage";
+import { structureTypeToImage } from "../../helpers/structureImages";
 import { GridPopup } from "../shared/GridPopup";
 
 interface HouseOccupiedPopupProps {

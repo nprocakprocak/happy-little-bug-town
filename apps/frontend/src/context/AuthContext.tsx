@@ -3,15 +3,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { fetchAuthMe, logout as logoutRequest, type AuthUser } from "../api/auth";
+import { fetchAuthMe, logout as logoutRequest } from "../api/auth";
 import { registerUser, resetRegisterUserCache } from "../api/users";
+import { setGoogleAuthHandlers } from "../components/helpers/googleAuth";
 import { queryKeys } from "../constants/queryKeys";
 import { useMainStore } from "../stores/main";
-import { setGoogleAuthHandlers } from "../utils/authReceiver";
+import { User } from "../types/user";
 
 interface AuthContextValue {
   anonymousId: string;
-  authUser: AuthUser | null;
+  authUser: User | null;
   isSessionLoading: boolean;
   logout: () => Promise<void>;
 }
@@ -24,7 +25,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [anonymousId, setAnonymousId] = useState("");
-  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [authUser, setAuthUser] = useState<User | null>(null);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
   const setRequiresLogin = useMainStore((state) => state.setRequiresLogin);
   const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);

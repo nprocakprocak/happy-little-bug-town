@@ -1,9 +1,8 @@
 import { BugType, ItemType, Position } from "@happy-little-bug-town/utils";
 
-import { GridAnimatable } from "./gridAnimatable";
-import { WithId } from "./withId";
+import { GridAnimatable, WithId } from "./gridEntity";
 
-export interface StackBug {
+interface StackBug {
   id: string;
   bugType: BugType;
 }

@@ -4,7 +4,8 @@ import Image from "next/image";
 import { ItemType } from "@happy-little-bug-town/utils";
 
 import { Bug } from "../../../types/bug";
-import { bugToImage, itemTypeToImageForItem } from "../../helpers/itemTypeToImage";
+import { bugToImage } from "../../helpers/bugImages";
+import { itemTypeToImageForItem } from "../../helpers/itemImages";
 
 interface BugHungryPopupContentProps {
   bug: Bug;

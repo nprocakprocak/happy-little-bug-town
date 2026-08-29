@@ -1,15 +1,26 @@
 import { Position } from "@happy-little-bug-town/utils";
 
-import { ExtractFromStackResult } from "../types/extractFromStackResult";
-import { MergeStacksResult } from "../types/mergeStacksResult";
+import { Bug } from "../types/bug";
+import { Item } from "../types/item";
 import { Stack } from "../types/stack";
 import { apiFetch } from "./client";
+
+interface ExtractFromStackResult {
+  extractedItem: Item;
+  stackDissolved: boolean;
+  releasedBugs: Bug[];
+}
+
+interface MergeStacksResult {
+  stack: Stack;
+  releasedBugs: Bug[];
+}
 
 export function fetchStacks(): Promise<Stack[]> {
   return apiFetch<Stack[]>("/api/stacks");
 }
 
-export interface CreateStackInput {
+interface CreateStackInput {
   position: Position;
   itemIds: string[];
 }

@@ -1,17 +1,11 @@
+import { User } from "../types/user";
 import { apiFetch } from "./client";
 
-export interface UserDto {
-  id: string;
-  name?: string;
-  email?: string;
-  isLinked: boolean;
-}
+let registerInflight: Promise<User> | null = null;
 
-let registerInflight: Promise<UserDto> | null = null;
-
-export function registerUser(): Promise<UserDto> {
+export function registerUser(): Promise<User> {
   if (!registerInflight) {
-    registerInflight = apiFetch<UserDto>(`/api/users/register`, {
+    registerInflight = apiFetch<User>(`/api/users/register`, {
       method: "POST",
     }).catch((error: unknown) => {
       registerInflight = null;

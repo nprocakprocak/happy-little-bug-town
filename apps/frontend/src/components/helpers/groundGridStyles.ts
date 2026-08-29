@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-import type { DragPayload } from "../../types/dragPayload";
+import type { DragPayload } from "../types/dragPayload";
 
 export function groundGridTemplateStyle(cols: number, rows: number): CSSProperties {
   return {

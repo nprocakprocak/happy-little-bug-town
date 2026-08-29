@@ -6,7 +6,7 @@ import {
   Positionable,
 } from "@happy-little-bug-town/utils";
 
-import { Item } from "../types/item";
+import { Item } from "../../types/item";
 import { isBug, isItem } from "./typeGuards";
 
 export function isSwapDrop(

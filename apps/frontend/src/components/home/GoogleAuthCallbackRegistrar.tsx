@@ -2,8 +2,7 @@
 
 import { useEffect } from "react";
 
-import { handleAuthReceiver } from "../../utils/authReceiver";
-import { waitForGoogleAccountsId } from "../../utils/waitForGoogleAccountsId";
+import { handleAuthReceiver, waitForGoogleAccountsId } from "../helpers/googleAuth";
 
 export function GoogleAuthCallbackRegistrar() {
   useEffect(() => {

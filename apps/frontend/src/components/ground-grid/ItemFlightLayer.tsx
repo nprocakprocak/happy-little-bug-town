@@ -4,19 +4,17 @@ import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import { getSpannableSpan, Positionable } from "@happy-little-bug-town/utils";
 
-import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants";
-import { GridAnimatable } from "../../types/gridAnimatable";
-import { WithId } from "../../types/withId";
-import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
+import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
+import { GridAnimatable, WithId } from "../../types/gridEntity";
+import { bugToImage } from "../helpers/bugImages";
 import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
-import { isFlyingItem } from "../helpers/isFlyingItem";
-import {
-  bugToImage,
-  itemTypeToImageForItem,
-  itemTypeToImageForStack,
-  structureTypeToImage,
-} from "../helpers/itemTypeToImage";
-import { FLIGHT_DURATION_MS, FLIGHT_EASING } from "./constants";
+import { isFlying } from "../helpers/isFlying";
+import { itemTypeToImageForItem, itemTypeToImageForStack } from "../helpers/itemImages";
+import { structureTypeToImage } from "../helpers/structureImages";
+import { isBug, isItem, isStack, isStructure } from "../helpers/typeGuards";
+
+const FLIGHT_DURATION_MS = 550;
+const FLIGHT_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 type Animatable = GridAnimatable & WithId & Positionable;
 
@@ -158,7 +156,7 @@ export function ItemFlightLayer({
 }: ItemFlightLayerProps) {
   return (
     <>
-      {animatables.filter(isFlyingItem).map((item: Animatable) => (
+      {animatables.filter(isFlying).map((item: Animatable) => (
         <FlyingItemAnimation
           key={item.id}
           cols={cols}

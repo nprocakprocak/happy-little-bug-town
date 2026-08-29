@@ -3,7 +3,6 @@
 import { canDemolishStructureType, getStructureSpan } from "@happy-little-bug-town/utils";
 
 import { useMainStore } from "../../stores/main";
-import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import { Structure } from "../../types/structure";
 import {
@@ -11,7 +10,8 @@ import {
   gridPlacementStyle,
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
-import { isFlyingItem } from "../helpers/isFlyingItem";
+import { isFlying } from "../helpers/isFlying";
+import type { DragPayload } from "../types/dragPayload";
 
 interface StructureDemolishHighlightLayerProps {
   cols: number;
@@ -36,7 +36,7 @@ export function StructureDemolishHighlightLayer({
         {structures
           .filter(
             (structure) =>
-              !isFlyingItem(structure) && canDemolishStructureType(structure.structureType, items),
+              !isFlying(structure) && canDemolishStructureType(structure.structureType, items),
           )
           .map((structure) => {
             const isDragged =

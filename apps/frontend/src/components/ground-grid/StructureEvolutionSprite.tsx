@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { StructureType } from "@happy-little-bug-town/utils";
 
-import { STRUCTURE_EVOLUTION_FADE_MS } from "../../constants";
-import { structureTypeToImage } from "../helpers/itemTypeToImage";
+import { STRUCTURE_EVOLUTION_FADE_MS } from "../../constants/evolution";
+import { structureTypeToImage } from "../helpers/structureImages";
 
 interface StructureEvolutionSpriteProps {
   fromType: StructureType;

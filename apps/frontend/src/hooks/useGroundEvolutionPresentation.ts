@@ -6,7 +6,7 @@ import {
   StructureType,
 } from "@happy-little-bug-town/utils";
 
-import { STRUCTURE_EVOLUTION_FADE_MS } from "../constants";
+import { STRUCTURE_EVOLUTION_FADE_MS } from "../constants/evolution";
 
 export function useGroundEvolutionPresentation(
   structureTypes: StructureType[],

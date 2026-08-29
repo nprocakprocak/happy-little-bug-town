@@ -7,14 +7,14 @@ import {
   isItemIncomplete,
 } from "@happy-little-bug-town/utils";
 
-import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import {
   gridDragStyle,
   groundGridTemplateStyle,
   spanCellGridPosition,
 } from "../helpers/groundGridStyles";
-import { itemTypeToImageForItem } from "../helpers/itemTypeToImage";
+import { itemTypeToImageForItem } from "../helpers/itemImages";
+import type { DragPayload } from "../types/dragPayload";
 import { MissingResourceCounter } from "../ui/MissingResourceCounter";
 
 interface ItemCraftProgressLayerProps {

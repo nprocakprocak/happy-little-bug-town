@@ -10,7 +10,7 @@ import {
   findAutoRouteBugTarget,
   findAutoRouteTarget,
   structuresWithPendingAutoRoutes,
-} from "../utils/findAutoRouteTarget";
+} from "../utils/autoRoute";
 import { useAddBeetleToStructureMutation } from "./useBugs";
 import { useAddItemToStackMutation, useAddItemToStructureMutation } from "./useItems";
 import { updateStacksCache } from "./useStacks";

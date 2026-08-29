@@ -1,0 +1,1 @@
+export const GROUND_GRID_MAX_WIDTH_PX = 450;

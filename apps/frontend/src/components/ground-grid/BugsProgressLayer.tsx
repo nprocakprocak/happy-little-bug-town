@@ -4,13 +4,13 @@ import { useMemo } from "react";
 import { getBugFoodCount, getBugFoodRequirement, isBugFed } from "@happy-little-bug-town/utils";
 
 import { Bug } from "../../types/bug";
-import type { DragPayload } from "../../types/dragPayload";
 import {
   gridDragStyle,
   gridPlacementStyle,
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
-import { isFlyingItem } from "../helpers/isFlyingItem";
+import { isFlying } from "../helpers/isFlying";
+import type { DragPayload } from "../types/dragPayload";
 import { ResourceProgressBar } from "../ui/ResourceProgressBar";
 
 interface BugsProgressLayerProps {
@@ -32,10 +32,7 @@ function HungryBadge() {
 }
 
 export function BugsProgressLayer({ cols, rows, bugs, gridDrag }: BugsProgressLayerProps) {
-  const hungryBugs = useMemo(
-    () => bugs.filter((bug) => !isFlyingItem(bug) && !isBugFed(bug)),
-    [bugs],
-  );
+  const hungryBugs = useMemo(() => bugs.filter((bug) => !isFlying(bug) && !isBugFed(bug)), [bugs]);
 
   return (
     <div

@@ -30,16 +30,17 @@ import {
 import { useGridVisibility } from "../../context/GridVisibilityContext";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
-import type { DragPayload } from "../../types/dragPayload";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
-import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
 import { buildGridDragPayload } from "../helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
 import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
-import { DRAG_THRESHOLD_PX } from "./constants";
+import { isBug, isItem, isStack, isStructure } from "../helpers/typeGuards";
+import type { DragPayload } from "../types/dragPayload";
 import { StackCreateBlockedHintLayer } from "./StackCreateBlockedHintLayer";
+
+const DRAG_THRESHOLD_PX = 8;
 
 interface GroundGridInteractionLayerProps {
   cols: number;

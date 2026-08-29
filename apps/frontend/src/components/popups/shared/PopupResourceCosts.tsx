@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { ItemType } from "@happy-little-bug-town/utils";
 
-import { itemTypeToImageForItem } from "../../helpers/itemTypeToImage";
+import { itemTypeToImageForItem } from "../../helpers/itemImages";
 
 interface PopupResourceCostsProps {
   itemCosts: { itemType: ItemType; count: number }[];

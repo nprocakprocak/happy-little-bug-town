@@ -1,6 +1,14 @@
+import { StructureType } from "@happy-little-bug-town/utils";
 import { create } from "zustand";
 
-import { MainState } from "./types";
+interface MainState {
+  requiresLogin: boolean;
+  setRequiresLogin: (value: boolean) => void;
+  evolvingToStructureType: StructureType | null;
+  setEvolvingToStructureType: (value: StructureType | null) => void;
+  isDemolishMode: boolean;
+  setIsDemolishMode: (value: boolean) => void;
+}
 
 export const useMainStore = create<MainState>((set) => ({
   requiresLogin: false,

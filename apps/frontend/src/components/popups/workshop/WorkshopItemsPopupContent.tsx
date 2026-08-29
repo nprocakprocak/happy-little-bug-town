@@ -6,14 +6,25 @@ import {
   getItemCraftCosts,
   isWorkshopItemUnlocked,
   ItemType,
+  WORKSHOP_ITEM_TYPES,
+  WorkshopItemType,
 } from "@happy-little-bug-town/utils";
 
-import { WORKSHOP_ITEM_OPTIONS } from "../../../constants/workshopItems";
 import { Item } from "../../../types/item";
-import { itemTypeToName } from "../../helpers/getItemName";
-import { itemTypeToImageForItem } from "../../helpers/itemTypeToImage";
+import { itemTypeToImageForItem } from "../../helpers/itemImages";
+import { itemTypeToName } from "../../helpers/itemName";
 import { CarouselSlider } from "../../ui/CarouselSlider";
 import { SelectionPopupContent } from "../shared/SelectionPopupContent";
+
+interface WorkshopItemOption {
+  id: string;
+  itemType: WorkshopItemType;
+}
+
+const WORKSHOP_ITEM_OPTIONS: WorkshopItemOption[] = WORKSHOP_ITEM_TYPES.map((itemType) => ({
+  id: `workshop-item-option-${itemType}`,
+  itemType,
+}));
 
 interface WorkshopItemsPopupContentProps {
   onClose: () => void;

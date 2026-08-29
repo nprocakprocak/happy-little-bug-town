@@ -8,7 +8,6 @@ import {
   getStructureSpan,
 } from "@happy-little-bug-town/utils";
 
-import type { DragPayload } from "../../types/dragPayload";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
 import {
@@ -17,7 +16,8 @@ import {
   gridPlacementStyle,
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
-import { isFlyingItem } from "../helpers/isFlyingItem";
+import { isFlying } from "../helpers/isFlying";
+import type { DragPayload } from "../types/dragPayload";
 import { ResourceProgressBar } from "../ui/ResourceProgressBar";
 
 interface GridCountersLayerProps {
@@ -46,12 +46,12 @@ export function GridCountersLayer({
   structures,
   gridDrag,
 }: GridCountersLayerProps) {
-  const groundedStacks = useMemo(() => stacks.filter((stack) => !isFlyingItem(stack)), [stacks]);
+  const groundedStacks = useMemo(() => stacks.filter((stack) => !isFlying(stack)), [stacks]);
 
   const housesWithOccupants = useMemo(
     () =>
       structures.flatMap((structure) => {
-        if (isFlyingItem(structure)) {
+        if (isFlying(structure)) {
           return [];
         }
         const count = getHouseOccupants(structure).length;
@@ -63,7 +63,7 @@ export function GridCountersLayer({
   const occupancyProgresses = useMemo(
     () =>
       structures.flatMap((structure) => {
-        if (isFlyingItem(structure)) {
+        if (isFlying(structure)) {
           return [];
         }
         const progress = getEvolutionOccupancyProgress(structure);

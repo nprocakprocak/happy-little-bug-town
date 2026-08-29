@@ -1,9 +1,8 @@
 import { ItemType, Position } from "@happy-little-bug-town/utils";
 
-import { GridAnimatable } from "./gridAnimatable";
-import { WithId } from "./withId";
+import { GridAnimatable, WithId } from "./gridEntity";
 
-export interface ItemCraftItem {
+interface ItemCraftItem {
   id: string;
   itemType: ItemType;
 }

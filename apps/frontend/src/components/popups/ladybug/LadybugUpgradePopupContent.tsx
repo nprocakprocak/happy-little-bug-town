@@ -3,15 +3,30 @@
 import { useMemo, useState } from "react";
 import {
   canStartStructureUpgradeToLevel,
+  getStructureUpgradeLevels,
   getUpgradeResourceCostsForType,
+  UPGRADABLE_STRUCTURE_TYPES,
 } from "@happy-little-bug-town/utils";
 
-import { UPGRADE_OPTIONS } from "../../../constants/ladybugUpgrade";
 import { Structure } from "../../../types/structure";
-import { structureTypeToName } from "../../helpers/getStructureName";
-import { structureTypeToImage } from "../../helpers/itemTypeToImage";
+import { structureTypeToImage } from "../../helpers/structureImages";
+import { structureTypeToName } from "../../helpers/structureName";
 import { CarouselSlider } from "../../ui/CarouselSlider";
 import { SelectionPopupContent } from "../shared/SelectionPopupContent";
+
+const UPGRADE_LEVELS = Array.from(
+  new Set(UPGRADABLE_STRUCTURE_TYPES.flatMap(getStructureUpgradeLevels)),
+).sort((left, right) => left - right);
+
+const UPGRADE_OPTIONS = UPGRADE_LEVELS.flatMap((upgradeLevel) =>
+  UPGRADABLE_STRUCTURE_TYPES.filter((structureType) =>
+    getStructureUpgradeLevels(structureType).includes(upgradeLevel),
+  ).map((structureType) => ({
+    id: `upgrade-option-${structureType}-${upgradeLevel}`,
+    structureType,
+    upgradeLevel,
+  })),
+);
 
 interface LadybugUpgradePopupContentProps {
   structures: Structure[];

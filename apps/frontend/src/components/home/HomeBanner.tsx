@@ -3,16 +3,16 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 
-import {
-  GROUND_BG_TILE_HEIGHT_PX,
-  GROUND_BG_TILE_WIDTH_PX,
-  GROUND_GRID_MAX_WIDTH_PX,
-  HOME_BANNER_HEIGHT_PX,
-} from "../../constants";
+import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
 import { useAuth } from "../../context/AuthContext";
 import { useGroundEvolutionPresentation } from "../../hooks/useGroundEvolutionPresentation";
 import { useStructuresQuery } from "../../hooks/useStructures";
 import { useMainStore } from "../../stores/main";
+import {
+  GROUND_BG_TILE_HEIGHT_PX,
+  GROUND_BG_TILE_WIDTH_PX,
+  HOME_BANNER_HEIGHT_PX,
+} from "../constants/layout";
 import { GroundBackgroundLayers } from "../ground-grid/GroundBackgroundLayers";
 import { SettingsPopup } from "./SettingsPopup";
 

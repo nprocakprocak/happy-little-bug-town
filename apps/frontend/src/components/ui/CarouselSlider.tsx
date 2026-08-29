@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-export interface CarouselOption {
+interface CarouselOption {
   id: string;
   imageSrc: string;
   label: string;
