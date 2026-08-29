@@ -10,10 +10,12 @@ import {
   canDiscardItemOnStructure,
   canDropBugOnStack,
   canDropItemOnItem,
+  findFirstStructurePlacement,
   getCompletedUpgradeLevel,
   getEvolutionStepFromType,
   getGreenflyHouseOccupants,
   getHouseOccupants,
+  hasEmptyGridCell,
   isBuildableStructureType,
   isFoodForBug,
   isStructurePowered,
@@ -59,8 +61,6 @@ import { dropAction } from "../../utils/dropAction";
 import { isSwapDrop } from "../../utils/isSwapDrop";
 import { isBug, isItem, isStack, isStructure } from "../../utils/typeGuards";
 import { withSwappedPositions } from "../../utils/withSwappedPositions";
-import { findFirstStructurePlacement } from "../helpers/findFirstStructurePlacement";
-import { hasEmptyGridCell } from "../helpers/hasEmptyGridCell";
 import {
   getBeetleHouseExtractOrigin,
   pickRandomNearestStructureCenterCell,

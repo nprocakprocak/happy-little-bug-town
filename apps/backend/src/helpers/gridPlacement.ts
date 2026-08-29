@@ -1,4 +1,5 @@
 import {
+  findNearestEmptyPosition,
   GROUND_HEIGHT,
   GROUND_WIDTH,
   ItemType,
@@ -8,7 +9,6 @@ import {
 
 import { AppError } from "../errors/AppError.js";
 import { prisma } from "../lib/prisma.js";
-import { findNearestEmptyPosition } from "./nearestEmptyPosition.js";
 
 type GridDb = Pick<typeof prisma, "structure" | "item" | "stack" | "bug">;
 

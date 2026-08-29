@@ -1,9 +1,34 @@
-import {
-  getSpannableSpan,
-  Position,
-  Positionable,
-  positionOverlapsAnyEntity,
-} from "@happy-little-bug-town/utils";
+import { Position } from "../types/position.js";
+import { Positionable } from "../types/positionable.js";
+import { Spannable } from "../types/spannable.js";
+import { getSpannableSpan, positionOverlapsAnyEntity, structureFootprintFits } from "./overlaps.js";
+
+export function findFirstStructurePlacement(
+  spannable: Spannable,
+  cols: number,
+  rows: number,
+  entities: Positionable[],
+): Position | null {
+  for (let y = 1; y <= rows; y++) {
+    for (let x = 1; x <= cols; x++) {
+      if (structureFootprintFits({ x, y, ...spannable }, cols, rows, entities)) {
+        return { x, y };
+      }
+    }
+  }
+  return null;
+}
+
+export function hasEmptyGridCell(rows: number, cols: number, entities: Positionable[]): boolean {
+  for (let y = 1; y <= rows; y++) {
+    for (let x = 1; x <= cols; x++) {
+      if (!positionOverlapsAnyEntity({ x, y }, entities)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 function minManhattanDistanceToEntity(position: Position, entity: Positionable): number {
   const span = getSpannableSpan(entity);
