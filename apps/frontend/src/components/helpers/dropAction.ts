@@ -20,6 +20,7 @@ import { dropStackOnEmpty } from "./dropActions/dropStackOnEmpty";
 import { dropStackOnStack } from "./dropActions/dropStackOnStack";
 import { dropStructureOnEmpty } from "./dropActions/dropStructureOnEmpty";
 import { dropToSwap } from "./dropActions/dropToSwap";
+import { evolveStructureIfReady } from "./dropActions/evolveStructureIfReady";
 import { isBug, isItem, isStack, isStructure } from "./typeGuards";
 
 export async function dropAction(
@@ -110,7 +111,7 @@ export async function dropAction(
 
     const added = await dropBugOnStructure(originalBug, targetStructure, state, onOptimisticUpdate);
     if (added) {
-      return added;
+      return evolveStructureIfReady(targetStructure, added, onOptimisticUpdate);
     }
   }
 

@@ -6,16 +6,13 @@ import {
   canCreateItemType,
   canDemolishStructureType,
   canDigAtStructureType,
-  canDiscardBugOnStructure,
   findFirstStructurePlacement,
   getCompletedUpgradeLevel,
-  getEvolutionStepFromType,
   getGreenflyHouseOccupants,
   getHouseOccupants,
   hasEmptyGridCell,
   isBuildableStructureType,
   isStructurePowered,
-  isStructureReadyToEvolve,
   isWorkshopItemUnlocked,
   ItemType,
   Position,
@@ -24,7 +21,6 @@ import {
 } from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { evolveStructure } from "../../api/structures";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
 import { queryKeys } from "../../constants/queryKeys";
 import { useAuth } from "../../context/AuthContext";
@@ -57,7 +53,7 @@ import {
   getBeetleHouseExtractOrigin,
   pickRandomNearestStructureCenterCell,
 } from "../helpers/structurePosition";
-import { isItem, isStructure } from "../helpers/typeGuards";
+import { isItem } from "../helpers/typeGuards";
 import { BugPopups } from "../popups/BugPopups";
 import { FarmPopup } from "../popups/farm/FarmPopup";
 import { HouseOccupiedPopup } from "../popups/house/HouseOccupiedPopup";
@@ -123,25 +119,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const [occupiedHouseType, setOccupiedHouseType] = useState<StructureType | null>(null);
-  const setEvolvingToStructureType = useMainStore((state) => state.setEvolvingToStructureType);
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
-
-  const beginStructureEvolution = useCallback(
-    async (structureId: string, toType: StructureType) => {
-      setEvolvingToStructureType(toType);
-      updateStructuresCache(queryClient, (prev) =>
-        prev.map((structure) =>
-          structure.id === structureId ? { ...structure, structureType: toType } : structure,
-        ),
-      );
-
-      const evolved = await evolveStructure(structureId);
-      updateStructuresCache(queryClient, (prev) =>
-        prev.map((structure) => (structure.id === evolved.id ? evolved : structure)),
-      );
-    },
-    [queryClient, setEvolvingToStructureType],
-  );
 
   useEffect(() => {
     if (
@@ -292,26 +270,9 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         );
 
         applyDropActionState(newState);
-
-        if (
-          originalBug &&
-          targetEntity &&
-          isStructure(targetEntity) &&
-          !canDiscardBugOnStructure(originalBug, targetEntity)
-        ) {
-          const readyStructure = newState.structures.find(
-            (structure) => structure.id === targetEntity.id && isStructureReadyToEvolve(structure),
-          );
-          if (readyStructure) {
-            const step = getEvolutionStepFromType(readyStructure.structureType);
-            if (step) {
-              await beginStructureEvolution(readyStructure.id, step.toType);
-            }
-          }
-        }
       })();
     },
-    [items, stacks, bugs, structures, applyDropActionState, beginStructureEvolution],
+    [items, stacks, bugs, structures, applyDropActionState],
   );
 
   const onStackClick = useCallback(
