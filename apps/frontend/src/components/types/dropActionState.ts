@@ -9,3 +9,5 @@ export interface DropActionState {
   bugs: Bug[];
   structures: Structure[];
 }
+
+export type ApplyOptimisticDrop = (state: DropActionState) => void;

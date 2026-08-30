@@ -4,7 +4,7 @@ import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
-import { DropActionState } from "../types/dropActionState";
+import { ApplyOptimisticDrop, DropActionState } from "../types/dropActionState";
 import { dropBugOnEmpty } from "./dropActions/dropBugOnEmpty";
 import { dropBugOnStack } from "./dropActions/dropBugOnStack";
 import { dropBugOnStructure } from "./dropActions/dropBugOnStructure";
@@ -29,7 +29,8 @@ export async function dropAction(
   bugs: Bug[],
   structures: Structure[],
   entity: Positionable,
-  targetEntity?: Positionable,
+  targetEntity: Positionable | undefined,
+  onOptimisticUpdate: ApplyOptimisticDrop,
 ): Promise<DropActionState> {
   const originalItem = isItem(entity) ? entity : undefined;
   const originalStack = isStack(entity) ? entity : undefined;
@@ -44,7 +45,12 @@ export async function dropAction(
   const state: DropActionState = { items, stacks, bugs, structures };
 
   if (originalItem && targetItem) {
-    const crafted = await dropItemOnItemToCraft(originalItem, targetItem, state);
+    const crafted = await dropItemOnItemToCraft(
+      originalItem,
+      targetItem,
+      state,
+      onOptimisticUpdate,
+    );
     if (crafted) {
       return crafted;
     }
@@ -56,52 +62,67 @@ export async function dropAction(
   }
 
   if (originalItem && targetStack) {
-    const stacked = await dropItemOnStack(originalItem, targetStack, state);
+    const stacked = await dropItemOnStack(originalItem, targetStack, state, onOptimisticUpdate);
     if (stacked) {
       return stacked;
     }
   }
 
   if (originalItem && targetBug) {
-    const fed = await dropFoodOnBug(originalItem, targetBug, state);
+    const fed = await dropFoodOnBug(originalItem, targetBug, state, onOptimisticUpdate);
     if (fed) {
       return fed;
     }
   }
 
   if (originalItem && targetStructure) {
-    const discarded = await dropItemToDiscard(originalItem, targetStructure, state);
+    const discarded = await dropItemToDiscard(
+      originalItem,
+      targetStructure,
+      state,
+      onOptimisticUpdate,
+    );
     if (discarded) {
       return discarded;
     }
 
-    const added = await dropItemOnStructure(originalItem, targetStructure, state);
+    const added = await dropItemOnStructure(
+      originalItem,
+      targetStructure,
+      state,
+      onOptimisticUpdate,
+    );
     if (added) {
       return added;
     }
   }
 
   if (originalBug && targetStructure) {
-    const discarded = await dropBugToDiscard(originalBug, targetStructure, state);
+    const discarded = await dropBugToDiscard(
+      originalBug,
+      targetStructure,
+      state,
+      onOptimisticUpdate,
+    );
     if (discarded) {
       return discarded;
     }
 
-    const added = await dropBugOnStructure(originalBug, targetStructure, state);
+    const added = await dropBugOnStructure(originalBug, targetStructure, state, onOptimisticUpdate);
     if (added) {
       return added;
     }
   }
 
   if (originalBug && targetStack) {
-    const assigned = await dropBugOnStack(originalBug, targetStack, state);
+    const assigned = await dropBugOnStack(originalBug, targetStack, state, onOptimisticUpdate);
     if (assigned) {
       return assigned;
     }
   }
 
   if (originalStack && targetStack) {
-    const merged = await dropStackOnStack(originalStack, targetStack, state);
+    const merged = await dropStackOnStack(originalStack, targetStack, state, onOptimisticUpdate);
     if (merged) {
       return merged;
     }
@@ -112,7 +133,14 @@ export async function dropAction(
   const targetId = targetItem?.id ?? targetStack?.id ?? targetBug?.id ?? targetStructure?.id;
 
   if (targetEntity) {
-    const swapped = await dropToSwap(entity, targetEntity, sourceId, targetId, state);
+    const swapped = await dropToSwap(
+      entity,
+      targetEntity,
+      sourceId,
+      targetId,
+      state,
+      onOptimisticUpdate,
+    );
     if (swapped) {
       return swapped;
     }
@@ -121,19 +149,19 @@ export async function dropAction(
   }
 
   if (originalStack) {
-    return dropStackOnEmpty(originalStack, targetPosition, state);
+    return dropStackOnEmpty(originalStack, targetPosition, state, onOptimisticUpdate);
   }
 
   if (originalItem) {
-    return dropItemOnEmpty(originalItem, targetPosition, state);
+    return dropItemOnEmpty(originalItem, targetPosition, state, onOptimisticUpdate);
   }
 
   if (originalBug) {
-    return dropBugOnEmpty(originalBug, targetPosition, state);
+    return dropBugOnEmpty(originalBug, targetPosition, state, onOptimisticUpdate);
   }
 
   if (originalStructure) {
-    return dropStructureOnEmpty(originalStructure, targetPosition, state);
+    return dropStructureOnEmpty(originalStructure, targetPosition, state, onOptimisticUpdate);
   }
 
   throw new Error("Invalid drop action");

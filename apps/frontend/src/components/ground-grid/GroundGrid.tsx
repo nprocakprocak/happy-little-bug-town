@@ -7,9 +7,6 @@ import {
   canDemolishStructureType,
   canDigAtStructureType,
   canDiscardBugOnStructure,
-  canDiscardItemOnStructure,
-  canDropBugOnStack,
-  canDropItemOnItem,
   findFirstStructurePlacement,
   getCompletedUpgradeLevel,
   getEvolutionStepFromType,
@@ -17,7 +14,6 @@ import {
   getHouseOccupants,
   hasEmptyGridCell,
   isBuildableStructureType,
-  isFoodForBug,
   isStructurePowered,
   isStructureReadyToEvolve,
   isWorkshopItemUnlocked,
@@ -57,18 +53,17 @@ import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
 import { dropAction } from "../helpers/dropAction";
-import { isSwapDrop } from "../helpers/isSwapDrop";
 import {
   getBeetleHouseExtractOrigin,
   pickRandomNearestStructureCenterCell,
 } from "../helpers/structurePosition";
-import { isBug, isItem, isStack, isStructure } from "../helpers/typeGuards";
-import { withSwappedPositions } from "../helpers/withSwappedPositions";
+import { isItem, isStructure } from "../helpers/typeGuards";
 import { BugPopups } from "../popups/BugPopups";
 import { FarmPopup } from "../popups/farm/FarmPopup";
 import { HouseOccupiedPopup } from "../popups/house/HouseOccupiedPopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { DragPayload } from "../types/dragPayload";
+import { DropActionState } from "../types/dropActionState";
 import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
@@ -260,10 +255,20 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [setItemsCache, setBugsCache, setStacksCache, setStructuresCache],
   );
 
+  const applyDropActionState = useCallback(
+    (state: DropActionState) => {
+      queryClient.setQueryData(queryKeys.items, state.items);
+      queryClient.setQueryData(queryKeys.stacks, state.stacks);
+      queryClient.setQueryData(queryKeys.bugs, state.bugs);
+      queryClient.setQueryData(queryKeys.structures, state.structures);
+    },
+    [queryClient],
+  );
+
   // todo: either { x, y } or targetEntity (or separate handlers)
   const handleItemDropped = useCallback(
-    (entityId: string, { x, y }: Position, targetId?: string, targetEntity?: Positionable) => {
-      (async () => {
+    (entityId: string, { x, y }: Position, _targetId?: string, targetEntity?: Positionable) => {
+      void (async () => {
         const originalItem = items.find((item) => item.id === entityId);
         const originalStack = stacks.find((stack) => stack.id === entityId);
         const originalBug = bugs.find((bug) => bug.id === entityId);
@@ -275,212 +280,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           return;
         }
 
-        // optimistic updates depending on origin and drop target types
-
-        // drop onto an empty position
-        if (!targetEntity) {
-          if (originalItem) {
-            setItemsCache((prev) =>
-              prev.map((it) => (it.id === originalItem.id ? { ...it, x, y } : it)),
-            );
-          }
-          if (originalStack) {
-            setStacksCache((prev) =>
-              prev.map((s) => (s.id === originalStack.id ? { ...s, x, y } : s)),
-            );
-          }
-          if (originalBug) {
-            setBugsCache((prev) => prev.map((b) => (b.id === originalBug.id ? { ...b, x, y } : b)));
-          }
-          if (originalStructure) {
-            setStructuresCache((prev) =>
-              prev.map((s) => (s.id === originalStructure.id ? { ...s, x, y } : s)),
-            );
-          }
-        }
-
-        const swapping = !!targetEntity && isSwapDrop(originalEntity, targetEntity, items);
-
-        // swap the positions of items or bugs
-        if (swapping && targetEntity && targetId) {
-          const sourcePosition = { x: originalEntity.x, y: originalEntity.y };
-          const occupantPosition = { x: targetEntity.x, y: targetEntity.y };
-          setItemsCache((prev) =>
-            withSwappedPositions(
-              prev,
-              originalEntity.id,
-              targetId,
-              sourcePosition,
-              occupantPosition,
-            ),
-          );
-          setBugsCache((prev) =>
-            withSwappedPositions(
-              prev,
-              originalEntity.id,
-              targetId,
-              sourcePosition,
-              occupantPosition,
-            ),
-          );
-        }
-
-        // drop an item onto a stack to add it to its items
-        if (originalItem && targetEntity && isStack(targetEntity)) {
-          setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
-          setStacksCache((prev) =>
-            prev.map((s) =>
-              s.id === targetEntity.id ? { ...s, itemsCount: s.itemsCount + 1 } : s,
-            ),
-          );
-        }
-
-        // drop an item onto a bug to feed it
-        if (
-          originalItem &&
-          targetEntity &&
-          isBug(targetEntity) &&
-          isFoodForBug(originalItem.itemType, targetEntity)
-        ) {
-          setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
-          setBugsCache((prev) =>
-            prev.map((bug) =>
-              bug.id === targetEntity.id
-                ? {
-                    ...bug,
-                    items: [...bug.items, { id: originalItem.id, itemType: originalItem.itemType }],
-                  }
-                : bug,
-            ),
-          );
-        }
-
-        // drop an item onto a structure to add it to its items or build it
-        if (originalItem && targetEntity && isStructure(targetEntity)) {
-          setItemsCache((prev) => prev.filter((it) => it.id !== originalItem.id));
-          if (!canDiscardItemOnStructure(targetEntity)) {
-            setStructuresCache((prev) =>
-              prev.map((structure) =>
-                structure.id === targetEntity.id
-                  ? {
-                      ...structure,
-                      items: [
-                        ...structure.items,
-                        { id: originalItem.id, itemType: originalItem.itemType },
-                      ],
-                    }
-                  : structure,
-              ),
-            );
-          }
-        }
-
-        // drop an item onto another item to craft it
-        if (
-          originalItem &&
-          targetEntity &&
-          isItem(targetEntity) &&
-          canDropItemOnItem(originalItem, targetEntity)
-        ) {
-          setItemsCache((prev) =>
-            prev
-              .filter((it) => it.id !== originalItem.id)
-              .map((it) =>
-                it.id === targetEntity.id
-                  ? {
-                      ...it,
-                      items: [
-                        ...it.items,
-                        { id: originalItem.id, itemType: originalItem.itemType },
-                      ],
-                    }
-                  : it,
-              ),
-          );
-        }
-
-        // drop a bug onto a structure to add it to its workforce
-        if (originalBug && targetEntity && isStructure(targetEntity)) {
-          setBugsCache((prev) => prev.filter((b) => b.id !== originalBug.id));
-          if (!canDiscardBugOnStructure(originalBug, targetEntity)) {
-            setStructuresCache((prev) =>
-              prev.map((structure) =>
-                structure.id === targetEntity.id
-                  ? {
-                      ...structure,
-                      bugs: [
-                        ...(structure.bugs ?? []),
-                        { id: originalBug.id, bugType: originalBug.bugType },
-                      ],
-                    }
-                  : structure,
-              ),
-            );
-          }
-        }
-
-        // drop a bug onto a stack to assign it
-        if (originalBug && targetEntity && isStack(targetEntity)) {
-          setBugsCache((prev) => prev.filter((b) => b.id !== originalBug.id));
-          setStacksCache((prev) =>
-            prev.map((s) =>
-              s.id === targetEntity.id
-                ? {
-                    ...s,
-                    bugs: [...(s.bugs ?? []), { id: originalBug.id, bugType: originalBug.bugType }],
-                  }
-                : s,
-            ),
-          );
-        }
-
-        // drop a stack onto another stack to merge them
-        if (originalStack && targetEntity && isStack(targetEntity)) {
-          const sourceBugs = originalStack.bugs ?? [];
-          const canTransferSourceBugs =
-            sourceBugs.length === 1 && canDropBugOnStack(sourceBugs[0], targetEntity);
-          const shouldDropSourceBugs = sourceBugs.length > 0 && !canTransferSourceBugs;
-          setStacksCache((prev) => {
-            const source = prev.find((s) => s.id === originalStack.id);
-            if (!source) {
-              throw new Error("Source stack not found");
-            }
-            return prev
-              .filter((s) => s.id !== originalStack.id)
-              .map((s) =>
-                s.id === targetEntity.id
-                  ? {
-                      ...s,
-                      itemsCount: s.itemsCount + source.itemsCount,
-                      bugs: canTransferSourceBugs
-                        ? [...(s.bugs ?? []), ...sourceBugs]
-                        : (s.bugs ?? []),
-                    }
-                  : s,
-              );
-          });
-          if (shouldDropSourceBugs) {
-            setBugsCache((prev) => [
-              ...prev,
-              ...sourceBugs.map((bug) => ({
-                id: bug.id,
-                bugType: bug.bugType,
-                x: originalStack.x,
-                y: originalStack.y,
-                fromX: targetEntity.x,
-                fromY: targetEntity.y,
-                items: [],
-              })),
-            ]);
-          }
-        }
-
-        const {
-          items: newItems,
-          stacks: newStacks,
-          bugs: newBugs,
-          structures: newStructures,
-        } = await dropAction(
+        const newState = await dropAction(
           { x, y },
           items,
           stacks,
@@ -488,12 +288,10 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           structures,
           originalEntity,
           targetEntity,
+          applyDropActionState,
         );
 
-        queryClient.setQueryData(queryKeys.items, newItems);
-        queryClient.setQueryData(queryKeys.stacks, newStacks);
-        queryClient.setQueryData(queryKeys.bugs, newBugs);
-        queryClient.setQueryData(queryKeys.structures, newStructures);
+        applyDropActionState(newState);
 
         if (
           originalBug &&
@@ -501,7 +299,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           isStructure(targetEntity) &&
           !canDiscardBugOnStructure(originalBug, targetEntity)
         ) {
-          const readyStructure = newStructures.find(
+          const readyStructure = newState.structures.find(
             (structure) => structure.id === targetEntity.id && isStructureReadyToEvolve(structure),
           );
           if (readyStructure) {
@@ -513,18 +311,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         }
       })();
     },
-    [
-      items,
-      stacks,
-      bugs,
-      structures,
-      queryClient,
-      setItemsCache,
-      setStacksCache,
-      setBugsCache,
-      setStructuresCache,
-      beginStructureEvolution,
-    ],
+    [items, stacks, bugs, structures, applyDropActionState, beginStructureEvolution],
   );
 
   const onStackClick = useCallback(
