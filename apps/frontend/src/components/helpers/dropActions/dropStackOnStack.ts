@@ -1,8 +1,10 @@
 import { canDropBugOnStack, canStackItemType } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { mergeStacks } from "../../../api/stacks";
 import { Stack } from "../../../types/stack";
-import { ApplyOptimisticDrop, DropActionState } from "../../types/dropActionState";
+import { DropActionState } from "../../types/dropActionState";
+import { applyDropActionState } from "../applyDropActionState";
 
 function optimisticDropStackOnStack(
   originalStack: Stack,
@@ -53,7 +55,7 @@ export async function dropStackOnStack(
   originalStack: Stack,
   targetStack: Stack,
   state: DropActionState,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState | undefined> {
   if (originalStack.itemType !== targetStack.itemType) {
     return undefined;
@@ -63,7 +65,7 @@ export async function dropStackOnStack(
     return undefined;
   }
 
-  onOptimisticUpdate(optimisticDropStackOnStack(originalStack, targetStack, state));
+  applyDropActionState(queryClient, optimisticDropStackOnStack(originalStack, targetStack, state));
 
   const { stack: mergedStack, releasedBugs } = await mergeStacks(originalStack.id, targetStack.id);
 

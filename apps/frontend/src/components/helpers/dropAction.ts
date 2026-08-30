@@ -1,10 +1,12 @@
 import { Position, Positionable } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { Bug } from "../../types/bug";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
-import { ApplyOptimisticDrop, DropActionState } from "../types/dropActionState";
+import { DropActionState } from "../types/dropActionState";
+import { applyDropActionState } from "./applyDropActionState";
 import { dropBugOnEmpty } from "./dropActions/dropBugOnEmpty";
 import { dropBugOnStack } from "./dropActions/dropBugOnStack";
 import { dropBugOnStructure } from "./dropActions/dropBugOnStructure";
@@ -31,7 +33,7 @@ export async function dropAction(
   structures: Structure[],
   entity: Positionable,
   targetEntity: Positionable | undefined,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState> {
   const originalItem = isItem(entity) ? entity : undefined;
   const originalStack = isStack(entity) ? entity : undefined;
@@ -45,87 +47,72 @@ export async function dropAction(
 
   const state: DropActionState = { items, stacks, bugs, structures };
 
+  const applyResult = (result: DropActionState) => {
+    applyDropActionState(queryClient, result);
+    return result;
+  };
+
   if (originalItem && targetItem) {
-    const crafted = await dropItemOnItemToCraft(
-      originalItem,
-      targetItem,
-      state,
-      onOptimisticUpdate,
-    );
+    const crafted = await dropItemOnItemToCraft(originalItem, targetItem, state, queryClient);
     if (crafted) {
-      return crafted;
+      return applyResult(crafted);
     }
 
     const stacked = await dropItemOnItemToStack(originalItem, targetItem, targetPosition, state);
     if (stacked) {
-      return stacked;
+      return applyResult(stacked);
     }
   }
 
   if (originalItem && targetStack) {
-    const stacked = await dropItemOnStack(originalItem, targetStack, state, onOptimisticUpdate);
+    const stacked = await dropItemOnStack(originalItem, targetStack, state, queryClient);
     if (stacked) {
-      return stacked;
+      return applyResult(stacked);
     }
   }
 
   if (originalItem && targetBug) {
-    const fed = await dropFoodOnBug(originalItem, targetBug, state, onOptimisticUpdate);
+    const fed = await dropFoodOnBug(originalItem, targetBug, state, queryClient);
     if (fed) {
-      return fed;
+      return applyResult(fed);
     }
   }
 
   if (originalItem && targetStructure) {
-    const discarded = await dropItemToDiscard(
-      originalItem,
-      targetStructure,
-      state,
-      onOptimisticUpdate,
-    );
+    const discarded = await dropItemToDiscard(originalItem, targetStructure, state, queryClient);
     if (discarded) {
-      return discarded;
+      return applyResult(discarded);
     }
 
-    const added = await dropItemOnStructure(
-      originalItem,
-      targetStructure,
-      state,
-      onOptimisticUpdate,
-    );
+    const added = await dropItemOnStructure(originalItem, targetStructure, state, queryClient);
     if (added) {
-      return added;
+      return applyResult(added);
     }
   }
 
   if (originalBug && targetStructure) {
-    const discarded = await dropBugToDiscard(
-      originalBug,
-      targetStructure,
-      state,
-      onOptimisticUpdate,
-    );
+    const discarded = await dropBugToDiscard(originalBug, targetStructure, state, queryClient);
     if (discarded) {
-      return discarded;
+      return applyResult(discarded);
     }
 
-    const added = await dropBugOnStructure(originalBug, targetStructure, state, onOptimisticUpdate);
+    const added = await dropBugOnStructure(originalBug, targetStructure, state, queryClient);
     if (added) {
-      return evolveStructureIfReady(targetStructure, added, onOptimisticUpdate);
+      return applyResult(await evolveStructureIfReady(targetStructure, added, queryClient));
     }
   }
 
   if (originalBug && targetStack) {
-    const assigned = await dropBugOnStack(originalBug, targetStack, state, onOptimisticUpdate);
+    const assigned = await dropBugOnStack(originalBug, targetStack, state, queryClient);
     if (assigned) {
-      return assigned;
+      return applyResult(assigned);
     }
   }
 
   if (originalStack && targetStack) {
-    const merged = await dropStackOnStack(originalStack, targetStack, state, onOptimisticUpdate);
+    const merged = await dropStackOnStack(originalStack, targetStack, state, queryClient);
     if (merged) {
-      return merged;
+      return applyResult(merged);
     }
   }
 
@@ -134,35 +121,30 @@ export async function dropAction(
   const targetId = targetItem?.id ?? targetStack?.id ?? targetBug?.id ?? targetStructure?.id;
 
   if (targetEntity) {
-    const swapped = await dropToSwap(
-      entity,
-      targetEntity,
-      sourceId,
-      targetId,
-      state,
-      onOptimisticUpdate,
-    );
+    const swapped = await dropToSwap(entity, targetEntity, sourceId, targetId, state, queryClient);
     if (swapped) {
-      return swapped;
+      return applyResult(swapped);
     }
 
     throw new Error("Invalid drop action");
   }
 
   if (originalStack) {
-    return dropStackOnEmpty(originalStack, targetPosition, state, onOptimisticUpdate);
+    return applyResult(await dropStackOnEmpty(originalStack, targetPosition, state, queryClient));
   }
 
   if (originalItem) {
-    return dropItemOnEmpty(originalItem, targetPosition, state, onOptimisticUpdate);
+    return applyResult(await dropItemOnEmpty(originalItem, targetPosition, state, queryClient));
   }
 
   if (originalBug) {
-    return dropBugOnEmpty(originalBug, targetPosition, state, onOptimisticUpdate);
+    return applyResult(await dropBugOnEmpty(originalBug, targetPosition, state, queryClient));
   }
 
   if (originalStructure) {
-    return dropStructureOnEmpty(originalStructure, targetPosition, state, onOptimisticUpdate);
+    return applyResult(
+      await dropStructureOnEmpty(originalStructure, targetPosition, state, queryClient),
+    );
   }
 
   throw new Error("Invalid drop action");

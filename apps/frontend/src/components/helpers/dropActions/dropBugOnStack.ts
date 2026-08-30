@@ -1,9 +1,11 @@
 import { canDropBugOnStack, isBugFed } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { addBugToStack } from "../../../api/bugs";
 import { Bug } from "../../../types/bug";
 import { Stack } from "../../../types/stack";
-import { ApplyOptimisticDrop, DropActionState } from "../../types/dropActionState";
+import { DropActionState } from "../../types/dropActionState";
+import { applyDropActionState } from "../applyDropActionState";
 
 function optimisticDropBugOnStack(
   originalBug: Bug,
@@ -28,7 +30,7 @@ export async function dropBugOnStack(
   originalBug: Bug,
   targetStack: Stack,
   state: DropActionState,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState | undefined> {
   if (!canDropBugOnStack(originalBug, targetStack)) {
     return undefined;
@@ -38,7 +40,7 @@ export async function dropBugOnStack(
     throw new Error("Bug must be fed before joining stack");
   }
 
-  onOptimisticUpdate(optimisticDropBugOnStack(originalBug, targetStack, state));
+  applyDropActionState(queryClient, optimisticDropBugOnStack(originalBug, targetStack, state));
 
   const stack = await addBugToStack(originalBug.id, targetStack.id);
 

@@ -1,8 +1,10 @@
 import { Position } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { updateItemPosition } from "../../../api/items";
 import { Item } from "../../../types/item";
-import { ApplyOptimisticDrop, DropActionState } from "../../types/dropActionState";
+import { DropActionState } from "../../types/dropActionState";
+import { applyDropActionState } from "../applyDropActionState";
 
 function optimisticDropItemOnEmpty(
   originalItem: Item,
@@ -21,9 +23,9 @@ export async function dropItemOnEmpty(
   originalItem: Item,
   targetPosition: Position,
   state: DropActionState,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState> {
-  onOptimisticUpdate(optimisticDropItemOnEmpty(originalItem, targetPosition, state));
+  applyDropActionState(queryClient, optimisticDropItemOnEmpty(originalItem, targetPosition, state));
 
   const item = await updateItemPosition(originalItem.id, targetPosition);
 

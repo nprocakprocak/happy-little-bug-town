@@ -59,7 +59,6 @@ import { FarmPopup } from "../popups/farm/FarmPopup";
 import { HouseOccupiedPopup } from "../popups/house/HouseOccupiedPopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { DragPayload } from "../types/dragPayload";
-import { DropActionState } from "../types/dropActionState";
 import { BugsProgressLayer } from "./BugsProgressLayer";
 import { GridCountersLayer } from "./GridCountersLayer";
 import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
@@ -233,16 +232,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [setItemsCache, setBugsCache, setStacksCache, setStructuresCache],
   );
 
-  const applyDropActionState = useCallback(
-    (state: DropActionState) => {
-      queryClient.setQueryData(queryKeys.items, state.items);
-      queryClient.setQueryData(queryKeys.stacks, state.stacks);
-      queryClient.setQueryData(queryKeys.bugs, state.bugs);
-      queryClient.setQueryData(queryKeys.structures, state.structures);
-    },
-    [queryClient],
-  );
-
   // todo: either { x, y } or targetEntity (or separate handlers)
   const handleItemDropped = useCallback(
     (entityId: string, { x, y }: Position, _targetId?: string, targetEntity?: Positionable) => {
@@ -258,7 +247,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           return;
         }
 
-        const newState = await dropAction(
+        await dropAction(
           { x, y },
           items,
           stacks,
@@ -266,13 +255,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
           structures,
           originalEntity,
           targetEntity,
-          applyDropActionState,
+          queryClient,
         );
-
-        applyDropActionState(newState);
       })();
     },
-    [items, stacks, bugs, structures, applyDropActionState],
+    [items, stacks, bugs, structures, queryClient],
   );
 
   const onStackClick = useCallback(

@@ -1,9 +1,11 @@
 import { canDropItemOnStructure } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { addItemToStructure } from "../../../api/items";
 import { Item } from "../../../types/item";
 import { Structure } from "../../../types/structure";
-import { ApplyOptimisticDrop, DropActionState } from "../../types/dropActionState";
+import { DropActionState } from "../../types/dropActionState";
+import { applyDropActionState } from "../applyDropActionState";
 
 function optimisticDropItemOnStructure(
   originalItem: Item,
@@ -28,13 +30,16 @@ export async function dropItemOnStructure(
   originalItem: Item,
   targetStructure: Structure,
   state: DropActionState,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState | undefined> {
   if (!canDropItemOnStructure(originalItem, targetStructure)) {
     return undefined;
   }
 
-  onOptimisticUpdate(optimisticDropItemOnStructure(originalItem, targetStructure, state));
+  applyDropActionState(
+    queryClient,
+    optimisticDropItemOnStructure(originalItem, targetStructure, state),
+  );
 
   const structure = await addItemToStructure(originalItem.id, targetStructure.id);
 

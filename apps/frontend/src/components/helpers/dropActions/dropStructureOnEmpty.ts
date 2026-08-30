@@ -1,8 +1,10 @@
 import { Position } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { updateStructure } from "../../../api/structures";
 import { Structure } from "../../../types/structure";
-import { ApplyOptimisticDrop, DropActionState } from "../../types/dropActionState";
+import { DropActionState } from "../../types/dropActionState";
+import { applyDropActionState } from "../applyDropActionState";
 
 function optimisticDropStructureOnEmpty(
   originalStructure: Structure,
@@ -21,9 +23,12 @@ export async function dropStructureOnEmpty(
   originalStructure: Structure,
   targetPosition: Position,
   state: DropActionState,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState> {
-  onOptimisticUpdate(optimisticDropStructureOnEmpty(originalStructure, targetPosition, state));
+  applyDropActionState(
+    queryClient,
+    optimisticDropStructureOnEmpty(originalStructure, targetPosition, state),
+  );
 
   const structure = await updateStructure(originalStructure.id, targetPosition);
 

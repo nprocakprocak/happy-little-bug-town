@@ -1,9 +1,11 @@
 import { canDropFoodOnBug, isFoodForBug } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { addItemToBug } from "../../../api/items";
 import { Bug } from "../../../types/bug";
 import { Item } from "../../../types/item";
-import { ApplyOptimisticDrop, DropActionState } from "../../types/dropActionState";
+import { DropActionState } from "../../types/dropActionState";
+import { applyDropActionState } from "../applyDropActionState";
 
 function optimisticDropFoodOnBug(
   originalItem: Item,
@@ -28,7 +30,7 @@ export async function dropFoodOnBug(
   originalItem: Item,
   targetBug: Bug,
   state: DropActionState,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState | undefined> {
   if (!isFoodForBug(originalItem.itemType, targetBug)) {
     return undefined;
@@ -39,7 +41,7 @@ export async function dropFoodOnBug(
     throw new Error("Item cannot be given to bug");
   }
 
-  onOptimisticUpdate(optimisticDropFoodOnBug(originalItem, targetBug, state));
+  applyDropActionState(queryClient, optimisticDropFoodOnBug(originalItem, targetBug, state));
 
   const bug = await addItemToBug(originalItem.id, targetBug.id);
 

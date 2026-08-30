@@ -1,8 +1,10 @@
 import { Position } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { updateStack } from "../../../api/stacks";
 import { Stack } from "../../../types/stack";
-import { ApplyOptimisticDrop, DropActionState } from "../../types/dropActionState";
+import { DropActionState } from "../../types/dropActionState";
+import { applyDropActionState } from "../applyDropActionState";
 
 function optimisticDropStackOnEmpty(
   originalStack: Stack,
@@ -21,9 +23,12 @@ export async function dropStackOnEmpty(
   originalStack: Stack,
   targetPosition: Position,
   state: DropActionState,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState> {
-  onOptimisticUpdate(optimisticDropStackOnEmpty(originalStack, targetPosition, state));
+  applyDropActionState(
+    queryClient,
+    optimisticDropStackOnEmpty(originalStack, targetPosition, state),
+  );
 
   const stack = await updateStack(originalStack.id, targetPosition);
 

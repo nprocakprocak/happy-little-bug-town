@@ -3,11 +3,13 @@ import {
   droppedBugMustBeFed,
   isBugFed,
 } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { addBeetleToStructure } from "../../../api/bugs";
 import { Bug } from "../../../types/bug";
 import { Structure } from "../../../types/structure";
-import { ApplyOptimisticDrop, DropActionState } from "../../types/dropActionState";
+import { DropActionState } from "../../types/dropActionState";
+import { applyDropActionState } from "../applyDropActionState";
 
 function optimisticDropBugOnStructure(
   originalBug: Bug,
@@ -32,7 +34,7 @@ export async function dropBugOnStructure(
   originalBug: Bug,
   targetStructure: Structure,
   state: DropActionState,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState | undefined> {
   if (!canStructureAcceptDroppedBug(originalBug, targetStructure)) {
     return undefined;
@@ -42,7 +44,10 @@ export async function dropBugOnStructure(
     throw new Error("Bug must be fed before joining structure");
   }
 
-  onOptimisticUpdate(optimisticDropBugOnStructure(originalBug, targetStructure, state));
+  applyDropActionState(
+    queryClient,
+    optimisticDropBugOnStructure(originalBug, targetStructure, state),
+  );
 
   const structure = await addBeetleToStructure(originalBug.id, targetStructure.id);
 

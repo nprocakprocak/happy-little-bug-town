@@ -1,8 +1,10 @@
 import { canDropItemOnItem } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { addItemToItem } from "../../../api/items";
 import { Item } from "../../../types/item";
-import { ApplyOptimisticDrop, DropActionState } from "../../types/dropActionState";
+import { DropActionState } from "../../types/dropActionState";
+import { applyDropActionState } from "../applyDropActionState";
 
 function optimisticDropItemOnItemToCraft(
   originalItem: Item,
@@ -28,13 +30,16 @@ export async function dropItemOnItemToCraft(
   originalItem: Item,
   targetItem: Item,
   state: DropActionState,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState | undefined> {
   if (!canDropItemOnItem(originalItem, targetItem)) {
     return undefined;
   }
 
-  onOptimisticUpdate(optimisticDropItemOnItemToCraft(originalItem, targetItem, state));
+  applyDropActionState(
+    queryClient,
+    optimisticDropItemOnItemToCraft(originalItem, targetItem, state),
+  );
 
   const parentItem = await addItemToItem(originalItem.id, targetItem.id);
 

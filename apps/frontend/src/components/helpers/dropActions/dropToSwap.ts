@@ -1,7 +1,9 @@
 import { canSwapOnGrid, Positionable } from "@happy-little-bug-town/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 import { swapGridPositions } from "../../../api/grid";
-import { ApplyOptimisticDrop, DropActionState } from "../../types/dropActionState";
+import { DropActionState } from "../../types/dropActionState";
+import { applyDropActionState } from "../applyDropActionState";
 import { withSwappedPositions } from "../withSwappedPositions";
 
 function optimisticDropToSwap(
@@ -27,13 +29,16 @@ export async function dropToSwap(
   sourceId: string | undefined,
   targetId: string | undefined,
   state: DropActionState,
-  onOptimisticUpdate: ApplyOptimisticDrop,
+  queryClient: QueryClient,
 ): Promise<DropActionState | undefined> {
   if (!sourceId || !targetId || !canSwapOnGrid(entity, targetEntity)) {
     return undefined;
   }
 
-  onOptimisticUpdate(optimisticDropToSwap(entity, targetEntity, sourceId, targetId, state));
+  applyDropActionState(
+    queryClient,
+    optimisticDropToSwap(entity, targetEntity, sourceId, targetId, state),
+  );
 
   await swapGridPositions(sourceId, targetId);
 
