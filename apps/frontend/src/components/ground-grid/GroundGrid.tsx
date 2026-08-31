@@ -16,7 +16,6 @@ import {
   isWorkshopItemUnlocked,
   ItemType,
   Position,
-  Positionable,
   StructureType,
 } from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -45,6 +44,7 @@ import { demolishQueue } from "../../services/demolishQueue";
 import { digQueue } from "../../services/digQueue";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
+import { GridEntity } from "../../types/gridEntity";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
@@ -232,9 +232,8 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [setItemsCache, setBugsCache, setStacksCache, setStructuresCache],
   );
 
-  // todo: either { x, y } or targetEntity (or separate handlers)
   const handleItemDropped = useCallback(
-    (entityId: string, { x, y }: Position, _targetId?: string, targetEntity?: Positionable) => {
+    (entityId: string, { x, y }: Position, targetEntity?: GridEntity) => {
       void (async () => {
         const originalItem = items.find((item) => item.id === entityId);
         const originalStack = stacks.find((stack) => stack.id === entityId);

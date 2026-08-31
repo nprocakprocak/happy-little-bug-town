@@ -45,12 +45,7 @@ interface GroundGridInteractionLayerProps {
   onBugClick: (bug: Bug) => void;
   onDragChange: (payload: DragPayload | null) => void;
   onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
-  onItemDropped: (
-    itemId: string,
-    position: Position,
-    targetId?: string,
-    targetEntity?: Positionable,
-  ) => void;
+  onItemDropped: (itemId: string, position: Position, targetEntity?: GridEntity) => void;
 }
 
 export function GroundGridInteractionLayer({
@@ -70,7 +65,6 @@ export function GroundGridInteractionLayer({
   const { gridCellsVisible } = useGridVisibility();
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
   const setIsDemolishMode = useMainStore((state) => state.setIsDemolishMode);
-  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [blockedStackHint, setBlockedStackHint] = useState<{
     origin: Position;
@@ -149,6 +143,7 @@ export function GroundGridInteractionLayer({
     }
     pointerStartRef.current = null;
 
+    // an entity was dragged
     if (hasDraggedRef.current) {
       hasDraggedRef.current = false;
       setDragState(null);
@@ -165,6 +160,7 @@ export function GroundGridInteractionLayer({
       }
 
       const container = gridContainerRef.current;
+      // the entity was dropped inside the board boundaries
       if (container) {
         const draggedSpan = entityToDrop ? getSpannableSpan(entityToDrop) : 1;
         const bounds = event.currentTarget.getBoundingClientRect();
@@ -178,30 +174,14 @@ export function GroundGridInteractionLayer({
           ...items,
           ...stacks,
           ...bugs,
-        ]);
+        ]) as GridEntity | undefined;
 
-        const overlappingItem =
-          overlapping && isItem(overlapping) && overlapping.id !== entityToDrop?.id
-            ? overlapping
-            : undefined;
-        const overlappingStack =
-          overlapping && isStack(overlapping) && overlapping.id !== entityToDrop?.id
-            ? overlapping
-            : undefined;
-        const overlappingBug =
-          overlapping && isBug(overlapping) && overlapping.id !== entityToDrop?.id
-            ? overlapping
-            : undefined;
-        const overlappingStructure =
-          overlapping && isStructure(overlapping) && overlapping.id !== entityToDrop?.id
-            ? overlapping
-            : undefined;
-        const overlappingEntity =
-          overlappingItem ?? overlappingStack ?? overlappingBug ?? overlappingStructure;
-        const targetId = overlappingEntity?.id;
+        // the entity was dropped on another cell
+        if (isOtherCell && entityToDrop) {
+          const overlappingEntity =
+            overlapping && overlapping.id !== entityToDrop.id ? overlapping : undefined;
 
-        if (isOtherCell) {
-          if (entityToDrop && isItem(entityToDrop)) {
+          if (isItem(entityToDrop)) {
             const { shouldCancel, stackFootprintBlocked } = dropItem(
               entityToDrop,
               overlappingEntity,
@@ -230,11 +210,11 @@ export function GroundGridInteractionLayer({
               }
               onItemDropCancelled(entityToDrop.id, target);
             } else {
-              onItemDropped(entityToDrop.id, target, targetId, overlappingEntity);
+              onItemDropped(entityToDrop.id, target, overlappingEntity);
             }
           }
 
-          if (entityToDrop && isStack(entityToDrop)) {
+          if (isStack(entityToDrop)) {
             const { shouldCancel } = dropStack(
               entityToDrop,
               overlappingEntity,
@@ -248,11 +228,11 @@ export function GroundGridInteractionLayer({
             if (shouldCancel) {
               onItemDropCancelled(entityToDrop.id, target);
             } else {
-              onItemDropped(entityToDrop.id, target, targetId, overlappingEntity);
+              onItemDropped(entityToDrop.id, target, overlappingEntity);
             }
           }
 
-          if (entityToDrop && isStructure(entityToDrop)) {
+          if (isStructure(entityToDrop)) {
             const { shouldCancel } = dropStructure(entityToDrop, target, items, cols, rows, [
               ...structures.filter((s) => s.id !== entityToDrop.id),
               ...items,
@@ -267,7 +247,7 @@ export function GroundGridInteractionLayer({
             }
           }
 
-          if (entityToDrop && isBug(entityToDrop)) {
+          if (isBug(entityToDrop)) {
             const { shouldCancel, needsFeeding } = dropBug(entityToDrop, overlappingEntity);
 
             if (needsFeeding) {
@@ -276,7 +256,7 @@ export function GroundGridInteractionLayer({
             if (shouldCancel) {
               onItemDropCancelled(entityToDrop.id, target);
             } else {
-              onItemDropped(entityToDrop.id, target, targetId, overlappingEntity);
+              onItemDropped(entityToDrop.id, target, overlappingEntity);
             }
           }
         }
@@ -288,27 +268,26 @@ export function GroundGridInteractionLayer({
       return;
     }
 
-    if (entityToDrop && isStructure(entityToDrop)) {
-      onStructureClick(entityToDrop);
-    } else if (entityToDrop && isStack(entityToDrop)) {
-      onStackClick(entityToDrop);
-    } else if (
-      entityToDrop &&
-      isItem(entityToDrop) &&
-      entityToDrop.itemType === "hammer" &&
-      isItemCrafted(entityToDrop)
-    ) {
-      setIsDemolishMode(!isDemolishMode);
-    } else if (
-      entityToDrop &&
-      isBug(entityToDrop) &&
-      (entityToDrop.bugType === "beetle" ||
-        entityToDrop.bugType === "ladybug" ||
-        (entityToDrop.bugType === "greenfly" && !isBugFed(entityToDrop)))
-    ) {
-      onBugClick(entityToDrop);
-    } else {
-      setSelectedPosition({ x: gridCol, y: gridRow });
+    // an entity was clicked
+    if (entityToDrop) {
+      if (isStructure(entityToDrop)) {
+        onStructureClick(entityToDrop);
+      } else if (isStack(entityToDrop)) {
+        onStackClick(entityToDrop);
+      } else if (
+        isItem(entityToDrop) &&
+        entityToDrop.itemType === "hammer" &&
+        isItemCrafted(entityToDrop)
+      ) {
+        setIsDemolishMode(!isDemolishMode);
+      } else if (
+        isBug(entityToDrop) &&
+        (entityToDrop.bugType === "beetle" ||
+          entityToDrop.bugType === "ladybug" ||
+          (entityToDrop.bugType === "greenfly" && !isBugFed(entityToDrop)))
+      ) {
+        onBugClick(entityToDrop);
+      }
     }
   }
 
@@ -352,13 +331,12 @@ export function GroundGridInteractionLayer({
               isDemolishMode,
               dragState,
               items,
-              selectedPosition,
             });
 
           return (
             <div
               key={index}
-              className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${isDemolishLocked ? "cursor-pointer" : canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${cellBackgroundClass}`}
+              className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${isDemolishLocked ? "cursor-pointer" : canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-default"} ${cellBackgroundClass}`}
               style={{ ...placementStyle, ...dragStyle }}
               onPointerDown={(event) => handlePointerDown(index, event)}
               onPointerMove={(event) =>

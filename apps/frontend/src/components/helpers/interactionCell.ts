@@ -14,7 +14,6 @@ interface CalculateCellPropertiesProps {
   isDemolishMode: boolean;
   dragState: DragState | null;
   items: Item[];
-  selectedPosition: Position | null;
 }
 
 interface CalculateCellProperties {
@@ -33,7 +32,6 @@ export function calculateCellProperties({
   isDemolishMode,
   dragState,
   items,
-  selectedPosition,
 }: CalculateCellPropertiesProps): CalculateCellProperties {
   const isDemolishLocked =
     isDemolishMode &&
@@ -48,15 +46,9 @@ export function calculateCellProperties({
       (!isDemolishLocked && canRelocateStructureType(entity.structureType, items))
     );
 
-  const isSelected = selectedPosition?.x === cellPosition.x && selectedPosition?.y === cellPosition.y;
-
   const isDragging = dragState?.index === cellIndex;
 
-  const cellBackgroundClass = isSelected
-    ? "bg-amber-300/20"
-    : isGridVisible
-      ? "bg-zinc-200/20"
-      : "bg-transparent";
+  const cellBackgroundClass = isGridVisible ? "bg-zinc-200/20" : "bg-transparent";
 
   const position = entity ? { x: entity.x, y: entity.y } : cellPosition;
 
