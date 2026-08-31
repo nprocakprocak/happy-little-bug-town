@@ -38,7 +38,7 @@ export function ItemCraftProgressLayer({
       style={groundGridTemplateStyle(cols, rows)}
     >
       {itemsUnderCraft.flatMap((item) => {
-        const isDragged = gridDrag?.target.kind === "item" && gridDrag.target.itemId === item.id;
+        const isDragged = gridDrag?.entity.id === item.id;
         const dragStyle = gridDragStyle(gridDrag, isDragged);
         const progress = getVisibleItemCraftProgress(item);
         const span = getItemSpan(item.itemType);

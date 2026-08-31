@@ -44,8 +44,7 @@ export function StructureResourceProgressLayer({
       style={groundGridTemplateStyle(cols, rows)}
     >
       {structuresWithResources.map((structure) => {
-        const isDragged =
-          gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+        const isDragged = gridDrag?.entity.id === structure.id;
         const span = getStructureSpan(structure.structureType);
         const progresses = getVisibleStructureOperationalResourceProgresses(structure);
 

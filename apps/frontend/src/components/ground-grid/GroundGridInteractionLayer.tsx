@@ -27,7 +27,6 @@ import { GridEntity } from "../../types/gridEntity";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
-import { buildGridDragPayload } from "../helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
 import { groundGridTemplateStyle } from "../helpers/groundGridStyles";
 import { calculateCellProperties } from "../helpers/interactionCell";
@@ -124,7 +123,7 @@ export function GroundGridInteractionLayer({
     if (hasDraggedRef.current) {
       setDragState({ index, dx, dy });
       if (entity) {
-        onDragChange(buildGridDragPayload(dx, dy, entity));
+        onDragChange({ dx, dy, entity });
       }
       return;
     }
@@ -134,7 +133,7 @@ export function GroundGridInteractionLayer({
       hasDraggedRef.current = true;
       setDragState({ index, dx, dy });
       if (entity) {
-        onDragChange(buildGridDragPayload(dx, dy, entity));
+        onDragChange({ dx, dy, entity });
       }
     }
   }

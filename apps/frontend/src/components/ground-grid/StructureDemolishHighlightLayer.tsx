@@ -39,8 +39,7 @@ export function StructureDemolishHighlightLayer({
               !isFlying(structure) && canDemolishStructureType(structure.structureType, items),
           )
           .map((structure) => {
-            const isDragged =
-              gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+            const isDragged = gridDrag?.entity.id === structure.id;
             const span = getStructureSpan(structure.structureType);
 
             return (

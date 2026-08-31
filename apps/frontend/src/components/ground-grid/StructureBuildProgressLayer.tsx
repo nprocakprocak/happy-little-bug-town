@@ -62,8 +62,7 @@ export function StructureBuildProgressLayer({
       style={groundGridTemplateStyle(cols, rows)}
     >
       {structuresWithProgress.flatMap(({ structure, progress }) => {
-        const isDragged =
-          gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+        const isDragged = gridDrag?.entity.id === structure.id;
         const dragStyle = gridDragStyle(gridDrag, isDragged);
 
         return progress.map(({ itemType, missing }, index) => (

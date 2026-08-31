@@ -46,7 +46,7 @@ export function BugsProgressLayer({ cols, rows, bugs, gridDrag }: BugsProgressLa
         }
 
         const foodCount = getBugFoodCount(bug);
-        const isDragged = gridDrag?.target.kind === "bug" && gridDrag.target.bugId === bug.id;
+        const isDragged = gridDrag?.entity.id === bug.id;
 
         return (
           <div

@@ -83,8 +83,7 @@ export function StructurePowerProgressLayer({
       style={groundGridTemplateStyle(cols, rows)}
     >
       {structuresAwaitingPower.flatMap((structure) => {
-        const isDragged =
-          gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+        const isDragged = gridDrag?.entity.id === structure.id;
         const dragStyle = gridDragStyle(gridDrag, isDragged);
         const counters = getStructurePowerCounters(structure);
 

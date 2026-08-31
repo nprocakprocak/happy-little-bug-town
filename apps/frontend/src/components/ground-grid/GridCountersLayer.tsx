@@ -78,7 +78,7 @@ export function GridCountersLayer({
       style={groundGridTemplateStyle(cols, rows)}
     >
       {groundedStacks.map((stack) => {
-        const isDragged = gridDrag?.target.kind === "stack" && gridDrag.target.stackId === stack.id;
+        const isDragged = gridDrag?.entity.id === stack.id;
         const { col, row } = footprintBottomRightCell(stack.x, stack.y, getStackSpan());
 
         return (
@@ -96,8 +96,7 @@ export function GridCountersLayer({
         );
       })}
       {housesWithOccupants.map(({ structure, count }) => {
-        const isDragged =
-          gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+        const isDragged = gridDrag?.entity.id === structure.id;
         const { col, row } = footprintBottomRightCell(
           structure.x,
           structure.y,
@@ -119,8 +118,7 @@ export function GridCountersLayer({
         );
       })}
       {occupancyProgresses.map(({ structure, progress }) => {
-        const isDragged =
-          gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+        const isDragged = gridDrag?.entity.id === structure.id;
         const span = getStructureSpan(structure.structureType);
 
         return (

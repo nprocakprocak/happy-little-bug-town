@@ -35,7 +35,7 @@ import {
 import { isFlying } from "../helpers/isFlying";
 import { itemTypeToImageForItem, itemTypeToImageForStack } from "../helpers/itemImages";
 import { structureTypeToImage } from "../helpers/structureImages";
-import { isBug, isStack } from "../helpers/typeGuards";
+import { isBug } from "../helpers/typeGuards";
 import type { DragPayload } from "../types/dragPayload";
 import { AutomationMarker } from "./AutomationMarker";
 import { GroundBackgroundLayers } from "./GroundBackgroundLayers";
@@ -93,8 +93,7 @@ export function GroundGridAssetLayer({
         {structures
           .filter((structure) => !isFlying(structure))
           .map((structure) => {
-            const isDragged =
-              gridDrag?.target.kind === "structure" && gridDrag.target.structureId === structure.id;
+            const isDragged = gridDrag?.entity.id === structure.id;
             const showActivationGlow = structureShowsActivationGlow(structure);
             const firstHouseBug =
               structure.structureType === "beetle_house"
@@ -226,8 +225,7 @@ export function GroundGridAssetLayer({
         {stacks
           .filter((stack) => !isFlying(stack))
           .map((stack) => {
-            const isDragged =
-              !!gridDrag && isStack(gridDrag.entity) && gridDrag.entity.id === stack.id;
+            const isDragged = gridDrag?.entity.id === stack.id;
             const span = getStackSpan();
             const isAutomated = stack.bugs.length > 0;
             const stackImageSizes = `${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`;
@@ -255,11 +253,7 @@ export function GroundGridAssetLayer({
             );
           })}
         {allGrounded.map((item: Item | Bug) => {
-          const isDragged =
-            gridDrag !== null &&
-            ((gridDrag.target.kind === "item" && gridDrag.target.itemId === item.id) ||
-              (gridDrag.target.kind === "stack" && gridDrag.target.stackId === item.id) ||
-              (gridDrag.target.kind === "bug" && gridDrag.target.bugId === item.id));
+          const isDragged = gridDrag?.entity.id === item.id;
           const imageSource = isBug(item)
             ? bugToImage(item)
             : itemTypeToImageForItem(item.itemType);
