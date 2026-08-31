@@ -1,43 +1,40 @@
 "use client";
 
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   canDemolishStructureType,
   canDiscardBugOnStructure,
-  canDiscardItemOnStructure,
   canDropBugOnStack,
-  canDropFoodOnBug,
-  canDropItemOnItem,
-  canDropItemOnStructure,
   canRelocateStructureType,
   canStackItemType,
   canStructureAcceptDroppedBug,
   canSwapOnGrid,
   droppedBugMustBeFed,
   findOverlappingEntity,
-  getItemSpan,
-  getStackSpan,
-  getStructureSpan,
+  getSpannableSpan,
   isBugFed,
-  isFoodForBug,
   isItemCrafted,
   Position,
   Positionable,
   positionOverlapsAnyEntity,
-  structureFootprintFits,
+  structureFootprintFits
 } from "@happy-little-bug-town/utils";
+import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
 import { useGridVisibility } from "../../context/GridVisibilityContext";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
+import { GridEntity } from "../../types/gridEntity";
 import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
 import { buildGridDragPayload } from "../helpers/buildGridDragPayload";
 import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
-import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
+import { groundGridTemplateStyle } from "../helpers/groundGridStyles";
+import { calculateCellProperties } from "../helpers/interactionCell";
+import { dropItem } from "../helpers/pointerUp/dropItem";
 import { isBug, isItem, isStack, isStructure } from "../helpers/typeGuards";
 import type { DragPayload } from "../types/dragPayload";
+import { DragState } from "../types/dragState";
 import { StackCreateBlockedHintLayer } from "./StackCreateBlockedHintLayer";
 
 const DRAG_THRESHOLD_PX = 8;
@@ -80,9 +77,7 @@ export function GroundGridInteractionLayer({
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
   const setIsDemolishMode = useMainStore((state) => state.setIsDemolishMode);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
-  const [dragState, setDragState] = useState<{ index: number; dx: number; dy: number } | null>(
-    null,
-  );
+  const [dragState, setDragState] = useState<DragState | null>(null);
   const [blockedStackHint, setBlockedStackHint] = useState<{
     origin: Position;
     nonce: number;
@@ -104,6 +99,7 @@ export function GroundGridInteractionLayer({
   }
 
   function handlePointerMove(
+    entity: GridEntity | undefined,
     canDrag: boolean,
     isDemolishLocked: boolean,
     index: number,
@@ -127,9 +123,8 @@ export function GroundGridInteractionLayer({
 
     if (hasDraggedRef.current) {
       setDragState({ index, dx, dy });
-      const payload = buildGridDragPayload(index, dx, dy, cols, structures, items, stacks, bugs);
-      if (payload !== null) {
-        onDragChange(payload);
+      if (entity) {
+        onDragChange(buildGridDragPayload(dx, dy, entity));
       }
       return;
     }
@@ -138,18 +133,14 @@ export function GroundGridInteractionLayer({
     if (distance >= DRAG_THRESHOLD_PX) {
       hasDraggedRef.current = true;
       setDragState({ index, dx, dy });
-      const payload = buildGridDragPayload(index, dx, dy, cols, structures, items, stacks, bugs);
-      if (payload !== null) {
-        onDragChange(payload);
+      if (entity) {
+        onDragChange(buildGridDragPayload(dx, dy, entity));
       }
     }
   }
 
   function handlePointerUp(
-    structure: Structure | undefined,
-    stack: Stack | undefined,
-    bug: Bug | undefined,
-    item: Item | undefined,
+    entityToDrop: GridEntity | undefined,
     gridCol: number,
     gridRow: number,
     index: number,
@@ -169,121 +160,43 @@ export function GroundGridInteractionLayer({
       setDragState(null);
       onDragChange(null);
 
-      if (structure && isDemolishMode && canDemolishStructureType(structure.structureType, items)) {
+      if (entityToDrop && isStructure(entityToDrop) && isDemolishMode && canDemolishStructureType(entityToDrop.structureType, items)) {
+        // don't craft items in demolish mode
         return;
       }
 
       const container = gridContainerRef.current;
       if (container) {
-        const itemToDrop = items.find((i) => i.x === gridCol && i.y === gridRow);
-        const stackToDrop = stacks.find((s) => s.x === gridCol && s.y === gridRow);
-        const bugToDrop = bugs.find((b) => b.x === gridCol && b.y === gridRow);
-        const structureToDrop = structures.find((s) => s.x === gridCol && s.y === gridRow);
-        const entityToDrop = itemToDrop ?? stackToDrop ?? bugToDrop ?? structureToDrop;
-
-        const draggedSpan =
-          (structureToDrop ? getStructureSpan(structureToDrop.structureType) : undefined) ??
-          (stackToDrop ? getStackSpan() : undefined) ??
-          (itemToDrop ? getItemSpan(itemToDrop.itemType) : undefined) ??
-          1;
+        const draggedSpan = entityToDrop ? getSpannableSpan(entityToDrop) : 1;
         const bounds = event.currentTarget.getBoundingClientRect();
         const centerX = bounds.left + bounds.width / draggedSpan / 2;
         const centerY = bounds.top + bounds.height / draggedSpan / 2;
         const target = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
         const isOtherCell = target.x !== gridCol || target.y !== gridRow;
 
-        const overlappingEntity = findOverlappingEntity({ x: target.x, y: target.y }, [
+        const overlapping = findOverlappingEntity({ x: target.x, y: target.y }, [
           ...structures,
           ...items,
           ...stacks,
           ...bugs,
         ]);
-        const overlappingItem =
-          overlappingEntity && isItem(overlappingEntity) && overlappingEntity.id !== itemToDrop?.id
-            ? overlappingEntity
-            : undefined;
-        const overlappingStack =
-          overlappingEntity &&
-          isStack(overlappingEntity) &&
-          overlappingEntity.id !== stackToDrop?.id
-            ? overlappingEntity
-            : undefined;
-        const overlappingBug =
-          overlappingEntity && isBug(overlappingEntity) ? overlappingEntity : undefined;
-        const overlappingStructure =
-          overlappingEntity &&
-          isStructure(overlappingEntity) &&
-          overlappingEntity.id !== structureToDrop?.id
-            ? overlappingEntity
-            : undefined;
-        const targetId =
-          overlappingItem?.id ??
-          overlappingStack?.id ??
-          overlappingBug?.id ??
-          overlappingStructure?.id;
 
-        if (!entityToDrop) {
-          throw new Error("No entity to drop found on cell: " + gridCol + "," + gridRow);
-        }
+        const overlappingItem = overlapping && isItem(overlapping) && overlapping.id !== entityToDrop?.id ? overlapping : undefined;
+        const overlappingStack = overlapping && isStack(overlapping) && overlapping.id !== entityToDrop?.id ? overlapping : undefined;
+        const overlappingBug = overlapping && isBug(overlapping) && overlapping.id !== entityToDrop?.id ? overlapping : undefined;
+        const overlappingStructure = overlapping && isStructure(overlapping) && overlapping.id !== entityToDrop?.id ? overlapping : undefined;
+        const overlappingEntity = overlappingItem ?? overlappingStack ?? overlappingBug ?? overlappingStructure;
+        const targetId = overlappingEntity?.id;
 
         if (isOtherCell) {
-          if (itemToDrop) {
-            const canDropOnItemCraft =
-              !!overlappingItem && canDropItemOnItem(itemToDrop, overlappingItem);
-            const wouldCreateOrJoinStack =
-              (!!overlappingItem && !canDropOnItemCraft) || !!overlappingStack;
-            const sameTypeItems = overlappingItem?.itemType === itemToDrop.itemType;
-            const sameTypeAsStack = overlappingStack?.itemType === itemToDrop.itemType;
-            const typeAllowed = sameTypeItems || sameTypeAsStack;
-            const stackNotAllowed =
-              wouldCreateOrJoinStack &&
-              (!canStackItemType(itemToDrop.itemType, items) || !typeAllowed);
-            const foodForOverlappingBug =
-              !!overlappingBug && isFoodForBug(itemToDrop.itemType, overlappingBug);
-            const canDropFoodOnOverlappingBug =
-              foodForOverlappingBug && canDropFoodOnBug(itemToDrop.itemType, overlappingBug);
-            const canDropOnStructure =
-              !!overlappingStructure &&
-              (canDropItemOnStructure(itemToDrop, overlappingStructure) ||
-                canDiscardItemOnStructure(overlappingStructure));
-            const wouldCreateStack =
-              !!overlappingItem &&
-              !canDropOnItemCraft &&
-              sameTypeItems &&
-              canStackItemType(itemToDrop.itemType, items);
-            const stackFootprintBlocked =
-              wouldCreateStack &&
-              overlappingItem !== undefined &&
-              !structureFootprintFits({ x: target.x, y: target.y, itemsCount: 2 }, cols, rows, [
+          if (entityToDrop && isItem(entityToDrop)) {
+            const { shouldCancel, stackFootprintBlocked } = dropItem(entityToDrop, overlappingEntity, target, items, cols, rows,
+              [
                 ...structures,
-                ...items.filter((i) => i.id !== itemToDrop.id && i.id !== overlappingItem.id),
+                ...items.filter((i) => i.id !== entityToDrop.id && (!overlappingEntity || i.id !== overlappingEntity.id)),
                 ...stacks,
                 ...bugs,
               ]);
-            const overlapsSelf =
-              !!overlappingEntity &&
-              isItem(overlappingEntity) &&
-              overlappingEntity.id === itemToDrop.id;
-            const dropTarget = overlapsSelf ? undefined : overlappingEntity;
-            const canSwapWithTarget = !!dropTarget && canSwapOnGrid(itemToDrop, dropTarget);
-            const emptyCellBlocked =
-              !dropTarget &&
-              !structureFootprintFits(
-                { x: target.x, y: target.y, itemType: itemToDrop.itemType },
-                cols,
-                rows,
-                [...structures, ...items.filter((i) => i.id !== itemToDrop.id), ...stacks, ...bugs],
-              );
-            const hasDedicatedAction =
-              canDropOnItemCraft ||
-              canDropFoodOnOverlappingBug ||
-              canDropOnStructure ||
-              (wouldCreateOrJoinStack && !stackNotAllowed);
-            const shouldCancel =
-              stackFootprintBlocked ||
-              emptyCellBlocked ||
-              (foodForOverlappingBug && !canDropFoodOnOverlappingBug) ||
-              (!!dropTarget && !hasDedicatedAction && !canSwapWithTarget);
 
             if (shouldCancel) {
               if (stackFootprintBlocked) {
@@ -292,108 +205,102 @@ export function GroundGridInteractionLayer({
                   nonce: (prev?.nonce ?? 0) + 1,
                 }));
               }
-              onItemDropCancelled(itemToDrop.id, target);
+              onItemDropCancelled(entityToDrop.id, target);
             } else {
-              onItemDropped(itemToDrop.id, target, targetId, dropTarget);
+              onItemDropped(entityToDrop.id, target, targetId, overlappingEntity);
             }
           }
 
-          if (stackToDrop) {
+          if (entityToDrop && isStack(entityToDrop)) {
             const isMerge =
               !!overlappingStack &&
-              overlappingStack.itemType === stackToDrop.itemType &&
-              canStackItemType(stackToDrop.itemType, items);
-            const overlapsSelf =
-              overlappingEntity?.x === stackToDrop.x && overlappingEntity?.y === stackToDrop.y;
+              overlappingStack.itemType === entityToDrop.itemType &&
+              canStackItemType(entityToDrop.itemType, items);
             const shouldCancel =
-              (!!overlappingEntity && !overlappingStack && !overlapsSelf) ||
+              (!!overlappingEntity && !overlappingStack) ||
               (!!overlappingStack && !isMerge);
 
             if (shouldCancel) {
-              onItemDropCancelled(stackToDrop.id, target);
+              onItemDropCancelled(entityToDrop.id, target);
             } else if (isMerge) {
-              onItemDropped(stackToDrop.id, target, targetId, overlappingStack);
+              onItemDropped(entityToDrop.id, target, targetId, overlappingStack);
             } else {
               const fits = structureFootprintFits(
-                { x: target.x, y: target.y, itemsCount: stackToDrop.itemsCount },
+                { x: target.x, y: target.y, itemsCount: entityToDrop.itemsCount },
                 cols,
                 rows,
                 [
                   ...structures,
                   ...items,
-                  ...stacks.filter((s) => s.id !== stackToDrop.id),
+                  ...stacks.filter((s) => s.id !== entityToDrop.id),
                   ...bugs,
                 ],
               );
 
               if (fits) {
-                onItemDropped(stackToDrop.id, target);
+                onItemDropped(entityToDrop.id, target);
               } else {
-                onItemDropCancelled(stackToDrop.id, target);
+                onItemDropCancelled(entityToDrop.id, target);
               }
             }
           }
 
-          if (structureToDrop) {
+          if (entityToDrop && isStructure(entityToDrop)) {
             const fits = structureFootprintFits(
               {
                 x: target.x,
                 y: target.y,
-                structureType: structureToDrop.structureType,
+                structureType: entityToDrop.structureType,
               },
               cols,
               rows,
               [
-                ...structures.filter((s) => s.id !== structureToDrop.id),
+                ...structures.filter((s) => s.id !== entityToDrop.id),
                 ...items,
                 ...stacks,
                 ...bugs,
               ],
             );
 
-            if (fits && canRelocateStructureType(structureToDrop.structureType, items)) {
-              onItemDropped(structureToDrop.id, target);
+            if (fits && canRelocateStructureType(entityToDrop.structureType, items)) {
+              onItemDropped(entityToDrop.id, target);
             } else {
-              onItemDropCancelled(structureToDrop.id, target);
+              onItemDropCancelled(entityToDrop.id, target);
             }
           }
 
-          if (bugToDrop) {
+          if (entityToDrop && isBug(entityToDrop)) {
             const canDropOnStack =
-              !!overlappingStack && canDropBugOnStack(bugToDrop, overlappingStack);
+              !!overlappingStack && canDropBugOnStack(entityToDrop, overlappingStack);
 
             const canDiscardOnStructure =
-              !!overlappingStructure && canDiscardBugOnStructure(bugToDrop, overlappingStructure);
+              !!overlappingStructure && canDiscardBugOnStructure(entityToDrop, overlappingStructure);
 
             if (
               overlappingStructure &&
-              canStructureAcceptDroppedBug(bugToDrop, overlappingStructure)
+              canStructureAcceptDroppedBug(entityToDrop, overlappingStructure)
             ) {
-              if (droppedBugMustBeFed(bugToDrop, overlappingStructure) && !isBugFed(bugToDrop)) {
-                onBugClick(bugToDrop);
-                onItemDropCancelled(bugToDrop.id, target);
+              if (droppedBugMustBeFed(entityToDrop, overlappingStructure) && !isBugFed(entityToDrop)) {
+                onBugClick(entityToDrop);
+                onItemDropCancelled(entityToDrop.id, target);
               } else {
-                onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
+                onItemDropped(entityToDrop.id, target, targetId, overlappingEntity);
               }
             } else if (canDiscardOnStructure) {
-              onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
+              onItemDropped(entityToDrop.id, target, targetId, overlappingEntity);
             } else if (canDropOnStack) {
-              if (!isBugFed(bugToDrop)) {
-                onBugClick(bugToDrop);
-                onItemDropCancelled(bugToDrop.id, target);
+              if (!isBugFed(entityToDrop)) {
+                onBugClick(entityToDrop);
+                onItemDropCancelled(entityToDrop.id, target);
               } else {
-                onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
+                onItemDropped(entityToDrop.id, target, targetId, overlappingEntity);
               }
-            } else if (
-              overlappingEntity &&
-              !(isBug(overlappingEntity) && overlappingEntity.id === bugToDrop.id) &&
-              canSwapOnGrid(bugToDrop, overlappingEntity)
-            ) {
-              onItemDropped(bugToDrop.id, target, targetId, overlappingEntity);
+            } else if (overlappingEntity && canSwapOnGrid(entityToDrop, overlappingEntity)) {
+              onItemDropped(entityToDrop.id, target, targetId, overlappingEntity);
             } else if (overlappingEntity) {
-              onItemDropCancelled(bugToDrop.id, target);
+              onItemDropCancelled(entityToDrop.id, target);
             } else {
-              onItemDropped(bugToDrop.id, target);
+              onItemDropped(entityToDrop.id, target);
             }
           }
         }
@@ -405,18 +312,19 @@ export function GroundGridInteractionLayer({
       return;
     }
 
-    if (structure) {
-      onStructureClick(structure);
-    } else if (stack) {
-      onStackClick(stack);
-    } else if (item?.itemType === "hammer" && isItemCrafted(item)) {
+    if (entityToDrop && isStructure(entityToDrop)) {
+      onStructureClick(entityToDrop);
+    } else if (entityToDrop && isStack(entityToDrop)) {
+      onStackClick(entityToDrop);
+    } else if (entityToDrop && isItem(entityToDrop) && entityToDrop.itemType === "hammer" && isItemCrafted(entityToDrop)) {
       setIsDemolishMode(!isDemolishMode);
     } else if (
-      bug?.bugType === "beetle" ||
-      bug?.bugType === "ladybug" ||
-      (bug?.bugType === "greenfly" && !isBugFed(bug))
+      entityToDrop && isBug(entityToDrop) &&
+      (entityToDrop.bugType === "beetle" ||
+        entityToDrop.bugType === "ladybug" ||
+        (entityToDrop.bugType === "greenfly" && !isBugFed(entityToDrop)))
     ) {
-      onBugClick(bug);
+      onBugClick(entityToDrop);
     } else {
       setSelectedPosition({ x: gridCol, y: gridRow });
     }
@@ -434,6 +342,8 @@ export function GroundGridInteractionLayer({
     onDragChange(null);
   }
 
+  const entities = [...structures, ...stacks, ...items, ...bugs];
+
   return (
     <div className="absolute inset-0">
       <div
@@ -444,57 +354,29 @@ export function GroundGridInteractionLayer({
         {Array.from({ length: cellCount }, (_, index) => {
           const gridRow = Math.floor(index / cols) + 1;
           const gridCol = (index % cols) + 1;
-          const structure = structures.find((s) => s.x === gridCol && s.y === gridRow);
-          const stack = stacks.find((s) => s.x === gridCol && s.y === gridRow);
-          const item = items.find((i) => i.x === gridCol && i.y === gridRow);
-          const bug = bugs.find((b) => b.x === gridCol && b.y === gridRow);
+          const entity = entities.find((e) => e.x === gridCol && e.y === gridRow);
 
-          if (!structure && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, structures)) {
+          if (!entity && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, entities)) {
+            // don't render a cell if it overlaps a spanned cell
             return null;
           }
 
-          if (!stack && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, stacks)) {
-            return null;
-          }
-
-          if (!item && positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, items)) {
-            return null;
-          }
-
-          const isDemolishLocked =
-            isDemolishMode &&
-            !!structure &&
-            canDemolishStructureType(structure.structureType, items);
-          const canDrag =
-            (!!structure &&
-              !isDemolishLocked &&
-              canRelocateStructureType(structure.structureType, items)) ||
-            !!stack ||
-            !!item ||
-            positionOverlapsAnyEntity({ x: gridCol, y: gridRow }, bugs);
-
-          const isSelected = selectedPosition?.x === gridCol && selectedPosition?.y === gridRow;
-          const isDragging = dragState?.index === index;
-          const cellBackgroundClass = isSelected
-            ? "bg-amber-300/20"
-            : gridCellsVisible
-              ? "bg-zinc-200/20"
-              : "bg-transparent";
-          const placementStyle = structure
-            ? gridPlacementStyle(
-                structure.x,
-                structure.y,
-                getStructureSpan(structure.structureType),
-              )
-            : stack
-              ? gridPlacementStyle(stack.x, stack.y, getStackSpan())
-              : item
-                ? gridPlacementStyle(item.x, item.y, getItemSpan(item.itemType))
-                : gridPlacementStyle(gridCol, gridRow);
-          const dragStyle =
-            isDragging && dragState
-              ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }
-              : {};
+          const {
+            placementStyle,
+            dragStyle,
+            canDrag,
+            isDemolishLocked,
+            cellBackgroundClass
+          } = calculateCellProperties({
+            entity,
+            cellPosition: { x: gridCol, y: gridRow },
+            cellIndex: index,
+            isGridVisible: gridCellsVisible,
+            isDemolishMode,
+            dragState,
+            items,
+            selectedPosition
+          });
 
           return (
             <div
@@ -502,9 +384,9 @@ export function GroundGridInteractionLayer({
               className={`min-h-0 min-w-0 select-none rounded-sm transition-colors ${isDemolishLocked ? "cursor-pointer" : canDrag ? "cursor-grab touch-none active:cursor-grabbing" : "cursor-pointer"} ${cellBackgroundClass}`}
               style={{ ...placementStyle, ...dragStyle }}
               onPointerDown={(event) => handlePointerDown(index, event)}
-              onPointerMove={(event) => handlePointerMove(canDrag, isDemolishLocked, index, event)}
+              onPointerMove={(event) => handlePointerMove(entity, canDrag, isDemolishLocked, index, event)}
               onPointerUp={(event) =>
-                handlePointerUp(structure, stack, bug, item, gridCol, gridRow, index, event)
+                handlePointerUp(entity, gridCol, gridRow, index, event)
               }
               onPointerCancel={handlePointerCancel}
             />

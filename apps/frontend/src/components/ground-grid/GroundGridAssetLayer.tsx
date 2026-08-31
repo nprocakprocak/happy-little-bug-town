@@ -35,7 +35,7 @@ import {
 import { isFlying } from "../helpers/isFlying";
 import { itemTypeToImageForItem, itemTypeToImageForStack } from "../helpers/itemImages";
 import { structureTypeToImage } from "../helpers/structureImages";
-import { isBug } from "../helpers/typeGuards";
+import { isBug, isStack } from "../helpers/typeGuards";
 import type { DragPayload } from "../types/dragPayload";
 import { AutomationMarker } from "./AutomationMarker";
 import { GroundBackgroundLayers } from "./GroundBackgroundLayers";
@@ -227,7 +227,7 @@ export function GroundGridAssetLayer({
           .filter((stack) => !isFlying(stack))
           .map((stack) => {
             const isDragged =
-              gridDrag?.target.kind === "stack" && gridDrag.target.stackId === stack.id;
+              !!gridDrag && isStack(gridDrag.entity) && gridDrag.entity.id === stack.id;
             const span = getStackSpan();
             const isAutomated = stack.bugs.length > 0;
             const stackImageSizes = `${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`;

@@ -1,9 +1,9 @@
+import { BugType } from "./bugType.js";
 import { ItemType } from "./itemType.js";
 import { StructureType } from "./structureType.js";
 
-type Spannables =
+export type Spannable =
   | { structureType: StructureType }
   | { itemType: ItemType }
+  | { bugType: BugType }
   | { itemsCount: number };
-
-export type Spannable = Partial<Spannables>;

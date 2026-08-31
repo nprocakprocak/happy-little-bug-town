@@ -19,7 +19,11 @@ export function getSpannableSpan(spannable: Spannable): number {
     return getItemSpan(spannable.itemType);
   }
 
-  return BUG_SPAN;
+  if ("bugType" in spannable && spannable.bugType !== undefined) {
+    return BUG_SPAN;
+  }
+
+  return 1;
 }
 
 function positionOverlaps(position: Position, entity: Positionable): boolean {

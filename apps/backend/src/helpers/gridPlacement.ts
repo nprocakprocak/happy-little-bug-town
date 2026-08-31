@@ -1,4 +1,5 @@
 import {
+  BugType,
   findNearestEmptyPosition,
   GROUND_HEIGHT,
   GROUND_WIDTH,
@@ -30,11 +31,11 @@ function toPositionedItem(item: {
   return { x: item.x, y: item.y, itemType: item.itemType };
 }
 
-function toPositionedBug(bug: { x: number | null; y: number | null }): Positionable | undefined {
+function toPositionedBug(bug: { x: number | null; y: number | null; bugType: BugType }): Positionable | undefined {
   if (bug.x == null || bug.y == null) {
     return undefined;
   }
-  return { x: bug.x, y: bug.y };
+  return { x: bug.x, y: bug.y, bugType: bug.bugType };
 }
 
 export async function getPositionedEntitiesOnGrid(
@@ -66,7 +67,7 @@ export async function getPositionedEntitiesOnGrid(
         y: { not: null },
         removedAt: null,
       },
-      select: { x: true, y: true },
+      select: { x: true, y: true, bugType: true },
     }),
   ]);
 
