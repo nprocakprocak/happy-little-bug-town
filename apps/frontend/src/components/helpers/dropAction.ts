@@ -24,21 +24,33 @@ import { dropStructureOnEmpty } from "./dropActions/dropStructureOnEmpty";
 import { dropToSwap } from "./dropActions/dropToSwap";
 import { evolveStructureIfReady } from "./dropActions/evolveStructureIfReady";
 import { isBug, isItem, isStack, isStructure } from "./typeGuards";
+import { GridEntity } from "../../types/gridEntity";
 
-export async function dropAction(
-  targetPosition: Position,
-  items: Item[],
-  stacks: Stack[],
-  bugs: Bug[],
-  structures: Structure[],
-  entity: Positionable,
-  targetEntity: Positionable | undefined,
-  queryClient: QueryClient,
-): Promise<DropActionState> {
-  const originalItem = isItem(entity) ? entity : undefined;
-  const originalStack = isStack(entity) ? entity : undefined;
-  const originalBug = isBug(entity) ? entity : undefined;
-  const originalStructure = isStructure(entity) ? entity : undefined;
+interface DropActionArgs {
+  entityToDrop: GridEntity;
+  targetEntity: GridEntity | undefined;
+  dropPosition: Position;
+  items: Item[];
+  stacks: Stack[];
+  bugs: Bug[];
+  structures: Structure[];
+  queryClient: QueryClient;
+}
+
+export async function dropAction({
+  entityToDrop,
+  targetEntity,
+  dropPosition,
+  items,
+  stacks,
+  bugs,
+  structures,
+  queryClient
+}: DropActionArgs): Promise<DropActionState> {
+  const originalItem = isItem(entityToDrop) ? entityToDrop : undefined;
+  const originalStack = isStack(entityToDrop) ? entityToDrop : undefined;
+  const originalBug = isBug(entityToDrop) ? entityToDrop : undefined;
+  const originalStructure = isStructure(entityToDrop) ? entityToDrop : undefined;
 
   const targetItem = targetEntity && isItem(targetEntity) ? targetEntity : undefined;
   const targetStack = targetEntity && isStack(targetEntity) ? targetEntity : undefined;
@@ -58,7 +70,7 @@ export async function dropAction(
       return applyResult(crafted);
     }
 
-    const stacked = await dropItemOnItemToStack(originalItem, targetItem, targetPosition, state);
+    const stacked = await dropItemOnItemToStack(originalItem, targetItem, dropPosition, state);
     if (stacked) {
       return applyResult(stacked);
     }
@@ -121,7 +133,7 @@ export async function dropAction(
   const targetId = targetItem?.id ?? targetStack?.id ?? targetBug?.id ?? targetStructure?.id;
 
   if (targetEntity) {
-    const swapped = await dropToSwap(entity, targetEntity, sourceId, targetId, state, queryClient);
+    const swapped = await dropToSwap(entityToDrop, targetEntity, sourceId, targetId, state, queryClient);
     if (swapped) {
       return applyResult(swapped);
     }
@@ -130,20 +142,20 @@ export async function dropAction(
   }
 
   if (originalStack) {
-    return applyResult(await dropStackOnEmpty(originalStack, targetPosition, state, queryClient));
+    return applyResult(await dropStackOnEmpty(originalStack, dropPosition, state, queryClient));
   }
 
   if (originalItem) {
-    return applyResult(await dropItemOnEmpty(originalItem, targetPosition, state, queryClient));
+    return applyResult(await dropItemOnEmpty(originalItem, dropPosition, state, queryClient));
   }
 
   if (originalBug) {
-    return applyResult(await dropBugOnEmpty(originalBug, targetPosition, state, queryClient));
+    return applyResult(await dropBugOnEmpty(originalBug, dropPosition, state, queryClient));
   }
 
   if (originalStructure) {
     return applyResult(
-      await dropStructureOnEmpty(originalStructure, targetPosition, state, queryClient),
+      await dropStructureOnEmpty(originalStructure, dropPosition, state, queryClient),
     );
   }
 

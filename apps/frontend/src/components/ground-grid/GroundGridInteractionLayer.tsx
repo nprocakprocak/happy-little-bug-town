@@ -1,75 +1,45 @@
 "use client";
 
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
-  canDemolishStructureType,
   findOverlappingEntity,
   getSpannableSpan,
-  isBugFed,
-  isItemCrafted,
   Position,
-  Positionable,
   positionOverlapsAnyEntity,
 } from "@happy-little-bug-town/utils";
+import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
 import { useGridVisibility } from "../../context/GridVisibilityContext";
 import { useMainStore } from "../../stores/main";
-import { Bug } from "../../types/bug";
 import { GridEntity } from "../../types/gridEntity";
-import { Item } from "../../types/item";
-import { Stack } from "../../types/stack";
-import { Structure } from "../../types/structure";
 import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
 import { groundGridTemplateStyle } from "../helpers/groundGridStyles";
 import { calculateCellProperties } from "../helpers/interactionCell";
-import { dropBug } from "../helpers/pointerUp/dropBug";
-import { dropItem } from "../helpers/pointerUp/dropItem";
-import { dropStack } from "../helpers/pointerUp/dropStack";
-import { dropStructure } from "../helpers/pointerUp/dropStructure";
-import { isBug, isItem, isStack, isStructure } from "../helpers/typeGuards";
+import { isItem } from "../helpers/typeGuards";
 import type { DragPayload } from "../types/dragPayload";
 import { DragState } from "../types/dragState";
-import { StackCreateBlockedHintLayer } from "./StackCreateBlockedHintLayer";
 
 const DRAG_THRESHOLD_PX = 8;
 
 interface GroundGridInteractionLayerProps {
   cols: number;
   rows: number;
-  structures: Structure[];
-  items: Item[];
-  stacks: Stack[];
-  bugs: Bug[];
-  onStructureClick: (structure: Structure) => void;
-  onStackClick: (stack: Stack) => void;
-  onBugClick: (bug: Bug) => void;
+  entities: GridEntity[];
+  onEntityClick: (entity: GridEntity) => void;
+  onEntityDropped: (entity: GridEntity, position: Position, targetEntity?: GridEntity) => void;
   onDragChange: (payload: DragPayload | null) => void;
-  onItemDropCancelled: (itemId: string, dropPosition: Position) => void;
-  onItemDropped: (itemId: string, position: Position, targetEntity?: GridEntity) => void;
 }
 
 export function GroundGridInteractionLayer({
   cols,
   rows,
-  structures,
-  items,
-  stacks,
-  bugs,
-  onStructureClick,
-  onStackClick,
-  onBugClick,
+  entities,
+  onEntityClick,
+  onEntityDropped,
   onDragChange,
-  onItemDropCancelled,
-  onItemDropped,
 }: GroundGridInteractionLayerProps) {
   const { gridCellsVisible } = useGridVisibility();
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
-  const setIsDemolishMode = useMainStore((state) => state.setIsDemolishMode);
   const [dragState, setDragState] = useState<DragState | null>(null);
-  const [blockedStackHint, setBlockedStackHint] = useState<{
-    origin: Position;
-    nonce: number;
-  } | null>(null);
 
   const gridContainerRef = useRef<HTMLDivElement>(null);
   const pointerStartRef = useRef<{ x: number; y: number; index: number } | null>(null);
@@ -143,152 +113,41 @@ export function GroundGridInteractionLayer({
     }
     pointerStartRef.current = null;
 
-    // an entity was dragged
-    if (hasDraggedRef.current) {
-      hasDraggedRef.current = false;
-      setDragState(null);
-      onDragChange(null);
-
-      if (
-        entityToDrop &&
-        isStructure(entityToDrop) &&
-        isDemolishMode &&
-        canDemolishStructureType(entityToDrop.structureType, items)
-      ) {
-        // don't craft items in demolish mode
-        return;
-      }
-
-      const container = gridContainerRef.current;
-      // the entity was dropped inside the board boundaries
-      if (container) {
-        const draggedSpan = entityToDrop ? getSpannableSpan(entityToDrop) : 1;
-        const bounds = event.currentTarget.getBoundingClientRect();
-        const centerX = bounds.left + bounds.width / draggedSpan / 2;
-        const centerY = bounds.top + bounds.height / draggedSpan / 2;
-        const target = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
-        const isOtherCell = target.x !== gridCol || target.y !== gridRow;
-
-        const overlapping = findOverlappingEntity({ x: target.x, y: target.y }, [
-          ...structures,
-          ...items,
-          ...stacks,
-          ...bugs,
-        ]) as GridEntity | undefined;
-
-        // the entity was dropped on another cell
-        if (isOtherCell && entityToDrop) {
-          const overlappingEntity =
-            overlapping && overlapping.id !== entityToDrop.id ? overlapping : undefined;
-
-          if (isItem(entityToDrop)) {
-            const { shouldCancel, stackFootprintBlocked } = dropItem(
-              entityToDrop,
-              overlappingEntity,
-              target,
-              items,
-              cols,
-              rows,
-              [
-                ...structures,
-                ...items.filter(
-                  (i) =>
-                    i.id !== entityToDrop.id &&
-                    (!overlappingEntity || i.id !== overlappingEntity.id),
-                ),
-                ...stacks,
-                ...bugs,
-              ],
-            );
-
-            if (shouldCancel) {
-              if (stackFootprintBlocked) {
-                setBlockedStackHint((prev) => ({
-                  origin: target,
-                  nonce: (prev?.nonce ?? 0) + 1,
-                }));
-              }
-              onItemDropCancelled(entityToDrop.id, target);
-            } else {
-              onItemDropped(entityToDrop.id, target, overlappingEntity);
-            }
-          }
-
-          if (isStack(entityToDrop)) {
-            const { shouldCancel } = dropStack(
-              entityToDrop,
-              overlappingEntity,
-              target,
-              items,
-              cols,
-              rows,
-              [...structures, ...items, ...stacks.filter((s) => s.id !== entityToDrop.id), ...bugs],
-            );
-
-            if (shouldCancel) {
-              onItemDropCancelled(entityToDrop.id, target);
-            } else {
-              onItemDropped(entityToDrop.id, target, overlappingEntity);
-            }
-          }
-
-          if (isStructure(entityToDrop)) {
-            const { shouldCancel } = dropStructure(entityToDrop, target, items, cols, rows, [
-              ...structures.filter((s) => s.id !== entityToDrop.id),
-              ...items,
-              ...stacks,
-              ...bugs,
-            ]);
-
-            if (shouldCancel) {
-              onItemDropCancelled(entityToDrop.id, target);
-            } else {
-              onItemDropped(entityToDrop.id, target);
-            }
-          }
-
-          if (isBug(entityToDrop)) {
-            const { shouldCancel, needsFeeding } = dropBug(entityToDrop, overlappingEntity);
-
-            if (needsFeeding) {
-              onBugClick(entityToDrop);
-            }
-            if (shouldCancel) {
-              onItemDropCancelled(entityToDrop.id, target);
-            } else {
-              onItemDropped(entityToDrop.id, target, overlappingEntity);
-            }
-          }
-        }
-      }
-      return;
-    }
-
-    if (!startedOnThisCell) {
-      return;
-    }
-
     // an entity was clicked
-    if (entityToDrop) {
-      if (isStructure(entityToDrop)) {
-        onStructureClick(entityToDrop);
-      } else if (isStack(entityToDrop)) {
-        onStackClick(entityToDrop);
-      } else if (
-        isItem(entityToDrop) &&
-        entityToDrop.itemType === "hammer" &&
-        isItemCrafted(entityToDrop)
-      ) {
-        setIsDemolishMode(!isDemolishMode);
-      } else if (
-        isBug(entityToDrop) &&
-        (entityToDrop.bugType === "beetle" ||
-          entityToDrop.bugType === "ladybug" ||
-          (entityToDrop.bugType === "greenfly" && !isBugFed(entityToDrop)))
-      ) {
-        onBugClick(entityToDrop);
+    if (!hasDraggedRef.current) {
+      if (startedOnThisCell && entityToDrop) {
+        onEntityClick(entityToDrop);
       }
+      return;
     }
+
+    // an entity was dragged and dropped
+
+    hasDraggedRef.current = false;
+    setDragState(null);
+    onDragChange(null);
+
+    const container = gridContainerRef.current;
+    if (!container || !entityToDrop) {
+      // nothing to drop or dropped outside the board boundaries
+      return;
+    }
+
+    const draggedSpan = getSpannableSpan(entityToDrop);
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const centerX = bounds.left + bounds.width / draggedSpan / 2;
+    const centerY = bounds.top + bounds.height / draggedSpan / 2;
+    const targetPosition = gridCellFromClientPoint(container, centerX, centerY, cols, rows);
+    if (targetPosition.x === gridCol && targetPosition.y === gridRow) {
+      // the entity was dropped on the same cell it was dragged from
+      return;
+    }
+
+    const overlapping = findOverlappingEntity({ x: targetPosition.x, y: targetPosition.y }, entities) as GridEntity | undefined;
+    const overlappingEntity =
+      overlapping && overlapping.id !== entityToDrop.id ? overlapping : undefined;
+
+    onEntityDropped(entityToDrop, targetPosition, overlappingEntity);
   }
 
   function handlePointerCancel(event: ReactPointerEvent<HTMLDivElement>) {
@@ -303,7 +162,7 @@ export function GroundGridInteractionLayer({
     onDragChange(null);
   }
 
-  const entities = [...structures, ...stacks, ...items, ...bugs];
+  const items = entities.filter(isItem);
 
   return (
     <div className="absolute inset-0">
@@ -348,15 +207,6 @@ export function GroundGridInteractionLayer({
           );
         })}
       </div>
-      {blockedStackHint ? (
-        <StackCreateBlockedHintLayer
-          key={blockedStackHint.nonce}
-          cols={cols}
-          rows={rows}
-          origin={blockedStackHint.origin}
-          onComplete={() => setBlockedStackHint(null)}
-        />
-      ) : null}
     </div>
   );
 }

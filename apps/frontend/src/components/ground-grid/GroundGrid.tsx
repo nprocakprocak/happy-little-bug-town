@@ -11,7 +11,9 @@ import {
   getGreenflyHouseOccupants,
   getHouseOccupants,
   hasEmptyGridCell,
+  isBugFed,
   isBuildableStructureType,
+  isItemCrafted,
   isStructurePowered,
   isWorkshopItemUnlocked,
   ItemType,
@@ -49,11 +51,12 @@ import { Item } from "../../types/item";
 import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
 import { dropAction } from "../helpers/dropAction";
+import { shouldCancelDrop } from "../helpers/pointerUp/shouldCancelDrop";
 import {
   getBeetleHouseExtractOrigin,
   pickRandomNearestStructureCenterCell,
 } from "../helpers/structurePosition";
-import { isItem } from "../helpers/typeGuards";
+import { isBug, isItem, isStack, isStructure } from "../helpers/typeGuards";
 import { BugPopups } from "../popups/BugPopups";
 import { FarmPopup } from "../popups/farm/FarmPopup";
 import { HouseOccupiedPopup } from "../popups/house/HouseOccupiedPopup";
@@ -65,6 +68,7 @@ import { GroundGridAssetLayer } from "./GroundGridAssetLayer";
 import { GroundGridInteractionLayer } from "./GroundGridInteractionLayer";
 import { ItemCraftProgressLayer } from "./ItemCraftProgressLayer";
 import { ItemFlightLayer } from "./ItemFlightLayer";
+import { StackCreateBlockedHintLayer } from "./StackCreateBlockedHintLayer";
 import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
 import { StructureDemolishHighlightLayer } from "./StructureDemolishHighlightLayer";
 import { StructurePowerProgressLayer } from "./StructurePowerProgressLayer";
@@ -104,9 +108,13 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     completeAutoRouteFlight,
   } = useAutoRouteItems();
 
+  const entities = useMemo(
+    () => [...structures, ...items, ...stacks, ...bugs],
+    [structures, items, stacks, bugs],
+  );
   const animatables = useMemo(
-    () => [...items, ...autoRouteFlights, ...stacks, ...bugs, ...structures],
-    [items, autoRouteFlights, stacks, bugs, structures],
+    () => [...entities, ...autoRouteFlights],
+    [entities, autoRouteFlights],
   );
   const workshopUpgradeLevel = useMemo(() => {
     const workshop = structures.find((structure) => structure.structureType === "workshop");
@@ -118,7 +126,12 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const [occupiedHouseType, setOccupiedHouseType] = useState<StructureType | null>(null);
+  const [blockedStackHint, setBlockedStackHint] = useState<{
+    origin: Position;
+    nonce: number;
+  } | null>(null);
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
+  const setIsDemolishMode = useMainStore((state) => state.setIsDemolishMode);
 
   useEffect(() => {
     if (
@@ -232,33 +245,50 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     [setItemsCache, setBugsCache, setStacksCache, setStructuresCache],
   );
 
-  const handleItemDropped = useCallback(
-    (entityId: string, { x, y }: Position, targetEntity?: GridEntity) => {
+  const handleEntityDropped = useCallback(
+    (entityToDrop: GridEntity, dropPosition: Position, targetEntity?: GridEntity) => {
       void (async () => {
-        const originalItem = items.find((item) => item.id === entityId);
-        const originalStack = stacks.find((stack) => stack.id === entityId);
-        const originalBug = bugs.find((bug) => bug.id === entityId);
-        const originalStructure = structures.find((structure) => structure.id === entityId);
-        const originalEntity = originalItem ?? originalStack ?? originalBug ?? originalStructure;
+        const cancelReason = shouldCancelDrop({
+          entityToDrop,
+          targetEntity,
+          dropPosition,
+          items,
+          cols,
+          rows,
+          entities,
+        });
 
-        if (!originalEntity) {
-          console.error("Can't drop the item, could not find entity with id:", entityId);
+        if (cancelReason === "hungryBug" && isBug(entityToDrop)) {
+          setSelectedBug(entityToDrop);
+        }
+
+        if (cancelReason === "stackCreateBlocked") {
+          setBlockedStackHint((prev) => ({
+            origin: dropPosition,
+            nonce: (prev?.nonce ?? 0) + 1,
+          }));
+        }
+
+        if (cancelReason) {
+          handleItemDropCancelled(entityToDrop.id, dropPosition);
           return;
         }
 
         await dropAction(
-          { x, y },
-          items,
-          stacks,
-          bugs,
-          structures,
-          originalEntity,
-          targetEntity,
-          queryClient,
+          {
+            dropPosition,
+            entityToDrop,
+            targetEntity,
+            items,
+            stacks,
+            bugs,
+            structures,
+            queryClient,
+          }
         );
       })();
     },
-    [items, stacks, bugs, structures, queryClient],
+    [cols, handleItemDropCancelled, items, rows, stacks, bugs, structures, entities, queryClient],
   );
 
   const onStackClick = useCallback(
@@ -523,6 +553,26 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     setSelectedBug(bug);
   }, []);
 
+  const onEntityClick = useCallback(
+    (entity: GridEntity) => {
+      if (isStructure(entity)) {
+        onStructureClick(entity);
+      } else if (isStack(entity)) {
+        onStackClick(entity);
+      } else if (isItem(entity) && entity.itemType === "hammer" && isItemCrafted(entity)) {
+        setIsDemolishMode(!isDemolishMode);
+      } else if (
+        isBug(entity) &&
+        (entity.bugType === "beetle" ||
+          entity.bugType === "ladybug" ||
+          (entity.bugType === "greenfly" && !isBugFed(entity)))
+      ) {
+        onBugClick(entity);
+      }
+    },
+    [isDemolishMode, onBugClick, onStackClick, onStructureClick, setIsDemolishMode],
+  );
+
   const onBeetleBuild = useCallback(
     (structure: Structure) => {
       if (!isBuildableStructureType(structure.structureType)) {
@@ -532,7 +582,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         { structureType: structure.structureType },
         cols,
         rows,
-        [...structures, ...items, ...stacks, ...bugs],
+        entities,
       );
       if (!position) {
         return;
@@ -544,7 +594,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       setSelectedBug(null);
       setFarmPopupOpen(false);
     },
-    [cols, rows, structures, items, stacks, bugs, createStructure],
+    [cols, rows, entities, createStructure],
   );
 
   const onLadybugUpgrade = useCallback(
@@ -563,12 +613,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
       ) {
         return;
       }
-      const position = findFirstStructurePlacement({ itemType }, cols, rows, [
-        ...structures,
-        ...items,
-        ...stacks,
-        ...bugs,
-      ]);
+      const position = findFirstStructurePlacement({ itemType }, cols, rows, entities);
       if (!position) {
         return;
       }
@@ -579,7 +624,7 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         },
       );
     },
-    [cols, rows, structures, items, stacks, bugs, createItem, workshopUpgradeLevel],
+    [cols, rows, entities, items, createItem, workshopUpgradeLevel],
   );
 
   return (
@@ -648,17 +693,20 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         <GroundGridInteractionLayer
           cols={cols}
           rows={rows}
-          structures={structures}
-          items={items}
-          stacks={stacks}
-          bugs={bugs}
-          onStructureClick={onStructureClick}
-          onStackClick={onStackClick}
-          onBugClick={onBugClick}
+          entities={entities}
+          onEntityClick={onEntityClick}
           onDragChange={setGridDrag}
-          onItemDropCancelled={handleItemDropCancelled}
-          onItemDropped={handleItemDropped}
+          onEntityDropped={handleEntityDropped}
         />
+        {blockedStackHint ? (
+          <StackCreateBlockedHintLayer
+            key={blockedStackHint.nonce}
+            cols={cols}
+            rows={rows}
+            origin={blockedStackHint.origin}
+            onComplete={() => setBlockedStackHint(null)}
+          />
+        ) : null}
         <BugPopups
           selectedBug={selectedBug}
           structures={structures}
