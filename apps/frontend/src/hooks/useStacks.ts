@@ -1,10 +1,9 @@
 import { Position } from "@happy-little-bug-town/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { extractItemFromStack, fetchStacks, updateStack } from "../api/stacks";
+import { fetchStacks, updateStack } from "../api/stacks";
 import { queryKeys } from "../constants/queryKeys";
 import { Stack } from "../types/stack";
-import { updateBugsCache } from "./useBugs";
 
 export function updateStacksCache(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -31,32 +30,6 @@ export function useUpdateStackMutation() {
       updateStacksCache(queryClient, (stacks) =>
         stacks.map((s) => (s.id === stack.id ? stack : s)),
       );
-    },
-  });
-}
-
-export function useExtractFromStackMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (stack: Stack) => extractItemFromStack(stack.id),
-    onSuccess: (result, stack) => {
-      updateStacksCache(queryClient, (stacks) => {
-        if (result.stackDissolved) {
-          return stacks.filter((s) => s.id !== stack.id);
-        }
-        return stacks.map((s) => (s.id === stack.id ? { ...s, itemsCount: s.itemsCount - 1 } : s));
-      });
-      if (result.releasedBugs.length > 0) {
-        updateBugsCache(queryClient, (bugs) => [
-          ...bugs,
-          ...result.releasedBugs.map((bug) => ({
-            ...bug,
-            fromX: stack.x,
-            fromY: stack.y,
-          })),
-        ]);
-      }
     },
   });
 }

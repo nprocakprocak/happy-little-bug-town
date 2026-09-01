@@ -2,10 +2,8 @@ import { getNextStructureUpgradeLevel } from "@happy-little-bug-town/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
-  craftOperationalResource,
   createFirstStructure,
   createStructure,
-  extractOccupant,
   fetchStructures,
   updateStructure,
 } from "../api/structures";
@@ -69,17 +67,5 @@ export function useUpgradeStructureMutation() {
 export function useDigMutation() {
   return useMutation({
     mutationFn: (structureId: string) => digQueue.enqueue(structureId),
-  });
-}
-
-export function useExtractOccupantMutation() {
-  return useMutation({
-    mutationFn: extractOccupant,
-  });
-}
-
-export function useCraftOperationalResourceMutation() {
-  return useMutation({
-    mutationFn: craftOperationalResource,
   });
 }

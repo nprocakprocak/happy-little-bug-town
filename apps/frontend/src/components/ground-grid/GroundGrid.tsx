@@ -2,20 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  canCraftFromStructureOperationalResources,
-  canCreateItemType,
-  canDemolishStructureType,
-  canDigAtStructureType,
-  findFirstStructurePlacement,
   getCompletedUpgradeLevel,
-  getGreenflyHouseOccupants,
-  getHouseOccupants,
-  hasEmptyGridCell,
-  isBugFed,
-  isBuildableStructureType,
-  isItemCrafted,
-  isStructurePowered,
-  isWorkshopItemUnlocked,
   ItemType,
   Position,
   StructureType,
@@ -23,40 +10,27 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
-import { queryKeys } from "../../constants/queryKeys";
 import { useAuth } from "../../context/AuthContext";
 import { useAutoRouteItems } from "../../hooks/useAutoRouteItems";
-import { updateBugsCache, useBugsQuery } from "../../hooks/useBugs";
-import { updateItemsCache, useCreateItemMutation, useItemsQuery } from "../../hooks/useItems";
+import { useBugsQuery } from "../../hooks/useBugs";
+import { useCreateItemMutation, useItemsQuery } from "../../hooks/useItems";
+import { useStacksQuery } from "../../hooks/useStacks";
 import {
-  updateStacksCache,
-  useExtractFromStackMutation,
-  useStacksQuery,
-} from "../../hooks/useStacks";
-import {
-  updateStructuresCache,
-  useCraftOperationalResourceMutation,
   useCreateFirstStructureMutation,
   useCreateStructureMutation,
-  useExtractOccupantMutation,
   useStructuresQuery,
   useUpgradeStructureMutation,
 } from "../../hooks/useStructures";
-import { demolishQueue } from "../../services/demolishQueue";
-import { digQueue } from "../../services/digQueue";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
 import { GridEntity } from "../../types/gridEntity";
-import { Item } from "../../types/item";
-import { Stack } from "../../types/stack";
 import { Structure } from "../../types/structure";
+import { clickAction } from "../helpers/clickAction";
+import { beetleBuildAction, workshopCreateItemAction } from "../helpers/createGridEntityAction";
 import { dropAction } from "../helpers/dropAction";
+import { completeFlightAction, setEntityFlightOrigin } from "../helpers/entityFlightOrigin";
 import { shouldCancelDrop } from "../helpers/pointerUp/shouldCancelDrop";
-import {
-  getBeetleHouseExtractOrigin,
-  pickRandomNearestStructureCenterCell,
-} from "../helpers/structurePosition";
-import { isBug, isItem, isStack, isStructure } from "../helpers/typeGuards";
+import { isBug } from "../helpers/typeGuards";
 import { BugPopups } from "../popups/BugPopups";
 import { FarmPopup } from "../popups/farm/FarmPopup";
 import { HouseOccupiedPopup } from "../popups/house/HouseOccupiedPopup";
@@ -90,9 +64,6 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { data: items = [] } = useItemsQuery(canLoadGridData);
   const { data: bugs = [] } = useBugsQuery(canLoadGridData);
   const { data: stacks = [] } = useStacksQuery(canLoadGridData);
-  const extractFromStack = useExtractFromStackMutation();
-  const extractOccupantMutation = useExtractOccupantMutation();
-  const craftOperationalResourceMutation = useCraftOperationalResourceMutation();
   const {
     mutate: createFirstStructureMutate,
     isPending: isCreatingFirstStructure,
@@ -157,92 +128,11 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
     }
   }, [isDemolishMode]);
 
-  const setItemsCache = useCallback(
-    (updater: (items: Item[]) => Item[]) => {
-      updateItemsCache(queryClient, updater);
-    },
-    [queryClient],
-  );
-
-  const setStacksCache = useCallback(
-    (updater: (stacks: Stack[]) => Stack[]) => {
-      updateStacksCache(queryClient, updater);
-    },
-    [queryClient],
-  );
-
-  const setBugsCache = useCallback(
-    (updater: (bugs: Bug[]) => Bug[]) => {
-      updateBugsCache(queryClient, updater);
-    },
-    [queryClient],
-  );
-
-  const setStructuresCache = useCallback(
-    (updater: (structures: Structure[]) => Structure[]) => {
-      updateStructuresCache(queryClient, updater);
-    },
-    [queryClient],
-  );
-
   const handleFlightComplete = useCallback(
     (entityId: string) => {
-      if (completeAutoRouteFlight(entityId)) {
-        return;
-      }
-
-      setItemsCache((prev) =>
-        prev.map((item) =>
-          item.id === entityId ? { ...item, fromX: undefined, fromY: undefined } : item,
-        ),
-      );
-      setBugsCache((prev) =>
-        prev.map((bug) =>
-          bug.id === entityId ? { ...bug, fromX: undefined, fromY: undefined } : bug,
-        ),
-      );
-      setStacksCache((prev) =>
-        prev.map((stack) =>
-          stack.id === entityId ? { ...stack, fromX: undefined, fromY: undefined } : stack,
-        ),
-      );
-      setStructuresCache((prev) =>
-        prev.map((structure) =>
-          structure.id === entityId
-            ? { ...structure, fromX: undefined, fromY: undefined }
-            : structure,
-        ),
-      );
+      completeFlightAction(queryClient, entityId, completeAutoRouteFlight);
     },
-    [completeAutoRouteFlight, setItemsCache, setBugsCache, setStructuresCache, setStacksCache],
-  );
-
-  const handleItemDropCancelled = useCallback(
-    (itemId: string, position: Position) => {
-      setItemsCache((prev) =>
-        prev.map((item) =>
-          item.id === itemId ? { ...item, fromX: position.x, fromY: position.y } : item,
-        ),
-      );
-      setBugsCache((prev) =>
-        prev.map((bug) =>
-          bug.id === itemId ? { ...bug, fromX: position.x, fromY: position.y } : bug,
-        ),
-      );
-      setStacksCache((prev) =>
-        prev.map((stack) =>
-          stack.id === itemId ? { ...stack, fromX: position.x, fromY: position.y } : stack,
-        ),
-      );
-      setStructuresCache((prev) =>
-        prev.map((structure) =>
-          structure.id === itemId
-            ? { ...structure, fromX: position.x, fromY: position.y }
-            : structure,
-        ),
-      );
-    },
-    [setItemsCache, setBugsCache, setStacksCache, setStructuresCache],
+    [completeAutoRouteFlight, queryClient],
   );
 
   const handleEntityDropped = useCallback(
@@ -270,327 +160,75 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
         }
 
         if (cancelReason) {
-          handleItemDropCancelled(entityToDrop.id, dropPosition);
+          setEntityFlightOrigin(queryClient, entityToDrop.id, dropPosition);
           return;
         }
 
-        await dropAction(
-          {
-            dropPosition,
-            entityToDrop,
-            targetEntity,
-            items,
-            stacks,
-            bugs,
-            structures,
-            queryClient,
-          }
-        );
+        await dropAction({
+          dropPosition,
+          entityToDrop,
+          targetEntity,
+          items,
+          stacks,
+          bugs,
+          structures,
+          queryClient,
+        });
       })();
     },
-    [cols, handleItemDropCancelled, items, rows, stacks, bugs, structures, entities, queryClient],
+    [cols, items, rows, stacks, bugs, structures, entities, queryClient],
   );
-
-  const onStackClick = useCallback(
-    (stack: Stack) => {
-      (async () => {
-        const result = await extractFromStack.mutateAsync(stack);
-        const latestStructures =
-          queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
-        const latestStacks = queryClient.getQueryData<Stack[]>(queryKeys.stacks) ?? stacks;
-        const latestItems = queryClient.getQueryData<Item[]>(queryKeys.items) ?? items;
-
-        if (
-          !beginAutoRouteIfPossible(
-            result.extractedItem,
-            { x: stack.x, y: stack.y },
-            latestStructures,
-            latestStacks,
-            latestItems,
-            { stackId: stack.id },
-          )
-        ) {
-          setItemsCache((prev) => [
-            ...prev,
-            {
-              ...result.extractedItem,
-              fromX: stack.x,
-              fromY: stack.y,
-            },
-          ]);
-        }
-      })();
-    },
-    [
-      beginAutoRouteIfPossible,
-      extractFromStack,
-      items,
-      queryClient,
-      setItemsCache,
-      stacks,
-      structures,
-    ],
-  );
-
-  const onStructureClick = useCallback(
-    (structure: Structure) => {
-      if (isDemolishMode && canDemolishStructureType(structure.structureType, items)) {
-        if (getHouseOccupants(structure).length > 0) {
-          setOccupiedHouseType(structure.structureType);
-          return;
-        }
-
-        setOccupiedHouseType(null);
-        const remainingCount = structure.items.length + structure.bugs.length;
-        if (remainingCount > 1 && !hasEmptyGridCell(rows, cols, animatables)) {
-          return;
-        }
-
-        void (async () => {
-          const result = await demolishQueue.enqueue(structure.id);
-          const origin = pickRandomNearestStructureCenterCell(structure);
-          if (result.structure) {
-            const updatedStructure = result.structure;
-            setStructuresCache((prev) =>
-              prev.map((existing) =>
-                existing.id === updatedStructure.id ? updatedStructure : existing,
-              ),
-            );
-          } else {
-            setStructuresCache((prev) => prev.filter((existing) => existing.id !== structure.id));
-          }
-          if (result.item) {
-            const extractedItem = result.item;
-            setItemsCache((prev) => [
-              ...prev,
-              { ...extractedItem, fromX: origin.x, fromY: origin.y },
-            ]);
-          }
-          if (result.bug) {
-            const extractedBug = result.bug;
-            setBugsCache((prev) => [
-              ...prev,
-              { ...extractedBug, fromX: origin.x, fromY: origin.y },
-            ]);
-          }
-        })();
-        return;
-      }
-
-      if (canDigAtStructureType(structure.structureType)) {
-        void (async () => {
-          const itemOrBug = await digQueue.enqueue(structure.id);
-          const origin = pickRandomNearestStructureCenterCell(structure);
-          const latestItems = queryClient.getQueryData<Item[]>(queryKeys.items) ?? items;
-          const latestStacks = queryClient.getQueryData<Stack[]>(queryKeys.stacks) ?? stacks;
-          const latestStructures =
-            queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
-
-          if (isItem(itemOrBug)) {
-            if (
-              !beginAutoRouteIfPossible(
-                itemOrBug,
-                origin,
-                latestStructures,
-                latestStacks,
-                latestItems,
-                { structureId: structure.id },
-              )
-            ) {
-              setItemsCache((prev) => [
-                ...prev,
-                { ...itemOrBug, fromX: origin.x, fromY: origin.y },
-              ]);
-            }
-          } else if (
-            !beginAutoRouteBugIfPossible(itemOrBug, origin, latestStructures, {
-              structureId: structure.id,
-            })
-          ) {
-            setBugsCache((prev) => [...prev, { ...itemOrBug, fromX: origin.x, fromY: origin.y }]);
-          }
-        })();
-        return;
-      }
-
-      if (structure.structureType === "workshop" && isStructurePowered(structure)) {
-        setWorkshopPopupOpen(true);
-        return;
-      }
-
-      if (structure.structureType === "farm" && isStructurePowered(structure)) {
-        setFarmPopupOpen(true);
-        return;
-      }
-
-      if (canCraftFromStructureOperationalResources(structure)) {
-        if (!hasEmptyGridCell(rows, cols, animatables)) {
-          return;
-        }
-
-        (async () => {
-          const result = await craftOperationalResourceMutation.mutateAsync(structure.id);
-          const origin = pickRandomNearestStructureCenterCell(structure);
-          setStructuresCache((prev) =>
-            prev.map((s) => (s.id === result.structure.id ? result.structure : s)),
-          );
-          if (result.bug) {
-            const craftedBug = result.bug;
-            const latestStructures =
-              queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
-
-            if (
-              !beginAutoRouteBugIfPossible(craftedBug, origin, latestStructures, {
-                structureId: structure.id,
-              })
-            ) {
-              setBugsCache((prev) => [
-                ...prev,
-                { ...craftedBug, fromX: origin.x, fromY: origin.y },
-              ]);
-            }
-            return;
-          }
-          if (result.item) {
-            const craftedItem = result.item;
-            const latestStructures =
-              queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
-            const latestStacks = queryClient.getQueryData<Stack[]>(queryKeys.stacks) ?? stacks;
-            const latestItems = queryClient.getQueryData<Item[]>(queryKeys.items) ?? items;
-
-            if (
-              !beginAutoRouteIfPossible(
-                craftedItem,
-                origin,
-                latestStructures,
-                latestStacks,
-                latestItems,
-                { structureId: structure.id },
-              )
-            ) {
-              setItemsCache((prev) => [
-                ...prev,
-                { ...craftedItem, fromX: origin.x, fromY: origin.y },
-              ]);
-            }
-          }
-        })();
-        return;
-      }
-
-      if (structure.structureType === "beetle_house") {
-        if ((structure.bugs ?? []).length === 0 || !hasEmptyGridCell(rows, cols, animatables)) {
-          return;
-        }
-
-        (async () => {
-          const result = await extractOccupantMutation.mutateAsync(structure.id);
-          const origin = getBeetleHouseExtractOrigin(structure);
-          setStructuresCache((prev) =>
-            prev.map((s) => (s.id === result.structure.id ? result.structure : s)),
-          );
-          setBugsCache((prev) => [
-            ...prev,
-            { ...result.extractedOccupant, fromX: origin.x, fromY: origin.y },
-          ]);
-        })();
-        return;
-      }
-
-      if (structure.structureType !== "greenfly_house") {
-        return;
-      }
-
-      if (
-        getGreenflyHouseOccupants(structure).length === 0 ||
-        !hasEmptyGridCell(rows, cols, animatables)
-      ) {
-        return;
-      }
-
-      (async () => {
-        const result = await extractOccupantMutation.mutateAsync(structure.id);
-        const origin = getBeetleHouseExtractOrigin(structure);
-        setStructuresCache((prev) =>
-          prev.map((s) => (s.id === result.structure.id ? result.structure : s)),
-        );
-        const latestStructures =
-          queryClient.getQueryData<Structure[]>(queryKeys.structures) ?? structures;
-
-        if (
-          !beginAutoRouteBugIfPossible(result.extractedOccupant, origin, latestStructures, {
-            structureId: structure.id,
-            onlyOperational: true,
-          })
-        ) {
-          setBugsCache((prev) => [
-            ...prev,
-            { ...result.extractedOccupant, fromX: origin.x, fromY: origin.y },
-          ]);
-        }
-      })();
-    },
-    [
-      queryClient,
-      craftOperationalResourceMutation,
-      extractOccupantMutation,
-      animatables,
-      rows,
-      cols,
-      stacks,
-      items,
-      structures,
-      isDemolishMode,
-      beginAutoRouteIfPossible,
-      beginAutoRouteBugIfPossible,
-      setItemsCache,
-      setBugsCache,
-      setStructuresCache,
-    ],
-  );
-
-  const onBugClick = useCallback((bug: Bug) => {
-    setSelectedBug(bug);
-  }, []);
 
   const onEntityClick = useCallback(
     (entity: GridEntity) => {
-      if (isStructure(entity)) {
-        onStructureClick(entity);
-      } else if (isStack(entity)) {
-        onStackClick(entity);
-      } else if (isItem(entity) && entity.itemType === "hammer" && isItemCrafted(entity)) {
-        setIsDemolishMode(!isDemolishMode);
-      } else if (
-        isBug(entity) &&
-        (entity.bugType === "beetle" ||
-          entity.bugType === "ladybug" ||
-          (entity.bugType === "greenfly" && !isBugFed(entity)))
-      ) {
-        onBugClick(entity);
-      }
+      void (async () => {
+        const result = await clickAction({
+          entity,
+          queryClient,
+          rows,
+          cols,
+          animatables,
+          items,
+          isDemolishMode,
+          beginAutoRouteIfPossible,
+          beginAutoRouteBugIfPossible,
+        });
+
+        if (result.kind === "occupiedHouse") {
+          setOccupiedHouseType(result.structureType);
+        } else if (result.kind === "clearOccupiedHouse") {
+          setOccupiedHouseType(null);
+        } else if (result.kind === "openWorkshop") {
+          setWorkshopPopupOpen(true);
+        } else if (result.kind === "openFarm") {
+          setFarmPopupOpen(true);
+        } else if (result.kind === "selectBug") {
+          setSelectedBug(result.bug);
+        } else if (result.kind === "toggleDemolish") {
+          setIsDemolishMode(!isDemolishMode);
+        }
+      })();
     },
-    [isDemolishMode, onBugClick, onStackClick, onStructureClick, setIsDemolishMode],
+    [
+      animatables,
+      beginAutoRouteBugIfPossible,
+      beginAutoRouteIfPossible,
+      cols,
+      isDemolishMode,
+      items,
+      queryClient,
+      rows,
+      setIsDemolishMode,
+    ],
   );
 
   const onBeetleBuild = useCallback(
     (structure: Structure) => {
-      if (!isBuildableStructureType(structure.structureType)) {
+      const payload = beetleBuildAction(structure, cols, rows, entities);
+      if (!payload) {
         return;
       }
-      const position = findFirstStructurePlacement(
-        { structureType: structure.structureType },
-        cols,
-        rows,
-        entities,
-      );
-      if (!position) {
-        return;
-      }
-      createStructure.mutate({
-        structureType: structure.structureType,
-        ...position,
-      });
+      createStructure.mutate(payload);
       setSelectedBug(null);
       setFarmPopupOpen(false);
     },
@@ -607,22 +245,20 @@ export function GroundGrid({ rows, cols }: GroundGridProps) {
 
   const onWorkshopCreateItem = useCallback(
     (itemType: ItemType) => {
-      if (
-        !isWorkshopItemUnlocked(itemType, workshopUpgradeLevel) ||
-        !canCreateItemType(items, itemType)
-      ) {
-        return;
-      }
-      const position = findFirstStructurePlacement({ itemType }, cols, rows, entities);
-      if (!position) {
-        return;
-      }
-      createItem.mutate(
-        { itemType, ...position },
-        {
-          onSuccess: () => setWorkshopPopupOpen(false),
-        },
+      const payload = workshopCreateItemAction(
+        itemType,
+        workshopUpgradeLevel,
+        items,
+        cols,
+        rows,
+        entities,
       );
+      if (!payload) {
+        return;
+      }
+      createItem.mutate(payload, {
+        onSuccess: () => setWorkshopPopupOpen(false),
+      });
     },
     [cols, rows, entities, items, createItem, workshopUpgradeLevel],
   );
