@@ -19,3 +19,9 @@ export function registerUser(): Promise<User> {
 export function resetRegisterUserCache(): void {
   registerInflight = null;
 }
+
+export function resetGame(): Promise<User> {
+  return apiFetch<User>("/api/users/reset-game", {
+    method: "POST",
+  });
+}

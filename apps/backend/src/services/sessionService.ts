@@ -1,10 +1,15 @@
 import { loadAuthEnv } from "../config/authEnv.js";
 import { prisma } from "../lib/prisma.js";
 
-export const createSession = async (userId: string): Promise<string> => {
+export const getSessionExpiresAt = (): Date => {
   const { sessionTtlDays } = loadAuthEnv();
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + sessionTtlDays);
+  return expiresAt;
+};
+
+export const createSession = async (userId: string): Promise<string> => {
+  const expiresAt = getSessionExpiresAt();
 
   await prisma.session.deleteMany({ where: { userId } });
 

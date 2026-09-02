@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useQueryClient } from "@tanstack/react-query";
 
 import { fetchAuthMe, logout as logoutRequest } from "../api/auth";
-import { registerUser, resetRegisterUserCache } from "../api/users";
+import { registerUser, resetGame as resetGameRequest, resetRegisterUserCache } from "../api/users";
 import { setGoogleAuthHandlers } from "../components/helpers/googleAuth";
 import { queryKeys } from "../constants/queryKeys";
 import { useMainStore } from "../stores/main";
@@ -15,6 +15,7 @@ interface AuthContextValue {
   authUser: User | null;
   isSessionLoading: boolean;
   logout: () => Promise<void>;
+  resetGame: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -88,23 +89,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, [queryClient, setRequiresLogin, setIsDemolishMode]);
 
+  const applyUserSession = useCallback(
+    async (user: User) => {
+      setAnonymousId(user.id);
+      queryClient.setQueryData(queryKeys.user(user.id), user);
+      setAuthUser(user.isLinked ? user : null);
+      setRequiresLogin(false);
+      setEvolvingToStructureType(null);
+      setIsDemolishMode(false);
+      queryClient.clear();
+      await queryClient.refetchQueries();
+    },
+    [queryClient, setRequiresLogin, setEvolvingToStructureType, setIsDemolishMode],
+  );
+
   const logout = useCallback(async () => {
     await logoutRequest();
 
     resetRegisterUserCache();
     const registered = await registerUser();
-
-    setAnonymousId(registered.id);
-    queryClient.setQueryData(queryKeys.user(registered.id), registered);
-    setAuthUser(null);
-    setRequiresLogin(false);
-    setEvolvingToStructureType(null);
-    setIsDemolishMode(false);
-    queryClient.clear();
-    await queryClient.refetchQueries();
+    await applyUserSession(registered);
 
     google?.accounts?.id?.disableAutoSelect();
-  }, [queryClient, setRequiresLogin, setEvolvingToStructureType, setIsDemolishMode]);
+  }, [applyUserSession]);
+
+  const resetGame = useCallback(async () => {
+    const user = await resetGameRequest();
+    resetRegisterUserCache();
+    await applyUserSession(user);
+  }, [applyUserSession]);
 
   const value = useMemo(
     () => ({
@@ -112,8 +125,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       authUser,
       isSessionLoading,
       logout,
+      resetGame,
     }),
-    [anonymousId, authUser, isSessionLoading, logout],
+    [anonymousId, authUser, isSessionLoading, logout, resetGame],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

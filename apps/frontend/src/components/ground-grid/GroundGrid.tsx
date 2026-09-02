@@ -55,6 +55,11 @@ interface GroundGridProps {
 
 export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { anonymousId } = useAuth();
+  return <GroundGridBoard key={anonymousId} rows={rows} cols={cols} />;
+}
+
+function GroundGridBoard({ rows, cols }: GroundGridProps) {
+  const { anonymousId } = useAuth();
   const queryClient = useQueryClient();
   const isAuthenticated = Boolean(anonymousId);
 

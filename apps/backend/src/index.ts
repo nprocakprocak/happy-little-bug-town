@@ -35,6 +35,7 @@ app.use(express.json({ limit: "32kb" }));
 app.use("/api", apiRateLimit);
 app.use("/api/auth/google", authRateLimit);
 app.use("/api/users/register", authRateLimit);
+app.use("/api/users/reset-game", authRateLimit);
 app.use("/api/auth", authRouter);
 app.use("/api/items", itemsRouter);
 app.use("/api/grid", gridRouter);
