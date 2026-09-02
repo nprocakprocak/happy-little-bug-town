@@ -23,8 +23,10 @@ import {
 } from "../../hooks/useStructures";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
+import { Dialogue } from "../../types/dialogue";
 import { GridEntity } from "../../types/gridEntity";
 import { Structure } from "../../types/structure";
+import { DialogueBubble } from "../dialogue/DialogueBubble";
 import { clickAction } from "../helpers/clickAction";
 import { beetleBuildAction, workshopCreateItemAction } from "../helpers/createGridEntityAction";
 import { dropAction } from "../helpers/dropAction";
@@ -99,6 +101,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBug, setSelectedBug] = useState<Bug | null>(null);
+  const [activeDialogue, setActiveDialogue] = useState<Dialogue | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const [occupiedHouseType, setOccupiedHouseType] = useState<StructureType | null>(null);
@@ -208,7 +211,11 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
         } else if (result.kind === "openFarm") {
           setFarmPopupOpen(true);
         } else if (result.kind === "selectBug") {
+          setActiveDialogue(null);
           setSelectedBug(result.bug);
+        } else if (result.kind === "showDialogue") {
+          setSelectedBug(null);
+          setActiveDialogue(result.dialogue);
         } else if (result.kind === "toggleDemolish") {
           setIsDemolishMode(!isDemolishMode);
         }
@@ -355,6 +362,13 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
           onBuild={onBeetleBuild}
           onUpgrade={onLadybugUpgrade}
         />
+        {activeDialogue ? (
+          <DialogueBubble
+            key={activeDialogue.text}
+            dialogue={activeDialogue}
+            onClose={() => setActiveDialogue(null)}
+          />
+        ) : null}
         {workshopPopupOpen && (
           <WorkshopPopup
             onClose={() => setWorkshopPopupOpen(false)}

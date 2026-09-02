@@ -1,7 +1,9 @@
 import { isBugFed, isItemCrafted, Positionable } from "@happy-little-bug-town/utils";
 import { QueryClient } from "@tanstack/react-query";
 
+import { FLY_HINT } from "../../constants/dialogues";
 import { Bug } from "../../types/bug";
+import { Dialogue } from "../../types/dialogue";
 import { GridEntity } from "../../types/gridEntity";
 import { Item } from "../../types/item";
 import { clickStack } from "./clickActions/clickStack";
@@ -26,7 +28,8 @@ type ClickActionResult =
   | { kind: "done" }
   | { kind: "noop" }
   | { kind: "toggleDemolish" }
-  | { kind: "selectBug"; bug: Bug };
+  | { kind: "selectBug"; bug: Bug }
+  | { kind: "showDialogue"; dialogue: Dialogue };
 
 export async function clickAction({
   entity,
@@ -60,6 +63,10 @@ export async function clickAction({
 
   if (isItem(entity) && entity.itemType === "hammer" && isItemCrafted(entity)) {
     return { kind: "toggleDemolish" };
+  }
+
+  if (isBug(entity) && entity.bugType === "fly") {
+    return { kind: "showDialogue", dialogue: FLY_HINT };
   }
 
   if (
