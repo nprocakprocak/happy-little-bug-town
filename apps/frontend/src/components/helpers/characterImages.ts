@@ -6,12 +6,10 @@ export function bugTypeToBustSrc(bugType: BugType): string {
     case "ant":
     case "ladybug":
     case "termite":
-    case "fly":
     case "spider":
-    case "greenfly":
     case "bee":
-      return `/characters/${bugType}.webp`;
+      return `/dialogues/${bugType}.webp`;
     default:
-      throw new Error(`Unknown bug type: ${bugType}`);
+      throw new Error(`Unknown bug type for dialogue: ${bugType}`);
   }
 }

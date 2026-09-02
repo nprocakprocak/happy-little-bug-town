@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getCompletedUpgradeLevel,
   ItemType,
@@ -8,7 +7,9 @@ import {
   StructureType,
 } from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { HOLE_HINT } from "../../constants/dialogues";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
 import { useAuth } from "../../context/AuthContext";
 import { useAutoRouteItems } from "../../hooks/useAutoRouteItems";
@@ -27,10 +28,12 @@ import { Dialogue } from "../../types/dialogue";
 import { GridEntity } from "../../types/gridEntity";
 import { Structure } from "../../types/structure";
 import { DialogueBubble } from "../dialogue/DialogueBubble";
+import { DialogueCursorLayer } from "../dialogue/DialogueCursorLayer";
 import { clickAction } from "../helpers/clickAction";
 import { beetleBuildAction, workshopCreateItemAction } from "../helpers/createGridEntityAction";
 import { dropAction } from "../helpers/dropAction";
 import { completeFlightAction, setEntityFlightOrigin } from "../helpers/entityFlightOrigin";
+import { isStartingBoardState } from "../helpers/isStartingBoardState";
 import { shouldCancelDrop } from "../helpers/pointerUp/shouldCancelDrop";
 import { isBug } from "../helpers/typeGuards";
 import { BugPopups } from "../popups/BugPopups";
@@ -68,9 +71,10 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
   const { data: structures = [], isSuccess: structuresLoaded } =
     useStructuresQuery(isAuthenticated);
   const canLoadGridData = isAuthenticated && structures.length > 0;
-  const { data: items = [] } = useItemsQuery(canLoadGridData);
-  const { data: bugs = [] } = useBugsQuery(canLoadGridData);
-  const { data: stacks = [] } = useStacksQuery(canLoadGridData);
+  const { data: items = [], isSuccess: itemsLoaded } = useItemsQuery(canLoadGridData);
+  const { data: bugs = [], isSuccess: bugsLoaded } = useBugsQuery(canLoadGridData);
+  const { data: stacks = [], isSuccess: stacksLoaded } = useStacksQuery(canLoadGridData);
+  const allEntitiesLoaded = structuresLoaded && itemsLoaded && bugsLoaded && stacksLoaded;
   const {
     mutate: createFirstStructureMutate,
     isPending: isCreatingFirstStructure,
@@ -111,6 +115,15 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
   } | null>(null);
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
   const setIsDemolishMode = useMainStore((state) => state.setIsDemolishMode);
+  const holeHintShownRef = useRef(false);
+
+  const showHoleHint = useCallback((structureId: string) => {
+    if (holeHintShownRef.current) {
+      return;
+    }
+    holeHintShownRef.current = true;
+    setActiveDialogue({ ...HOLE_HINT, cursorEntityId: structureId });
+  }, []);
 
   useEffect(() => {
     if (
@@ -121,14 +134,29 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
     ) {
       return;
     }
-    createFirstStructureMutate();
+    createFirstStructureMutate(undefined, {
+      onSuccess: (structure) => {
+        showHoleHint(structure.id);
+      },
+    });
   }, [
     structuresLoaded,
     structures.length,
     isCreatingFirstStructure,
     firstStructureCreateFailed,
     createFirstStructureMutate,
+    showHoleHint,
   ]);
+
+  useEffect(() => {
+    if (allEntitiesLoaded) {
+      if (isStartingBoardState(entities)) {
+        showHoleHint(entities[0].id);
+      } else {
+        holeHintShownRef.current = true;
+      }
+    }
+  }, [allEntitiesLoaded, entities, showHoleHint]);
 
   useEffect(() => {
     if (!isDemolishMode) {
@@ -362,6 +390,14 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
           onBuild={onBeetleBuild}
           onUpgrade={onLadybugUpgrade}
         />
+        {activeDialogue?.cursorEntityId ? (
+          <DialogueCursorLayer
+            cols={cols}
+            rows={rows}
+            entityId={activeDialogue.cursorEntityId}
+            entities={entities}
+          />
+        ) : null}
         {activeDialogue ? (
           <DialogueBubble
             key={activeDialogue.text}

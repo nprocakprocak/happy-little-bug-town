@@ -1,2 +1,22 @@
 @config "../../tailwind.config.mjs";
 @import "tailwindcss";
+
+@keyframes dialogue-cursor-pulse {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(14%, 18%);
+  }
+}
+
+.dialogue-cursor-pulse {
+  animation: dialogue-cursor-pulse 0.9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialogue-cursor-pulse {
+    animation: none;
+  }
+}
