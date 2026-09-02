@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { MouseEvent, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { HOME_BANNER_HEIGHT_PX } from "../constants/layout";
@@ -18,16 +18,23 @@ export function SettingsPopup({ onClose }: SettingsPopupProps) {
     setMounted(true);
   }, []);
 
+  const handleAwayClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
   if (!mounted) {
     return null;
   }
 
   return createPortal(
     <div className="fixed inset-0">
-      <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/40" aria-hidden="true" onClick={onClose} />
       <div
         className="absolute inset-x-0 flex justify-center"
         style={{ top: HOME_BANNER_HEIGHT_PX }}
+        onClick={handleAwayClick}
       >
         <div
           className="flex w-[84%] max-w-95 flex-col rounded-lg bg-stone-50 p-4 shadow-lg"

@@ -13,7 +13,7 @@ interface FlyPopupProps {
 
 export function FlyPopup({ fly, onClose }: FlyPopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       <BugHungryPopupContent
         bug={fly}
         foodItemType="rotten_apple"

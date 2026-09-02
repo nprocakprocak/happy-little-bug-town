@@ -13,7 +13,7 @@ interface BeePopupProps {
 
 export function BeePopup({ bee, onClose }: BeePopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       <BugHungryPopupContent
         bug={bee}
         foodItemType="flower"

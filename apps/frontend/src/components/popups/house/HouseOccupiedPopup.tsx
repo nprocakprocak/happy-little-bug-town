@@ -13,7 +13,7 @@ interface HouseOccupiedPopupProps {
 
 export function HouseOccupiedPopup({ structureType, onClose }: HouseOccupiedPopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       <div className="flex justify-center pt-[4cqi]">
         <div className="relative h-[28cqi] w-[28cqi]">
           <Image

@@ -17,7 +17,7 @@ interface BeetlePopupProps {
 
 export function BeetlePopup({ beetle, structures, onClose, onBuild }: BeetlePopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       {isBugFed(beetle) ? (
         <BeetleBuildPopupContent structures={structures} onClose={onClose} onBuild={onBuild} />
       ) : (

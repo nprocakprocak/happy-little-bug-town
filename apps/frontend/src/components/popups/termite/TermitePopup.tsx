@@ -13,7 +13,7 @@ interface TermitePopupProps {
 
 export function TermitePopup({ termite, onClose }: TermitePopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       <BugHungryPopupContent
         bug={termite}
         foodItemType="pasta"

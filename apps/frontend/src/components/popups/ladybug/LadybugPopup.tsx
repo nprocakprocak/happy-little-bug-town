@@ -17,7 +17,7 @@ interface LadybugPopupProps {
 
 export function LadybugPopup({ ladybug, structures, onClose, onUpgrade }: LadybugPopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       {isBugFed(ladybug) ? (
         <LadybugUpgradePopupContent
           structures={structures}

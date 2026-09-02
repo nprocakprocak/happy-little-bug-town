@@ -22,7 +22,7 @@ export function WorkshopPopup({
   isCreating,
 }: WorkshopPopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       <WorkshopItemsPopupContent
         onClose={onClose}
         onCreateItem={onCreateItem}

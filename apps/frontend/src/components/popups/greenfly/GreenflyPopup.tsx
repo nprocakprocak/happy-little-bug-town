@@ -13,7 +13,7 @@ interface GreenflyPopupProps {
 
 export function GreenflyPopup({ greenfly, onClose }: GreenflyPopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       <BugHungryPopupContent
         bug={greenfly}
         foodItemType="leaf_part"

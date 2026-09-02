@@ -26,7 +26,7 @@ interface FarmPopupProps {
 
 export function FarmPopup({ structures, onClose, onBuild }: FarmPopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       <BeetleBuildPopupContent
         structures={structures}
         buildingOptions={FARM_BUILDING_OPTIONS}

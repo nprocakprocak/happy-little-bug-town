@@ -13,7 +13,7 @@ interface SpiderPopupProps {
 
 export function SpiderPopup({ spider, onClose }: SpiderPopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       <BugHungryPopupContent
         bug={spider}
         foodItemType="stuffed_fly"

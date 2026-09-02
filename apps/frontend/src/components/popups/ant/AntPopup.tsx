@@ -13,7 +13,7 @@ interface AntPopupProps {
 
 export function AntPopup({ ant, onClose }: AntPopupProps) {
   return (
-    <GridPopup>
+    <GridPopup onClose={onClose}>
       <BugHungryPopupContent
         bug={ant}
         foodItemType="nettle_soup"
