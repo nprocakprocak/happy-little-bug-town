@@ -1,6 +1,6 @@
-import { BugType } from "@happy-little-bug-town/utils";
+import { BugType, ItemType } from "@happy-little-bug-town/utils";
 
-export type DialogueId = "hole" | "dugFirstItem" | "fly";
+export type DialogueId = "hole" | "dugFirstItem" | "dugFirstBeetle" | "fly" | ItemType;
 
 export interface Dialogue {
   id: DialogueId;

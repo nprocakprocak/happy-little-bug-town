@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getCompletedUpgradeLevel,
   ItemType,
@@ -7,7 +8,6 @@ import {
   StructureType,
 } from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
 import { useAuth } from "../../context/AuthContext";
@@ -26,7 +26,7 @@ import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
 import { GridEntity } from "../../types/gridEntity";
 import { Structure } from "../../types/structure";
-import { dugFirstItemDialogue, holeDialogue } from "../../utils/dialogue";
+import { dugFirstBeetleDialogue, dugFirstItemDialogue, holeDialogue } from "../../utils/dialogue";
 import { DialogueBubble } from "../dialogue/DialogueBubble";
 import { DialogueCursorLayer } from "../dialogue/DialogueCursorLayer";
 import { clickAction } from "../helpers/clickAction";
@@ -101,8 +101,10 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
     const workshop = structures.find((structure) => structure.structureType === "workshop");
     return workshop ? getCompletedUpgradeLevel(workshop) : 0;
   }, [structures]);
-  const { activeDialogue, closeDialogue, showDialogue, showDialogueIfNotVisited } =
-    useDialogues(allEntitiesLoaded, entities);
+  const { activeDialogue, closeDialogue, showDialogue, showDialogueIfNotVisited } = useDialogues(
+    allEntitiesLoaded,
+    entities,
+  );
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBug, setSelectedBug] = useState<Bug | null>(null);
@@ -228,6 +230,11 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
           if (hintDialogue) {
             showDialogueIfNotVisited(hintDialogue);
           }
+        } else if (result.kind === "dugBug") {
+          setSelectedBug(null);
+          if (result.bug.bugType === "beetle") {
+            showDialogueIfNotVisited(dugFirstBeetleDialogue());
+          }
         } else if (result.kind === "showDialogue") {
           setSelectedBug(null);
           showDialogue(result.dialogue);
@@ -248,6 +255,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
       rows,
       setIsDemolishMode,
       showDialogue,
+      showDialogueIfNotVisited,
     ],
   );
 

@@ -5,11 +5,11 @@ import { Bug } from "../../types/bug";
 import { Dialogue } from "../../types/dialogue";
 import { GridEntity } from "../../types/gridEntity";
 import { Item } from "../../types/item";
+import { flyDialogue, itemClickDialogue } from "../../utils/dialogue";
 import { clickStack } from "./clickActions/clickStack";
 import { clickStructure } from "./clickActions/clickStructure";
 import { spawnExtractedBug, spawnExtractedItem } from "./clickActions/spawnExtractedEntity";
 import { isBug, isItem, isStack, isStructure } from "./typeGuards";
-import { flyDialogue } from "../../utils/dialogue";
 
 interface ClickActionArgs {
   entity: GridEntity;
@@ -61,8 +61,14 @@ export async function clickAction({
     return { kind: "done" };
   }
 
-  if (isItem(entity) && entity.itemType === "hammer" && isItemCrafted(entity)) {
-    return { kind: "toggleDemolish" };
+  if (isItem(entity)) {
+    if (entity.itemType === "hammer" && isItemCrafted(entity)) {
+      return { kind: "toggleDemolish" };
+    }
+    const dialogue = itemClickDialogue(entity.itemType);
+    if (dialogue) {
+      return { kind: "showDialogue", dialogue };
+    }
   }
 
   if (isBug(entity) && entity.bugType === "fly") {
