@@ -7,13 +7,13 @@ import {
   StructureType,
 } from "@happy-little-bug-town/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { HOLE_HINT } from "../../constants/dialogues";
 import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
 import { useAuth } from "../../context/AuthContext";
 import { useAutoRouteItems } from "../../hooks/useAutoRouteItems";
 import { useBugsQuery } from "../../hooks/useBugs";
+import { useDialogues } from "../../hooks/useDialogues";
 import { useCreateItemMutation, useItemsQuery } from "../../hooks/useItems";
 import { useStacksQuery } from "../../hooks/useStacks";
 import {
@@ -24,16 +24,15 @@ import {
 } from "../../hooks/useStructures";
 import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
-import { Dialogue } from "../../types/dialogue";
 import { GridEntity } from "../../types/gridEntity";
 import { Structure } from "../../types/structure";
+import { dugFirstItemDialogue, holeDialogue } from "../../utils/dialogue";
 import { DialogueBubble } from "../dialogue/DialogueBubble";
 import { DialogueCursorLayer } from "../dialogue/DialogueCursorLayer";
 import { clickAction } from "../helpers/clickAction";
 import { beetleBuildAction, workshopCreateItemAction } from "../helpers/createGridEntityAction";
 import { dropAction } from "../helpers/dropAction";
 import { completeFlightAction, setEntityFlightOrigin } from "../helpers/entityFlightOrigin";
-import { isStartingBoardState } from "../helpers/isStartingBoardState";
 import { shouldCancelDrop } from "../helpers/pointerUp/shouldCancelDrop";
 import { isBug } from "../helpers/typeGuards";
 import { BugPopups } from "../popups/BugPopups";
@@ -102,10 +101,11 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
     const workshop = structures.find((structure) => structure.structureType === "workshop");
     return workshop ? getCompletedUpgradeLevel(workshop) : 0;
   }, [structures]);
+  const { activeDialogue, closeDialogue, showDialogue, showDialogueIfNotVisited } =
+    useDialogues(allEntitiesLoaded, entities);
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
   const [selectedBug, setSelectedBug] = useState<Bug | null>(null);
-  const [activeDialogue, setActiveDialogue] = useState<Dialogue | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const [occupiedHouseType, setOccupiedHouseType] = useState<StructureType | null>(null);
@@ -115,15 +115,6 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
   } | null>(null);
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
   const setIsDemolishMode = useMainStore((state) => state.setIsDemolishMode);
-  const holeHintShownRef = useRef(false);
-
-  const showHoleHint = useCallback((structureId: string) => {
-    if (holeHintShownRef.current) {
-      return;
-    }
-    holeHintShownRef.current = true;
-    setActiveDialogue({ ...HOLE_HINT, cursorEntityId: structureId });
-  }, []);
 
   useEffect(() => {
     if (
@@ -136,7 +127,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
     }
     createFirstStructureMutate(undefined, {
       onSuccess: (structure) => {
-        showHoleHint(structure.id);
+        showDialogueIfNotVisited(holeDialogue(structure.id));
       },
     });
   }, [
@@ -145,18 +136,8 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
     isCreatingFirstStructure,
     firstStructureCreateFailed,
     createFirstStructureMutate,
-    showHoleHint,
+    showDialogueIfNotVisited,
   ]);
-
-  useEffect(() => {
-    if (allEntitiesLoaded) {
-      if (isStartingBoardState(entities)) {
-        showHoleHint(entities[0].id);
-      } else {
-        holeHintShownRef.current = true;
-      }
-    }
-  }, [allEntitiesLoaded, entities, showHoleHint]);
 
   useEffect(() => {
     if (!isDemolishMode) {
@@ -239,11 +220,17 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
         } else if (result.kind === "openFarm") {
           setFarmPopupOpen(true);
         } else if (result.kind === "selectBug") {
-          setActiveDialogue(null);
+          closeDialogue();
           setSelectedBug(result.bug);
+        } else if (result.kind === "dugItem") {
+          setSelectedBug(null);
+          const hintDialogue = dugFirstItemDialogue(result.item.itemType);
+          if (hintDialogue) {
+            showDialogueIfNotVisited(hintDialogue);
+          }
         } else if (result.kind === "showDialogue") {
           setSelectedBug(null);
-          setActiveDialogue(result.dialogue);
+          showDialogue(result.dialogue);
         } else if (result.kind === "toggleDemolish") {
           setIsDemolishMode(!isDemolishMode);
         }
@@ -253,12 +240,14 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
       animatables,
       beginAutoRouteBugIfPossible,
       beginAutoRouteIfPossible,
+      closeDialogue,
       cols,
       isDemolishMode,
       items,
       queryClient,
       rows,
       setIsDemolishMode,
+      showDialogue,
     ],
   );
 
@@ -402,7 +391,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
           <DialogueBubble
             key={activeDialogue.text}
             dialogue={activeDialogue}
-            onClose={() => setActiveDialogue(null)}
+            onClose={closeDialogue}
           />
         ) : null}
         {workshopPopupOpen && (

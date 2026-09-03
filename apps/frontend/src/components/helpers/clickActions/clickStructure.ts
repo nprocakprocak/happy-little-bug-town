@@ -46,7 +46,8 @@ type ClickStructureResult =
   | { kind: "openWorkshop" }
   | { kind: "openFarm" }
   | { kind: "occupiedHouse"; structureType: StructureType }
-  | { kind: "clearOccupiedHouse" };
+  | { kind: "clearOccupiedHouse" }
+  | { kind: "dugItem"; item: Item };
 
 export async function clickStructure(args: ClickStructureArgs): Promise<ClickStructureResult> {
   if (isDemolishClick(args)) {
@@ -140,10 +141,10 @@ async function digStructureClick({
 
   if (isItem(itemOrBug)) {
     spawnExtractedItem(itemOrBug, origin, queryClient, beginAutoRouteIfPossible, exclude);
-  } else {
-    spawnExtractedBug(itemOrBug, origin, queryClient, beginAutoRouteBugIfPossible, exclude);
+    return { kind: "dugItem", item: itemOrBug };
   }
 
+  spawnExtractedBug(itemOrBug, origin, queryClient, beginAutoRouteBugIfPossible, exclude);
   return { kind: "done" };
 }
 

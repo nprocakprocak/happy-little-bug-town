@@ -1,7 +1,6 @@
 import { isBugFed, isItemCrafted, Positionable } from "@happy-little-bug-town/utils";
 import { QueryClient } from "@tanstack/react-query";
 
-import { FLY_HINT } from "../../constants/dialogues";
 import { Bug } from "../../types/bug";
 import { Dialogue } from "../../types/dialogue";
 import { GridEntity } from "../../types/gridEntity";
@@ -10,6 +9,7 @@ import { clickStack } from "./clickActions/clickStack";
 import { clickStructure } from "./clickActions/clickStructure";
 import { spawnExtractedBug, spawnExtractedItem } from "./clickActions/spawnExtractedEntity";
 import { isBug, isItem, isStack, isStructure } from "./typeGuards";
+import { flyDialogue } from "../../utils/dialogue";
 
 interface ClickActionArgs {
   entity: GridEntity;
@@ -66,7 +66,7 @@ export async function clickAction({
   }
 
   if (isBug(entity) && entity.bugType === "fly") {
-    return { kind: "showDialogue", dialogue: FLY_HINT };
+    return { kind: "showDialogue", dialogue: flyDialogue() };
   }
 
   if (
