@@ -11,6 +11,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { apiRateLimit, authRateLimit } from "./middleware/rateLimits.js";
 import { authRouter } from "./routes/auth.js";
 import { bugsRouter } from "./routes/bugs.js";
+import { dialoguesRouter } from "./routes/dialogues.js";
 import { gridRouter } from "./routes/grid.js";
 import { itemsRouter } from "./routes/items.js";
 import { stacksRouter } from "./routes/stacks.js";
@@ -43,6 +44,7 @@ app.use("/api/structures", structuresRouter);
 app.use("/api/stacks", stacksRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/bugs", bugsRouter);
+app.use("/api/dialogues", dialoguesRouter);
 app.use(errorHandler);
 
 app.listen(port, (error?: Error) => {

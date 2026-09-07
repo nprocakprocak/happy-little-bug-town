@@ -26,7 +26,11 @@ import { useMainStore } from "../../stores/main";
 import { Bug } from "../../types/bug";
 import { GridEntity } from "../../types/gridEntity";
 import { Structure } from "../../types/structure";
-import { dugFirstBeetleDialogue, dugFirstItemDialogue, holeDialogue } from "../../utils/dialogue";
+import {
+  dugFirstBeetleDialogue,
+  dugFirstItemDialogue,
+  welcomeDialogue,
+} from "../../utils/dialogue";
 import { DialogueBubble } from "../dialogue/DialogueBubble";
 import { DialogueCursorLayer } from "../dialogue/DialogueCursorLayer";
 import { clickAction } from "../helpers/clickAction";
@@ -104,6 +108,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
   const { activeDialogue, closeDialogue, showDialogue, showDialogueIfNotVisited } = useDialogues(
     allEntitiesLoaded,
     entities,
+    isAuthenticated,
   );
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
@@ -129,7 +134,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
     }
     createFirstStructureMutate(undefined, {
       onSuccess: (structure) => {
-        showDialogueIfNotVisited(holeDialogue(structure.id));
+        showDialogueIfNotVisited(welcomeDialogue(structure.id));
       },
     });
   }, [

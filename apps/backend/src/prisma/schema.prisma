@@ -83,17 +83,18 @@ enum BugType {
 }
 
 model User {
-  id         String      @id
-  googleSub  String?     @unique
-  name       String?
-  email      String?     @unique
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  sessions   Session[]
-  items      Item[]
-  structures Structure[]
-  stacks     Stack[]
-  bugs       Bug[]
+  id               String            @id
+  googleSub        String?           @unique
+  name             String?
+  email            String?           @unique
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  sessions         Session[]
+  items            Item[]
+  structures       Structure[]
+  stacks           Stack[]
+  bugs             Bug[]
+  visitedDialogues VisitedDialogue[]
 }
 
 model Session {
@@ -173,4 +174,16 @@ model Bug {
   author      User       @relation(fields: [authorId], references: [id])
   structure   Structure? @relation(fields: [structureId], references: [id])
   stack       Stack?     @relation(fields: [stackId], references: [id])
+}
+
+model VisitedDialogue {
+  id         String   @id @default(uuid())
+  dialogueId String
+  authorId   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([authorId, dialogueId])
+  @@index([authorId])
 }

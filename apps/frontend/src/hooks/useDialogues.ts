@@ -1,59 +1,51 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { isOnceDialogueId, OnceDialogueId } from "@happy-little-bug-town/utils";
 
-import { hasDugBeetle, hasDugItemHintItem } from "../components/helpers/dugItemHint";
 import { isStartingBoardState } from "../components/helpers/isStartingBoardState";
-import { Dialogue, DialogueId } from "../types/dialogue";
+import { Dialogue } from "../types/dialogue";
 import { GridEntity } from "../types/gridEntity";
-import { holeDialogue } from "../utils/dialogue";
+import { welcomeDialogue } from "../utils/dialogue";
+import { useMarkDialogueVisitedMutation, useVisitedDialoguesQuery } from "./useVisitedDialogues";
 
-export function useDialogues(allEntitiesLoaded: boolean, entities: GridEntity[]) {
+export function useDialogues(allEntitiesLoaded: boolean, entities: GridEntity[], enabled = true) {
+  const { data: visitedIds, isSuccess: visitedLoaded } = useVisitedDialoguesQuery(enabled);
+  const markVisited = useMarkDialogueVisitedMutation();
   const [activeDialogue, setActiveDialogue] = useState<Dialogue | null>(null);
-  const visitedRef = useRef<Partial<Record<DialogueId, boolean>>>({});
-  const hydratedRef = useRef(false);
 
   const closeDialogue = useCallback(() => {
     setActiveDialogue(null);
   }, []);
 
   const showDialogue = useCallback((dialogue: Dialogue) => {
-    visitedRef.current[dialogue.id] = true;
     setActiveDialogue(dialogue);
   }, []);
 
   const showDialogueIfNotVisited = useCallback(
     (dialogue: Dialogue) => {
-      if (visitedRef.current[dialogue.id]) {
+      if (!isOnceDialogueId(dialogue.id)) {
+        showDialogue(dialogue);
         return;
       }
+
+      if (!visitedLoaded || visitedIds?.includes(dialogue.id)) {
+        return;
+      }
+
+      markVisited.mutate(dialogue.id);
       showDialogue(dialogue);
     },
-    [showDialogue],
+    [markVisited, showDialogue, visitedIds, visitedLoaded],
   );
 
-  const markVisited = useCallback((id: DialogueId) => {
-    visitedRef.current[id] = true;
-  }, []);
-
   useEffect(() => {
-    if (!allEntitiesLoaded) {
+    if (!allEntitiesLoaded || !visitedLoaded) {
       return;
     }
 
-    if (isStartingBoardState(entities)) {
-      hydratedRef.current = true;
-      showDialogueIfNotVisited(holeDialogue(entities[0].id));
-      return;
+    if (isStartingBoardState(entities) && !visitedIds?.includes("welcome")) {
+      showDialogueIfNotVisited(welcomeDialogue(entities[0].id));
     }
-
-    markVisited("hole");
-    if (!hydratedRef.current && hasDugItemHintItem(entities)) {
-      markVisited("dugFirstItem");
-    }
-    if (!hydratedRef.current && hasDugBeetle(entities)) {
-      markVisited("dugFirstBeetle");
-    }
-    hydratedRef.current = true;
-  }, [allEntitiesLoaded, entities, markVisited]);
+  }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, visitedIds, visitedLoaded]);
 
   return {
     activeDialogue,

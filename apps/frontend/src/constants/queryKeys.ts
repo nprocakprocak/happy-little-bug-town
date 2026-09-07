@@ -4,4 +4,5 @@ export const queryKeys = {
   structures: ["structures"],
   items: ["items"],
   bugs: ["bugs"],
+  dialogues: ["dialogues"],
 };

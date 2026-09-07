@@ -44,11 +44,11 @@ export function flyDialogue(): Dialogue {
   };
 }
 
-export function holeDialogue(cursorEntityId: string): Dialogue {
+export function welcomeDialogue(holeId: string): Dialogue {
   return {
-    id: "hole",
+    id: "welcome",
     text: "Look! It's a hole in the ground. Click it to dig.",
-    cursorEntityId,
+    cursorEntityId: holeId,
   };
 }
 
