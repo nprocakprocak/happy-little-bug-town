@@ -14,7 +14,7 @@ interface DialogueBubbleProps {
 const DIALOGUE_TEXT_CLASS_NAME = "text-[clamp(0.95rem,4.2cqi,1.35rem)] leading-snug text-stone-800";
 
 export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
-  const { text, bugType } = dialogue;
+  const { text, bugType, infographic } = dialogue;
   const bustSrc = bugType ? bugTypeToBustSrc(bugType) : undefined;
   const {
     containerRef,
@@ -30,7 +30,9 @@ export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
   return (
     <div className="absolute inset-0" role="presentation">
       <div
-        className={`absolute inset-x-0 bottom-0 px-[3cqi] pb-[3cqi] ${bustSrc ? "pt-[34cqi]" : ""}`}
+        className={`absolute inset-x-0 bottom-0 px-[3cqi] pb-[3cqi] ${
+          bustSrc || infographic ? "pt-[34cqi]" : ""
+        }`}
       >
         <div className="relative">
           {bustSrc ? (
@@ -42,6 +44,15 @@ export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
                 className="object-contain object-bottom"
                 sizes="42cqi"
               />
+            </div>
+          ) : null}
+          {infographic ? (
+            <div
+              className={`absolute bottom-full mb-[2cqi] w-[48cqi] overflow-hidden rounded-[4cqi] border-2 border-stone-200 bg-white shadow-[0_8px_0_rgba(0,0,0,0.12),0_16px_28px_rgba(0,0,0,0.28)] ${
+                bustSrc ? "right-[2cqi]" : "left-1/2 -translate-x-1/2"
+              }`}
+            >
+              {infographic}
             </div>
           ) : null}
           <div

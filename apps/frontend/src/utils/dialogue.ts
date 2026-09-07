@@ -1,5 +1,7 @@
-import { ItemType } from "@happy-little-bug-town/utils";
+import { createElement } from "react";
+import { BugType, ItemType } from "@happy-little-bug-town/utils";
 
+import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
 import { Dialogue } from "../types/dialogue";
 
 function getItemName(itemType: ItemType): string | null {
@@ -33,14 +35,7 @@ export function dugFirstBeetleDialogue(): Dialogue {
     id: "dugFirstBeetle",
     text: "Bonjour! My name is Bob. You wouldn't happen to have something to eat, would you?",
     bugType: "beetle",
-  };
-}
-
-export function flyDialogue(): Dialogue {
-  return {
-    id: "fly",
-    text: "Put the fly in the kitchen to prepare a special meal for spiders.",
-    bugType: "beetle",
+    infographic: createElement(LeafToBeetleInfographic),
   };
 }
 
@@ -73,6 +68,25 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
       return {
         id: "stick",
         text: "Use stick as a building material or crafting resource.",
+      };
+    default:
+      return null;
+  }
+}
+
+export function beetleClickDialogue(bugType: BugType): Dialogue | null {
+  switch (bugType) {
+    case "greenfly":
+      return {
+        id: "greenfly",
+        text: "Greenflies are the favorite food of ladybugs. Cook them in the kitchen.",
+        bugType: "beetle",
+      };
+    case "fly":
+      return {
+        id: "fly",
+        text: "Put the fly in the kitchen to prepare a special meal for spiders.",
+        bugType: "beetle",
       };
     default:
       return null;

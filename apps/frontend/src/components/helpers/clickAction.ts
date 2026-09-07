@@ -5,7 +5,7 @@ import { Bug } from "../../types/bug";
 import { Dialogue } from "../../types/dialogue";
 import { GridEntity } from "../../types/gridEntity";
 import { Item } from "../../types/item";
-import { flyDialogue, itemClickDialogue } from "../../utils/dialogue";
+import { beetleClickDialogue, itemClickDialogue } from "../../utils/dialogue";
 import { clickStack } from "./clickActions/clickStack";
 import { clickStructure } from "./clickActions/clickStructure";
 import { spawnExtractedBug, spawnExtractedItem } from "./clickActions/spawnExtractedEntity";
@@ -71,8 +71,11 @@ export async function clickAction({
     }
   }
 
-  if (isBug(entity) && entity.bugType === "fly") {
-    return { kind: "showDialogue", dialogue: flyDialogue() };
+  if (isBug(entity)) {
+    const dialogue = beetleClickDialogue(entity.bugType);
+    if (dialogue) {
+      return { kind: "showDialogue", dialogue };
+    }
   }
 
   if (
