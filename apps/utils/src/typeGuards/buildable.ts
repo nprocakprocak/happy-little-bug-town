@@ -13,13 +13,13 @@ const BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<
   true
 > = {
   beetle_house: true,
-  greenfly_house: true,
   workshop: true,
   stonemason: true,
   woodcutter: true,
   kitchen: true,
   tavern: true,
   smelter: true,
+  greenfly_house: true,
   farm: true,
   library: true,
   town_hall: true,

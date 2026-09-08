@@ -1,5 +1,5 @@
-import { GridEntity } from "../../types/gridEntity";
-import { isBug, isItem, isStack } from "./typeGuards";
+import { GridEntity } from "../../../types/gridEntity";
+import { isBug, isItem, isStack } from "../typeGuards";
 
 export function hasLeafAndBeetleOnBoard(entities: GridEntity[]): boolean {
   const hasLeaf = entities.some(

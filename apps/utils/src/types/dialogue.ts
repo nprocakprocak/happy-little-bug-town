@@ -1,1 +1,6 @@
-export type OnceDialogueId = "welcome" | "dugFirstItem" | "dugFirstBeetle" | "feedBeetle";
+export type OnceDialogueId =
+  | "welcome"
+  | "dugFirstItem"
+  | "dugFirstBeetle"
+  | "feedBeetle"
+  | "fedFirstBeetle";

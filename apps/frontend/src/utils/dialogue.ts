@@ -46,6 +46,15 @@ export function feedBeetleDialogue(): Dialogue {
   };
 }
 
+export function fedFirstBeetleDialogue(beetleId: string): Dialogue {
+  return {
+    id: "fedFirstBeetle",
+    text: 'Oh, thank you! I think I will stay here for a little longer. I can build a house for myself and my cousins. Just click me and select "Beetle house". Then drop the required resources on the construction site.',
+    bugType: "beetle",
+    cursorEntityId: beetleId,
+  };
+}
+
 export function welcomeDialogue(holeId: string): Dialogue {
   return {
     id: "welcome",

@@ -1,5 +1,5 @@
-import { GridEntity } from "../../types/gridEntity";
-import { isStructure } from "./typeGuards";
+import { GridEntity } from "../../../types/gridEntity";
+import { isStructure } from "../typeGuards";
 
 export function isStartingBoardState(
   entities: GridEntity[],
