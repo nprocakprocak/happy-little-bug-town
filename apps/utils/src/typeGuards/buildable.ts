@@ -14,8 +14,8 @@ const BUILDABLE_STRUCTURE_TYPE_BY_KEY: Record<
 > = {
   beetle_house: true,
   workshop: true,
-  stonemason: true,
   woodcutter: true,
+  stonemason: true,
   kitchen: true,
   tavern: true,
   smelter: true,

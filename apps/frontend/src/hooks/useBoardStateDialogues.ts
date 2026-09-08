@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 
+import { findBuiltAxeOnBoard } from "../components/helpers/dialogues/findBuiltAxeOnBoard";
 import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
 import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBuiltWorkshopOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
@@ -8,9 +9,10 @@ import { isStartingBoardState } from "../components/helpers/dialogues/isStarting
 import { Dialogue } from "../types/dialogue";
 import { GridEntity } from "../types/gridEntity";
 import {
-  builtBeetleHouseDialogue,
-  builtWorkshopDialogue,
-  fedFirstBeetleDialogue,
+  buildWoodcutterDialogue,
+  buildWorkshopDialogue,
+  craftAxeDialogue,
+  buildBeetleHouseDialogue,
   feedBeetleDialogue,
   welcomeDialogue,
 } from "../utils/dialogue";
@@ -45,7 +47,7 @@ export function useBoardStateDialogues({
     }
 
     const fedBeetle = findFedBeetleOnBoard(entities);
-    if (fedBeetle && showDialogueIfNotVisited(fedFirstBeetleDialogue(fedBeetle.id))) {
+    if (fedBeetle && showDialogueIfNotVisited(buildBeetleHouseDialogue(fedBeetle.id))) {
       return;
     }
 
@@ -53,13 +55,18 @@ export function useBoardStateDialogues({
     if (
       beetleHouse &&
       fedBeetle &&
-      showDialogueIfNotVisited(builtBeetleHouseDialogue(fedBeetle.id))
+      showDialogueIfNotVisited(buildWorkshopDialogue(fedBeetle.id))
     ) {
       return;
     }
 
     const workshop = findBuiltWorkshopOnBoard(entities);
-    if (workshop && showDialogueIfNotVisited(builtWorkshopDialogue(workshop.id))) {
+    if (workshop && showDialogueIfNotVisited(craftAxeDialogue(workshop.id))) {
+      return;
+    }
+
+    const axe = findBuiltAxeOnBoard(entities);
+    if (axe && showDialogueIfNotVisited(buildWoodcutterDialogue(fedBeetle?.id))) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

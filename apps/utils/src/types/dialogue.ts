@@ -3,6 +3,7 @@ export type OnceDialogueId =
   | "dugFirstItem"
   | "dugFirstBeetle"
   | "feedBeetle"
-  | "fedFirstBeetle"
-  | "builtBeetleHouse"
-  | "builtWorkshop";
+  | "buildBeetleHouse"
+  | "buildWorkshop"
+  | "craftAxe"
+  | "buildWoodcutter";

@@ -12,13 +12,6 @@ export const BEETLE_HOUSE_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "stick", count: 3 },
 ];
 
-export const GREENFLY_HOUSE_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "roof_tile", count: 1 },
-  { itemType: "wood", count: 1 },
-  { itemType: "brick", count: 1 },
-  { itemType: "leaf_part", count: 4 },
-];
-
 export const WORKSHOP_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 5 },
   { itemType: "little_rock", count: 3 },
@@ -26,18 +19,18 @@ export const WORKSHOP_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "root", count: 3 },
 ];
 
-export const STONEMASON_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "leaf_part", count: 3 },
-  { itemType: "little_rock", count: 5 },
-  { itemType: "stick", count: 2 },
-  { itemType: "root", count: 2 },
-];
-
 export const WOODCUTTER_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 3 },
   { itemType: "root", count: 3 },
   { itemType: "stick", count: 2 },
-  { itemType: "brick", count: 3 },
+  { itemType: "little_rock", count: 3 },
+];
+
+export const STONEMASON_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "leaf_part", count: 3 },
+  { itemType: "little_rock", count: 5 },
+  { itemType: "root", count: 2 },
+  { itemType: "wood", count: 2 },
 ];
 
 export const KITCHEN_BUILD_COSTS: BuildResourceCost[] = [
@@ -57,6 +50,13 @@ export const SMELTER_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "brick", count: 5 },
   { itemType: "wood", count: 2 },
   { itemType: "glass", count: 2 },
+];
+
+export const GREENFLY_HOUSE_BUILD_COSTS: BuildResourceCost[] = [
+  { itemType: "roof_tile", count: 1 },
+  { itemType: "wood", count: 1 },
+  { itemType: "brick", count: 1 },
+  { itemType: "leaf_part", count: 4 },
 ];
 
 export const FARM_BUILD_COSTS: BuildResourceCost[] = [
@@ -103,13 +103,13 @@ export const BUILD_RESOURCE_COSTS: Record<
   BuildResourceCost[]
 > = {
   beetle_house: BEETLE_HOUSE_BUILD_COSTS,
-  greenfly_house: GREENFLY_HOUSE_BUILD_COSTS,
   workshop: WORKSHOP_BUILD_COSTS,
-  stonemason: STONEMASON_BUILD_COSTS,
   woodcutter: WOODCUTTER_BUILD_COSTS,
+  stonemason: STONEMASON_BUILD_COSTS,
   kitchen: KITCHEN_BUILD_COSTS,
   tavern: TAVERN_BUILD_COSTS,
   smelter: SMELTER_BUILD_COSTS,
+  greenfly_house: GREENFLY_HOUSE_BUILD_COSTS,
   farm: FARM_BUILD_COSTS,
   mushrooms_field: MUSHROOMS_FIELD_BUILD_COSTS,
   flowers_field: FLOWERS_FIELD_BUILD_COSTS,

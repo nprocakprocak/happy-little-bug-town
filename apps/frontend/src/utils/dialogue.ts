@@ -28,6 +28,14 @@ function getItemName(itemType: ItemType): string | null {
   }
 }
 
+export function welcomeDialogue(holeId: string): Dialogue {
+  return {
+    id: "welcome",
+    text: "Look! It's a hole in the ground. Click it to dig.",
+    cursorEntityId: holeId,
+  };
+}
+
 export function dugFirstItemDialogue(itemType: ItemType): Dialogue | null {
   const name = getItemName(itemType);
   if (!name) {
@@ -88,38 +96,39 @@ export function hungryBugDialogue(bug: Bug): Dialogue | null {
   };
 }
 
-export function fedFirstBeetleDialogue(beetleId: string): Dialogue {
+export function buildBeetleHouseDialogue(beetleId: string): Dialogue {
   return {
-    id: "fedFirstBeetle",
+    id: "buildBeetleHouse",
     text: 'Oh, thank you! I think I will stay here for a little longer. I can build a house for myself and my cousins. Just click me and select "Beetle house". Then drop the required resources on the construction site.',
     bugType: "beetle",
     cursorEntityId: beetleId,
   };
 }
 
-export function builtBeetleHouseDialogue(beetleId: string): Dialogue {
+export function buildWorkshopDialogue(beetleId: string): Dialogue {
   return {
-    id: "builtBeetleHouse",
+    id: "buildWorkshop",
     text: "Wow, that's a nice house we can all live in. Let's build a workshop so we could craft tools that will make our lives easier.",
     bugType: "beetle",
     cursorEntityId: beetleId,
   };
 }
 
-export function builtWorkshopDialogue(workshopId: string): Dialogue {
+export function craftAxeDialogue(workshopId: string): Dialogue {
   return {
-    id: "builtWorkshop",
+    id: "craftAxe",
     text: "Craft an axe so we can turn sticks into usable wood.",
     bugType: "beetle",
     cursorEntityId: workshopId,
   };
 }
 
-export function welcomeDialogue(holeId: string): Dialogue {
+export function buildWoodcutterDialogue(beetleId?: string): Dialogue {
   return {
-    id: "welcome",
-    text: "Look! It's a hole in the ground. Click it to dig.",
-    cursorEntityId: holeId,
+    id: "buildWoodcutter",
+    text: "Build a woodcutter and drop some sticks on it to create wood.",
+    bugType: "beetle",
+    cursorEntityId: beetleId,
   };
 }
 
