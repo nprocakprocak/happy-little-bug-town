@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 
 import { useDialoguePages } from "../../hooks/useDialoguePages";
@@ -16,6 +17,7 @@ const DIALOGUE_TEXT_CLASS_NAME = "text-[clamp(0.95rem,4.2cqi,1.35rem)] leading-s
 export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
   const { text, bugType, infographic } = dialogue;
   const bustSrc = bugType ? bugTypeToBustSrc(bugType) : undefined;
+  const contentRef = useRef<HTMLDivElement>(null);
   const {
     containerRef,
     measureRef,
@@ -27,14 +29,32 @@ export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
     showNext,
   } = useDialoguePages(text);
 
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      if (event.button !== 0) {
+        return;
+      }
+      const target = event.target;
+      if (target instanceof Node && contentRef.current?.contains(target)) {
+        return;
+      }
+      onClose();
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [onClose]);
+
   return (
-    <div className="absolute inset-0" role="presentation">
+    <div className="pointer-events-none absolute inset-0" role="presentation">
       <div
         className={`absolute inset-x-0 bottom-0 px-[3cqi] pb-[3cqi] ${
           bustSrc || infographic ? "pt-[34cqi]" : ""
         }`}
       >
-        <div className="relative">
+        <div ref={contentRef} className="pointer-events-auto relative">
           {bustSrc ? (
             <div className="absolute bottom-full left-[2cqi] h-[42cqi] w-[42cqi]">
               <Image
@@ -60,7 +80,7 @@ export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
               isComplete ? "" : "cursor-pointer"
             }`}
             role="dialog"
-            aria-modal="true"
+            aria-modal="false"
             aria-label={text}
             onClick={isComplete ? undefined : showAll}
           >

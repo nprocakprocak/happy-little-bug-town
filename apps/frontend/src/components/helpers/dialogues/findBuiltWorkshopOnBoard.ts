@@ -1,4 +1,4 @@
-import { isStructureBuilt } from "@happy-little-bug-town/utils";
+import { isStructureBuilt, isStructurePowered } from "@happy-little-bug-town/utils";
 
 import { GridEntity } from "../../../types/gridEntity";
 import { Structure } from "../../../types/structure";
@@ -7,6 +7,6 @@ import { isStructure } from "../typeGuards";
 export function findBuiltWorkshopOnBoard(entities: GridEntity[]): Structure | undefined {
   return entities.find(
     (entity): entity is Structure =>
-      isStructure(entity) && entity.structureType === "workshop" && isStructureBuilt(entity),
+      isStructure(entity) && entity.structureType === "workshop" && isStructureBuilt(entity) && isStructurePowered(entity),
   );
 }

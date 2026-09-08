@@ -23,7 +23,7 @@ export function DialogueCursorLayer({ cols, rows, entityId, entities }: Dialogue
 
   return (
     <div
-      className="pointer-eventds-none absolute inset-0 grid h-full w-full gap-1"
+      className="pointer-events-none absolute inset-0 grid h-full w-full gap-1"
       style={groundGridTemplateStyle(cols, rows)}
     >
       <div
