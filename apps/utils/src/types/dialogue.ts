@@ -4,4 +4,5 @@ export type OnceDialogueId =
   | "dugFirstBeetle"
   | "feedBeetle"
   | "fedFirstBeetle"
-  | "builtBeetleHouse";
+  | "builtBeetleHouse"
+  | "builtWorkshop";

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
+import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBuiltWorkshopOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
 import { hasLeafAndBeetleOnBoard } from "../components/helpers/dialogues/hasLeafAndBeetleOnBoard";
 import { isStartingBoardState } from "../components/helpers/dialogues/isStartingBoardState";
@@ -8,6 +9,7 @@ import { Dialogue } from "../types/dialogue";
 import { GridEntity } from "../types/gridEntity";
 import {
   builtBeetleHouseDialogue,
+  builtWorkshopDialogue,
   fedFirstBeetleDialogue,
   feedBeetleDialogue,
   welcomeDialogue,
@@ -53,6 +55,11 @@ export function useBoardStateDialogues({
       fedBeetle &&
       showDialogueIfNotVisited(builtBeetleHouseDialogue(fedBeetle.id))
     ) {
+      return;
+    }
+
+    const workshop = findBuiltWorkshopOnBoard(entities);
+    if (workshop && showDialogueIfNotVisited(builtWorkshopDialogue(workshop.id))) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

@@ -106,6 +106,15 @@ export function builtBeetleHouseDialogue(beetleId: string): Dialogue {
   };
 }
 
+export function builtWorkshopDialogue(workshopId: string): Dialogue {
+  return {
+    id: "builtWorkshop",
+    text: "Craft an axe so we can turn sticks into usable wood.",
+    bugType: "beetle",
+    cursorEntityId: workshopId,
+  };
+}
+
 export function welcomeDialogue(holeId: string): Dialogue {
   return {
     id: "welcome",
