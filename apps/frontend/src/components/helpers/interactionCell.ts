@@ -1,10 +1,16 @@
-import { canDemolishStructureType, canRelocateStructureType, getSpannableSpan, Position } from "@happy-little-bug-town/utils";
+import { CSSProperties } from "react";
+import {
+  canDemolishStructureType,
+  canRelocateStructure,
+  getSpannableSpan,
+  Position,
+} from "@happy-little-bug-town/utils";
+
 import { GridEntity } from "../../types/gridEntity";
 import { Item } from "../../types/item";
 import { DragState } from "../types/dragState";
 import { gridPlacementStyle } from "./groundGridStyles";
 import { isStructure } from "./typeGuards";
-import { CSSProperties } from "react";
 
 interface CalculateCellPropertiesProps {
   entity: GridEntity | undefined;
@@ -41,10 +47,7 @@ export function calculateCellProperties({
 
   const canDrag =
     !!entity &&
-    (
-      !isStructure(entity) ||
-      (!isDemolishLocked && canRelocateStructureType(entity.structureType, items))
-    );
+    (!isStructure(entity) || (!isDemolishLocked && canRelocateStructure(entity, items)));
 
   const isDragging = dragState?.index === cellIndex;
 
@@ -57,9 +60,7 @@ export function calculateCellProperties({
   const placementStyle = gridPlacementStyle(position.x, position.y, span);
 
   const dragStyle =
-    isDragging && dragState
-      ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` }
-      : {};
+    isDragging && dragState ? { transform: `translate(${dragState.dx}px, ${dragState.dy}px)` } : {};
 
   return { placementStyle, dragStyle, canDrag, isDemolishLocked, cellBackgroundClass };
 }

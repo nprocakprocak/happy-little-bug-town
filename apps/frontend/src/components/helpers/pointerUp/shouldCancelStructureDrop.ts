@@ -1,4 +1,4 @@
-import { canRelocateStructureType, Position } from "@happy-little-bug-town/utils";
+import { canRelocateStructure, Position } from "@happy-little-bug-town/utils";
 
 import { GridEntity } from "../../../types/gridEntity";
 import { Item } from "../../../types/item";
@@ -13,7 +13,7 @@ export function shouldCancelStructureDrop(
   rows: number,
   remaining: GridEntity[],
 ): "cancel" | null {
-  if (!canRelocateStructureType(structure.structureType, items)) {
+  if (!canRelocateStructure(structure, items)) {
     return "cancel";
   }
 

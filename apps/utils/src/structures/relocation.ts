@@ -1,15 +1,15 @@
 import { ItemForCraft } from "../items/craft.js";
 import { hasCraftedItem } from "../items/stacking.js";
-import { StructureType } from "../types/structureType.js";
+import { isStructureIncomplete, StructureForBuild } from "./build.js";
 import { isGroundEvolutionStructureType } from "./evolution.js";
 
-export function canRelocateStructureType(
-  structureType: StructureType,
+export function canRelocateStructure(
+  structure: StructureForBuild,
   items: ItemForCraft[],
 ): boolean {
-  if (isGroundEvolutionStructureType(structureType)) {
+  if (isGroundEvolutionStructureType(structure.structureType)) {
     return false;
   }
 
-  return hasCraftedItem(items, "hammer");
+  return isStructureIncomplete(structure) || hasCraftedItem(items, "hammer");
 }

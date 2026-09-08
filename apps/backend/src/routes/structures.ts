@@ -1,7 +1,7 @@
 import { Router, type RequestHandler } from "express";
 
 import {
-  canRelocateStructureType,
+  canRelocateStructure,
   canStartStructureUpgrade,
   getCraftableOperationalResourceOutput,
   getEvolutionStepFromType,
@@ -133,7 +133,7 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
 
   if (hasPositionUpdate) {
     const itemsOnGrid = await getItemsOnGrid(authorId);
-    if (!canRelocateStructureType(existingStructure.structureType, itemsOnGrid)) {
+    if (!canRelocateStructure(existingStructure, itemsOnGrid)) {
       res.status(400).json({ error: "This structure cannot be moved" });
       return;
     }
