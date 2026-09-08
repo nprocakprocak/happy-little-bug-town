@@ -48,7 +48,7 @@ export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
           ) : null}
           {infographic ? (
             <div
-              className={`absolute bottom-full mb-[2cqi] w-[48cqi] overflow-hidden rounded-[4cqi] border-2 border-stone-200 bg-white shadow-[0_8px_0_rgba(0,0,0,0.12),0_16px_28px_rgba(0,0,0,0.28)] ${
+              className={`absolute bottom-full mb-[2cqi] w-fit max-w-[48cqi] overflow-hidden rounded-[4cqi] border-2 border-stone-200 bg-white shadow-[0_8px_0_rgba(0,0,0,0.12),0_16px_28px_rgba(0,0,0,0.28)] ${
                 bustSrc ? "right-[2cqi]" : "left-1/2 -translate-x-1/2"
               }`}
             >

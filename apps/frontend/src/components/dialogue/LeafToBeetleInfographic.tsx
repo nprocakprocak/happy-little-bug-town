@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function LeafToBeetleInfographic() {
   return (
-    <figure className="m-0">
+    <figure className="m-0 w-[48cqi]">
       <Image
         src="/dialogues/leaf-to-beetle.webp"
         alt="Drag a leaf onto the beetle to feed it"

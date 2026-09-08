@@ -23,12 +23,12 @@ import {
   useUpgradeStructureMutation,
 } from "../../hooks/useStructures";
 import { useMainStore } from "../../stores/main";
-import { Bug } from "../../types/bug";
 import { GridEntity } from "../../types/gridEntity";
 import { Structure } from "../../types/structure";
 import {
   dugFirstBeetleDialogue,
   dugFirstItemDialogue,
+  hungryBugDialogue,
   welcomeDialogue,
 } from "../../utils/dialogue";
 import { DialogueBubble } from "../dialogue/DialogueBubble";
@@ -112,7 +112,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
   );
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
-  const [selectedBug, setSelectedBug] = useState<Bug | null>(null);
+  const [bugPopup, setBugPopup] = useState<"build" | "upgrade" | null>(null);
   const [workshopPopupOpen, setWorkshopPopupOpen] = useState(false);
   const [farmPopupOpen, setFarmPopupOpen] = useState(false);
   const [occupiedHouseType, setOccupiedHouseType] = useState<StructureType | null>(null);
@@ -173,7 +173,11 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
         });
 
         if (cancelReason === "hungryBug" && isBug(entityToDrop)) {
-          setSelectedBug(entityToDrop);
+          const hungryDialogue = hungryBugDialogue(entityToDrop);
+          if (hungryDialogue) {
+            setBugPopup(null);
+            showDialogue(hungryDialogue);
+          }
         }
 
         if (cancelReason === "stackCreateBlocked") {
@@ -200,7 +204,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
         });
       })();
     },
-    [cols, items, rows, stacks, bugs, structures, entities, queryClient],
+    [cols, items, rows, stacks, bugs, structures, entities, queryClient, showDialogue],
   );
 
   const onEntityClick = useCallback(
@@ -226,22 +230,25 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
           setWorkshopPopupOpen(true);
         } else if (result.kind === "openFarm") {
           setFarmPopupOpen(true);
-        } else if (result.kind === "selectBug") {
+        } else if (result.kind === "openBuildPopup") {
           closeDialogue();
-          setSelectedBug(result.bug);
+          setBugPopup("build");
+        } else if (result.kind === "openUpgradePopup") {
+          closeDialogue();
+          setBugPopup("upgrade");
         } else if (result.kind === "dugItem") {
-          setSelectedBug(null);
+          setBugPopup(null);
           const hintDialogue = dugFirstItemDialogue(result.item.itemType);
           if (hintDialogue) {
             showDialogueIfNotVisited(hintDialogue);
           }
         } else if (result.kind === "dugBug") {
-          setSelectedBug(null);
+          setBugPopup(null);
           if (result.bug.bugType === "beetle") {
             showDialogueIfNotVisited(dugFirstBeetleDialogue());
           }
         } else if (result.kind === "showDialogue") {
-          setSelectedBug(null);
+          setBugPopup(null);
           showDialogue(result.dialogue);
         } else if (result.kind === "toggleDemolish") {
           setIsDemolishMode(!isDemolishMode);
@@ -271,7 +278,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
         return;
       }
       createStructure.mutate(payload);
-      setSelectedBug(null);
+      setBugPopup(null);
       setFarmPopupOpen(false);
     },
     [cols, rows, entities, createStructure],
@@ -280,7 +287,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
   const onLadybugUpgrade = useCallback(
     (structure: Structure) => {
       upgradeStructureMutation.mutate(structure);
-      setSelectedBug(null);
+      setBugPopup(null);
     },
     [upgradeStructureMutation],
   );
@@ -386,9 +393,9 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
           />
         ) : null}
         <BugPopups
-          selectedBug={selectedBug}
+          popup={bugPopup}
           structures={structures}
-          onClose={() => setSelectedBug(null)}
+          onClose={() => setBugPopup(null)}
           onBuild={onBeetleBuild}
           onUpgrade={onLadybugUpgrade}
         />

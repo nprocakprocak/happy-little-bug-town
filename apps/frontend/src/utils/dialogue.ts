@@ -1,7 +1,16 @@
 import { createElement } from "react";
-import { BugType, ItemType } from "@happy-little-bug-town/utils";
+import {
+  BugType,
+  getBugFoodCount,
+  getBugFoodRequirement,
+  isBugFed,
+  ItemType,
+} from "@happy-little-bug-town/utils";
 
+import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
 import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
+import { hasDialogueBust } from "../components/helpers/characterImages";
+import { Bug } from "../types/bug";
 import { Dialogue } from "../types/dialogue";
 
 function getItemName(itemType: ItemType): string | null {
@@ -43,6 +52,39 @@ export function feedBeetleDialogue(): Dialogue {
     id: "feedBeetle",
     text: "Drag and drop two leaves on the beetle to feed it.",
     infographic: createElement(LeafToBeetleInfographic),
+  };
+}
+
+export function hungryBugDialogue(bug: Bug): Dialogue | null {
+  if (isBugFed(bug)) {
+    return null;
+  }
+
+  const requirement = getBugFoodRequirement(bug.bugType);
+  if (!requirement) {
+    return null;
+  }
+
+  const infographic = createElement(HungryBugInfographic, {
+    foodItemType: requirement.itemType,
+    foodCount: getBugFoodCount(bug),
+    maxCount: requirement.maxCount,
+  });
+
+  if (bug.bugType === "greenfly") {
+    return {
+      id: bug.bugType,
+      text: "We must fatten up this greenfly before cooking.",
+      bugType: "beetle",
+      infographic,
+    };
+  }
+
+  return {
+    id: bug.bugType,
+    text: "I'm too hungry to work",
+    bugType: hasDialogueBust(bug.bugType) ? bug.bugType : undefined,
+    infographic,
   };
 }
 
@@ -99,7 +141,7 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
   }
 }
 
-export function beetleClickDialogue(bugType: BugType): Dialogue | null {
+export function bugClickDialogue(bugType: BugType): Dialogue | null {
   switch (bugType) {
     case "greenfly":
       return {
@@ -110,7 +152,7 @@ export function beetleClickDialogue(bugType: BugType): Dialogue | null {
     case "fly":
       return {
         id: "fly",
-        text: "Put the fly in the kitchen to prepare a special meal for spiders.",
+        text: "Put the fly in the kitchen to prepare a special meal to attract spiders.",
         bugType: "beetle",
       };
     default:
