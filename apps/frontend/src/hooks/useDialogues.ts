@@ -20,18 +20,19 @@ export function useDialogues(allEntitiesLoaded: boolean, entities: GridEntity[],
   }, []);
 
   const showDialogueIfNotVisited = useCallback(
-    (dialogue: Dialogue) => {
+    (dialogue: Dialogue): boolean => {
       if (!isOnceDialogueId(dialogue.id)) {
         showDialogue(dialogue);
-        return;
+        return true;
       }
 
       if (!visitedLoaded || visitedIds?.includes(dialogue.id)) {
-        return;
+        return false;
       }
 
       markVisited.mutate(dialogue.id);
       showDialogue(dialogue);
+      return true;
     },
     [markVisited, showDialogue, visitedIds, visitedLoaded],
   );
@@ -40,8 +41,6 @@ export function useDialogues(allEntitiesLoaded: boolean, entities: GridEntity[],
     allEntitiesLoaded,
     entities,
     activeDialogue,
-    visitedIds,
-    visitedLoaded,
     showDialogueIfNotVisited,
   });
 

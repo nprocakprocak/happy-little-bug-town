@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { OnceDialogueId } from "@happy-little-bug-town/utils";
 
 import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
@@ -18,56 +17,43 @@ interface UseBoardStateDialoguesArgs {
   allEntitiesLoaded: boolean;
   entities: GridEntity[];
   activeDialogue: Dialogue | null;
-  visitedIds: OnceDialogueId[] | undefined;
-  visitedLoaded: boolean;
-  showDialogueIfNotVisited: (dialogue: Dialogue) => void;
+  showDialogueIfNotVisited: (dialogue: Dialogue) => boolean;
 }
 
 export function useBoardStateDialogues({
   allEntitiesLoaded,
   entities,
   activeDialogue,
-  visitedIds,
-  visitedLoaded,
   showDialogueIfNotVisited,
 }: UseBoardStateDialoguesArgs) {
   useEffect(() => {
-    if (!allEntitiesLoaded || !visitedLoaded || activeDialogue) {
+    if (!allEntitiesLoaded || activeDialogue) {
       return;
     }
 
-    if (isStartingBoardState(entities) && !visitedIds?.includes("welcome")) {
-      showDialogueIfNotVisited(welcomeDialogue(entities[0].id));
+    if (
+      isStartingBoardState(entities) &&
+      showDialogueIfNotVisited(welcomeDialogue(entities[0].id))
+    ) {
       return;
     }
 
-    if (hasLeafAndBeetleOnBoard(entities) && !visitedIds?.includes("feedBeetle")) {
-      showDialogueIfNotVisited(feedBeetleDialogue());
+    if (hasLeafAndBeetleOnBoard(entities) && showDialogueIfNotVisited(feedBeetleDialogue())) {
       return;
     }
 
-    if (!visitedIds?.includes("fedFirstBeetle")) {
-      const fedBeetle = findFedBeetleOnBoard(entities);
-      if (fedBeetle) {
-        showDialogueIfNotVisited(fedFirstBeetleDialogue(fedBeetle.id));
-        return;
-      }
+    const fedBeetle = findFedBeetleOnBoard(entities);
+    if (fedBeetle && showDialogueIfNotVisited(fedFirstBeetleDialogue(fedBeetle.id))) {
+      return;
     }
 
-    if (!visitedIds?.includes("builtBeetleHouse")) {
-      const beetleHouse = findBuiltBeetleHouseOnBoard(entities);
-      const fedBeetle = findFedBeetleOnBoard(entities);
-      if (beetleHouse && fedBeetle) {
-        showDialogueIfNotVisited(builtBeetleHouseDialogue(fedBeetle.id));
-        return;
-      }
+    const beetleHouse = findBuiltBeetleHouseOnBoard(entities);
+    if (
+      beetleHouse &&
+      fedBeetle &&
+      showDialogueIfNotVisited(builtBeetleHouseDialogue(fedBeetle.id))
+    ) {
+      return;
     }
-  }, [
-    allEntitiesLoaded,
-    entities,
-    showDialogueIfNotVisited,
-    visitedIds,
-    visitedLoaded,
-    activeDialogue,
-  ]);
+  }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);
 }
