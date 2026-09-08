@@ -9,9 +9,10 @@ import {
 
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
 import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
+import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
 import { hasDialogueBust } from "../components/helpers/characterImages";
 import { Bug } from "../types/bug";
-import { Dialogue } from "../types/dialogue";
+import { CannotBuildReason, Dialogue } from "../types/dialogue";
 
 function getItemName(itemType: ItemType): string | null {
   switch (itemType) {
@@ -156,6 +157,18 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
       };
     default:
       return null;
+  }
+}
+
+export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
+  switch (reason) {
+    case "noSpace":
+      return {
+        id: "cannotBuild",
+        text: "There's not enough space to build this. Make some room first. You can drop items back to the hole.",
+        bugType: "beetle",
+        infographic: createElement(StickToHoleInfographic),
+      };
   }
 }
 

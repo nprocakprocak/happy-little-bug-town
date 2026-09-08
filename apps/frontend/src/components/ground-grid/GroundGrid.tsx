@@ -26,6 +26,7 @@ import { useMainStore } from "../../stores/main";
 import { GridEntity } from "../../types/gridEntity";
 import { Structure } from "../../types/structure";
 import {
+  cannotBuildDialogue,
   dugFirstBeetleDialogue,
   dugFirstItemDialogue,
   hungryBugDialogue,
@@ -273,15 +274,19 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
 
   const onBeetleBuild = useCallback(
     (structure: Structure) => {
-      const payload = beetleBuildAction(structure, cols, rows, entities);
-      if (!payload) {
+      const result = beetleBuildAction(structure, cols, rows, entities);
+      if (!result) {
         return;
       }
-      createStructure.mutate(payload);
       setBugPopup(null);
       setFarmPopupOpen(false);
+      if (result.kind === "error") {
+        showDialogue(cannotBuildDialogue(result.reason));
+        return;
+      }
+      createStructure.mutate(result.payload);
     },
-    [cols, rows, entities, createStructure],
+    [cols, rows, entities, structures, createStructure, showDialogue],
   );
 
   const onLadybugUpgrade = useCallback(

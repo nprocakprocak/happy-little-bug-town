@@ -1,4 +1,5 @@
 import {
+  BuildableStructureType,
   canCreateItemType,
   findFirstStructurePlacement,
   isBuildableStructureType,
@@ -6,9 +7,10 @@ import {
   ItemType,
   Position,
   Positionable,
-  Spannable,
+  Spannable
 } from "@happy-little-bug-town/utils";
 
+import { CannotBuildReason } from "../../types/dialogue";
 import { Item } from "../../types/item";
 import { Structure } from "../../types/structure";
 
@@ -25,17 +27,33 @@ function withFirstPlacement<T extends Spannable>(
   return { ...spec, ...position };
 }
 
+type BeetleBuildActionResult =
+  | { kind: "ok"; payload: { structureType: BuildableStructureType } & Position }
+  | { kind: "error"; reason: CannotBuildReason };
+
 export function beetleBuildAction(
   structure: Structure,
   cols: number,
   rows: number,
   entities: Positionable[],
-) {
+): BeetleBuildActionResult | null {
   if (!isBuildableStructureType(structure.structureType)) {
     return null;
   }
 
-  return withFirstPlacement({ structureType: structure.structureType }, cols, rows, entities);
+
+  const payload = withFirstPlacement(
+    { structureType: structure.structureType },
+    cols,
+    rows,
+    entities,
+  );
+  
+  if (!payload) {
+    return { kind: "error", reason: "noSpace" };
+  }
+
+  return { kind: "ok", payload };
 }
 
 export function workshopCreateItemAction(
