@@ -1,10 +1,11 @@
-import { isOnceDialogueId } from "@happy-little-bug-town/utils";
 import { useCallback, useEffect, useState } from "react";
+import { isOnceDialogueId } from "@happy-little-bug-town/utils";
 
+import { hasLeafAndBeetleOnBoard } from "../components/helpers/hasLeafAndBeetleOnBoard";
 import { isStartingBoardState } from "../components/helpers/isStartingBoardState";
 import { Dialogue } from "../types/dialogue";
 import { GridEntity } from "../types/gridEntity";
-import { welcomeDialogue } from "../utils/dialogue";
+import { feedBeetleDialogue, welcomeDialogue } from "../utils/dialogue";
 import { useMarkDialogueVisitedMutation, useVisitedDialoguesQuery } from "./useVisitedDialogues";
 
 export function useDialogues(allEntitiesLoaded: boolean, entities: GridEntity[], enabled = true) {
@@ -38,14 +39,18 @@ export function useDialogues(allEntitiesLoaded: boolean, entities: GridEntity[],
   );
 
   useEffect(() => {
-    if (!allEntitiesLoaded || !visitedLoaded) {
+    if (!allEntitiesLoaded || !visitedLoaded || activeDialogue) {
       return;
     }
 
     if (isStartingBoardState(entities) && !visitedIds?.includes("welcome")) {
       showDialogueIfNotVisited(welcomeDialogue(entities[0].id));
     }
-  }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, visitedIds, visitedLoaded]);
+
+    if (hasLeafAndBeetleOnBoard(entities) && !visitedIds?.includes("feedBeetle")) {
+      showDialogueIfNotVisited(feedBeetleDialogue());
+    }
+  }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, visitedIds, visitedLoaded, activeDialogue]);
 
   return {
     activeDialogue,

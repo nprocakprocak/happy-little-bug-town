@@ -35,6 +35,13 @@ export function dugFirstBeetleDialogue(): Dialogue {
     id: "dugFirstBeetle",
     text: "Bonjour! My name is Bob. You wouldn't happen to have something to eat, would you?",
     bugType: "beetle",
+  };
+}
+
+export function feedBeetleDialogue(): Dialogue {
+  return {
+    id: "feedBeetle",
+    text: "Drag and drop two leaves on the beetle to feed it.",
     infographic: createElement(LeafToBeetleInfographic),
   };
 }
