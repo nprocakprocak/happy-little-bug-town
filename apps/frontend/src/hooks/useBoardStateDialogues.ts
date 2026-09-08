@@ -1,12 +1,18 @@
 import { useEffect } from "react";
 import { OnceDialogueId } from "@happy-little-bug-town/utils";
 
+import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
 import { hasLeafAndBeetleOnBoard } from "../components/helpers/dialogues/hasLeafAndBeetleOnBoard";
 import { isStartingBoardState } from "../components/helpers/dialogues/isStartingBoardState";
 import { Dialogue } from "../types/dialogue";
 import { GridEntity } from "../types/gridEntity";
-import { fedFirstBeetleDialogue, feedBeetleDialogue, welcomeDialogue } from "../utils/dialogue";
+import {
+  builtBeetleHouseDialogue,
+  fedFirstBeetleDialogue,
+  feedBeetleDialogue,
+  welcomeDialogue,
+} from "../utils/dialogue";
 
 interface UseBoardStateDialoguesArgs {
   allEntitiesLoaded: boolean;
@@ -32,12 +38,28 @@ export function useBoardStateDialogues({
 
     if (isStartingBoardState(entities) && !visitedIds?.includes("welcome")) {
       showDialogueIfNotVisited(welcomeDialogue(entities[0].id));
-    } else if (hasLeafAndBeetleOnBoard(entities) && !visitedIds?.includes("feedBeetle")) {
+      return;
+    }
+
+    if (hasLeafAndBeetleOnBoard(entities) && !visitedIds?.includes("feedBeetle")) {
       showDialogueIfNotVisited(feedBeetleDialogue());
-    } else if (!visitedIds?.includes("fedFirstBeetle")) {
+      return;
+    }
+
+    if (!visitedIds?.includes("fedFirstBeetle")) {
       const fedBeetle = findFedBeetleOnBoard(entities);
       if (fedBeetle) {
         showDialogueIfNotVisited(fedFirstBeetleDialogue(fedBeetle.id));
+        return;
+      }
+    }
+
+    if (!visitedIds?.includes("builtBeetleHouse")) {
+      const beetleHouse = findBuiltBeetleHouseOnBoard(entities);
+      const fedBeetle = findFedBeetleOnBoard(entities);
+      if (beetleHouse && fedBeetle) {
+        showDialogueIfNotVisited(builtBeetleHouseDialogue(fedBeetle.id));
+        return;
       }
     }
   }, [

@@ -55,6 +55,15 @@ export function fedFirstBeetleDialogue(beetleId: string): Dialogue {
   };
 }
 
+export function builtBeetleHouseDialogue(beetleId: string): Dialogue {
+  return {
+    id: "builtBeetleHouse",
+    text: "Wow, that's a nice house we can all live in. Let's build a workshop so we could craft tools that will make our lives easier.",
+    bugType: "beetle",
+    cursorEntityId: beetleId,
+  };
+}
+
 export function welcomeDialogue(holeId: string): Dialogue {
   return {
     id: "welcome",

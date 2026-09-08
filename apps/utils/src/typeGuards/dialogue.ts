@@ -7,5 +7,6 @@ export function isOnceDialogueId(value: unknown): value is OnceDialogueId {
     "dugFirstBeetle",
     "feedBeetle",
     "fedFirstBeetle",
+    "builtBeetleHouse",
   ].includes(value as string);
 }
