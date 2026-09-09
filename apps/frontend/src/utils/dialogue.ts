@@ -164,6 +164,14 @@ export function bricksProductionDialogue(): Dialogue {
   };
 }
 
+export function buildKitchenDialogue(): Dialogue {
+  return {
+    id: "buildKitchen",
+    text: "Hurray! We can now build a kitchen. Check out the workshop for the required tools.",
+    bugType: "beetle",
+  };
+}
+
 export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
   switch (reason) {
     case "noSpace":

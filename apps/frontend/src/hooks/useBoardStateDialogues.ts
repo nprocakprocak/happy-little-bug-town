@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 
+import { findBrickOnBoard } from "../components/helpers/dialogues/findBrickOnBoard";
 import { findBuiltAxeOnBoard } from "../components/helpers/dialogues/findBuiltAxeOnBoard";
 import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
 import { findBuiltWoodcutterOnBoard } from "../components/helpers/dialogues/findBuiltWoodcutterOnBoard";
@@ -12,6 +13,7 @@ import { Dialogue } from "../types/dialogue";
 import { GridEntity } from "../types/gridEntity";
 import {
   buildBeetleHouseDialogue,
+  buildKitchenDialogue,
   buildStonemasonDialogue,
   buildWoodcutterDialogue,
   buildWorkshopDialogue,
@@ -77,6 +79,11 @@ export function useBoardStateDialogues({
 
     const wood = findWoodOnBoard(entities);
     if (wood && showDialogueIfNotVisited(buildStonemasonDialogue(fedBeetle?.id))) {
+      return;
+    }
+
+    const brick = findBrickOnBoard(entities);
+    if (brick && showDialogueIfNotVisited(buildKitchenDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

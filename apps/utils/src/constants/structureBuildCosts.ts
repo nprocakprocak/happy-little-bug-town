@@ -28,27 +28,27 @@ export const WOODCUTTER_BUILD_COSTS: BuildResourceCost[] = [
 
 export const STONEMASON_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 3 },
-  { itemType: "little_rock", count: 5 },
+  { itemType: "little_rock", count: 4 },
   { itemType: "root", count: 2 },
   { itemType: "wood", count: 2 },
 ];
 
 export const KITCHEN_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "leaf_part", count: 5 },
-  { itemType: "brick", count: 3 },
-  { itemType: "wood", count: 3 },
+  { itemType: "leaf_part", count: 4 },
+  { itemType: "brick", count: 2 },
+  { itemType: "wood", count: 2 },
 ];
 
 export const TAVERN_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 3 },
-  { itemType: "brick", count: 4 },
-  { itemType: "wood", count: 4 },
+  { itemType: "brick", count: 3 },
+  { itemType: "wood", count: 3 },
 ];
 
 export const SMELTER_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 2 },
-  { itemType: "brick", count: 5 },
-  { itemType: "wood", count: 2 },
+  { itemType: "brick", count: 2 },
+  { itemType: "wood", count: 1 },
   { itemType: "glass", count: 2 },
 ];
 
