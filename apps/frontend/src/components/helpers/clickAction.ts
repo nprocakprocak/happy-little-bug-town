@@ -4,7 +4,12 @@ import { QueryClient } from "@tanstack/react-query";
 import { Dialogue } from "../../types/dialogue";
 import { GridEntity } from "../../types/gridEntity";
 import { Item } from "../../types/item";
-import { bugClickDialogue, hungryBugDialogue, itemClickDialogue } from "../../utils/dialogue";
+import {
+  bugClickDialogue,
+  hungryBugDialogue,
+  itemClickDialogue,
+  structureClickDialogue,
+} from "../../utils/dialogue";
 import { clickStack } from "./clickActions/clickStack";
 import { clickStructure } from "./clickActions/clickStructure";
 import { spawnExtractedBug, spawnExtractedItem } from "./clickActions/spawnExtractedEntity";
@@ -43,7 +48,7 @@ export async function clickAction({
   beginAutoRouteBugIfPossible,
 }: ClickActionArgs): Promise<ClickActionResult> {
   if (isStructure(entity)) {
-    return clickStructure({
+    const result = await clickStructure({
       structure: entity,
       queryClient,
       rows,
@@ -54,10 +59,24 @@ export async function clickAction({
       beginAutoRouteIfPossible,
       beginAutoRouteBugIfPossible,
     });
+    if (result.kind === "noop") {
+      const dialogue = structureClickDialogue(entity.structureType);
+      if (dialogue) {
+        return { kind: "showDialogue", dialogue };
+      }
+    }
+    return result;
   }
 
   if (isStack(entity)) {
-    return clickStack({ stack: entity, queryClient, beginAutoRouteIfPossible, rows, cols, entities });
+    return clickStack({
+      stack: entity,
+      queryClient,
+      beginAutoRouteIfPossible,
+      rows,
+      cols,
+      entities,
+    });
   }
 
   if (isItem(entity)) {

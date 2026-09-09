@@ -251,7 +251,9 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
           }
         } else if (result.kind === "showDialogue") {
           setBugPopup(null);
-          showDialogue(result.dialogue);
+          if (!showDialogueIfNotVisited(result.dialogue)) {
+            showDialogue(result.dialogue);
+          }
         } else if (result.kind === "noSpace") {
           setBugPopup(null);
           setWorkshopPopupOpen(false);

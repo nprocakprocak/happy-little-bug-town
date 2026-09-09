@@ -5,6 +5,7 @@ import {
   getBugFoodRequirement,
   isBugFed,
   ItemType,
+  StructureType,
 } from "@happy-little-bug-town/utils";
 
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
@@ -162,6 +163,15 @@ export function cannotPlaceDialogue(): Dialogue {
     bugType: "beetle",
     infographic: createElement(StickToHoleInfographic),
   };
+}
+
+export function structureClickDialogue(structureType: StructureType): Dialogue | null {
+  switch (structureType) {
+    case "woodcutter":
+      return woodProductionDialogue();
+    default:
+      return null;
+  }
 }
 
 export function itemClickDialogue(itemType: ItemType): Dialogue | null {
