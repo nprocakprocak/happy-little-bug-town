@@ -9,7 +9,7 @@ export function itemTypeToName(itemType: WorkshopItemType): string {
     case "hammer_and_chisel":
       return "Hammer and chisel";
     case "leaf_rake":
-      return "Leaf rake";
+      return "Rake";
     case "shovel":
       return "Shovel";
     case "knife":

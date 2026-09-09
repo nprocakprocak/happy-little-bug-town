@@ -11,6 +11,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { Item } from "../../../types/item";
+import { itemTypeToDescription } from "../../helpers/itemDescription";
 import { itemTypeToImageForItem } from "../../helpers/itemImages";
 import { itemTypeToName } from "../../helpers/itemName";
 import { CarouselSlider } from "../../ui/CarouselSlider";
@@ -77,6 +78,7 @@ export function WorkshopItemsPopupContent({
         />
       }
       itemCosts={selectedResourceCosts}
+      description={itemTypeToDescription(selectedItem.itemType)}
       primaryLabel="Create"
       onPrimaryClick={handleCreateClick}
       onClose={onClose}
