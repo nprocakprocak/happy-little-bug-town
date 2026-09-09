@@ -9,6 +9,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { BricksProductionInfographic } from "../components/dialogue/BricksProductionInfographic";
+import { CookingListInfographic } from "../components/dialogue/CookingListInfographic";
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
 import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
 import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
@@ -164,6 +165,15 @@ export function bricksProductionDialogue(): Dialogue {
   };
 }
 
+export function cookingListDialogue(): Dialogue {
+  return {
+    id: "cookingList",
+    text: "You can cook tasty meals here that will make other bugs visit our town.",
+    bugType: "beetle",
+    infographic: createElement(CookingListInfographic),
+  };
+}
+
 export function buildKitchenDialogue(): Dialogue {
   return {
     id: "buildKitchen",
@@ -215,6 +225,8 @@ export function structureClickDialogue(structureType: StructureType): Dialogue |
       return woodProductionDialogue();
     case "stonemason":
       return bricksProductionDialogue();
+    case "kitchen":
+      return cookingListDialogue();
     default:
       return null;
   }

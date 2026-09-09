@@ -15,7 +15,7 @@ export function bugTypeToImage(bugType: BugType, isFed: boolean = true): string 
     case "spider":
       return "/bugs/spider.webp";
     case "greenfly":
-      return isFed ? "/bugs/greenfly.webp" : "/items/greenfly-hungry.webp";
+      return isFed ? "/bugs/greenfly.webp" : "/bugs/greenfly-hungry.webp";
     case "bee":
       return "/bugs/bee.webp";
     default:

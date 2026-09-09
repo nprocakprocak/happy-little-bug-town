@@ -7,7 +7,8 @@ export type DialogueId =
   | ItemType
   | "cannotBuild"
   | "cannotPlace"
-  | "bricksProduction";
+  | "bricksProduction"
+  | "cookingList";
 
 export type CannotBuildReason = "noSpace";
 
