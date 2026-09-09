@@ -37,6 +37,16 @@ interface WorkshopItemsPopupContentProps {
   isCreating?: boolean;
 }
 
+function getPrimaryLabel(isAlreadyCrafted: boolean, isUnlocked: boolean): string {
+  if (isAlreadyCrafted) {
+    return "Already crafted";
+  }
+  if (!isUnlocked) {
+    return "Requires upgrade";
+  }
+  return "Create";
+}
+
 export function WorkshopItemsPopupContent({
   onClose,
   onCreateItem,
@@ -56,9 +66,8 @@ export function WorkshopItemsPopupContent({
   );
   const selectedItem = WORKSHOP_ITEM_OPTIONS[selectedItemIndex];
   const selectedResourceCosts = getItemCraftCosts(selectedItem.itemType);
-  const canCreate =
-    isWorkshopItemUnlocked(selectedItem.itemType, workshopUpgradeLevel) &&
-    canCreateItemType(items, selectedItem.itemType);
+  const isUnlocked = isWorkshopItemUnlocked(selectedItem.itemType, workshopUpgradeLevel);
+  const canCreate = isUnlocked && canCreateItemType(items, selectedItem.itemType);
   const isAlreadyCrafted =
     !canCreateMultipleOfItemType(selectedItem.itemType) &&
     hasItemType(items, selectedItem.itemType);
@@ -84,7 +93,7 @@ export function WorkshopItemsPopupContent({
       }
       itemCosts={selectedResourceCosts}
       description={itemTypeToDescription(selectedItem.itemType)}
-      primaryLabel={isAlreadyCrafted ? "Already crafted" : "Create"}
+      primaryLabel={getPrimaryLabel(isAlreadyCrafted, isUnlocked)}
       onPrimaryClick={handleCreateClick}
       onClose={onClose}
       primaryDisabled={isCreating || !canCreate}
