@@ -165,11 +165,20 @@ export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
     case "noSpace":
       return {
         id: "cannotBuild",
-        text: "There's not enough space to build this. Make some room first. You can drop items back to the hole.",
+        text: "There's not enough space to build this. You can drop items back to the hole to make some room.",
         bugType: "beetle",
         infographic: createElement(StickToHoleInfographic),
       };
   }
+}
+
+export function cannotPlaceDialogue(): Dialogue {
+  return {
+    id: "cannotPlace",
+    text: "There's not enough space to place an item. You can drop items back to the hole to make some room.",
+    bugType: "beetle",
+    infographic: createElement(StickToHoleInfographic),
+  };
 }
 
 export function bugClickDialogue(bugType: BugType): Dialogue | null {

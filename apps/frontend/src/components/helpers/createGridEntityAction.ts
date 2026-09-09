@@ -7,7 +7,7 @@ import {
   ItemType,
   Position,
   Positionable,
-  Spannable
+  Spannable,
 } from "@happy-little-bug-town/utils";
 
 import { CannotBuildReason } from "../../types/dialogue";
@@ -41,14 +41,13 @@ export function beetleBuildAction(
     return null;
   }
 
-
   const payload = withFirstPlacement(
     { structureType: structure.structureType },
     cols,
     rows,
     entities,
   );
-  
+
   if (!payload) {
     return { kind: "error", reason: "noSpace" };
   }
@@ -56,14 +55,27 @@ export function beetleBuildAction(
   return { kind: "ok", payload };
 }
 
-export function workshopCreateItemAction(
-  itemType: ItemType,
-  workshopUpgradeLevel: number,
-  items: Item[],
-  cols: number,
-  rows: number,
-  entities: Positionable[],
-) {
+type WorkshopCreateItemActionResult =
+  | { kind: "ok"; payload: { itemType: ItemType } & Position }
+  | { kind: "error"; reason: "noSpace" };
+
+interface WorkshopCreateItemActionArgs {
+  itemType: ItemType;
+  workshopUpgradeLevel: number;
+  items: Item[];
+  cols: number;
+  rows: number;
+  entities: Positionable[];
+}
+
+export function workshopCreateItemAction({
+  itemType,
+  workshopUpgradeLevel,
+  items,
+  cols,
+  rows,
+  entities,
+}: WorkshopCreateItemActionArgs): WorkshopCreateItemActionResult | null {
   if (
     !isWorkshopItemUnlocked(itemType, workshopUpgradeLevel) ||
     !canCreateItemType(items, itemType)
@@ -71,5 +83,10 @@ export function workshopCreateItemAction(
     return null;
   }
 
-  return withFirstPlacement({ itemType }, cols, rows, entities);
+  const payload = withFirstPlacement({ itemType }, cols, rows, entities);
+  if (!payload) {
+    return { kind: "error", reason: "noSpace" };
+  }
+
+  return { kind: "ok", payload };
 }

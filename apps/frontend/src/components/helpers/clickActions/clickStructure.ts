@@ -33,7 +33,7 @@ interface ClickStructureArgs {
   queryClient: QueryClient;
   rows: number;
   cols: number;
-  animatables: Positionable[];
+  entities: Positionable[];
   items: Item[];
   isDemolishMode: boolean;
   beginAutoRouteIfPossible: Parameters<typeof spawnExtractedItem>[3];
@@ -48,7 +48,8 @@ type ClickStructureResult =
   | { kind: "occupiedHouse"; structureType: StructureType }
   | { kind: "clearOccupiedHouse" }
   | { kind: "dugItem"; item: Item }
-  | { kind: "dugBug"; bug: Bug };
+  | { kind: "dugBug"; bug: Bug }
+  | { kind: "noSpace" };
 
 export async function clickStructure(args: ClickStructureArgs): Promise<ClickStructureResult> {
   if (isDemolishClick(args)) {
@@ -100,15 +101,15 @@ async function demolishStructureClick({
   queryClient,
   rows,
   cols,
-  animatables,
+  entities,
 }: ClickStructureArgs): Promise<ClickStructureResult> {
   if (getHouseOccupants(structure).length > 0) {
     return { kind: "occupiedHouse", structureType: structure.structureType };
   }
 
   const remainingCount = structure.items.length + structure.bugs.length;
-  if (remainingCount > 1 && !hasEmptyGridCell(rows, cols, animatables)) {
-    return { kind: "clearOccupiedHouse" };
+  if (remainingCount > 1 && !hasEmptyGridCell(rows, cols, entities)) {
+    return { kind: "noSpace" };
   }
 
   const result = await demolishQueue.enqueue(structure.id);
@@ -133,9 +134,16 @@ async function demolishStructureClick({
 async function digStructureClick({
   structure,
   queryClient,
+  rows,
+  cols,
+  entities,
   beginAutoRouteIfPossible,
   beginAutoRouteBugIfPossible,
 }: ClickStructureArgs): Promise<ClickStructureResult> {
+  if (!hasEmptyGridCell(rows, cols, entities)) {
+    return { kind: "noSpace" };
+  }
+
   const itemOrBug = await digQueue.enqueue(structure.id);
   const origin = pickRandomNearestStructureCenterCell(structure);
   const exclude = { structureId: structure.id };
@@ -154,12 +162,12 @@ async function craftStructureClick({
   queryClient,
   rows,
   cols,
-  animatables,
+  entities,
   beginAutoRouteIfPossible,
   beginAutoRouteBugIfPossible,
 }: ClickStructureArgs): Promise<ClickStructureResult> {
-  if (!hasEmptyGridCell(rows, cols, animatables)) {
-    return { kind: "noop" };
+  if (!hasEmptyGridCell(rows, cols, entities)) {
+    return { kind: "noSpace" };
   }
 
   const result = await craftOperationalResource(structure.id);
@@ -180,23 +188,26 @@ async function craftStructureClick({
 }
 
 async function beetleHouseClick(args: ClickStructureArgs): Promise<ClickStructureResult> {
-  const { structure, rows, cols, animatables } = args;
-  if ((structure.bugs ?? []).length === 0 || !hasEmptyGridCell(rows, cols, animatables)) {
+  const { structure, rows, cols, entities, queryClient } = args;
+  if ((structure.bugs ?? []).length === 0) {
     return { kind: "noop" };
+  }
+  if (!hasEmptyGridCell(rows, cols, entities)) {
+    return { kind: "noSpace" };
   }
 
   const { occupant, origin } = await extractOccupantAndUpdateStructure(args);
-  placeBugAtOrigin(args.queryClient, occupant, origin);
+  placeBugAtOrigin(queryClient, occupant, origin);
   return { kind: "done" };
 }
 
 async function greenflyHouseClick(args: ClickStructureArgs): Promise<ClickStructureResult> {
-  const { structure, rows, cols, animatables, queryClient, beginAutoRouteBugIfPossible } = args;
-  if (
-    getGreenflyHouseOccupants(structure).length === 0 ||
-    !hasEmptyGridCell(rows, cols, animatables)
-  ) {
+  const { structure, rows, cols, entities, queryClient, beginAutoRouteBugIfPossible } = args;
+  if (getGreenflyHouseOccupants(structure).length === 0) {
     return { kind: "noop" };
+  }
+  if (!hasEmptyGridCell(rows, cols, entities)) {
+    return { kind: "noSpace" };
   }
 
   const { occupant, origin } = await extractOccupantAndUpdateStructure(args);

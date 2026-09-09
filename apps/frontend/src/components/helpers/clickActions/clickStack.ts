@@ -1,3 +1,4 @@
+import { hasEmptyGridCell, Positionable } from "@happy-little-bug-town/utils";
 import { QueryClient } from "@tanstack/react-query";
 
 import { extractItemFromStack } from "../../../api/stacks";
@@ -6,11 +7,27 @@ import { updateStacksCache } from "../../../hooks/useStacks";
 import { Stack } from "../../../types/stack";
 import { spawnExtractedItem } from "./spawnExtractedEntity";
 
-export async function clickStack(
-  stack: Stack,
-  queryClient: QueryClient,
-  beginAutoRouteIfPossible: Parameters<typeof spawnExtractedItem>[3],
-) {
+interface ClickStackArgs {
+  stack: Stack;
+  queryClient: QueryClient;
+  beginAutoRouteIfPossible: Parameters<typeof spawnExtractedItem>[3];
+  rows: number;
+  cols: number;
+  entities: Positionable[];
+}
+
+export async function clickStack({
+  stack,
+  queryClient,
+  beginAutoRouteIfPossible,
+  rows,
+  cols,
+  entities,
+}: ClickStackArgs): Promise<{ kind: "done" } | { kind: "noSpace" }> {
+  if (!hasEmptyGridCell(rows, cols, entities)) {
+    return { kind: "noSpace" };
+  }
+
   const result = await extractItemFromStack(stack.id);
 
   updateStacksCache(queryClient, (stacks) => {
@@ -42,4 +59,6 @@ export async function clickStack(
       stackId: stack.id,
     },
   );
+
+  return { kind: "done" };
 }

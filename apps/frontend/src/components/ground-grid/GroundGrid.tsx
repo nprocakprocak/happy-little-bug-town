@@ -27,6 +27,7 @@ import { GridEntity } from "../../types/gridEntity";
 import { Structure } from "../../types/structure";
 import {
   cannotBuildDialogue,
+  cannotPlaceDialogue,
   dugFirstBeetleDialogue,
   dugFirstItemDialogue,
   hungryBugDialogue,
@@ -216,7 +217,7 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
           queryClient,
           rows,
           cols,
-          animatables,
+          entities: animatables,
           items,
           isDemolishMode,
           beginAutoRouteIfPossible,
@@ -251,6 +252,10 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
         } else if (result.kind === "showDialogue") {
           setBugPopup(null);
           showDialogue(result.dialogue);
+        } else if (result.kind === "noSpace") {
+          setBugPopup(null);
+          setWorkshopPopupOpen(false);
+          showDialogue(cannotPlaceDialogue());
         } else if (result.kind === "toggleDemolish") {
           setIsDemolishMode(!isDemolishMode);
         }
@@ -299,22 +304,27 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
 
   const onWorkshopCreateItem = useCallback(
     (itemType: ItemType) => {
-      const payload = workshopCreateItemAction(
+      const result = workshopCreateItemAction({
         itemType,
         workshopUpgradeLevel,
         items,
         cols,
         rows,
         entities,
-      );
-      if (!payload) {
+      });
+      if (!result) {
         return;
       }
-      createItem.mutate(payload, {
+      if (result.kind === "error") {
+        setWorkshopPopupOpen(false);
+        showDialogue(cannotPlaceDialogue());
+        return;
+      }
+      createItem.mutate(result.payload, {
         onSuccess: () => setWorkshopPopupOpen(false),
       });
     },
-    [cols, rows, entities, items, createItem, workshopUpgradeLevel],
+    [cols, rows, entities, items, createItem, workshopUpgradeLevel, showDialogue],
   );
 
   return (

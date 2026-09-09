@@ -15,7 +15,7 @@ interface ClickActionArgs {
   queryClient: QueryClient;
   rows: number;
   cols: number;
-  animatables: Positionable[];
+  entities: Positionable[];
   items: Item[];
   isDemolishMode: boolean;
   beginAutoRouteIfPossible: Parameters<typeof spawnExtractedItem>[3];
@@ -36,7 +36,7 @@ export async function clickAction({
   queryClient,
   rows,
   cols,
-  animatables,
+  entities,
   items,
   isDemolishMode,
   beginAutoRouteIfPossible,
@@ -48,7 +48,7 @@ export async function clickAction({
       queryClient,
       rows,
       cols,
-      animatables,
+      entities,
       items,
       isDemolishMode,
       beginAutoRouteIfPossible,
@@ -57,8 +57,7 @@ export async function clickAction({
   }
 
   if (isStack(entity)) {
-    await clickStack(entity, queryClient, beginAutoRouteIfPossible);
-    return { kind: "done" };
+    return clickStack({ stack: entity, queryClient, beginAutoRouteIfPossible, rows, cols, entities });
   }
 
   if (isItem(entity)) {
