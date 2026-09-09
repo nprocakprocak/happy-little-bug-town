@@ -9,6 +9,7 @@ import {
 } from "@happy-little-bug-town/utils";
 
 import { Structure } from "../../../types/structure";
+import { structureTypeToDescription } from "../../helpers/structureDescription";
 import { structureTypeToImage } from "../../helpers/structureImages";
 import { getStructureName } from "../../helpers/structureName";
 import { CarouselSlider } from "../../ui/CarouselSlider";
@@ -73,7 +74,8 @@ export function BeetleBuildPopupContent({
         />
       }
       itemCosts={selectedResourceCosts}
-      primaryLabel="Build"
+      description={structureTypeToDescription(selectedStructure.structureType)}
+      primaryLabel={canBuild ? "Build" : "Already built"}
       onPrimaryClick={handleBuildClick}
       onClose={onClose}
       primaryDisabled={!canBuild}

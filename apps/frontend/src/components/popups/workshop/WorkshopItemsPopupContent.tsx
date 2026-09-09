@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import {
   canCreateItemType,
+  canCreateMultipleOfItemType,
   getItemCraftCosts,
+  hasItemType,
   isWorkshopItemUnlocked,
   ItemType,
   WORKSHOP_ITEM_TYPES,
@@ -57,6 +59,9 @@ export function WorkshopItemsPopupContent({
   const canCreate =
     isWorkshopItemUnlocked(selectedItem.itemType, workshopUpgradeLevel) &&
     canCreateItemType(items, selectedItem.itemType);
+  const isAlreadyCrafted =
+    !canCreateMultipleOfItemType(selectedItem.itemType) &&
+    hasItemType(items, selectedItem.itemType);
 
   function handleCreateClick() {
     if (!canCreate) {
@@ -79,7 +84,7 @@ export function WorkshopItemsPopupContent({
       }
       itemCosts={selectedResourceCosts}
       description={itemTypeToDescription(selectedItem.itemType)}
-      primaryLabel="Create"
+      primaryLabel={isAlreadyCrafted ? "Already crafted" : "Create"}
       onPrimaryClick={handleCreateClick}
       onClose={onClose}
       primaryDisabled={isCreating || !canCreate}
