@@ -39,15 +39,15 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
   stonemason: {
     0: {
       bugRequirements: [{ bugType: "beetle", requiredCount: 2 }],
-      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 3 }],
+      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 2 }],
     },
     1: {
       bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }],
-      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 3 }],
+      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 4 }],
     },
     2: {
       bugRequirements: [{ bugType: "ladybug", requiredCount: 4 }],
-      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 5 }],
+      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 6 }],
     },
   },
   woodcutter: {

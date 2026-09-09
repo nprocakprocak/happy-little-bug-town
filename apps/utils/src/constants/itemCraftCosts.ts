@@ -15,9 +15,9 @@ export const ITEM_CRAFT_COSTS: Record<
     { itemType: "root", count: 3 },
   ],
   hammer_and_chisel: [
-    { itemType: "little_rock", count: 3 },
+    { itemType: "little_rock", count: 2 },
     { itemType: "stick", count: 2 },
-    { itemType: "root", count: 4 },
+    { itemType: "root", count: 2 },
   ],
   leaf_rake: [
     { itemType: "leaf_part", count: 5 },

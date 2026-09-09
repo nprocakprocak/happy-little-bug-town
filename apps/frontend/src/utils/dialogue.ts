@@ -8,6 +8,7 @@ import {
   StructureType,
 } from "@happy-little-bug-town/utils";
 
+import { BricksProductionInfographic } from "../components/dialogue/BricksProductionInfographic";
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
 import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
 import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
@@ -144,6 +145,25 @@ export function woodProductionDialogue(): Dialogue {
   };
 }
 
+export function buildStonemasonDialogue(beetleId?: string): Dialogue {
+  return {
+    id: "buildStonemason",
+    text: "Great! Let's build stonemason and produce some bricks. You will need hammers and chisels for that purpose. You can find them in the workshop.",
+    bugType: "beetle",
+    cursorEntityId: beetleId,
+    infographic: createElement(BricksProductionInfographic),
+  };
+}
+
+export function bricksProductionDialogue(): Dialogue {
+  return {
+    id: "bricksProduction",
+    text: "You can produce bricks from stones here.",
+    bugType: "beetle",
+    infographic: createElement(BricksProductionInfographic),
+  };
+}
+
 export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
   switch (reason) {
     case "noSpace":
@@ -169,6 +189,8 @@ export function structureClickDialogue(structureType: StructureType): Dialogue |
   switch (structureType) {
     case "woodcutter":
       return woodProductionDialogue();
+    case "stonemason":
+      return bricksProductionDialogue();
     default:
       return null;
   }
