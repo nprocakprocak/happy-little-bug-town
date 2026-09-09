@@ -4,6 +4,7 @@ import { findBrickOnBoard } from "../components/helpers/dialogues/findBrickOnBoa
 import { findBuiltAxeOnBoard } from "../components/helpers/dialogues/findBuiltAxeOnBoard";
 import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
 import { findBuiltKitchenOnBoard } from "../components/helpers/dialogues/findBuiltKitchenOnBoard";
+import { findBuiltTavernOnBoard } from "../components/helpers/dialogues/findBuiltTavernOnBoard";
 import { findBuiltWoodcutterOnBoard } from "../components/helpers/dialogues/findBuiltWoodcutterOnBoard";
 import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBuiltWorkshopOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
@@ -19,6 +20,7 @@ import {
   buildTavernDialogue,
   buildWoodcutterDialogue,
   buildWorkshopDialogue,
+  cookNettleSoupDialogue,
   craftAxeDialogue,
   feedBeetleDialogue,
   welcomeDialogue,
@@ -91,6 +93,11 @@ export function useBoardStateDialogues({
 
     const kitchen = findBuiltKitchenOnBoard(entities);
     if (kitchen && showDialogueIfNotVisited(buildTavernDialogue())) {
+      return;
+    }
+
+    const tavern = findBuiltTavernOnBoard(entities);
+    if (tavern && showDialogueIfNotVisited(cookNettleSoupDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

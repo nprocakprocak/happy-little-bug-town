@@ -180,6 +180,14 @@ export function buildTavernDialogue(): Dialogue {
   };
 }
 
+export function cookNettleSoupDialogue(): Dialogue {
+  return {
+    id: "cookNettleSoup",
+    text: "That's so awesome! We can now invite friends to our little village. Let's cook some nettle soup in the kitchen and place it in the tavern.",
+    bugType: "beetle",
+  };
+}
+
 export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
   switch (reason) {
     case "noSpace":

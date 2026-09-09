@@ -10,4 +10,5 @@ export type OnceDialogueId =
   | "woodProduction"
   | "buildStonemason"
   | "buildKitchen"
-  | "buildTavern";
+  | "buildTavern"
+  | "cookNettleSoup";
