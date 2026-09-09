@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { findBrickOnBoard } from "../components/helpers/dialogues/findBrickOnBoard";
 import { findBuiltAxeOnBoard } from "../components/helpers/dialogues/findBuiltAxeOnBoard";
 import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
+import { findBuiltKitchenOnBoard } from "../components/helpers/dialogues/findBuiltKitchenOnBoard";
 import { findBuiltWoodcutterOnBoard } from "../components/helpers/dialogues/findBuiltWoodcutterOnBoard";
 import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBuiltWorkshopOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
@@ -15,6 +16,7 @@ import {
   buildBeetleHouseDialogue,
   buildKitchenDialogue,
   buildStonemasonDialogue,
+  buildTavernDialogue,
   buildWoodcutterDialogue,
   buildWorkshopDialogue,
   craftAxeDialogue,
@@ -84,6 +86,11 @@ export function useBoardStateDialogues({
 
     const brick = findBrickOnBoard(entities);
     if (brick && showDialogueIfNotVisited(buildKitchenDialogue())) {
+      return;
+    }
+
+    const kitchen = findBuiltKitchenOnBoard(entities);
+    if (kitchen && showDialogueIfNotVisited(buildTavernDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

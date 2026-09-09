@@ -13,5 +13,6 @@ export function isOnceDialogueId(value: unknown): value is OnceDialogueId {
     "woodProduction",
     "buildStonemason",
     "buildKitchen",
+    "buildTavern",
   ].includes(value as string);
 }

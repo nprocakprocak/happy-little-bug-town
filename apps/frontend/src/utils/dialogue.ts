@@ -172,6 +172,14 @@ export function buildKitchenDialogue(): Dialogue {
   };
 }
 
+export function buildTavernDialogue(): Dialogue {
+  return {
+    id: "buildTavern",
+    text: "This kitchen will produce various types of food. Let's now build a tavern that will hopefully attract more bugs.",
+    bugType: "beetle",
+  };
+}
+
 export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
   switch (reason) {
     case "noSpace":
