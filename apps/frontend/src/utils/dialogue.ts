@@ -10,6 +10,7 @@ import {
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
 import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
 import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
+import { WoodProductionInfographic } from "../components/dialogue/WoodProductionInfographic";
 import { hasDialogueBust } from "../components/helpers/characterImages";
 import { Bug } from "../types/bug";
 import { CannotBuildReason, Dialogue } from "../types/dialogue";
@@ -133,6 +134,36 @@ export function buildWoodcutterDialogue(beetleId?: string): Dialogue {
   };
 }
 
+export function woodProductionDialogue(): Dialogue {
+  return {
+    id: "woodProduction",
+    text: "Our beetles will produce wood in this woodcutter. Drop some sticks to start producing. Then click the building to craft the item.",
+    bugType: "beetle",
+    infographic: createElement(WoodProductionInfographic),
+  };
+}
+
+export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
+  switch (reason) {
+    case "noSpace":
+      return {
+        id: "cannotBuild",
+        text: "There's not enough space to build this. You can drop items back to the hole to make some room.",
+        bugType: "beetle",
+        infographic: createElement(StickToHoleInfographic),
+      };
+  }
+}
+
+export function cannotPlaceDialogue(): Dialogue {
+  return {
+    id: "cannotPlace",
+    text: "There's not enough space to place an item. You can drop items back to the hole to make some room.",
+    bugType: "beetle",
+    infographic: createElement(StickToHoleInfographic),
+  };
+}
+
 export function itemClickDialogue(itemType: ItemType): Dialogue | null {
   switch (itemType) {
     case "leaf_part":
@@ -158,27 +189,6 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
     default:
       return null;
   }
-}
-
-export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
-  switch (reason) {
-    case "noSpace":
-      return {
-        id: "cannotBuild",
-        text: "There's not enough space to build this. You can drop items back to the hole to make some room.",
-        bugType: "beetle",
-        infographic: createElement(StickToHoleInfographic),
-      };
-  }
-}
-
-export function cannotPlaceDialogue(): Dialogue {
-  return {
-    id: "cannotPlace",
-    text: "There's not enough space to place an item. You can drop items back to the hole to make some room.",
-    bugType: "beetle",
-    infographic: createElement(StickToHoleInfographic),
-  };
 }
 
 export function bugClickDialogue(bugType: BugType): Dialogue | null {
