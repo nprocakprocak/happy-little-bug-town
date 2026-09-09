@@ -3,7 +3,6 @@ export type WorkshopItemType =
   | "hammer"
   | "hammer_and_chisel"
   | "leaf_rake"
-  | "shovel"
   | "knife"
   | "crucible"
   | "wheelbarrel"

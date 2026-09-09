@@ -3,7 +3,6 @@ import { ItemType, WorkshopItemType } from "../types/itemType.js";
 
 const UNIQUE_CRAFTABLE_ITEM_TYPES = new Set<WorkshopItemType>([
   "leaf_rake",
-  "shovel",
   "wheelbarrel",
   "basket",
   "hammer",

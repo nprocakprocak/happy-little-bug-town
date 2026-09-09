@@ -57,11 +57,6 @@ export const ITEM_CRAFT_COSTS: Record<
     { itemType: "steel", count: 1 },
   ],
   fountain: [{ itemType: "sculpture", count: 2 }],
-  shovel: [
-    { itemType: "little_rock", count: 2 },
-    { itemType: "stick", count: 1 },
-    { itemType: "root", count: 3 },
-  ],
 };
 
 export const WORKSHOP_ITEM_TYPES = Object.keys(
