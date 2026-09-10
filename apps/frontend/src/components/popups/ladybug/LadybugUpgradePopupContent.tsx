@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import {
   canStartStructureUpgradeToLevel,
+  getCompletedUpgradeLevel,
   getStructureUpgradeLevels,
   getUpgradeResourceCostsForType,
   UPGRADABLE_STRUCTURE_TYPES,
@@ -18,7 +19,10 @@ const UPGRADE_LEVELS = Array.from(
   new Set(UPGRADABLE_STRUCTURE_TYPES.flatMap(getStructureUpgradeLevels)),
 ).sort((left, right) => left - right);
 
-const UPGRADE_OPTIONS = UPGRADE_LEVELS.flatMap((upgradeLevel) =>
+const WORKSHOP_UPGRADE_LEVELS = getStructureUpgradeLevels("workshop");
+const WORKSHOP_HIGHEST_UPGRADE_LEVEL = WORKSHOP_UPGRADE_LEVELS[WORKSHOP_UPGRADE_LEVELS.length - 1];
+
+const UPGRADE_OPTIONS_BY_LEVEL = UPGRADE_LEVELS.flatMap((upgradeLevel) =>
   UPGRADABLE_STRUCTURE_TYPES.filter((structureType) =>
     getStructureUpgradeLevels(structureType).includes(upgradeLevel),
   ).map((structureType) => ({
@@ -27,6 +31,17 @@ const UPGRADE_OPTIONS = UPGRADE_LEVELS.flatMap((upgradeLevel) =>
     upgradeLevel,
   })),
 );
+
+const UPGRADE_OPTIONS = [
+  ...UPGRADE_OPTIONS_BY_LEVEL.filter(
+    (option) =>
+      option.structureType !== "workshop" || option.upgradeLevel !== WORKSHOP_HIGHEST_UPGRADE_LEVEL,
+  ),
+  ...UPGRADE_OPTIONS_BY_LEVEL.filter(
+    (option) =>
+      option.structureType === "workshop" && option.upgradeLevel === WORKSHOP_HIGHEST_UPGRADE_LEVEL,
+  ),
+];
 
 interface LadybugUpgradePopupContentProps {
   structures: Structure[];
@@ -60,6 +75,9 @@ export function LadybugUpgradePopupContent({
   const canUpgrade = existingStructure
     ? canStartStructureUpgradeToLevel(existingStructure, selectedOption.upgradeLevel)
     : false;
+  const isAlreadyUpgraded = existingStructure
+    ? getCompletedUpgradeLevel(existingStructure) >= selectedOption.upgradeLevel
+    : false;
 
   function handleUpgradeClick() {
     if (!existingStructure || !canUpgrade) {
@@ -81,7 +99,7 @@ export function LadybugUpgradePopupContent({
         />
       }
       itemCosts={selectedResourceCosts}
-      primaryLabel="Upgrade"
+      primaryLabel={isAlreadyUpgraded ? "Already upgraded" : "Upgrade"}
       onPrimaryClick={handleUpgradeClick}
       onClose={onClose}
       primaryDisabled={!canUpgrade}
