@@ -89,7 +89,7 @@ export function hungryBugDialogue(bug: Bug): Dialogue | null {
     return {
       id: bug.bugType,
       text: "We must fatten up this greenfly before cooking.",
-      bugType: "beetle",
+      bugType: "ant",
       infographic,
     };
   }
@@ -207,12 +207,37 @@ export function firstAntDialogue(): Dialogue {
   };
 }
 
+export function digMoreResourcesDialogue(anthillId: string): Dialogue {
+  return {
+    id: "digMoreResources",
+    text: "Great! Thanks to our work this land is more fertile now. We can also dig more resources from the hole.",
+    bugType: "ant",
+    cursorEntityId: anthillId,
+  };
+}
+
 export function automateWithAntsDialogue(): Dialogue {
   return {
     id: "automateWithAnts",
     text: "Me and other ants can help you carry items if you want. Just drop us on a building or a stack and we will deliver items to that structure automatically.",
     bugType: "ant",
     infographic: createElement(AutomateTransportInfographic),
+  };
+}
+
+export function firstGreenflyDialogue(): Dialogue {
+  return {
+    id: "firstGreenfly",
+    text: "Look. A greenfly! This is ladybugs' favorite food. Let's fatten it up and prepare it in the kitchen.",
+    bugType: "ant",
+  };
+}
+
+export function firstIronOreDialogue(): Dialogue {
+  return {
+    id: "firstIronOre",
+    text: "We can process this iron ore in a smelter. I think the beetles can build one.",
+    bugType: "ant",
   };
 }
 
@@ -272,6 +297,8 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
         id: "stick",
         text: "Use stick as a building material or crafting resource.",
       };
+    case "iron_ore":
+      return firstIronOreDialogue();
     default:
       return null;
   }

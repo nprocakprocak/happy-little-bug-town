@@ -11,6 +11,9 @@ import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBu
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
 import { findWoodOnBoard } from "../components/helpers/dialogues/findWoodOnBoard";
 import { hasAntOnBoard } from "../components/helpers/dialogues/hasAntOnBoard";
+import { hasClayOnBoard } from "../components/helpers/dialogues/hasClayOnBoard";
+import { hasGreenflyOnBoard } from "../components/helpers/dialogues/hasGreenflyOnBoard";
+import { hasIronOreOnBoard } from "../components/helpers/dialogues/hasIronOreOnBoard";
 import { hasLeafAndBeetleOnBoard } from "../components/helpers/dialogues/hasLeafAndBeetleOnBoard";
 import { isStartingBoardState } from "../components/helpers/dialogues/isStartingBoardState";
 import { Dialogue } from "../types/dialogue";
@@ -25,8 +28,11 @@ import {
   buildWorkshopDialogue,
   cookNettleSoupDialogue,
   craftAxeDialogue,
+  digMoreResourcesDialogue,
   feedBeetleDialogue,
   firstAntDialogue,
+  firstGreenflyDialogue,
+  firstIronOreDialogue,
   welcomeDialogue,
   woodProductionDialogue,
 } from "../utils/dialogue";
@@ -108,9 +114,21 @@ export function useBoardStateDialogues({
     if (hasAntOnBoard(entities) && showDialogueIfNotVisited(firstAntDialogue())) {
       return;
     }
-    
+
     const anthill = findAnthillOnBoard(entities);
-    if (anthill && showDialogueIfNotVisited(automateWithAntsDialogue())) {
+    if (anthill && showDialogueIfNotVisited(digMoreResourcesDialogue(anthill.id))) {
+      return;
+    }
+
+    if (hasGreenflyOnBoard(entities) && showDialogueIfNotVisited(firstGreenflyDialogue())) {
+      return;
+    }
+
+    if (hasClayOnBoard(entities) && showDialogueIfNotVisited(automateWithAntsDialogue())) {
+      return;
+    }
+
+    if (hasIronOreOnBoard(entities) && showDialogueIfNotVisited(firstIronOreDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);
