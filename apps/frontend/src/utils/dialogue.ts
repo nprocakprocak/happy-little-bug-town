@@ -423,6 +423,24 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
         text: "The wheelbarrel allows you to stack heavy items: rocks, iron ore, clay, glass and gravel.",
         bugType: "ladybug",
       };
+    case "clay":
+      return {
+        id: "clay",
+        text: "Burn this clay ore in the smelter to produce roof tiles.",
+        bugType: "ant",
+      };
+    case "glass":
+      return {
+        id: "glass",
+        text: "Glass can serve us as a building material.",
+        bugType: "ant",
+      };
+    case "paper":
+      return {
+        id: "paper",
+        text: "These scraps of paper may become handy in agriculture or administration buildings.",
+        bugType: "ant",
+      };
     default:
       return null;
   }
