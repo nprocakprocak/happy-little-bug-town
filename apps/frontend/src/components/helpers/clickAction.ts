@@ -60,7 +60,7 @@ export async function clickAction({
       beginAutoRouteBugIfPossible,
     });
     if (result.kind === "noop") {
-      const dialogue = structureClickDialogue(entity.structureType);
+      const dialogue = structureClickDialogue(entity);
       if (dialogue) {
         return { kind: "showDialogue", dialogue };
       }

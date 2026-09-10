@@ -57,11 +57,11 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
     },
     1: {
       bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }],
-      itemRequirements: [{ itemType: "axe", requiredCount: 3 }],
+      itemRequirements: [{ itemType: "axe", requiredCount: 5 }],
     },
     2: {
       bugRequirements: [{ bugType: "ladybug", requiredCount: 4 }],
-      itemRequirements: [{ itemType: "axe", requiredCount: 5 }],
+      itemRequirements: [{ itemType: "axe", requiredCount: 7 }],
     },
   },
   kitchen: {

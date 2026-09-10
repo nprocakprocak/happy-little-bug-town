@@ -16,4 +16,8 @@ export type OnceDialogueId =
   | "digMoreResources"
   | "automateWithAnts"
   | "firstGreenfly"
-  | "firstIronOre";
+  | "firstIronOre"
+  | "firstLadybug"
+  | "buildFarm"
+  | "stonemasonUpgraded"
+  | "woodcutterUpgraded";

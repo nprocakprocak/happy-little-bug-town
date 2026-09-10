@@ -9,6 +9,10 @@ import { findBuiltTavernOnBoard } from "../components/helpers/dialogues/findBuil
 import { findBuiltWoodcutterOnBoard } from "../components/helpers/dialogues/findBuiltWoodcutterOnBoard";
 import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBuiltWorkshopOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
+import { findLadybugOnBoard } from "../components/helpers/dialogues/findLadybugOnBoard";
+import { findUpgradedStonemasonOnBoard } from "../components/helpers/dialogues/findUpgradedStonemasonOnBoard";
+import { findUpgradedWoodcutterOnBoard } from "../components/helpers/dialogues/findUpgradedWoodcutterOnBoard";
+import { findUpgradedWorkshopOnBoard } from "../components/helpers/dialogues/findUpgradedWorkshopOnBoard";
 import { findWoodOnBoard } from "../components/helpers/dialogues/findWoodOnBoard";
 import { hasAntOnBoard } from "../components/helpers/dialogues/hasAntOnBoard";
 import { hasClayOnBoard } from "../components/helpers/dialogues/hasClayOnBoard";
@@ -21,6 +25,7 @@ import { GridEntity } from "../types/gridEntity";
 import {
   automateWithAntsDialogue,
   buildBeetleHouseDialogue,
+  buildFarmDialogue,
   buildKitchenDialogue,
   buildStonemasonDialogue,
   buildTavernDialogue,
@@ -33,7 +38,10 @@ import {
   firstAntDialogue,
   firstGreenflyDialogue,
   firstIronOreDialogue,
+  firstLadybugDialogue,
+  stonemasonUpgradedDialogue,
   welcomeDialogue,
+  woodcutterUpgradedDialogue,
   woodProductionDialogue,
 } from "../utils/dialogue";
 
@@ -129,6 +137,26 @@ export function useBoardStateDialogues({
     }
 
     if (hasIronOreOnBoard(entities) && showDialogueIfNotVisited(firstIronOreDialogue())) {
+      return;
+    }
+
+    const ladybug = findLadybugOnBoard(entities);
+    if (ladybug && showDialogueIfNotVisited(firstLadybugDialogue(ladybug.id))) {
+      return;
+    }
+
+    const upgradedWorkshop = findUpgradedWorkshopOnBoard(entities);
+    if (upgradedWorkshop && showDialogueIfNotVisited(buildFarmDialogue())) {
+      return;
+    }
+
+    const upgradedStonemason = findUpgradedStonemasonOnBoard(entities);
+    if (upgradedStonemason && showDialogueIfNotVisited(stonemasonUpgradedDialogue())) {
+      return;
+    }
+
+    const upgradedWoodcutter = findUpgradedWoodcutterOnBoard(entities);
+    if (upgradedWoodcutter && showDialogueIfNotVisited(woodcutterUpgradedDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

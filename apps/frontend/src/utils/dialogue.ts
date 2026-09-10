@@ -3,9 +3,10 @@ import {
   BugType,
   getBugFoodCount,
   getBugFoodRequirement,
+  getCompletedUpgradeLevel,
   isBugFed,
+  isStructurePowered,
   ItemType,
-  StructureType,
 } from "@happy-little-bug-town/utils";
 
 import { AutomateTransportInfographic } from "../components/dialogue/AutomateTransportInfographic";
@@ -16,11 +17,14 @@ import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfo
 import { ProcessIronInfographic } from "../components/dialogue/ProcessIronInfographic";
 import { StackingItemsInfographic } from "../components/dialogue/StackingItemsInfographic";
 import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
+import { StonemasonListInfographic } from "../components/dialogue/StonemasonListInfographic";
 import { TavernListInfographic } from "../components/dialogue/TavernListInfographic";
+import { WoodcutterListInfographic } from "../components/dialogue/WoodcutterListInfographic";
 import { WoodProductionInfographic } from "../components/dialogue/WoodProductionInfographic";
 import { hasDialogueBust } from "../components/helpers/characterImages";
 import { Bug } from "../types/bug";
 import { CannotBuildReason, Dialogue } from "../types/dialogue";
+import { Structure } from "../types/structure";
 
 function getItemName(itemType: ItemType): string | null {
   switch (itemType) {
@@ -262,6 +266,41 @@ export function firstIronOreDialogue(): Dialogue {
   };
 }
 
+export function firstLadybugDialogue(ladybugId: string): Dialogue {
+  return {
+    id: "firstLadybug",
+    text: "Mmm. That was yummy! Hey, you know what? I can upgrade buildings for you. Let's start with the workshop.",
+    bugType: "ladybug",
+    cursorEntityId: ladybugId,
+  };
+}
+
+export function buildFarmDialogue(): Dialogue {
+  return {
+    id: "buildFarm",
+    text: "With this new set of handy tools we should be able to turn our village into a beautiful small town. Let's upgrade more buildings and produce more items to be able to construct a farm.",
+    bugType: "ladybug",
+  };
+}
+
+export function stonemasonUpgradedDialogue(): Dialogue {
+  return {
+    id: "stonemasonUpgraded",
+    text: "You can now produce paving stones from the stone bricks. Upgrade even more to make sculptures.",
+    bugType: "ladybug",
+    infographic: createElement(StonemasonListInfographic),
+  };
+}
+
+export function woodcutterUpgradedDialogue(): Dialogue {
+  return {
+    id: "woodcutterUpgraded",
+    text: "The woodcutter can now provide you with planks. Upgrade the building if you want to produce furniture.",
+    bugType: "ladybug",
+    infographic: createElement(WoodcutterListInfographic),
+  };
+}
+
 export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
   switch (reason) {
     case "noSpace":
@@ -283,11 +322,21 @@ export function cannotPlaceDialogue(): Dialogue {
   };
 }
 
-export function structureClickDialogue(structureType: StructureType): Dialogue | null {
-  switch (structureType) {
+function isUpgradedAndPowered(structure: Structure): boolean {
+  return getCompletedUpgradeLevel(structure) >= 1 && isStructurePowered(structure);
+}
+
+export function structureClickDialogue(structure: Structure): Dialogue | null {
+  switch (structure.structureType) {
     case "woodcutter":
+      if (isUpgradedAndPowered(structure)) {
+        return woodcutterUpgradedDialogue();
+      }
       return woodProductionDialogue();
     case "stonemason":
+      if (isUpgradedAndPowered(structure)) {
+        return stonemasonUpgradedDialogue();
+      }
       return bricksProductionDialogue();
     case "kitchen":
       return cookingListDialogue();
@@ -327,9 +376,15 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
     case "leaf_rake":
       return {
         id: "leaf_rake",
-        text: "Thanks to the rake you can stack these items: sticks, leaves and roots.",
+        text: "Thanks to the rake you can stack light items: sticks, leaves and roots.",
         bugType: "beetle",
         infographic: createElement(StackingItemsInfographic),
+      };
+    case "wheelbarrel":
+      return {
+        id: "wheelbarrel",
+        text: "The wheelbarrel allows you to stack heavy items: rocks, iron ore, clay, glass and gravel.",
+        bugType: "ladybug",
       };
     default:
       return null;
