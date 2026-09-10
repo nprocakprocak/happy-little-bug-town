@@ -9,6 +9,7 @@ import {
   ItemType,
 } from "@happy-little-bug-town/utils";
 
+import { AutomateProductionInfographic } from "../components/dialogue/AutomateProductionInfographic";
 import { AutomateTransportInfographic } from "../components/dialogue/AutomateTransportInfographic";
 import { BricksProductionInfographic } from "../components/dialogue/BricksProductionInfographic";
 import { CookingListInfographic } from "../components/dialogue/CookingListInfographic";
@@ -336,6 +337,15 @@ export function firstTermiteDialogue(): Dialogue {
   };
 }
 
+export function automateWithTermitesDialogue(): Dialogue {
+  return {
+    id: "automateWithTermites",
+    text: "We termites are excellent workers. You can put us in a building and we will automatically gather resources required for production.",
+    bugType: "termite",
+    infographic: createElement(AutomateProductionInfographic),
+  };
+}
+
 export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
   switch (reason) {
     case "noSpace":
@@ -450,6 +460,8 @@ export function bugClickDialogue(bugType: BugType): Dialogue | null {
   switch (bugType) {
     case "ant":
       return automateWithAntsDialogue();
+    case "termite":
+      return automateWithTermitesDialogue();
     case "greenfly":
       return {
         id: "greenfly",

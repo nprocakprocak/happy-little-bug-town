@@ -18,6 +18,7 @@ import { findUpgradedWorkshopOnBoard } from "../components/helpers/dialogues/fin
 import { findWoodOnBoard } from "../components/helpers/dialogues/findWoodOnBoard";
 import { hasAntOnBoard } from "../components/helpers/dialogues/hasAntOnBoard";
 import { hasClayOnBoard } from "../components/helpers/dialogues/hasClayOnBoard";
+import { hasGravelOnBoard } from "../components/helpers/dialogues/hasGravelOnBoard";
 import { hasGreenflyOnBoard } from "../components/helpers/dialogues/hasGreenflyOnBoard";
 import { hasIronOreOnBoard } from "../components/helpers/dialogues/hasIronOreOnBoard";
 import { hasLeafAndBeetleOnBoard } from "../components/helpers/dialogues/hasLeafAndBeetleOnBoard";
@@ -28,6 +29,7 @@ import { Dialogue } from "../types/dialogue";
 import { GridEntity } from "../types/gridEntity";
 import {
   automateWithAntsDialogue,
+  automateWithTermitesDialogue,
   buildBeetleHouseDialogue,
   buildFarmDialogue,
   buildKitchenDialogue,
@@ -183,6 +185,10 @@ export function useBoardStateDialogues({
     }
 
     if (hasTermiteOnBoard(entities) && showDialogueIfNotVisited(firstTermiteDialogue())) {
+      return;
+    }
+
+    if (hasGravelOnBoard(entities) && showDialogueIfNotVisited(automateWithTermitesDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);
