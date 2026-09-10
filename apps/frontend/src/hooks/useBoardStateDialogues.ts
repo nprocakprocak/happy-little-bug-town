@@ -4,6 +4,7 @@ import { findAnthillOnBoard } from "../components/helpers/dialogues/findAnthillO
 import { findBrickOnBoard } from "../components/helpers/dialogues/findBrickOnBoard";
 import { findBuiltAxeOnBoard } from "../components/helpers/dialogues/findBuiltAxeOnBoard";
 import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
+import { findBuiltComposterOnBoard } from "../components/helpers/dialogues/findBuiltComposterOnBoard";
 import { findBuiltFarmOnBoard } from "../components/helpers/dialogues/findBuiltFarmOnBoard";
 import { findBuiltKitchenOnBoard } from "../components/helpers/dialogues/findBuiltKitchenOnBoard";
 import { findBuiltMushroomsFieldOnBoard } from "../components/helpers/dialogues/findBuiltMushroomsFieldOnBoard";
@@ -12,6 +13,7 @@ import { findBuiltWoodcutterOnBoard } from "../components/helpers/dialogues/find
 import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBuiltWorkshopOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
 import { findLadybugOnBoard } from "../components/helpers/dialogues/findLadybugOnBoard";
+import { findTermiteMoundOnBoard } from "../components/helpers/dialogues/findTermiteMoundOnBoard";
 import { findUpgradedStonemasonOnBoard } from "../components/helpers/dialogues/findUpgradedStonemasonOnBoard";
 import { findUpgradedWoodcutterOnBoard } from "../components/helpers/dialogues/findUpgradedWoodcutterOnBoard";
 import { findUpgradedWorkshopOnBoard } from "../components/helpers/dialogues/findUpgradedWorkshopOnBoard";
@@ -23,6 +25,7 @@ import { hasGreenflyOnBoard } from "../components/helpers/dialogues/hasGreenflyO
 import { hasIronOreOnBoard } from "../components/helpers/dialogues/hasIronOreOnBoard";
 import { hasLeafAndBeetleOnBoard } from "../components/helpers/dialogues/hasLeafAndBeetleOnBoard";
 import { hasMushroomOnBoard } from "../components/helpers/dialogues/hasMushroomOnBoard";
+import { hasRottenAppleOnBoard } from "../components/helpers/dialogues/hasRottenAppleOnBoard";
 import { hasTermiteOnBoard } from "../components/helpers/dialogues/hasTermiteOnBoard";
 import { isStartingBoardState } from "../components/helpers/dialogues/isStartingBoardState";
 import { Dialogue } from "../types/dialogue";
@@ -38,6 +41,7 @@ import {
   buildTavernDialogue,
   buildWoodcutterDialogue,
   buildWorkshopDialogue,
+  composterDialogue,
   cookNettleSoupDialogue,
   craftAxeDialogue,
   digMoreResourcesDialogue,
@@ -47,9 +51,11 @@ import {
   firstIronOreDialogue,
   firstLadybugDialogue,
   firstMushroomDialogue,
+  firstRottenAppleDialogue,
   firstTermiteDialogue,
   mushroomFieldDialogue,
   stonemasonUpgradedDialogue,
+  termiteMoundDialogue,
   welcomeDialogue,
   woodcutterUpgradedDialogue,
   woodProductionDialogue,
@@ -188,7 +194,21 @@ export function useBoardStateDialogues({
       return;
     }
 
+    const termiteMound = findTermiteMoundOnBoard(entities);
+    if (termiteMound && showDialogueIfNotVisited(termiteMoundDialogue(termiteMound.id))) {
+      return;
+    }
+
     if (hasGravelOnBoard(entities) && showDialogueIfNotVisited(automateWithTermitesDialogue())) {
+      return;
+    }
+
+    if (hasRottenAppleOnBoard(entities) && showDialogueIfNotVisited(firstRottenAppleDialogue())) {
+      return;
+    }
+
+    const composter = findBuiltComposterOnBoard(entities);
+    if (composter && showDialogueIfNotVisited(composterDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

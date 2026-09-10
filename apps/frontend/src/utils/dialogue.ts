@@ -9,6 +9,7 @@ import {
   ItemType,
 } from "@happy-little-bug-town/utils";
 
+import { AppleToFlyInfographic } from "../components/dialogue/AppleToFlyInfographic";
 import { AutomateProductionInfographic } from "../components/dialogue/AutomateProductionInfographic";
 import { AutomateTransportInfographic } from "../components/dialogue/AutomateTransportInfographic";
 import { BricksProductionInfographic } from "../components/dialogue/BricksProductionInfographic";
@@ -332,8 +333,17 @@ export function firstMushroomDialogue(): Dialogue {
 export function firstTermiteDialogue(): Dialogue {
   return {
     id: "firstTermite",
-    text: "Good morning, sir! I've heard about this place and was eager to see it. This town is so lovely and there is so much work to be done here. Let me suggest that termites are much better in tunneling than ants. If we could... improve their anthill into termite mound, we would be able to dig deeper making this land more fertile and provide better items for you. Just drop three of us into the anthill and that should do it.",
+    text: "Good morning, sir! I've heard about this place and was eager to see it. This town is so lovely and there is so much work to be done here. Let me suggest that termites are much better in tunneling than ants. If we could... improve their anthill into termite mound, we would be able to dig deeper making this land more fertile. Just drop three of us into the anthill and that should do it.",
     bugType: "termite",
+  };
+}
+
+export function termiteMoundDialogue(termiteMoundId: string): Dialogue {
+  return {
+    id: "termiteMound",
+    text: "Fantastic! We will now dig more valuable items.",
+    bugType: "termite",
+    cursorEntityId: termiteMoundId,
   };
 }
 
@@ -343,6 +353,23 @@ export function automateWithTermitesDialogue(): Dialogue {
     text: "We termites are excellent workers. You can put us in a building and we will automatically gather resources required for production.",
     bugType: "termite",
     infographic: createElement(AutomateProductionInfographic),
+  };
+}
+
+export function firstRottenAppleDialogue(): Dialogue {
+  return {
+    id: "firstRottenApple",
+    text: "These rotten apples can be used in the farm composter to attract flies.",
+    bugType: "termite",
+  };
+}
+
+export function composterDialogue(): Dialogue {
+  return {
+    id: "composter",
+    text: "Drop some rotten apples here. That should attract flies which can be then prepared in the kitchen. Spiders can't resist them.",
+    bugType: "termite",
+    infographic: createElement(AppleToFlyInfographic),
   };
 }
 
@@ -391,6 +418,8 @@ export function structureClickDialogue(structure: Structure): Dialogue | null {
       return smelterDialogue();
     case "mushrooms_field":
       return mushroomFieldDialogue();
+    case "composter":
+      return composterDialogue();
     default:
       return null;
   }
@@ -451,6 +480,8 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
         text: "These scraps of paper may become handy in agriculture or administration buildings.",
         bugType: "ant",
       };
+    case "rotten_apple":
+      return firstRottenAppleDialogue();
     default:
       return null;
   }
@@ -472,7 +503,7 @@ export function bugClickDialogue(bugType: BugType): Dialogue | null {
       return {
         id: "fly",
         text: "Put the fly in the kitchen to prepare a special meal to attract spiders.",
-        bugType: "beetle",
+        bugType: "termite",
       };
     default:
       return null;

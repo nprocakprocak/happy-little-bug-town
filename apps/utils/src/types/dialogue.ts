@@ -25,4 +25,7 @@ export type OnceDialogueId =
   | "mushroomField"
   | "firstMushroom"
   | "firstTermite"
-  | "automateWithTermites";
+  | "termiteMound"
+  | "automateWithTermites"
+  | "firstRottenApple"
+  | "composter";
