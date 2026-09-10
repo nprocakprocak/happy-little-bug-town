@@ -199,6 +199,14 @@ export function cookNettleSoupDialogue(): Dialogue {
   };
 }
 
+export function firstAntDialogue(): Dialogue {
+  return {
+    id: "firstAnt",
+    text: "Hello there! What a nice little village you have here. I would love to see it more prosperous. If you drop enough ants into the hole, we will turn it into an anthill.",
+    bugType: "ant",
+  };
+}
+
 export function automateWithAntsDialogue(): Dialogue {
   return {
     id: "automateWithAnts",

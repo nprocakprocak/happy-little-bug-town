@@ -10,6 +10,7 @@ import { findBuiltWoodcutterOnBoard } from "../components/helpers/dialogues/find
 import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBuiltWorkshopOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
 import { findWoodOnBoard } from "../components/helpers/dialogues/findWoodOnBoard";
+import { hasAntOnBoard } from "../components/helpers/dialogues/hasAntOnBoard";
 import { hasLeafAndBeetleOnBoard } from "../components/helpers/dialogues/hasLeafAndBeetleOnBoard";
 import { isStartingBoardState } from "../components/helpers/dialogues/isStartingBoardState";
 import { Dialogue } from "../types/dialogue";
@@ -25,6 +26,7 @@ import {
   cookNettleSoupDialogue,
   craftAxeDialogue,
   feedBeetleDialogue,
+  firstAntDialogue,
   welcomeDialogue,
   woodProductionDialogue,
 } from "../utils/dialogue";
@@ -103,6 +105,10 @@ export function useBoardStateDialogues({
       return;
     }
 
+    if (hasAntOnBoard(entities) && showDialogueIfNotVisited(firstAntDialogue())) {
+      return;
+    }
+    
     const anthill = findAnthillOnBoard(entities);
     if (anthill && showDialogueIfNotVisited(automateWithAntsDialogue())) {
       return;
