@@ -13,6 +13,7 @@ import { BricksProductionInfographic } from "../components/dialogue/BricksProduc
 import { CookingListInfographic } from "../components/dialogue/CookingListInfographic";
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
 import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
+import { ProcessIronInfographic } from "../components/dialogue/ProcessIronInfographic";
 import { StackingItemsInfographic } from "../components/dialogue/StackingItemsInfographic";
 import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
 import { TavernListInfographic } from "../components/dialogue/TavernListInfographic";
@@ -168,6 +169,15 @@ export function bricksProductionDialogue(): Dialogue {
   };
 }
 
+export function smelterDialogue(): Dialogue {
+  return {
+    id: "smelter",
+    text: "Smelter processes iron and clay. You will be able to process more items after upgrading the building.",
+    bugType: "ant",
+    infographic: createElement(ProcessIronInfographic),
+  };
+}
+
 export function cookingListDialogue(): Dialogue {
   return {
     id: "cookingList",
@@ -230,7 +240,7 @@ export function digMoreResourcesDialogue(anthillId: string): Dialogue {
 export function automateWithAntsDialogue(): Dialogue {
   return {
     id: "automateWithAnts",
-    text: "Me and other ants can help you carry items if you want. Just drop us on a building or a stack and we will deliver items to that structure automatically.",
+    text: "Me and other ants can help you carry items if you want. Just drop us on a stack and we will deliver items to that stack automatically.",
     bugType: "ant",
     infographic: createElement(AutomateTransportInfographic),
   };
@@ -283,6 +293,8 @@ export function structureClickDialogue(structureType: StructureType): Dialogue |
       return cookingListDialogue();
     case "tavern":
       return tavernListDialogue();
+    case "smelter":
+      return smelterDialogue();
     default:
       return null;
   }
@@ -332,7 +344,7 @@ export function bugClickDialogue(bugType: BugType): Dialogue | null {
       return {
         id: "greenfly",
         text: "Greenflies are ladybugs' favorite food. Cook them in the kitchen.",
-        bugType: "beetle",
+        bugType: "ant",
       };
     case "fly":
       return {
