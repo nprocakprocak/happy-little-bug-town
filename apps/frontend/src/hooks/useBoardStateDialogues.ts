@@ -26,6 +26,7 @@ import { hasIronOreOnBoard } from "../components/helpers/dialogues/hasIronOreOnB
 import { hasLeafAndBeetleOnBoard } from "../components/helpers/dialogues/hasLeafAndBeetleOnBoard";
 import { hasMushroomOnBoard } from "../components/helpers/dialogues/hasMushroomOnBoard";
 import { hasRottenAppleOnBoard } from "../components/helpers/dialogues/hasRottenAppleOnBoard";
+import { hasSpiderOnBoard } from "../components/helpers/dialogues/hasSpiderOnBoard";
 import { hasTermiteOnBoard } from "../components/helpers/dialogues/hasTermiteOnBoard";
 import { isStartingBoardState } from "../components/helpers/dialogues/isStartingBoardState";
 import { Dialogue } from "../types/dialogue";
@@ -52,6 +53,7 @@ import {
   firstLadybugDialogue,
   firstMushroomDialogue,
   firstRottenAppleDialogue,
+  firstSpiderDialogue,
   firstTermiteDialogue,
   mushroomFieldDialogue,
   stonemasonUpgradedDialogue,
@@ -209,6 +211,10 @@ export function useBoardStateDialogues({
 
     const composter = findBuiltComposterOnBoard(entities);
     if (composter && showDialogueIfNotVisited(composterDialogue())) {
+      return;
+    }
+
+    if (hasSpiderOnBoard(entities) && showDialogueIfNotVisited(firstSpiderDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

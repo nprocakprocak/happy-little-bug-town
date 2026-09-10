@@ -373,6 +373,14 @@ export function composterDialogue(): Dialogue {
   };
 }
 
+export function firstSpiderDialogue(): Dialogue {
+  return {
+    id: "firstSpider",
+    text: "It's a pleasure to meet you. Spiders are very well educated bugs and can work in administration buildings, like library. Thanks to us this town may actually construct a town hall and call itself a true happy bug town. Start with upgrading the smelter and push forward until you build the most important building - the town hall.",
+    bugType: "spider",
+  };
+}
+
 export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
   switch (reason) {
     case "noSpace":

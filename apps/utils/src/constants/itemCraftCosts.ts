@@ -47,14 +47,14 @@ export const ITEM_CRAFT_COSTS: Record<
     { itemType: "iron_ingot", count: 2 },
     { itemType: "wood", count: 1 },
   ],
+  basket: [
+    { itemType: "iron_ingot", count: 2 },
+    { itemType: "steel", count: 1 },
+  ],
   desk: [
     { itemType: "furniture", count: 1 },
     { itemType: "iron_ingot", count: 1 },
     { itemType: "paper", count: 3 },
-  ],
-  basket: [
-    { itemType: "iron_ingot", count: 2 },
-    { itemType: "steel", count: 1 },
   ],
   fountain: [{ itemType: "sculpture", count: 2 }],
 };

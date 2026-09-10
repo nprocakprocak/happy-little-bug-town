@@ -11,9 +11,9 @@ const UNIQUE_CRAFTABLE_ITEM_TYPES = new Set<WorkshopItemType>([
 const WORKSHOP_ITEM_REQUIRED_UPGRADE_LEVEL: Partial<Record<WorkshopItemType, number>> = {
   hoe: 1,
   wheelbarrel: 1,
-  desk: 1,
+  basket: 1,
+  desk: 2,
   fountain: 2,
-  basket: 2,
 };
 
 export function canCreateMultipleOfItemType(itemType: ItemType): boolean {
