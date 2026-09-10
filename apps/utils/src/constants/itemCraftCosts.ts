@@ -39,13 +39,13 @@ export const ITEM_CRAFT_COSTS: Record<
     { itemType: "brick", count: 1 },
     { itemType: "iron_ore", count: 1 },
   ],
+  wheelbarrel: [
+    { itemType: "wood", count: 2 },
+    { itemType: "iron_ingot", count: 1 },
+  ],
   hoe: [
     { itemType: "iron_ingot", count: 2 },
     { itemType: "wood", count: 1 },
-  ],
-  wheelbarrel: [
-    { itemType: "wood", count: 2 },
-    { itemType: "iron_ingot", count: 2 },
   ],
   desk: [
     { itemType: "furniture", count: 1 },

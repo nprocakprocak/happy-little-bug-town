@@ -14,6 +14,7 @@ import { CookingListInfographic } from "../components/dialogue/CookingListInfogr
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
 import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
 import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
+import { TavernListInfographic } from "../components/dialogue/TavernListInfographic";
 import { WoodProductionInfographic } from "../components/dialogue/WoodProductionInfographic";
 import { hasDialogueBust } from "../components/helpers/characterImages";
 import { Bug } from "../types/bug";
@@ -175,6 +176,15 @@ export function cookingListDialogue(): Dialogue {
   };
 }
 
+export function tavernListDialogue(): Dialogue {
+  return {
+    id: "tavernList",
+    text: "We can attract other bugs by serving their favorite food here in this tavern.",
+    bugType: "beetle",
+    infographic: createElement(TavernListInfographic),
+  };
+}
+
 export function buildKitchenDialogue(): Dialogue {
   return {
     id: "buildKitchen",
@@ -270,6 +280,8 @@ export function structureClickDialogue(structureType: StructureType): Dialogue |
       return bricksProductionDialogue();
     case "kitchen":
       return cookingListDialogue();
+    case "tavern":
+      return tavernListDialogue();
     default:
       return null;
   }
@@ -309,7 +321,7 @@ export function bugClickDialogue(bugType: BugType): Dialogue | null {
     case "greenfly":
       return {
         id: "greenfly",
-        text: "Greenflies are the favorite food of ladybugs. Cook them in the kitchen.",
+        text: "Greenflies are ladybugs' favorite food. Cook them in the kitchen.",
         bugType: "beetle",
       };
     case "fly":
