@@ -14,6 +14,7 @@ import { BricksProductionInfographic } from "../components/dialogue/BricksProduc
 import { CookingListInfographic } from "../components/dialogue/CookingListInfographic";
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
 import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
+import { PaperToMushroomInfographic } from "../components/dialogue/PaperToMushroomInfographic";
 import { ProcessIronInfographic } from "../components/dialogue/ProcessIronInfographic";
 import { StackingItemsInfographic } from "../components/dialogue/StackingItemsInfographic";
 import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
@@ -301,6 +302,40 @@ export function woodcutterUpgradedDialogue(): Dialogue {
   };
 }
 
+export function buildMushroomFieldDialogue(farmId: string): Dialogue {
+  return {
+    id: "buildMushroomField",
+    text: "Excellent! Thanks to this farm, we can produce our own types of food. Click on the farm and build a mushroom field.",
+    bugType: "ladybug",
+    cursorEntityId: farmId,
+  };
+}
+
+export function mushroomFieldDialogue(): Dialogue {
+  return {
+    id: "mushroomField",
+    text: "The mushrooms will grow on this field if you fertilize it with scraps of paper.",
+    bugType: "ladybug",
+    infographic: createElement(PaperToMushroomInfographic),
+  };
+}
+
+export function firstMushroomDialogue(): Dialogue {
+  return {
+    id: "firstMushroom",
+    text: "Ah, finally! The mushrooms are loved by termites. Let's attract some of them. You must upgrade the kitchen first in order to prepare mushroom sauce.",
+    bugType: "ladybug",
+  };
+}
+
+export function firstTermiteDialogue(): Dialogue {
+  return {
+    id: "firstTermite",
+    text: "Good morning, sir! I've heard about this place and was eager to see it. This town is so lovely and there is so much work to be done here. Let me suggest that termites are much better in tunneling than ants. If we could... improve their anthill into termite mound, we would be able to dig deeper making this land more fertile and provide better items for you. Just drop three of us into the anthill and that should do it.",
+    bugType: "termite",
+  };
+}
+
 export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
   switch (reason) {
     case "noSpace":
@@ -344,6 +379,8 @@ export function structureClickDialogue(structure: Structure): Dialogue | null {
       return tavernListDialogue();
     case "smelter":
       return smelterDialogue();
+    case "mushrooms_field":
+      return mushroomFieldDialogue();
     default:
       return null;
   }

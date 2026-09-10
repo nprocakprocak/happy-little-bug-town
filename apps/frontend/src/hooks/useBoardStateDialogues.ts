@@ -4,7 +4,9 @@ import { findAnthillOnBoard } from "../components/helpers/dialogues/findAnthillO
 import { findBrickOnBoard } from "../components/helpers/dialogues/findBrickOnBoard";
 import { findBuiltAxeOnBoard } from "../components/helpers/dialogues/findBuiltAxeOnBoard";
 import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
+import { findBuiltFarmOnBoard } from "../components/helpers/dialogues/findBuiltFarmOnBoard";
 import { findBuiltKitchenOnBoard } from "../components/helpers/dialogues/findBuiltKitchenOnBoard";
+import { findBuiltMushroomsFieldOnBoard } from "../components/helpers/dialogues/findBuiltMushroomsFieldOnBoard";
 import { findBuiltTavernOnBoard } from "../components/helpers/dialogues/findBuiltTavernOnBoard";
 import { findBuiltWoodcutterOnBoard } from "../components/helpers/dialogues/findBuiltWoodcutterOnBoard";
 import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBuiltWorkshopOnBoard";
@@ -19,6 +21,8 @@ import { hasClayOnBoard } from "../components/helpers/dialogues/hasClayOnBoard";
 import { hasGreenflyOnBoard } from "../components/helpers/dialogues/hasGreenflyOnBoard";
 import { hasIronOreOnBoard } from "../components/helpers/dialogues/hasIronOreOnBoard";
 import { hasLeafAndBeetleOnBoard } from "../components/helpers/dialogues/hasLeafAndBeetleOnBoard";
+import { hasMushroomOnBoard } from "../components/helpers/dialogues/hasMushroomOnBoard";
+import { hasTermiteOnBoard } from "../components/helpers/dialogues/hasTermiteOnBoard";
 import { isStartingBoardState } from "../components/helpers/dialogues/isStartingBoardState";
 import { Dialogue } from "../types/dialogue";
 import { GridEntity } from "../types/gridEntity";
@@ -27,6 +31,7 @@ import {
   buildBeetleHouseDialogue,
   buildFarmDialogue,
   buildKitchenDialogue,
+  buildMushroomFieldDialogue,
   buildStonemasonDialogue,
   buildTavernDialogue,
   buildWoodcutterDialogue,
@@ -39,6 +44,9 @@ import {
   firstGreenflyDialogue,
   firstIronOreDialogue,
   firstLadybugDialogue,
+  firstMushroomDialogue,
+  firstTermiteDialogue,
+  mushroomFieldDialogue,
   stonemasonUpgradedDialogue,
   welcomeDialogue,
   woodcutterUpgradedDialogue,
@@ -157,6 +165,24 @@ export function useBoardStateDialogues({
 
     const upgradedWoodcutter = findUpgradedWoodcutterOnBoard(entities);
     if (upgradedWoodcutter && showDialogueIfNotVisited(woodcutterUpgradedDialogue())) {
+      return;
+    }
+
+    const farm = findBuiltFarmOnBoard(entities);
+    if (farm && showDialogueIfNotVisited(buildMushroomFieldDialogue(farm.id))) {
+      return;
+    }
+
+    const mushroomsField = findBuiltMushroomsFieldOnBoard(entities);
+    if (mushroomsField && showDialogueIfNotVisited(mushroomFieldDialogue())) {
+      return;
+    }
+
+    if (hasMushroomOnBoard(entities) && showDialogueIfNotVisited(firstMushroomDialogue())) {
+      return;
+    }
+
+    if (hasTermiteOnBoard(entities) && showDialogueIfNotVisited(firstTermiteDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

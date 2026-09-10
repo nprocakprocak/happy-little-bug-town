@@ -20,4 +20,8 @@ export type OnceDialogueId =
   | "firstLadybug"
   | "buildFarm"
   | "stonemasonUpgraded"
-  | "woodcutterUpgraded";
+  | "woodcutterUpgraded"
+  | "buildMushroomField"
+  | "mushroomField"
+  | "firstMushroom"
+  | "firstTermite";
