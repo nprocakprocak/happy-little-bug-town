@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 
+import { findAnthillOnBoard } from "../components/helpers/dialogues/findAnthillOnBoard";
 import { findBrickOnBoard } from "../components/helpers/dialogues/findBrickOnBoard";
 import { findBuiltAxeOnBoard } from "../components/helpers/dialogues/findBuiltAxeOnBoard";
 import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
@@ -14,6 +15,7 @@ import { isStartingBoardState } from "../components/helpers/dialogues/isStarting
 import { Dialogue } from "../types/dialogue";
 import { GridEntity } from "../types/gridEntity";
 import {
+  automateWithAntsDialogue,
   buildBeetleHouseDialogue,
   buildKitchenDialogue,
   buildStonemasonDialogue,
@@ -98,6 +100,11 @@ export function useBoardStateDialogues({
 
     const tavern = findBuiltTavernOnBoard(entities);
     if (tavern && showDialogueIfNotVisited(cookNettleSoupDialogue())) {
+      return;
+    }
+
+    const anthill = findAnthillOnBoard(entities);
+    if (anthill && showDialogueIfNotVisited(automateWithAntsDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

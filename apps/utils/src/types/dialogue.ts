@@ -11,4 +11,5 @@ export type OnceDialogueId =
   | "buildStonemason"
   | "buildKitchen"
   | "buildTavern"
-  | "cookNettleSoup";
+  | "cookNettleSoup"
+  | "automateWithAnts";

@@ -8,6 +8,7 @@ import {
   StructureType,
 } from "@happy-little-bug-town/utils";
 
+import { AutomateTransportInfographic } from "../components/dialogue/AutomateTransportInfographic";
 import { BricksProductionInfographic } from "../components/dialogue/BricksProductionInfographic";
 import { CookingListInfographic } from "../components/dialogue/CookingListInfographic";
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
@@ -195,6 +196,15 @@ export function cookNettleSoupDialogue(): Dialogue {
     id: "cookNettleSoup",
     text: "That's so awesome! We can now invite friends to our little village. Let's cook some nettle soup in the kitchen and place it in the tavern.",
     bugType: "beetle",
+  };
+}
+
+export function automateWithAntsDialogue(): Dialogue {
+  return {
+    id: "automateWithAnts",
+    text: "Me and other ants can help you carry items if you want. Just drop us on a building or a stack and we will deliver items to that structure automatically.",
+    bugType: "ant",
+    infographic: createElement(AutomateTransportInfographic),
   };
 }
 
