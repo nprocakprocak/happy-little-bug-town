@@ -13,6 +13,7 @@ import { BricksProductionInfographic } from "../components/dialogue/BricksProduc
 import { CookingListInfographic } from "../components/dialogue/CookingListInfographic";
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
 import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
+import { StackingItemsInfographic } from "../components/dialogue/StackingItemsInfographic";
 import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
 import { TavernListInfographic } from "../components/dialogue/TavernListInfographic";
 import { WoodProductionInfographic } from "../components/dialogue/WoodProductionInfographic";
@@ -311,6 +312,13 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
       };
     case "iron_ore":
       return firstIronOreDialogue();
+    case "leaf_rake":
+      return {
+        id: "leaf_rake",
+        text: "Thanks to the rake you can stack these items: sticks, leaves and roots.",
+        bugType: "beetle",
+        infographic: createElement(StackingItemsInfographic),
+      };
     default:
       return null;
   }
@@ -318,6 +326,8 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
 
 export function bugClickDialogue(bugType: BugType): Dialogue | null {
   switch (bugType) {
+    case "ant":
+      return automateWithAntsDialogue();
     case "greenfly":
       return {
         id: "greenfly",
