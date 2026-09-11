@@ -23,6 +23,7 @@ import {
   useUpgradeStructureMutation,
 } from "../../hooks/useStructures";
 import { useMainStore } from "../../stores/main";
+import { Dialogue } from "../../types/dialogue";
 import { GridEntity } from "../../types/gridEntity";
 import { Structure } from "../../types/structure";
 import {
@@ -42,8 +43,10 @@ import { completeFlightAction, setEntityFlightOrigin } from "../helpers/entityFl
 import { shouldCancelDrop } from "../helpers/pointerUp/shouldCancelDrop";
 import { isBug } from "../helpers/typeGuards";
 import { BugPopups } from "../popups/BugPopups";
+import { CongratulationsPopup } from "../popups/CongratulationsPopup";
 import { FarmPopup } from "../popups/farm/FarmPopup";
 import { HouseOccupiedPopup } from "../popups/house/HouseOccupiedPopup";
+import { PlayAgainPopup } from "../popups/PlayAgainPopup";
 import { WorkshopPopup } from "../popups/workshop/WorkshopPopup";
 import { DragPayload } from "../types/dragPayload";
 import { BugsProgressLayer } from "./BugsProgressLayer";
@@ -107,10 +110,18 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
     const workshop = structures.find((structure) => structure.structureType === "workshop");
     return workshop ? getCompletedUpgradeLevel(workshop) : 0;
   }, [structures]);
+  const [congratulationsOpen, setCongratulationsOpen] = useState(false);
+  const [playAgainOpen, setPlayAgainOpen] = useState(false);
+  const handleDialogueClose = useCallback((dialogue: Dialogue) => {
+    if (dialogue.id === "beehive") {
+      setCongratulationsOpen(true);
+    }
+  }, []);
   const { activeDialogue, closeDialogue, showDialogue, showDialogueIfNotVisited } = useDialogues(
     allEntitiesLoaded,
     entities,
     isAuthenticated,
+    handleDialogueClose,
   );
 
   const [gridDrag, setGridDrag] = useState<DragPayload | null>(null);
@@ -453,6 +464,15 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
             onClose={() => setOccupiedHouseType(null)}
           />
         )}
+        {congratulationsOpen && (
+          <CongratulationsPopup
+            onClose={() => {
+              setCongratulationsOpen(false);
+              setPlayAgainOpen(true);
+            }}
+          />
+        )}
+        {playAgainOpen && <PlayAgainPopup onClose={() => setPlayAgainOpen(false)} />}
       </div>
     </div>
   );

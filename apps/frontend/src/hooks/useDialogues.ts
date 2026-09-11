@@ -6,14 +6,22 @@ import { GridEntity } from "../types/gridEntity";
 import { useBoardStateDialogues } from "./useBoardStateDialogues";
 import { useMarkDialogueVisitedMutation, useVisitedDialoguesQuery } from "./useVisitedDialogues";
 
-export function useDialogues(allEntitiesLoaded: boolean, entities: GridEntity[], enabled = true) {
+export function useDialogues(
+  allEntitiesLoaded: boolean,
+  entities: GridEntity[],
+  enabled = true,
+  onDialogueClose?: (dialogue: Dialogue) => void,
+) {
   const { data: visitedIds, isSuccess: visitedLoaded } = useVisitedDialoguesQuery(enabled);
   const markVisited = useMarkDialogueVisitedMutation();
   const [activeDialogue, setActiveDialogue] = useState<Dialogue | null>(null);
 
   const closeDialogue = useCallback(() => {
+    if (activeDialogue) {
+      onDialogueClose?.(activeDialogue);
+    }
     setActiveDialogue(null);
-  }, []);
+  }, [activeDialogue, onDialogueClose]);
 
   const showDialogue = useCallback((dialogue: Dialogue) => {
     setActiveDialogue(dialogue);
