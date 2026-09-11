@@ -21,6 +21,7 @@ import { findUpgradedWoodcutterOnBoard } from "../components/helpers/dialogues/f
 import { findUpgradedWorkshopOnBoard } from "../components/helpers/dialogues/findUpgradedWorkshopOnBoard";
 import { findWoodOnBoard } from "../components/helpers/dialogues/findWoodOnBoard";
 import { hasAntOnBoard } from "../components/helpers/dialogues/hasAntOnBoard";
+import { hasBeeOnBoard } from "../components/helpers/dialogues/hasBeeOnBoard";
 import { hasClayOnBoard } from "../components/helpers/dialogues/hasClayOnBoard";
 import { hasGravelOnBoard } from "../components/helpers/dialogues/hasGravelOnBoard";
 import { hasGreenflyOnBoard } from "../components/helpers/dialogues/hasGreenflyOnBoard";
@@ -50,6 +51,7 @@ import {
   digMoreResourcesDialogue,
   feedBeetleDialogue,
   firstAntDialogue,
+  firstBeeDialogue,
   firstGreenflyDialogue,
   firstIronOreDialogue,
   firstLadybugDialogue,
@@ -229,6 +231,10 @@ export function useBoardStateDialogues({
 
     const townHall = findBuiltTownHallOnBoard(entities);
     if (townHall && showDialogueIfNotVisited(townHallDialogue())) {
+      return;
+    }
+
+    if (hasBeeOnBoard(entities) && showDialogueIfNotVisited(firstBeeDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

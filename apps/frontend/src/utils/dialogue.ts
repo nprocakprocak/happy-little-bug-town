@@ -411,6 +411,14 @@ export function flowersFieldDialogue(): Dialogue {
   };
 }
 
+export function firstBeeDialogue(): Dialogue {
+  return {
+    id: "firstBee",
+    text: "Greetings, my friends! What a delightfully splendid town. Should you grant us your permission, we shall transform it into the most prosperous community in the realm. It is our desire to establish a hive here, which will grandly enhance the fertility of your soil. If this proposal pleases you, kindly place three bees within the termite mound.",
+    bugType: "bee",
+  };
+}
+
 export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
   switch (reason) {
     case "noSpace":
@@ -537,6 +545,8 @@ export function bugClickDialogue(bugType: BugType): Dialogue | null {
       return automateWithAntsDialogue();
     case "termite":
       return automateWithTermitesDialogue();
+    case "bee":
+      return firstBeeDialogue();
     case "greenfly":
       return {
         id: "greenfly",
