@@ -10,7 +10,8 @@ export type DialogueId =
   | "bricksProduction"
   | "cookingList"
   | "tavernList"
-  | "smelter";
+  | "smelter"
+  | "flowersField";
 
 export type CannotBuildReason = "noSpace";
 

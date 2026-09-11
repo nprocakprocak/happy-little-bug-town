@@ -7,8 +7,10 @@ import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/fin
 import { findBuiltComposterOnBoard } from "../components/helpers/dialogues/findBuiltComposterOnBoard";
 import { findBuiltFarmOnBoard } from "../components/helpers/dialogues/findBuiltFarmOnBoard";
 import { findBuiltKitchenOnBoard } from "../components/helpers/dialogues/findBuiltKitchenOnBoard";
+import { findBuiltLibraryOnBoard } from "../components/helpers/dialogues/findBuiltLibraryOnBoard";
 import { findBuiltMushroomsFieldOnBoard } from "../components/helpers/dialogues/findBuiltMushroomsFieldOnBoard";
 import { findBuiltTavernOnBoard } from "../components/helpers/dialogues/findBuiltTavernOnBoard";
+import { findBuiltTownHallOnBoard } from "../components/helpers/dialogues/findBuiltTownHallOnBoard";
 import { findBuiltWoodcutterOnBoard } from "../components/helpers/dialogues/findBuiltWoodcutterOnBoard";
 import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBuiltWorkshopOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
@@ -55,9 +57,11 @@ import {
   firstRottenAppleDialogue,
   firstSpiderDialogue,
   firstTermiteDialogue,
+  libraryDialogue,
   mushroomFieldDialogue,
   stonemasonUpgradedDialogue,
   termiteMoundDialogue,
+  townHallDialogue,
   welcomeDialogue,
   woodcutterUpgradedDialogue,
   woodProductionDialogue,
@@ -215,6 +219,16 @@ export function useBoardStateDialogues({
     }
 
     if (hasSpiderOnBoard(entities) && showDialogueIfNotVisited(firstSpiderDialogue())) {
+      return;
+    }
+
+    const library = findBuiltLibraryOnBoard(entities);
+    if (library && showDialogueIfNotVisited(libraryDialogue())) {
+      return;
+    }
+
+    const townHall = findBuiltTownHallOnBoard(entities);
+    if (townHall && showDialogueIfNotVisited(townHallDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

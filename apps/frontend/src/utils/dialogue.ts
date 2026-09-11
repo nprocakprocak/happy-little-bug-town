@@ -14,10 +14,13 @@ import { AutomateProductionInfographic } from "../components/dialogue/AutomatePr
 import { AutomateTransportInfographic } from "../components/dialogue/AutomateTransportInfographic";
 import { BricksProductionInfographic } from "../components/dialogue/BricksProductionInfographic";
 import { CookingListInfographic } from "../components/dialogue/CookingListInfographic";
+import { FlowersToBeeInfographic } from "../components/dialogue/FlowersToBeeInfographic";
 import { HungryBugInfographic } from "../components/dialogue/HungryBugInfographic";
 import { LeafToBeetleInfographic } from "../components/dialogue/LeafToBeetleInfographic";
+import { PaperToBookInfographic } from "../components/dialogue/PaperToBookInfographic";
 import { PaperToMushroomInfographic } from "../components/dialogue/PaperToMushroomInfographic";
 import { ProcessIronInfographic } from "../components/dialogue/ProcessIronInfographic";
+import { SeedsToFlowersInfographic } from "../components/dialogue/SeedsToFlowersInfographic";
 import { StackingItemsInfographic } from "../components/dialogue/StackingItemsInfographic";
 import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
 import { StonemasonListInfographic } from "../components/dialogue/StonemasonListInfographic";
@@ -376,8 +379,35 @@ export function composterDialogue(): Dialogue {
 export function firstSpiderDialogue(): Dialogue {
   return {
     id: "firstSpider",
-    text: "It's a pleasure to meet you. Spiders are very well educated bugs and can work in administration buildings, like library. Thanks to us this town may actually construct a town hall and call itself a true happy bug town. Start with upgrading the smelter and push forward until you build the most important building - the town hall.",
+    text: "It's a pleasure to meet you. Spiders are very well educated bugs and can work in administration buildings, like library. Thanks to us this town may actually construct a town hall and call itself a true happy bug town. Start with upgrading the smelter and other buildings until you build the most important building - the town hall. Do you think you can do that?",
     bugType: "spider",
+  };
+}
+
+export function libraryDialogue(): Dialogue {
+  return {
+    id: "library",
+    text: "The library produces books out of paper. You can use them to supply the town hall.",
+    bugType: "spider",
+    infographic: createElement(PaperToBookInfographic),
+  };
+}
+
+export function townHallDialogue(): Dialogue {
+  return {
+    id: "townHall",
+    text: "That's amazing! This city hall is the true crowning achievement of our town's glory. Thanks to it, we can establish diplomatic relations with other colonies. A bee delegation might visit us if we make a good impression. We can welcome them with flowers.",
+    bugType: "spider",
+    infographic: createElement(FlowersToBeeInfographic),
+  };
+}
+
+export function flowersFieldDialogue(): Dialogue {
+  return {
+    id: "flowersField",
+    text: "Use seeds to plant flowers on this field.",
+    bugType: "spider",
+    infographic: createElement(SeedsToFlowersInfographic),
   };
 }
 
@@ -428,6 +458,12 @@ export function structureClickDialogue(structure: Structure): Dialogue | null {
       return mushroomFieldDialogue();
     case "composter":
       return composterDialogue();
+    case "library":
+      return libraryDialogue();
+    case "town_hall":
+      return townHallDialogue();
+    case "flowers_field":
+      return flowersFieldDialogue();
     default:
       return null;
   }

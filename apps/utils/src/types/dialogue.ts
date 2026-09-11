@@ -29,4 +29,6 @@ export type OnceDialogueId =
   | "automateWithTermites"
   | "firstRottenApple"
   | "composter"
-  | "firstSpider";
+  | "firstSpider"
+  | "library"
+  | "townHall";
