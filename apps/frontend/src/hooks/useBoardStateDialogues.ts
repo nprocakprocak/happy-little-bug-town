@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { findAnthillOnBoard } from "../components/helpers/dialogues/findAnthillOnBoard";
+import { findBeehiveOnBoard } from "../components/helpers/dialogues/findBeehiveOnBoard";
 import { findBrickOnBoard } from "../components/helpers/dialogues/findBrickOnBoard";
 import { findBuiltAxeOnBoard } from "../components/helpers/dialogues/findBuiltAxeOnBoard";
 import { findBuiltBeetleHouseOnBoard } from "../components/helpers/dialogues/findBuiltBeetleHouseOnBoard";
@@ -37,6 +38,7 @@ import { GridEntity } from "../types/gridEntity";
 import {
   automateWithAntsDialogue,
   automateWithTermitesDialogue,
+  beehiveDialogue,
   buildBeetleHouseDialogue,
   buildFarmDialogue,
   buildKitchenDialogue,
@@ -235,6 +237,11 @@ export function useBoardStateDialogues({
     }
 
     if (hasBeeOnBoard(entities) && showDialogueIfNotVisited(firstBeeDialogue())) {
+      return;
+    }
+
+    const beehive = findBeehiveOnBoard(entities);
+    if (beehive && showDialogueIfNotVisited(beehiveDialogue())) {
       return;
     }
   }, [allEntitiesLoaded, entities, showDialogueIfNotVisited, activeDialogue]);

@@ -419,6 +419,14 @@ export function firstBeeDialogue(): Dialogue {
   };
 }
 
+export function beehiveDialogue(): Dialogue {
+  return {
+    id: "beehive",
+    text: "Splendid! You have succeeded in establishing a truly wondrous settlement.",
+    bugType: "bee",
+  };
+}
+
 export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
   switch (reason) {
     case "noSpace":

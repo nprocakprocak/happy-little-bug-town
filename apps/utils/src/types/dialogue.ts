@@ -32,4 +32,5 @@ export type OnceDialogueId =
   | "firstSpider"
   | "library"
   | "townHall"
-  | "firstBee";
+  | "firstBee"
+  | "beehive";

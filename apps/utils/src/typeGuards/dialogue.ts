@@ -36,5 +36,6 @@ export function isOnceDialogueId(value: unknown): value is OnceDialogueId {
     "library",
     "townHall",
     "firstBee",
+    "beehive",
   ].includes(value as string);
 }
