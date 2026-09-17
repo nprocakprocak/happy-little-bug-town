@@ -6,8 +6,8 @@ export function TavernListInfographic() {
       <Image
         src="/dialogues/tavern-list.webp"
         alt="Foods that attract bugs in the tavern"
-        width={1536}
-        height={1024}
+        width={1185}
+        height={1253}
         sizes="48cqi"
         className="h-auto w-full"
       />

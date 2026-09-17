@@ -6,8 +6,8 @@ export function StackingItemsInfographic() {
       <Image
         src="/dialogues/stacking-items.webp"
         alt="Stack sticks, leaves and roots with the rake"
-        width={1536}
-        height={1024}
+        width={1331}
+        height={490}
         sizes="48cqi"
         className="h-auto w-full"
       />

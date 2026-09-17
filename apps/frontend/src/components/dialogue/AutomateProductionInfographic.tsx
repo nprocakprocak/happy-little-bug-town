@@ -6,8 +6,8 @@ export function AutomateProductionInfographic() {
       <Image
         src="/dialogues/automate-production.webp"
         alt="Drop a termite on a building to gather resources automatically"
-        width={1536}
-        height={1024}
+        width={1136}
+        height={924}
         sizes="48cqi"
         className="h-auto w-full"
       />

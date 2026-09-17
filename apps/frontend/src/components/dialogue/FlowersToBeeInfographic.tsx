@@ -6,8 +6,8 @@ export function FlowersToBeeInfographic() {
       <Image
         src="/dialogues/flowers-to-bee.webp"
         alt="Welcome a bee delegation with flowers"
-        width={1536}
-        height={1024}
+        width={1049}
+        height={376}
         sizes="48cqi"
         className="h-auto w-full"
       />

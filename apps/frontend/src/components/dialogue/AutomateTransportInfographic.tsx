@@ -6,8 +6,8 @@ export function AutomateTransportInfographic() {
       <Image
         src="/dialogues/automate-transport.webp"
         alt="Drop an ant on a building or a stack to deliver items automatically"
-        width={1536}
-        height={1024}
+        width={1136}
+        height={924}
         sizes="48cqi"
         className="h-auto w-full"
       />

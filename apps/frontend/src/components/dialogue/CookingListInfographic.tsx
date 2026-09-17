@@ -6,8 +6,8 @@ export function CookingListInfographic() {
       <Image
         src="/dialogues/cooking-list.webp"
         alt="Meals that can be cooked in the kitchen"
-        width={1536}
-        height={1024}
+        width={1185}
+        height={1253}
         sizes="48cqi"
         className="h-auto w-full"
       />

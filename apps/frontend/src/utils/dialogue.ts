@@ -26,6 +26,7 @@ import { StackingItemsInfographic } from "../components/dialogue/StackingItemsIn
 import { StickToHoleInfographic } from "../components/dialogue/StickToHoleInfographic";
 import { StonemasonListInfographic } from "../components/dialogue/StonemasonListInfographic";
 import { TavernListInfographic } from "../components/dialogue/TavernListInfographic";
+import { UpgradeHoleInfographic } from "../components/dialogue/UpgradeHoleInfographic";
 import { WoodcutterListInfographic } from "../components/dialogue/WoodcutterListInfographic";
 import { WoodProductionInfographic } from "../components/dialogue/WoodProductionInfographic";
 import { hasDialogueBust } from "../components/helpers/characterImages";
@@ -253,6 +254,7 @@ export function firstAntDialogue(): Dialogue {
     id: "firstAnt",
     text: "Hello there! What a nice little village you have here. I would love to see it more prosperous. If you drop enough ants into the hole, we will turn it into an anthill.",
     bugType: "ant",
+    infographic: createElement(UpgradeHoleInfographic),
   };
 }
 
@@ -474,7 +476,7 @@ export function structureClickDialogue(structure: Structure): Dialogue | null {
   if (!isStructureBuilt(structure) || !isStructurePowered(structure)) {
     return null;
   }
-  
+
   switch (structure.structureType) {
     case "beetle_house":
       return beetleHouseDialogue();

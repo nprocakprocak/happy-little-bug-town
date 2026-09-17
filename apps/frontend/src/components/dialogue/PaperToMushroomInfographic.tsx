@@ -6,8 +6,8 @@ export function PaperToMushroomInfographic() {
       <Image
         src="/dialogues/paper-to-mushroom.webp"
         alt="Fertilize the mushroom field with scraps of paper"
-        width={1536}
-        height={1024}
+        width={1049}
+        height={376}
         sizes="48cqi"
         className="h-auto w-full"
       />

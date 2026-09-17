@@ -6,8 +6,8 @@ export function PaperToBookInfographic() {
       <Image
         src="/dialogues/paper-to-book.webp"
         alt="The library produces books from paper"
-        width={1536}
-        height={1024}
+        width={1049}
+        height={376}
         sizes="48cqi"
         className="h-auto w-full"
       />
