@@ -3,10 +3,11 @@ import { Router, type RequestHandler } from "express";
 import { canStackItemType } from "@happy-little-bug-town/utils";
 
 import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
-import { assertFootprintFits, requireCoords, requireNearestEmpty } from "../helpers/placement.js";
+import { assertFootprintFits, requireCoords } from "../helpers/placement.js";
 import { toBugOnGridDto } from "../mappers/bug.js";
 import { toItemOnGridDto } from "../mappers/item.js";
 import { toStackOnGridDto } from "../mappers/stack.js";
+import { economyRateLimit } from "../middleware/rateLimits.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStack } from "../middleware/requireOwnedEntity.js";
 import {
@@ -149,19 +150,18 @@ const mergeStacks: RequestHandler<{ id: string }> = async (req, res) => {
 const extractItemFromStack: RequestHandler<{ id: string }> = async (req, res) => {
   const { id } = req.params;
   const authorId = req.authorId!;
-  const existingStack = req.stack!;
 
-  const emptyPosition = await requireNearestEmpty(authorId, existingStack);
-  const { item, stackDissolved, releasedBugs } = await takeItemFromStack(id, emptyPosition);
-  res.status(200).json({
+  const { item, stackDissolved, releasedBugs, generated } = await takeItemFromStack(id, authorId);
+  res.status(generated ? 201 : 200).json({
     extractedItem: toItemOnGridDto(item),
     stackDissolved,
     releasedBugs: releasedBugs.map(toBugOnGridDto),
+    generated,
   });
 };
 
 stacksRouter.get("/", listStacks);
 stacksRouter.post("/", createStack);
 stacksRouter.post("/:id/merge", requireStack, mergeStacks);
-stacksRouter.post("/:id/extract", requireStack, extractItemFromStack);
+stacksRouter.post("/:id/extract", economyRateLimit, requireStack, extractItemFromStack);
 stacksRouter.put("/:id", requireStack, updateStack);

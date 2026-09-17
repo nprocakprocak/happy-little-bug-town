@@ -9,6 +9,7 @@ interface ExtractFromStackResult {
   extractedItem: Item;
   stackDissolved: boolean;
   releasedBugs: Bug[];
+  generated: boolean;
 }
 
 interface MergeStacksResult {

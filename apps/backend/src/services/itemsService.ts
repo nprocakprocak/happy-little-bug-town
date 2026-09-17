@@ -5,10 +5,15 @@ import {
   canStackItemType,
   getBugFoodCount,
   getBugFoodRequirement,
-  Position,
+  isInfiniteStackSource,
 } from "@happy-little-bug-town/utils";
 
 import { AppError } from "../errors/AppError.js";
+import {
+  findNearestEmptyPositionForAuthor,
+  getPositionedEntitiesOnGrid,
+  lockAuthorGrid,
+} from "../helpers/gridPlacement.js";
 import { loadOwnedOr404, parseUuidOrThrow } from "../helpers/ownership.js";
 import { prisma } from "../lib/prisma.js";
 import { toBugDto, toBugOnGridDto } from "../mappers/bug.js";
@@ -304,9 +309,40 @@ export const attachItemToStack = async (
 
 export async function takeItemFromStack(
   stackId: string,
-  position: Position,
-): Promise<{ item: ItemDto; stackDissolved: boolean; releasedBugs: BugDto[] }> {
+  authorId: string,
+): Promise<{ item: ItemDto; stackDissolved: boolean; releasedBugs: BugDto[]; generated: boolean }> {
   return await prisma.$transaction(async (tx) => {
+    await lockAuthorGrid(tx, authorId);
+    const stack = await tx.stack.findUniqueOrThrow({
+      where: { id: stackId },
+    });
+    const itemsCount = await tx.item.count({
+      where: { stackId, ...notRemoved },
+    });
+    const entities = await getPositionedEntitiesOnGrid(tx, authorId);
+    const position = await findNearestEmptyPositionForAuthor(
+      { x: stack.x, y: stack.y, itemsCount },
+      entities,
+    );
+
+    if (isInfiniteStackSource(itemsCount)) {
+      const createdItem = await tx.item.create({
+        data: {
+          itemType: stack.itemType,
+          x: position.x,
+          y: position.y,
+          authorId,
+        },
+        include: itemInclude,
+      });
+      return {
+        item: toItemDto(createdItem),
+        stackDissolved: false,
+        releasedBugs: [],
+        generated: true,
+      };
+    }
+
     const item = await tx.item.findFirst({
       where: {
         stackId,
@@ -335,12 +371,10 @@ export async function takeItemFromStack(
         item: toItemDto(updatedItem),
         stackDissolved,
         releasedBugs: [],
+        generated: false,
       };
     }
 
-    const stack = await tx.stack.findUniqueOrThrow({
-      where: { id: stackId },
-    });
     const assignedBugs = await tx.bug.findMany({
       where: { stackId, ...notRemoved },
       include: { items: { where: notRemoved } },
@@ -359,6 +393,7 @@ export async function takeItemFromStack(
       releasedBugs: assignedBugs.map((bug) =>
         toBugDto({ ...bug, stackId: null, x: stack.x, y: stack.y }),
       ),
+      generated: false,
     };
   });
 }

@@ -26,6 +26,7 @@ export * from "./structures/termiteAssignment.js";
 export * from "./structures/upgrade.js";
 export * from "./stacks/span.js";
 export * from "./stacks/bugDrop.js";
+export * from "./stacks/source.js";
 export * from "./typeGuards/buildable.js";
 export * from "./typeGuards/upgradable.js";
 export * from "./typeGuards/craftable.js";

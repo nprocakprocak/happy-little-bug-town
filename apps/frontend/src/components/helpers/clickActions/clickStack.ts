@@ -1,9 +1,9 @@
 import { hasEmptyGridCell, Positionable } from "@happy-little-bug-town/utils";
 import { QueryClient } from "@tanstack/react-query";
 
-import { extractItemFromStack } from "../../../api/stacks";
 import { updateBugsCache } from "../../../hooks/useBugs";
 import { updateStacksCache } from "../../../hooks/useStacks";
+import { extractStackQueue } from "../../../services/extractStackQueue";
 import { Stack } from "../../../types/stack";
 import { spawnExtractedItem } from "./spawnExtractedEntity";
 
@@ -28,16 +28,18 @@ export async function clickStack({
     return { kind: "noSpace" };
   }
 
-  const result = await extractItemFromStack(stack.id);
+  const result = await extractStackQueue.enqueue(stack.id);
 
-  updateStacksCache(queryClient, (stacks) => {
-    if (result.stackDissolved) {
-      return stacks.filter((existing) => existing.id !== stack.id);
-    }
-    return stacks.map((existing) =>
-      existing.id === stack.id ? { ...existing, itemsCount: existing.itemsCount - 1 } : existing,
-    );
-  });
+  if (!result.generated) {
+    updateStacksCache(queryClient, (stacks) => {
+      if (result.stackDissolved) {
+        return stacks.filter((existing) => existing.id !== stack.id);
+      }
+      return stacks.map((existing) =>
+        existing.id === stack.id ? { ...existing, itemsCount: existing.itemsCount - 1 } : existing,
+      );
+    });
+  }
 
   if (result.releasedBugs.length > 0) {
     updateBugsCache(queryClient, (bugs) => [

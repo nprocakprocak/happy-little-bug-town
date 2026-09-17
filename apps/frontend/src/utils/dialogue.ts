@@ -138,7 +138,7 @@ export function placeStructureDialogue(structureId: string): Dialogue {
 export function beetleHouseDialogue(): Dialogue {
   return {
     id: "beetleHouse",
-    text: "This is our house. All the beetles that come from the hole will stay here.",
+    text: "This is our house. All the beetles that come from the hole will stay here. Collect 10 bugs to make this house generate unlimited amount of beetles.",
     bugType: "beetle",
   };
 }
@@ -182,7 +182,7 @@ export function woodProductionDialogue(): Dialogue {
 export function buildStonemasonDialogue(beetleId?: string): Dialogue {
   return {
     id: "buildStonemason",
-    text: "Great! Let's build stonemason and produce some bricks. You will need hammers and chisels for that purpose. You can find them in the workshop.",
+    text: "Great! With the wooden beams we can build a stonemason and produce some bricks. You will need hammers and chisels for that purpose. You can find them in the workshop.",
     bugType: "beetle",
     cursorEntityId: beetleId,
     infographic: createElement(BricksProductionInfographic),
