@@ -258,7 +258,7 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
     return;
   }
 
-  const { requirement } = craftableOutput;
+  const { requirement, outputType } = craftableOutput;
   const operationalItems = getStructureOperationalResourceItems(
     existingStructure,
     requirement,
@@ -276,16 +276,17 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const emptyPosition = await requireNearestEmpty(authorId, existingStructure);
-  await assertFootprintFits(authorId, { x: emptyPosition.x, y: emptyPosition.y });
+  const footprint = { x: emptyPosition.x, y: emptyPosition.y, ...(isCraftableBugType(outputType) ? { bugType: outputType } : { itemType: outputType }) };
+  await assertFootprintFits(authorId, footprint);
 
   const operationalItemIds = operationalItems.map((item) => item.id);
   const operationalBugIds = operationalBugs.map((bug) => bug.id);
 
-  if (isCraftableBugType(craftableOutput.outputType)) {
+  if (isCraftableBugType(outputType)) {
     const result = await craftOperationalBugAtStructure(
       id,
       authorId,
-      craftableOutput.outputType,
+      outputType,
       operationalItemIds,
       operationalBugIds,
       emptyPosition,
@@ -301,7 +302,7 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
   const result = await craftOperationalItemAtStructure(
     id,
     authorId,
-    craftableOutput.outputType,
+    outputType,
     operationalItemIds,
     operationalBugIds,
     emptyPosition,

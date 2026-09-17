@@ -118,7 +118,7 @@ export function hungryBugDialogue(bug: Bug): Dialogue | null {
 export function buildBeetleHouseDialogue(beetleId: string): Dialogue {
   return {
     id: "buildBeetleHouse",
-    text: 'Oh, thank you! I think I will stay here for a little longer. I can build a house for myself and my cousins. Just click me and select "Beetle house". Then drop the required resources on the construction site.',
+    text: 'Oh, thank you! Actually, you know what? We beetles can build various structures. Let\'s build a house for me and my brothers. Just click me and select "Beetle house". Then drop the required resources on the construction site.',
     bugType: "beetle",
     cursorEntityId: beetleId,
   };

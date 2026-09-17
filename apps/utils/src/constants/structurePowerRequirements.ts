@@ -27,41 +27,39 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
 > = {
   workshop: {
     0: {
-      bugRequirements: [{ bugType: "beetle", requiredCount: 2 }],
+      bugRequirements: [{ bugType: "beetle", requiredCount: 1 }],
     },
     1: {
-      bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }],
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 1 }],
     },
     2: {
-      bugRequirements: [{ bugType: "ladybug", requiredCount: 4 }],
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }], // spider?
     },
   },
   stonemason: {
     0: {
-      bugRequirements: [{ bugType: "beetle", requiredCount: 2 }],
+      bugRequirements: [{ bugType: "beetle", requiredCount: 1 }],
       itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 2 }],
     },
     1: {
-      bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }],
-      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 4 }],
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 1 }],
+      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 3 }],
     },
     2: {
-      bugRequirements: [{ bugType: "ladybug", requiredCount: 4 }],
-      itemRequirements: [{ itemType: "hammer_and_chisel", requiredCount: 6 }],
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }], // spider?
     },
   },
   woodcutter: {
     0: {
-      bugRequirements: [{ bugType: "beetle", requiredCount: 2 }],
-      itemRequirements: [{ itemType: "axe", requiredCount: 3 }],
+      bugRequirements: [{ bugType: "beetle", requiredCount: 1 }],
+      itemRequirements: [{ itemType: "axe", requiredCount: 2 }],
     },
     1: {
-      bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }],
-      itemRequirements: [{ itemType: "axe", requiredCount: 5 }],
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 1 }],
+      itemRequirements: [{ itemType: "axe", requiredCount: 3 }],
     },
     2: {
-      bugRequirements: [{ bugType: "ladybug", requiredCount: 4 }],
-      itemRequirements: [{ itemType: "axe", requiredCount: 7 }],
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }],
     },
   },
   kitchen: {
@@ -72,34 +70,34 @@ export const STRUCTURE_POWER_REQUIREMENTS: Partial<
   },
   tavern: {
     0: {
-      bugRequirements: [{ bugType: "beetle", requiredCount: 4 }],
+      bugRequirements: [{ bugType: "beetle", requiredCount: 2 }],
     },
   },
   smelter: {
     0: {
-      bugRequirements: [{ bugType: "beetle", requiredCount: 3 }],
+      bugRequirements: [{ bugType: "beetle", requiredCount: 1 }],
       itemRequirements: [{ itemType: "crucible", requiredCount: 1 }],
     },
     1: {
-      bugRequirements: [{ bugType: "ladybug", requiredCount: 2 }],
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 1 }],
       itemRequirements: [{ itemType: "crucible", requiredCount: 2 }],
     },
   },
   farm: {
     0: {
-      bugRequirements: [{ bugType: "ladybug", requiredCount: 3 }],
-      itemRequirements: [{ itemType: "hoe", requiredCount: 2 }],
+      bugRequirements: [{ bugType: "ladybug", requiredCount: 1 }],
+      itemRequirements: [{ itemType: "hoe", requiredCount: 1 }],
     },
   },
   library: {
     0: {
-      bugRequirements: [{ bugType: "spider", requiredCount: 3 }],
-      itemRequirements: [{ itemType: "desk", requiredCount: 3 }],
+      bugRequirements: [{ bugType: "spider", requiredCount: 2 }],
+      itemRequirements: [{ itemType: "desk", requiredCount: 2 }],
     },
   },
   town_hall: {
     0: {
-      bugRequirements: [{ bugType: "spider", requiredCount: 3 }],
+      bugRequirements: [{ bugType: "spider", requiredCount: 2 }],
       itemRequirements: [{ itemType: "book", requiredCount: 3 }],
     },
   },

@@ -7,47 +7,47 @@ export interface BuildResourceCost {
 }
 
 export const BEETLE_HOUSE_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "leaf_part", count: 3 },
-  { itemType: "little_rock", count: 3 },
-  { itemType: "stick", count: 3 },
+  { itemType: "leaf_part", count: 2 },
+  { itemType: "little_rock", count: 1 },
+  { itemType: "stick", count: 2 },
 ];
 
 export const WORKSHOP_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "leaf_part", count: 5 },
-  { itemType: "little_rock", count: 3 },
-  { itemType: "stick", count: 3 },
-  { itemType: "root", count: 3 },
+  { itemType: "leaf_part", count: 3 },
+  { itemType: "little_rock", count: 2 },
+  { itemType: "stick", count: 1 },
+  { itemType: "root", count: 1 },
 ];
 
 export const WOODCUTTER_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 3 },
-  { itemType: "root", count: 3 },
+  { itemType: "root", count: 1 },
   { itemType: "stick", count: 2 },
-  { itemType: "little_rock", count: 3 },
+  { itemType: "little_rock", count: 1 },
 ];
 
 export const STONEMASON_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "leaf_part", count: 3 },
-  { itemType: "little_rock", count: 4 },
-  { itemType: "root", count: 2 },
-  { itemType: "wood", count: 2 },
+  { itemType: "leaf_part", count: 2 },
+  { itemType: "little_rock", count: 2 },
+  { itemType: "root", count: 1 },
+  { itemType: "wood", count: 1 },
 ];
 
 export const KITCHEN_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "leaf_part", count: 4 },
-  { itemType: "brick", count: 2 },
+  { itemType: "leaf_part", count: 2 },
+  { itemType: "brick", count: 1 },
   { itemType: "wood", count: 2 },
 ];
 
 export const TAVERN_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 3 },
-  { itemType: "brick", count: 3 },
-  { itemType: "wood", count: 3 },
+  { itemType: "brick", count: 1 },
+  { itemType: "wood", count: 1 },
 ];
 
 export const SMELTER_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "leaf_part", count: 2 },
-  { itemType: "brick", count: 2 },
+  { itemType: "brick", count: 1 },
   { itemType: "wood", count: 1 },
   { itemType: "glass", count: 2 },
 ];
@@ -56,12 +56,12 @@ export const GREENFLY_HOUSE_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "roof_tile", count: 1 },
   { itemType: "wood", count: 1 },
   { itemType: "brick", count: 1 },
-  { itemType: "leaf_part", count: 4 },
+  { itemType: "leaf_part", count: 3 },
 ];
 
 export const FARM_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "plank", count: 2 },
-  { itemType: "paving_stone", count: 2 },
+  { itemType: "plank", count: 1 },
+  { itemType: "paving_stone", count: 1 },
   { itemType: "glass", count: 2 },
   { itemType: "roof_tile", count: 2 },
 ];

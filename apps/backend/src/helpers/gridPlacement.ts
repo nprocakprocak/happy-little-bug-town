@@ -90,11 +90,9 @@ export async function getPositionedEntitiesOnGrid(
 }
 
 export async function findNearestEmptyPositionForAuthor(
-  db: GridDb,
-  authorId: string,
   near: Positionable,
+  entities: Positionable[],
 ): Promise<Position> {
-  const entities = await getPositionedEntitiesOnGrid(db, authorId);
   const emptyPosition = findNearestEmptyPosition(GROUND_HEIGHT, GROUND_WIDTH, entities, near);
   if (!emptyPosition) {
     throw new AppError(400, "No empty position found");

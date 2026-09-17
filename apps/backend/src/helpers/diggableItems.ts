@@ -1,81 +1,69 @@
-import { DiggableType, StructureType } from "@happy-little-bug-town/utils";
+import { DiggableType, Positionable, StructureType } from "@happy-little-bug-town/utils";
 
 const ITEM_TYPES_WEIGHTS_FOR_HOLE = {
-  beetle: 0.2,
-  root: 0.4,
-  leaf_part: 0.6,
-  little_rock: 0.8,
-  stick: 1,
+  leaf_part: 42 / 122,
+  little_rock: 30 / 122,
+  root: 9 / 122,
+  stick: 35 / 122,
+  beetle: 6 / 122,
 };
 
 const ITEM_TYPES_WEIGHTS_FOR_ANTHILL = {
-  iron_ore: 0.2,
-  clay: 0.5,
-  greenfly: 0.8,
-  glass: 0.9,
-  paper: 1,
+  leaf_part: 31 / 174,
+  little_rock: 27 / 174,
+  root: 3 / 174,
+  stick: 36 / 174,
+  beetle: 1 / 174,
+  iron_ore: 16 / 174,
+  clay: 12 / 174,
+  greenfly: 12 / 174,
+  glass: 10 / 174,
+  paper: 26 / 174,
 };
 
 const ITEM_TYPES_WEIGHTS_FOR_TERMITE_HILL = {
-  gravel: 0.3,
-  seeds: 0.65,
-  rotten_apple: 1,
+  leaf_part: 28 / 186,
+  little_rock: 21 / 186,
+  root: 0 / 186,
+  stick: 27 / 186,
+  beetle: 0 / 186,
+  iron_ore: 31 / 186,
+  clay: 6 / 186,
+  greenfly: 12 / 186,
+  glass: 3 / 186,
+  paper: 9 / 186,
+  gravel: 20 / 186,
+  seeds: 20 / 186,
+  rotten_apple: 9 / 186,
 };
-
-const HOLE_SHARE_WHEN_ANTHILL_EXISTS = 0.3;
-const ANTHILL_SHARE_WHEN_ANTHILL_EXISTS = 0.7;
-
-const HOLE_SHARE_WHEN_TERMITE_HILL_EXISTS = 0.2;
-const ANTHILL_SHARE_WHEN_TERMITE_HILL_EXISTS = 0.3;
-const TERMITE_HILL_SHARE_WHEN_TERMITE_HILL_EXISTS = 0.5;
-
-function combineCumulativeWeights(
-  tables: { weights: Record<string, number>; share: number }[],
-): Record<string, number> {
-  const combined: Record<string, number> = {};
-  let cumulative = 0;
-
-  for (const table of tables) {
-    let previousThreshold = 0;
-    for (const itemType of Object.keys(table.weights)) {
-      cumulative += (table.weights[itemType] - previousThreshold) * table.share;
-      combined[itemType] = cumulative;
-      previousThreshold = table.weights[itemType];
-    }
-  }
-
-  return combined;
-}
-
-const ANTHILL_WEIGHTS = combineCumulativeWeights([
-  { weights: ITEM_TYPES_WEIGHTS_FOR_HOLE, share: HOLE_SHARE_WHEN_ANTHILL_EXISTS },
-  { weights: ITEM_TYPES_WEIGHTS_FOR_ANTHILL, share: ANTHILL_SHARE_WHEN_ANTHILL_EXISTS },
-]);
-
-const TERMITE_HILL_WEIGHTS = combineCumulativeWeights([
-  { weights: ITEM_TYPES_WEIGHTS_FOR_HOLE, share: HOLE_SHARE_WHEN_TERMITE_HILL_EXISTS },
-  { weights: ITEM_TYPES_WEIGHTS_FOR_ANTHILL, share: ANTHILL_SHARE_WHEN_TERMITE_HILL_EXISTS },
-  {
-    weights: ITEM_TYPES_WEIGHTS_FOR_TERMITE_HILL,
-    share: TERMITE_HILL_SHARE_WHEN_TERMITE_HILL_EXISTS,
-  },
-]);
 
 function pickRandomItemType(weights: Record<string, number>, fallback: DiggableType): DiggableType {
   const seed = Math.random();
-  const itemType = Object.keys(weights).find((type) => seed < weights[type]);
-  if (itemType === undefined) {
-    return fallback;
+  let cumulative = 0;
+  for (const [itemType, probability] of Object.entries(weights)) {
+    cumulative += probability;
+    if (seed < cumulative) {
+      return itemType as DiggableType;
+    }
   }
-  return itemType as DiggableType;
+  return fallback;
 }
 
 export function generateRandomItemType(structureType: StructureType): DiggableType {
   if (structureType === "termite_mound") {
-    return pickRandomItemType(TERMITE_HILL_WEIGHTS, "rotten_apple");
+    return pickRandomItemType(ITEM_TYPES_WEIGHTS_FOR_TERMITE_HILL, "rotten_apple");
   }
   if (structureType === "anthill") {
-    return pickRandomItemType(ANTHILL_WEIGHTS, "iron_ore");
+    return pickRandomItemType(ITEM_TYPES_WEIGHTS_FOR_ANTHILL, "paper");
   }
-  return pickRandomItemType(ITEM_TYPES_WEIGHTS_FOR_HOLE, "leaf_part");
+  return pickRandomItemType(ITEM_TYPES_WEIGHTS_FOR_HOLE, "stick");
+}
+
+export function generateDiggableItem(structureType: StructureType, entities: Positionable[]): DiggableType {
+  if (entities.length <= 1) {
+    return "leaf_part";
+  } else if (entities.length === 4 && !entities.some((entity) => "bugType" in entity && entity.bugType === "beetle")) {
+    return "beetle";
+  }
+  return generateRandomItemType(structureType);
 }

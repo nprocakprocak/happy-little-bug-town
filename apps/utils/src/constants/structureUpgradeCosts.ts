@@ -17,16 +17,16 @@ export const WORKSHOP_LVL_3_BUILD_COSTS: BuildResourceCost[] = [
 
 export const STONEMASON_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "wood", count: 1 },
-  { itemType: "brick", count: 2 },
+  { itemType: "brick", count: 1 },
   { itemType: "glass", count: 2 },
-  { itemType: "roof_tile", count: 2 },
+  { itemType: "roof_tile", count: 1 },
 ];
 
 export const WOODCUTTER_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
   { itemType: "wood", count: 1 },
   { itemType: "paving_stone", count: 1 },
   { itemType: "glass", count: 2 },
-  { itemType: "roof_tile", count: 2 },
+  { itemType: "roof_tile", count: 1 },
 ];
 
 export const STONEMASON_LVL_3_BUILD_COSTS: BuildResourceCost[] = [
@@ -51,7 +51,7 @@ export const KITCHEN_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
 ];
 
 export const SMELTER_LVL_2_BUILD_COSTS: BuildResourceCost[] = [
-  { itemType: "iron_ingot", count: 2 },
+  { itemType: "iron_ingot", count: 1 },
   { itemType: "paving_stone", count: 1 },
   { itemType: "roof_tile", count: 1 },
   { itemType: "gravel", count: 2 },

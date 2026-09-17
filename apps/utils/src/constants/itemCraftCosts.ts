@@ -12,15 +12,14 @@ export const ITEM_CRAFT_COSTS: Record<
   axe: [
     { itemType: "little_rock", count: 1 },
     { itemType: "stick", count: 1 },
-    { itemType: "root", count: 3 },
+    { itemType: "root", count: 1 },
   ],
   hammer_and_chisel: [
     { itemType: "little_rock", count: 2 },
     { itemType: "stick", count: 2 },
-    { itemType: "root", count: 2 },
   ],
   leaf_rake: [
-    { itemType: "leaf_part", count: 5 },
+    { itemType: "leaf_part", count: 3 },
     { itemType: "brick", count: 1 },
     { itemType: "wood", count: 1 },
     { itemType: "root", count: 2 },
@@ -31,7 +30,7 @@ export const ITEM_CRAFT_COSTS: Record<
   ],
   hammer: [
     { itemType: "brick", count: 1 },
-    { itemType: "wood", count: 2 },
+    { itemType: "wood", count: 1 },
     { itemType: "root", count: 2 },
   ],
   crucible: [
@@ -44,11 +43,11 @@ export const ITEM_CRAFT_COSTS: Record<
     { itemType: "iron_ingot", count: 1 },
   ],
   hoe: [
-    { itemType: "iron_ingot", count: 2 },
     { itemType: "wood", count: 1 },
+    { itemType: "iron_ingot", count: 2 },
   ],
   basket: [
-    { itemType: "iron_ingot", count: 2 },
+    { itemType: "iron_ingot", count: 1 },
     { itemType: "steel", count: 1 },
   ],
   desk: [

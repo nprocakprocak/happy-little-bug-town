@@ -50,5 +50,6 @@ export async function assertFootprintFits(
 }
 
 export async function requireNearestEmpty(authorId: string, near: Positionable): Promise<Position> {
-  return findNearestEmptyPositionForAuthor(prisma, authorId, near);
+  const entities = await getPositionedEntitiesOnGrid(prisma, authorId);
+  return findNearestEmptyPositionForAuthor(near, entities);
 }

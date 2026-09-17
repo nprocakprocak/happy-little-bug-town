@@ -10,8 +10,8 @@ import {
 
 import { AppError } from "../errors/AppError.js";
 import { getDemolishResultingUpgradeLevel, getNextDemolishTarget } from "../helpers/demolition.js";
-import { generateRandomItemType } from "../helpers/diggableItems.js";
-import { findNearestEmptyPositionForAuthor, lockAuthorGrid } from "../helpers/gridPlacement.js";
+import { generateDiggableItem } from "../helpers/diggableItems.js";
+import { findNearestEmptyPositionForAuthor, getPositionedEntitiesOnGrid, lockAuthorGrid } from "../helpers/gridPlacement.js";
 import { prisma } from "../lib/prisma.js";
 import { toBugDto } from "../mappers/bug.js";
 import { toItemDto } from "../mappers/item.js";
@@ -124,8 +124,9 @@ export const digAtStructure = async (
 
   return prisma.$transaction(async (tx) => {
     await lockAuthorGrid(tx, authorId);
-    const emptyPosition = await findNearestEmptyPositionForAuthor(tx, authorId, structure);
-    const itemOrBug = generateRandomItemType(structure.structureType);
+    const entities = await getPositionedEntitiesOnGrid(tx, authorId);
+    const emptyPosition = await findNearestEmptyPositionForAuthor(structure, entities);
+    const itemOrBug = generateDiggableItem(structure.structureType, entities);
 
     if (itemOrBug === "beetle" || itemOrBug === "greenfly") {
       const createdBug = await tx.bug.create({
@@ -343,11 +344,12 @@ export const demolishAtStructure = async (
       });
     }
 
-    const emptyPosition = await findNearestEmptyPositionForAuthor(tx, authorId, {
+    const entities = await getPositionedEntitiesOnGrid(tx, authorId);
+    const emptyPosition = await findNearestEmptyPositionForAuthor({
       x: latest.x,
       y: latest.y,
       structureType: latest.structureType,
-    });
+    }, entities);
 
     if (target.kind === "item") {
       const updatedItem = await tx.item.update({
