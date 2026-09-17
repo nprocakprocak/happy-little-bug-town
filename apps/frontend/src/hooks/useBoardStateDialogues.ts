@@ -14,6 +14,7 @@ import { findBuiltTavernOnBoard } from "../components/helpers/dialogues/findBuil
 import { findBuiltTownHallOnBoard } from "../components/helpers/dialogues/findBuiltTownHallOnBoard";
 import { findBuiltWoodcutterOnBoard } from "../components/helpers/dialogues/findBuiltWoodcutterOnBoard";
 import { findBuiltWorkshopOnBoard } from "../components/helpers/dialogues/findBuiltWorkshopOnBoard";
+import { findEmptyStructureBlueprintOnBoard } from "../components/helpers/dialogues/findEmptyStructureBlueprintOnBoard";
 import { findFedBeetleOnBoard } from "../components/helpers/dialogues/findFedBeetleOnBoard";
 import { findLadybugOnBoard } from "../components/helpers/dialogues/findLadybugOnBoard";
 import { findTermiteMoundOnBoard } from "../components/helpers/dialogues/findTermiteMoundOnBoard";
@@ -63,6 +64,7 @@ import {
   firstTermiteDialogue,
   libraryDialogue,
   mushroomFieldDialogue,
+  placeStructureDialogue,
   stonemasonUpgradedDialogue,
   termiteMoundDialogue,
   townHallDialogue,
@@ -102,6 +104,11 @@ export function useBoardStateDialogues({
 
     const fedBeetle = findFedBeetleOnBoard(entities);
     if (fedBeetle && showDialogueIfNotVisited(buildBeetleHouseDialogue(fedBeetle.id))) {
+      return;
+    }
+
+    const emptyBlueprint = findEmptyStructureBlueprintOnBoard(entities);
+    if (emptyBlueprint && showDialogueIfNotVisited(placeStructureDialogue(emptyBlueprint.id))) {
       return;
     }
 

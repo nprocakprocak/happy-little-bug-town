@@ -4,6 +4,7 @@ export type OnceDialogueId =
   | "dugFirstBeetle"
   | "feedBeetle"
   | "buildBeetleHouse"
+  | "placeStructure"
   | "buildWorkshop"
   | "craftAxe"
   | "buildWoodcutter"

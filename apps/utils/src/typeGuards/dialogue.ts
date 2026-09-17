@@ -7,6 +7,7 @@ export function isOnceDialogueId(value: unknown): value is OnceDialogueId {
     "dugFirstBeetle",
     "feedBeetle",
     "buildBeetleHouse",
+    "placeStructure",
     "buildWorkshop",
     "craftAxe",
     "buildWoodcutter",

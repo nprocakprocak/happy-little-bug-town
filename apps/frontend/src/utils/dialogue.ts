@@ -124,6 +124,15 @@ export function buildBeetleHouseDialogue(beetleId: string): Dialogue {
   };
 }
 
+export function placeStructureDialogue(structureId: string): Dialogue {
+  return {
+    id: "placeStructure",
+    text: "Drag the structure to place it anywhere you want.",
+    bugType: "beetle",
+    cursorEntityId: structureId,
+  };
+}
+
 export function buildWorkshopDialogue(beetleId: string): Dialogue {
   return {
     id: "buildWorkshop",

@@ -1,0 +1,12 @@
+import { isStructureIncomplete } from "@happy-little-bug-town/utils";
+
+import { GridEntity } from "../../../types/gridEntity";
+import { Structure } from "../../../types/structure";
+import { isStructure } from "../typeGuards";
+
+export function findEmptyStructureBlueprintOnBoard(entities: GridEntity[]): Structure | undefined {
+  return entities.find(
+    (entity): entity is Structure =>
+      isStructure(entity) && isStructureIncomplete(entity) && entity.items.length === 0,
+  );
+}
