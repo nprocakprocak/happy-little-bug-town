@@ -5,6 +5,7 @@ import {
   getBugFoodRequirement,
   getCompletedUpgradeLevel,
   isBugFed,
+  isStructureBuilt,
   isStructurePowered,
   ItemType,
 } from "@happy-little-bug-town/utils";
@@ -133,10 +134,18 @@ export function placeStructureDialogue(structureId: string): Dialogue {
   };
 }
 
+export function beetleHouseDialogue(): Dialogue {
+  return {
+    id: "beetleHouse",
+    text: "This is our house. All the beetles that come from the hole will stay here.",
+    bugType: "beetle",
+  };
+}
+
 export function buildWorkshopDialogue(beetleId: string): Dialogue {
   return {
     id: "buildWorkshop",
-    text: "Wow, that's a nice house we can all live in. Let's build a workshop so we could craft tools that will make our lives easier.",
+    text: "Wow, that's a very nice house. All the beetles that come from the hole will stay here. Let's build a workshop so we could craft tools that will make our lives easier.",
     bugType: "beetle",
     cursorEntityId: beetleId,
   };
@@ -154,7 +163,7 @@ export function craftAxeDialogue(workshopId: string): Dialogue {
 export function buildWoodcutterDialogue(beetleId?: string): Dialogue {
   return {
     id: "buildWoodcutter",
-    text: "Build a woodcutter and drop some sticks on it to create wood.",
+    text: "Build a woodcutter and drop some sticks on it to create wood. If you need more beetles, try digging them out or take one from the house.",
     bugType: "beetle",
     cursorEntityId: beetleId,
   };
@@ -462,7 +471,13 @@ function isUpgradedAndPowered(structure: Structure): boolean {
 }
 
 export function structureClickDialogue(structure: Structure): Dialogue | null {
+  if (!isStructureBuilt(structure) || !isStructurePowered(structure)) {
+    return null;
+  }
+  
   switch (structure.structureType) {
+    case "beetle_house":
+      return beetleHouseDialogue();
     case "woodcutter":
       if (isUpgradedAndPowered(structure)) {
         return woodcutterUpgradedDialogue();

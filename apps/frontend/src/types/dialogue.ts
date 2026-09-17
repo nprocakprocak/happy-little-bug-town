@@ -7,6 +7,7 @@ export type DialogueId =
   | ItemType
   | "cannotBuild"
   | "cannotPlace"
+  | "beetleHouse"
   | "bricksProduction"
   | "cookingList"
   | "tavernList"
