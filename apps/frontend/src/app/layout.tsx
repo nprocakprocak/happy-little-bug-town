@@ -6,7 +6,7 @@ import Script from "next/script";
 
 import { GoogleAuthCallbackRegistrar } from "../components/home/GoogleAuthCallbackRegistrar";
 import { AuthProvider } from "../context/AuthContext";
-import { GridVisibilityProvider } from "../context/GridVisibilityContext";
+import { BoardVisibilityProvider } from "../context/BoardVisibilityContext";
 import { QueryProvider } from "../providers/QueryProvider";
 
 const APP_LOCALE = "en";
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <QueryProvider>
           <AuthProvider>
             <GoogleAuthCallbackRegistrar />
-            <GridVisibilityProvider>{children}</GridVisibilityProvider>
+            <BoardVisibilityProvider>{children}</BoardVisibilityProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

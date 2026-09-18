@@ -58,6 +58,7 @@ import { ItemFlightLayer } from "./ItemFlightLayer";
 import { StackCreateBlockedHintLayer } from "./StackCreateBlockedHintLayer";
 import { StructureBuildProgressLayer } from "./StructureBuildProgressLayer";
 import { StructureDemolishHighlightLayer } from "./StructureDemolishHighlightLayer";
+import { StructureNameLabelsLayer } from "./StructureNameLabelsLayer";
 import { StructurePowerProgressLayer } from "./StructurePowerProgressLayer";
 import { StructureResourceProgressLayer } from "./StructureResourceProgressLayer";
 
@@ -401,6 +402,12 @@ function GroundGridBoard({ rows, cols }: GroundGridProps) {
           rows={rows}
           structures={structures}
           items={items}
+          gridDrag={gridDrag}
+        />
+        <StructureNameLabelsLayer
+          cols={cols}
+          rows={rows}
+          structures={structures}
           gridDrag={gridDrag}
         />
         <GroundGridInteractionLayer

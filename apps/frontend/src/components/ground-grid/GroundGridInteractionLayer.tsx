@@ -1,14 +1,14 @@
 "use client";
 
+import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   findOverlappingEntity,
   getSpannableSpan,
   Position,
   positionOverlapsAnyEntity,
 } from "@happy-little-bug-town/utils";
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
-import { useGridVisibility } from "../../context/GridVisibilityContext";
+import { useBoardVisibility } from "../../context/BoardVisibilityContext";
 import { useMainStore } from "../../stores/main";
 import { GridEntity } from "../../types/gridEntity";
 import { gridCellFromClientPoint } from "../helpers/gridCellFromClientPoint";
@@ -37,7 +37,7 @@ export function GroundGridInteractionLayer({
   onEntityDropped,
   onDragChange,
 }: GroundGridInteractionLayerProps) {
-  const { gridCellsVisible } = useGridVisibility();
+  const { gridCellsVisible } = useBoardVisibility();
   const isDemolishMode = useMainStore((state) => state.isDemolishMode);
   const [dragState, setDragState] = useState<DragState | null>(null);
 
@@ -143,7 +143,10 @@ export function GroundGridInteractionLayer({
       return;
     }
 
-    const overlapping = findOverlappingEntity({ x: targetPosition.x, y: targetPosition.y }, entities) as GridEntity | undefined;
+    const overlapping = findOverlappingEntity(
+      { x: targetPosition.x, y: targetPosition.y },
+      entities,
+    ) as GridEntity | undefined;
     const overlappingEntity =
       overlapping && overlapping.id !== entityToDrop.id ? overlapping : undefined;
 

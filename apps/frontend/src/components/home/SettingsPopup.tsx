@@ -48,13 +48,22 @@ export function SettingsPopup({ onClose }: SettingsPopupProps) {
           <div className="mt-4 border-t border-stone-200 pt-4">
             <SettingsResetGameSection onResetComplete={onClose} />
           </div>
-          <p className="mt-4 border-t border-stone-200 pt-4 text-center text-sm text-stone-600">
-            Press{" "}
-            <kbd className="rounded border border-stone-300 bg-stone-100 px-1.5 py-0.5 font-medium text-stone-800">
-              G
-            </kbd>{" "}
-            to toggle grid visibility.
-          </p>
+          <div className="mt-4 border-t border-stone-200 pt-4 text-center text-sm text-stone-600">
+            <p>
+              Press{" "}
+              <kbd className="rounded border border-stone-300 bg-stone-100 px-1.5 py-0.5 font-medium text-stone-800">
+                G
+              </kbd>{" "}
+              to toggle grid visibility.
+            </p>
+            <p className="mt-2">
+              Press{" "}
+              <kbd className="rounded border border-stone-300 bg-stone-100 px-1.5 py-0.5 font-medium text-stone-800">
+                B
+              </kbd>{" "}
+              to toggle building names.
+            </p>
+          </div>
           <div className="mt-4 flex justify-center">
             <button
               type="button"
