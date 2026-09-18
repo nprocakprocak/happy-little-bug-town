@@ -143,6 +143,14 @@ export function beetleHouseDialogue(): Dialogue {
   };
 }
 
+export function greenflyHouseDialogue(): Dialogue {
+  return {
+    id: "greenflyHouse",
+    text: "This is greenfly house. Drop all the greenflies here.",
+    bugType: "ant",
+  };
+}
+
 export function buildWorkshopDialogue(beetleId: string): Dialogue {
   return {
     id: "buildWorkshop",
@@ -480,6 +488,8 @@ export function structureClickDialogue(structure: Structure): Dialogue | null {
   switch (structure.structureType) {
     case "beetle_house":
       return beetleHouseDialogue();
+    case "greenfly_house":
+      return greenflyHouseDialogue();
     case "woodcutter":
       if (isUpgradedAndPowered(structure)) {
         return woodcutterUpgradedDialogue();
