@@ -1,40 +1,40 @@
 import { DiggableType, Positionable, StructureType } from "@happy-little-bug-town/utils";
 
 const ITEM_TYPES_WEIGHTS_FOR_HOLE = {
-  leaf_part: 42 / 122,
-  little_rock: 30 / 122,
-  root: 9 / 122,
-  stick: 35 / 122,
-  beetle: 6 / 122,
+  leaf_part: 0.4,
+  little_rock: 0.2,
+  root: 0.1,
+  stick: 0.2,
+  beetle: 0.1,
 };
 
 const ITEM_TYPES_WEIGHTS_FOR_ANTHILL = {
-  leaf_part: 31 / 174,
-  little_rock: 27 / 174,
-  root: 3 / 174,
-  stick: 36 / 174,
-  beetle: 1 / 174,
-  iron_ore: 16 / 174,
-  clay: 12 / 174,
-  greenfly: 12 / 174,
-  glass: 10 / 174,
-  paper: 26 / 174,
+  leaf_part: 0.2,
+  little_rock: 0.125,
+  root: 0.05,
+  stick: 0.2,
+  beetle: 0.05,
+  iron_ore: 0.075,
+  clay: 0.075,
+  greenfly: 0.075,
+  glass: 0.05,
+  paper: 0.1,
 };
 
 const ITEM_TYPES_WEIGHTS_FOR_TERMITE_HILL = {
-  leaf_part: 28 / 186,
-  little_rock: 21 / 186,
-  root: 0 / 186,
-  stick: 27 / 186,
-  beetle: 0 / 186,
-  iron_ore: 31 / 186,
-  clay: 6 / 186,
-  greenfly: 12 / 186,
-  glass: 3 / 186,
-  paper: 9 / 186,
-  gravel: 20 / 186,
-  seeds: 20 / 186,
-  rotten_apple: 9 / 186,
+  leaf_part: 0.1,
+  little_rock: 0.1,
+  root: 0.05,
+  stick: 0.05,
+  beetle: 0.05,
+  iron_ore: 0.15,
+  clay: 0.05,
+  greenfly: 0.05,
+  glass: 0.05,
+  paper: 0.05,
+  gravel: 0.1,
+  seeds: 0.1,
+  rotten_apple: 0.1,
 };
 
 function pickRandomItemType(weights: Record<string, number>, fallback: DiggableType): DiggableType {

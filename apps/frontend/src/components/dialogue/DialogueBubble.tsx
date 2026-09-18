@@ -13,11 +13,13 @@ interface DialogueBubbleProps {
 }
 
 const DIALOGUE_TEXT_CLASS_NAME = "text-[clamp(0.95rem,4.2cqi,1.35rem)] leading-snug text-stone-800";
+const AWAY_CLICK_CLOSE_DELAY_MS = 2000;
 
 export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
   const { text, bugType, infographic } = dialogue;
   const bustSrc = bugType ? bugTypeToBustSrc(bugType) : undefined;
   const contentRef = useRef<HTMLDivElement>(null);
+  const canCloseByAwayClickRef = useRef(false);
   const {
     containerRef,
     measureRef,
@@ -30,8 +32,13 @@ export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
   } = useDialoguePages(text);
 
   useEffect(() => {
+    canCloseByAwayClickRef.current = false;
+    const timeoutId = window.setTimeout(() => {
+      canCloseByAwayClickRef.current = true;
+    }, AWAY_CLICK_CLOSE_DELAY_MS);
+
     function handlePointerDown(event: PointerEvent) {
-      if (event.button !== 0) {
+      if (event.button !== 0 || !canCloseByAwayClickRef.current) {
         return;
       }
       const target = event.target;
@@ -43,9 +50,10 @@ export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
 
     document.addEventListener("pointerdown", handlePointerDown);
     return () => {
+      window.clearTimeout(timeoutId);
       document.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, [onClose]);
+  }, [dialogue.id, onClose]);
 
   return (
     <div className="pointer-events-none absolute inset-0" role="presentation">
