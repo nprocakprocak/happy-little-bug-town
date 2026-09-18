@@ -169,6 +169,14 @@ export function craftAxeDialogue(workshopId: string): Dialogue {
   };
 }
 
+export function firstStackDialogue(): Dialogue {
+  return {
+    id: "firstStack",
+    text: "If you stack 10 or more items, it becomes an infinite source of that resource.",
+    bugType: "beetle",
+  };
+}
+
 export function buildWoodcutterDialogue(beetleId?: string): Dialogue {
   return {
     id: "buildWoodcutter",

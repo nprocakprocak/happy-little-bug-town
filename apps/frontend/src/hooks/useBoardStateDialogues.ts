@@ -32,6 +32,7 @@ import { hasLeafAndBeetleOnBoard } from "../components/helpers/dialogues/hasLeaf
 import { hasMushroomOnBoard } from "../components/helpers/dialogues/hasMushroomOnBoard";
 import { hasRottenAppleOnBoard } from "../components/helpers/dialogues/hasRottenAppleOnBoard";
 import { hasSpiderOnBoard } from "../components/helpers/dialogues/hasSpiderOnBoard";
+import { hasStackOnBoard } from "../components/helpers/dialogues/hasStackOnBoard";
 import { hasTermiteOnBoard } from "../components/helpers/dialogues/hasTermiteOnBoard";
 import { isStartingBoardState } from "../components/helpers/dialogues/isStartingBoardState";
 import { Dialogue } from "../types/dialogue";
@@ -61,6 +62,7 @@ import {
   firstMushroomDialogue,
   firstRottenAppleDialogue,
   firstSpiderDialogue,
+  firstStackDialogue,
   firstTermiteDialogue,
   libraryDialogue,
   mushroomFieldDialogue,
@@ -119,6 +121,10 @@ export function useBoardStateDialogues({
 
     const workshop = findBuiltWorkshopOnBoard(entities);
     if (workshop && showDialogueIfNotVisited(craftAxeDialogue(workshop.id))) {
+      return;
+    }
+
+    if (hasStackOnBoard(entities) && showDialogueIfNotVisited(firstStackDialogue())) {
       return;
     }
 

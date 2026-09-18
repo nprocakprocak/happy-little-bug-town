@@ -14,6 +14,7 @@ export type OnceDialogueId =
   | "buildTavern"
   | "cookNettleSoup"
   | "firstAnt"
+  | "firstStack"
   | "digMoreResources"
   | "automateWithAnts"
   | "firstGreenfly"

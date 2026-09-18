@@ -17,6 +17,7 @@ export function isOnceDialogueId(value: unknown): value is OnceDialogueId {
     "buildTavern",
     "cookNettleSoup",
     "firstAnt",
+    "firstStack",
     "digMoreResources",
     "automateWithAnts",
     "firstGreenfly",
