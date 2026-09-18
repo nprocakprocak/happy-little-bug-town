@@ -6,7 +6,7 @@ import {
   getHouseOccupants,
   getStackSpan,
   getStructureSpan,
-  isInfiniteStackSource,
+  isInfiniteSource,
 } from "@happy-little-bug-town/utils";
 
 import { Stack } from "../../types/stack";
@@ -92,9 +92,7 @@ export function GridCountersLayer({
               ...gridDragStyle(gridDrag, isDragged),
             }}
           >
-            <CounterBadge
-              count={isInfiniteStackSource(stack.itemsCount) ? "∞" : stack.itemsCount}
-            />
+            <CounterBadge count={isInfiniteSource(stack.itemsCount) ? "∞" : stack.itemsCount} />
           </div>
         );
       })}
@@ -116,7 +114,7 @@ export function GridCountersLayer({
               ...gridDragStyle(gridDrag, isDragged),
             }}
           >
-            <CounterBadge count={count} />
+            <CounterBadge count={isInfiniteSource(count) ? "∞" : count} />
           </div>
         );
       })}

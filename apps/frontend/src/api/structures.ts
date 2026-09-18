@@ -7,6 +7,7 @@ import { apiFetch } from "./client";
 interface ExtractOccupantResult {
   extractedOccupant: Bug;
   structure: Structure;
+  generated: boolean;
 }
 
 interface CraftOperationalResourceResult {

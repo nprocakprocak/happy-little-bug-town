@@ -27,6 +27,6 @@ export const COMPOSTER_SPAN = 2;
 export const LIBRARY_SPAN = 3;
 export const TOWN_HALL_SPAN = 3;
 export const STACK_SPAN = 2;
-export const STACK_INFINITE_SOURCE_THRESHOLD = 10;
+export const INFINITE_SOURCE_THRESHOLD = 10;
 export const ITEM_SPAN = 1;
 export const BUG_SPAN = 1;

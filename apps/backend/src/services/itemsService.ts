@@ -5,7 +5,7 @@ import {
   canStackItemType,
   getBugFoodCount,
   getBugFoodRequirement,
-  isInfiniteStackSource,
+  isInfiniteSource,
 } from "@happy-little-bug-town/utils";
 
 import { AppError } from "../errors/AppError.js";
@@ -325,7 +325,7 @@ export async function takeItemFromStack(
       entities,
     );
 
-    if (isInfiniteStackSource(itemsCount)) {
+    if (isInfiniteSource(itemsCount)) {
       const createdItem = await tx.item.create({
         data: {
           itemType: stack.itemType,

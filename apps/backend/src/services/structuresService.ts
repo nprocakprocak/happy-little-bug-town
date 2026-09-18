@@ -3,7 +3,10 @@ import {
   canDemolishStructureType,
   canDigAtStructureType,
   getHouseOccupants,
+  getHouseSourceBugType,
+  isInfiniteSource,
   ItemType,
+  pickMostFedBug,
   Position,
   StructureType,
 } from "@happy-little-bug-town/utils";
@@ -11,7 +14,11 @@ import {
 import { AppError } from "../errors/AppError.js";
 import { getDemolishResultingUpgradeLevel, getNextDemolishTarget } from "../helpers/demolition.js";
 import { generateDiggableItem } from "../helpers/diggableItems.js";
-import { findNearestEmptyPositionForAuthor, getPositionedEntitiesOnGrid, lockAuthorGrid } from "../helpers/gridPlacement.js";
+import {
+  findNearestEmptyPositionForAuthor,
+  getPositionedEntitiesOnGrid,
+  lockAuthorGrid,
+} from "../helpers/gridPlacement.js";
 import { prisma } from "../lib/prisma.js";
 import { toBugDto } from "../mappers/bug.js";
 import { toItemDto } from "../mappers/item.js";
@@ -345,11 +352,14 @@ export const demolishAtStructure = async (
     }
 
     const entities = await getPositionedEntitiesOnGrid(tx, authorId);
-    const emptyPosition = await findNearestEmptyPositionForAuthor({
-      x: latest.x,
-      y: latest.y,
-      structureType: latest.structureType,
-    }, entities);
+    const emptyPosition = await findNearestEmptyPositionForAuthor(
+      {
+        x: latest.x,
+        y: latest.y,
+        structureType: latest.structureType,
+      },
+      entities,
+    );
 
     if (target.kind === "item") {
       const updatedItem = await tx.item.update({
@@ -398,6 +408,70 @@ export const demolishAtStructure = async (
       bug: toBugDto(updatedBug),
       structure:
         updatedStructure && !updatedStructure.removedAt ? toStructureDto(updatedStructure) : null,
+    };
+  });
+};
+
+export const extractOccupantFromStructure = async (
+  authorId: string,
+  structure: StructureDto,
+): Promise<{ bug: BugDto; structure: StructureDto; generated: boolean }> => {
+  const sourceBugType = getHouseSourceBugType(structure.structureType);
+  if (!sourceBugType) {
+    throw new AppError(400, "This structure cannot extract occupants");
+  }
+
+  return prisma.$transaction(async (tx) => {
+    await lockAuthorGrid(tx, authorId);
+    const latest = await tx.structure.findUniqueOrThrow({
+      where: { id: structure.id },
+      include: {
+        items: { where: notRemoved },
+        bugs: {
+          where: notRemoved,
+          include: { items: { where: notRemoved } },
+        },
+      },
+    });
+    const occupants = getHouseOccupants(latest);
+    if (occupants.length === 0) {
+      throw new AppError(400, "No occupants in house");
+    }
+
+    const entities = await getPositionedEntitiesOnGrid(tx, authorId);
+    const position = await findNearestEmptyPositionForAuthor(latest, entities);
+    const generated = isInfiniteSource(occupants.length);
+    const occupantToExtract = pickMostFedBug(occupants);
+    const updatedBug = await tx.bug.update({
+      where: { id: occupantToExtract.id },
+      data: {
+        x: position.x,
+        y: position.y,
+        structureId: null,
+        stackId: null,
+      },
+      include: bugInclude,
+    });
+
+    if (generated) {
+      await tx.bug.create({
+        data: {
+          bugType: sourceBugType,
+          structureId: structure.id,
+          authorId,
+        },
+      });
+    }
+
+    const updatedStructure = await tx.structure.findUniqueOrThrow({
+      where: { id: structure.id },
+      include: structureInclude,
+    });
+
+    return {
+      bug: toBugDto(updatedBug),
+      structure: toStructureDto(updatedStructure),
+      generated,
     };
   });
 };

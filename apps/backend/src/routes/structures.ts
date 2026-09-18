@@ -5,7 +5,6 @@ import {
   canStartStructureUpgrade,
   getCraftableOperationalResourceOutput,
   getEvolutionStepFromType,
-  getHouseOccupants,
   getNextStructureUpgradeLevel,
   getStructureOperationalResourceBugs,
   getStructureOperationalResourceItems,
@@ -13,7 +12,6 @@ import {
   isCraftableBugType,
   isFarmBuildableStructureType,
   isStructureReadyToEvolve,
-  pickMostFedBug,
 } from "@happy-little-bug-town/utils";
 
 import { isPrismaUniqueConstraintError } from "../errors/prismaErrors.js";
@@ -24,7 +22,6 @@ import { toStructureOnGridDto } from "../mappers/structure.js";
 import { economyRateLimit } from "../middleware/rateLimits.js";
 import { requireGameAccess } from "../middleware/requireGameAccess.js";
 import { requireStructure } from "../middleware/requireOwnedEntity.js";
-import { getBug, getBugsByIds, updateBug as updateBugService } from "../services/bugsService.js";
 import { getItemsOnGrid } from "../services/itemsService.js";
 import {
   craftOperationalBugAtStructure,
@@ -34,7 +31,7 @@ import {
   demolishAtStructure,
   digAtStructure,
   evolveStructureType as evolveStructureTypeService,
-  getStructure,
+  extractOccupantFromStructure,
   getStructures,
   hasStructureOfType,
   updateStructure as updateStructureService,
@@ -176,45 +173,14 @@ const updateStructure: RequestHandler<{ id: string }> = async (req, res) => {
 };
 
 const extractOccupant: RequestHandler<{ id: string }> = async (req, res) => {
-  const { id } = req.params;
-  const authorId = req.authorId!;
-  const existingStructure = req.structure!;
-
-  if (
-    existingStructure.structureType !== "beetle_house" &&
-    existingStructure.structureType !== "greenfly_house"
-  ) {
-    res.status(400).json({ error: "This structure cannot extract occupants" });
-    return;
-  }
-
-  const occupants = getHouseOccupants(existingStructure);
-  if (occupants.length === 0) {
-    res.status(400).json({ error: "No occupants in house" });
-    return;
-  }
-
-  const emptyPosition = await requireNearestEmpty(authorId, existingStructure);
-
-  const occupantIds = occupants.map((occupant) => occupant.id);
-  const occupantBugs = await getBugsByIds(occupantIds);
-  const occupantToExtract = pickMostFedBug(occupantBugs);
-
-  await updateBugService(occupantToExtract.id, {
-    x: emptyPosition.x,
-    y: emptyPosition.y,
-  });
-
-  const bug = await getBug(occupantToExtract.id);
-  const structure = await getStructure(id);
-  if (!bug || !structure) {
-    res.status(500).json({ error: "Failed to extract occupant from structure" });
-    return;
-  }
-
-  res.status(200).json({
+  const { bug, structure, generated } = await extractOccupantFromStructure(
+    req.authorId!,
+    req.structure!,
+  );
+  res.status(generated ? 201 : 200).json({
     extractedOccupant: toBugOnGridDto(bug),
     structure: toStructureOnGridDto(structure),
+    generated,
   });
 };
 
@@ -276,7 +242,11 @@ const craft: RequestHandler<{ id: string }> = async (req, res) => {
   }
 
   const emptyPosition = await requireNearestEmpty(authorId, existingStructure);
-  const footprint = { x: emptyPosition.x, y: emptyPosition.y, ...(isCraftableBugType(outputType) ? { bugType: outputType } : { itemType: outputType }) };
+  const footprint = {
+    x: emptyPosition.x,
+    y: emptyPosition.y,
+    ...(isCraftableBugType(outputType) ? { bugType: outputType } : { itemType: outputType }),
+  };
   await assertFootprintFits(authorId, footprint);
 
   const operationalItemIds = operationalItems.map((item) => item.id);
@@ -328,7 +298,7 @@ structuresRouter.post("/", createStructure);
 structuresRouter.post("/bootstrap", createFirstStructure);
 structuresRouter.put("/:id", requireStructure, updateStructure);
 structuresRouter.post("/:id/evolve", requireStructure, evolveStructure);
-structuresRouter.post("/:id/extract-occupant", requireStructure, extractOccupant);
+structuresRouter.post("/:id/extract-occupant", economyRateLimit, requireStructure, extractOccupant);
 structuresRouter.post("/:id/craft", economyRateLimit, requireStructure, craft);
 structuresRouter.post("/:id/dig", economyRateLimit, requireStructure, dig);
 structuresRouter.post("/:id/demolish", economyRateLimit, requireStructure, demolish);

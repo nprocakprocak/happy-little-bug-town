@@ -12,12 +12,13 @@ import {
 } from "@happy-little-bug-town/utils";
 import { QueryClient } from "@tanstack/react-query";
 
-import { craftOperationalResource, extractOccupant } from "../../../api/structures";
+import { craftOperationalResource } from "../../../api/structures";
 import { updateBugsCache } from "../../../hooks/useBugs";
 import { updateItemsCache } from "../../../hooks/useItems";
 import { updateStructuresCache } from "../../../hooks/useStructures";
 import { demolishQueue } from "../../../services/demolishQueue";
 import { digQueue } from "../../../services/digQueue";
+import { extractOccupantQueue } from "../../../services/extractOccupantQueue";
 import { Bug } from "../../../types/bug";
 import { Item } from "../../../types/item";
 import { Structure } from "../../../types/structure";
@@ -219,7 +220,7 @@ async function greenflyHouseClick(args: ClickStructureArgs): Promise<ClickStruct
 }
 
 async function extractOccupantAndUpdateStructure({ structure, queryClient }: ClickStructureArgs) {
-  const result = await extractOccupant(structure.id);
+  const result = await extractOccupantQueue.enqueue(structure.id);
   replaceCachedStructure(queryClient, result.structure);
   return {
     occupant: result.extractedOccupant,

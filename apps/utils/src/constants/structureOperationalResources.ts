@@ -32,7 +32,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
 > = {
   stonemason: {
     0: {
-      brick: { itemType: "little_rock", maxCount: 3 },
+      brick: { itemType: "little_rock", maxCount: 2 },
     },
     1: {
       paving_stone: { itemType: "brick", maxCount: 1 },
@@ -43,7 +43,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   },
   woodcutter: {
     0: {
-      wood: { itemType: "stick", maxCount: 3 },
+      wood: { itemType: "stick", maxCount: 2 },
     },
     1: {
       plank: { itemType: "wood", maxCount: 1 },
@@ -55,7 +55,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   kitchen: {
     0: {
       nettle_soup: { itemType: "leaf_part", maxCount: 2 },
-      grilled_greenflies: { bugType: "greenfly", maxCount: 3 },
+      grilled_greenflies: { bugType: "greenfly", maxCount: 2 },
       stuffed_fly: { bugType: "fly", maxCount: 1 },
     },
     1: {
@@ -72,7 +72,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
   },
   smelter: {
     0: {
-      iron_ingot: { itemType: "iron_ore", maxCount: 3 },
+      iron_ingot: { itemType: "iron_ore", maxCount: 2 },
       roof_tile: { itemType: "clay", maxCount: 2 },
     },
     1: {
