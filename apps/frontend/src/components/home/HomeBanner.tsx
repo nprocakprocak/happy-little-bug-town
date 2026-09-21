@@ -14,6 +14,7 @@ import {
   HOME_BANNER_HEIGHT_PX,
 } from "../constants/layout";
 import { GroundBackgroundLayers } from "../ground-grid/GroundBackgroundLayers";
+import { QuestLog } from "./QuestLog";
 import { SettingsPopup } from "./SettingsPopup";
 
 export function HomeBanner() {
@@ -57,6 +58,7 @@ export function HomeBanner() {
           backgroundSize={backgroundSize}
           backgroundPosition={backgroundPosition}
         />
+        <QuestLog />
         <button
           type="button"
           aria-label="Settings"

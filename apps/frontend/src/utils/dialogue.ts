@@ -214,12 +214,11 @@ export function bricksProductionDialogue(): Dialogue {
   };
 }
 
-export function smelterDialogue(): Dialogue {
+export function buildKitchenDialogue(): Dialogue {
   return {
-    id: "smelter",
-    text: "Smelter processes iron and clay. You will be able to process more items after upgrading the building.",
-    bugType: "ant",
-    infographic: createElement(ProcessIronInfographic),
+    id: "buildKitchen",
+    text: "Hurray! We can now build a kitchen. Use one of the beetles to build it and check out the workshop for the required tools.",
+    bugType: "beetle",
   };
 }
 
@@ -232,28 +231,20 @@ export function cookingListDialogue(): Dialogue {
   };
 }
 
+export function buildTavernDialogue(): Dialogue {
+  return {
+    id: "buildTavern",
+    text: "This kitchen will produce various types of food. Let's now build a tavern that will hopefully attract more bugs.",
+    bugType: "beetle",
+  };
+}
+
 export function tavernListDialogue(): Dialogue {
   return {
     id: "tavernList",
     text: "We can attract other bugs by serving their favorite food here in this tavern.",
     bugType: "beetle",
     infographic: createElement(TavernListInfographic),
-  };
-}
-
-export function buildKitchenDialogue(): Dialogue {
-  return {
-    id: "buildKitchen",
-    text: "Hurray! We can now build a kitchen. Check out the workshop for the required tools.",
-    bugType: "beetle",
-  };
-}
-
-export function buildTavernDialogue(): Dialogue {
-  return {
-    id: "buildTavern",
-    text: "This kitchen will produce various types of food. Let's now build a tavern that will hopefully attract more bugs.",
-    bugType: "beetle",
   };
 }
 
@@ -305,6 +296,15 @@ export function firstIronOreDialogue(): Dialogue {
     id: "firstIronOre",
     text: "We can process this iron ore in a smelter. I think the beetles can build one.",
     bugType: "ant",
+  };
+}
+
+export function smelterDialogue(): Dialogue {
+  return {
+    id: "smelter",
+    text: "Smelter processes iron and clay. You will be able to process more items after upgrading the building.",
+    bugType: "ant",
+    infographic: createElement(ProcessIronInfographic),
   };
 }
 

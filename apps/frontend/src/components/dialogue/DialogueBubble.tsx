@@ -13,7 +13,51 @@ interface DialogueBubbleProps {
 }
 
 const DIALOGUE_TEXT_CLASS_NAME = "text-[clamp(0.95rem,4.2cqi,1.35rem)] leading-snug text-stone-800";
+const PAGE_NAV_BUTTON_CLASS_NAME =
+  "flex items-center gap-[0.4cqi] text-[clamp(0.85rem,3.6cqi,1.1rem)] text-stone-800 hover:underline underline-offset-2";
 const AWAY_CLICK_CLOSE_DELAY_MS = 2000;
+
+interface DialoguePageNavProps {
+  hasPrev: boolean;
+  hasMore: boolean;
+  isComplete: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+}
+
+function DialoguePageNav({ hasPrev, hasMore, isComplete, onPrev, onNext }: DialoguePageNavProps) {
+  return (
+    <div className="mt-[1cqi] flex justify-between">
+      <button
+        type="button"
+        aria-label="Previous"
+        disabled={!hasPrev || !isComplete}
+        onClick={(event) => {
+          event.stopPropagation();
+          onPrev();
+        }}
+        className={`${PAGE_NAV_BUTTON_CLASS_NAME} ${
+          hasPrev && isComplete ? "cursor-pointer" : "invisible"
+        }`}
+      >
+        🡄 Prev
+      </button>
+      <button
+        type="button"
+        disabled={!hasMore || !isComplete}
+        onClick={(event) => {
+          event.stopPropagation();
+          onNext();
+        }}
+        className={`${PAGE_NAV_BUTTON_CLASS_NAME} ${
+          hasMore && isComplete ? "cursor-pointer" : "invisible"
+        }`}
+      >
+        More 🡆
+      </button>
+    </div>
+  );
+}
 
 export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
   const { text, bugType, infographic } = dialogue;
@@ -25,9 +69,11 @@ export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
     measureRef,
     displayedText,
     isComplete,
+    hasPrev,
     hasMore,
     hasMultiplePages,
     showAll,
+    showPrev,
     showNext,
   } = useDialoguePages(text);
 
@@ -113,21 +159,13 @@ export function DialogueBubble({ dialogue, onClose }: DialogueBubbleProps) {
                 {displayedText}
               </p>
               {hasMultiplePages ? (
-                <div className="mt-[1cqi] flex justify-end">
-                  <button
-                    type="button"
-                    disabled={!hasMore || !isComplete}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      showNext();
-                    }}
-                    className={`flex items-center gap-[0.4cqi] text-[clamp(0.85rem,3.6cqi,1.1rem)] text-stone-800 hover:underline underline-offset-2 ${
-                      hasMore && isComplete ? "cursor-pointer" : "invisible"
-                    }`}
-                  >
-                    More 🡆
-                  </button>
-                </div>
+                <DialoguePageNav
+                  hasPrev={hasPrev}
+                  hasMore={hasMore}
+                  isComplete={isComplete}
+                  onPrev={showPrev}
+                  onNext={showNext}
+                />
               ) : null}
             </div>
           </div>

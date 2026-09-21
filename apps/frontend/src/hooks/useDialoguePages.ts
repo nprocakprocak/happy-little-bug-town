@@ -47,8 +47,13 @@ export function useDialoguePages(text: string) {
 
   const pageText = pages[pageIndex] ?? "";
   const { displayedText, isComplete, showAll } = useTypedText(pageText);
+  const hasPrev = pageIndex > 0;
   const hasMore = pageIndex < pages.length - 1;
   const hasMultiplePages = pages.length > 1;
+
+  const showPrev = useCallback(() => {
+    setPageIndex((current) => Math.max(current - 1, 0));
+  }, []);
 
   const showNext = useCallback(() => {
     setPageIndex((current) => current + 1);
@@ -59,9 +64,11 @@ export function useDialoguePages(text: string) {
     measureRef,
     displayedText,
     isComplete,
+    hasPrev,
     hasMore,
     hasMultiplePages,
     showAll,
+    showPrev,
     showNext,
   };
 }
