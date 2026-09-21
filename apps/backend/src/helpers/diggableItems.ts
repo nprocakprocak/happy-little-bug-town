@@ -1,69 +1,121 @@
-import { DiggableType, Positionable, StructureType } from "@happy-little-bug-town/utils";
+import { BugType, DiggableType, ItemType, StructureType } from "@happy-little-bug-town/utils";
 
-const ITEM_TYPES_WEIGHTS_FOR_HOLE = {
-  leaf_part: 0.4,
-  little_rock: 0.2,
-  root: 0.1,
-  stick: 0.2,
-  beetle: 0.1,
+const DIGGABLE_TYPE_BY_KEY: Record<DiggableType, true> = {
+  leaf_part: true,
+  little_rock: true,
+  root: true,
+  stick: true,
+  beetle: true,
+  iron_ore: true,
+  clay: true,
+  greenfly: true,
+  glass: true,
+  paper: true,
+  rotten_apple: true,
+  seeds: true,
+  gravel: true,
 };
 
-const ITEM_TYPES_WEIGHTS_FOR_ANTHILL = {
-  leaf_part: 0.2,
-  little_rock: 0.125,
-  root: 0.05,
-  stick: 0.2,
-  beetle: 0.05,
-  iron_ore: 0.075,
-  clay: 0.075,
-  greenfly: 0.075,
-  glass: 0.05,
-  paper: 0.1,
-};
+const DIGGABLE_TYPES_FOR_HOLE: DiggableType[] = [
+  "leaf_part",
+  "little_rock",
+  "root",
+  "stick",
+  "beetle",
+];
 
-const ITEM_TYPES_WEIGHTS_FOR_TERMITE_HILL = {
-  leaf_part: 0.1,
-  little_rock: 0.1,
-  root: 0.05,
-  stick: 0.05,
-  beetle: 0.05,
-  iron_ore: 0.15,
-  clay: 0.05,
-  greenfly: 0.05,
-  glass: 0.05,
-  paper: 0.05,
-  gravel: 0.1,
-  seeds: 0.1,
-  rotten_apple: 0.1,
-};
+const DIGGABLE_TYPES_FOR_ANTHILL: DiggableType[] = [
+  ...DIGGABLE_TYPES_FOR_HOLE,
+  "iron_ore",
+  "clay",
+  "greenfly",
+  "glass",
+  "paper",
+];
 
-function pickRandomItemType(weights: Record<string, number>, fallback: DiggableType): DiggableType {
-  const seed = Math.random();
-  let cumulative = 0;
-  for (const [itemType, probability] of Object.entries(weights)) {
-    cumulative += probability;
-    if (seed < cumulative) {
-      return itemType as DiggableType;
-    }
-  }
-  return fallback;
+const DIGGABLE_TYPES_FOR_TERMITE_MOUND: DiggableType[] = [
+  ...DIGGABLE_TYPES_FOR_ANTHILL,
+  "gravel",
+  "seeds",
+  "rotten_apple",
+];
+
+function isDiggableType(value: string): value is DiggableType {
+  return Object.prototype.hasOwnProperty.call(DIGGABLE_TYPE_BY_KEY, value);
 }
 
-export function generateRandomItemType(structureType: StructureType): DiggableType {
+function getAvailableDiggableTypes(structureType: StructureType): DiggableType[] {
   if (structureType === "termite_mound") {
-    return pickRandomItemType(ITEM_TYPES_WEIGHTS_FOR_TERMITE_HILL, "rotten_apple");
+    return DIGGABLE_TYPES_FOR_TERMITE_MOUND;
   }
   if (structureType === "anthill") {
-    return pickRandomItemType(ITEM_TYPES_WEIGHTS_FOR_ANTHILL, "paper");
+    return DIGGABLE_TYPES_FOR_ANTHILL;
   }
-  return pickRandomItemType(ITEM_TYPES_WEIGHTS_FOR_HOLE, "stick");
+  return DIGGABLE_TYPES_FOR_HOLE;
 }
 
-export function generateDiggableItem(structureType: StructureType, entities: Positionable[]): DiggableType {
-  if (entities.length <= 1) {
-    return "leaf_part";
-  } else if (entities.length === 4 && !entities.some((entity) => "bugType" in entity && entity.bugType === "beetle")) {
-    return "beetle";
+function countOwnedDiggableTypes(
+  items: { itemType: ItemType }[],
+  bugs: { bugType: BugType }[],
+): Partial<Record<DiggableType, number>> {
+  const counts: Partial<Record<DiggableType, number>> = {};
+
+  for (const item of items) {
+    if (!isDiggableType(item.itemType)) {
+      continue;
+    }
+    counts[item.itemType] = (counts[item.itemType] ?? 0) + 1;
   }
-  return generateRandomItemType(structureType);
+
+  for (const bug of bugs) {
+    if (!isDiggableType(bug.bugType)) {
+      continue;
+    }
+    counts[bug.bugType] = (counts[bug.bugType] ?? 0) + 1;
+  }
+
+  return counts;
+}
+
+function getScarcityWeight(count: number): number {
+  return 1 / (count + 1);
+}
+
+function pickWeightedDiggableType(
+  types: DiggableType[],
+  counts: Partial<Record<DiggableType, number>>,
+): DiggableType {
+  const weights = types.map((type) => getScarcityWeight(counts[type] ?? 0));
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  let seed = Math.random() * totalWeight;
+
+  for (let index = 0; index < types.length; index += 1) {
+    seed -= weights[index];
+    if (seed < 0) {
+      return types[index];
+    }
+  }
+
+  return types[types.length - 1];
+}
+
+function getMissingDiggableTypes(
+  types: DiggableType[],
+  counts: Partial<Record<DiggableType, number>>,
+): DiggableType[] {
+  return types.filter((type) => (counts[type] ?? 0) === 0);
+}
+
+export function generateDiggableItem(
+  structureType: StructureType,
+  items: { itemType: ItemType }[],
+  bugs: { bugType: BugType }[],
+): DiggableType {
+  const availableTypes = getAvailableDiggableTypes(structureType);
+  const counts = countOwnedDiggableTypes(items, bugs);
+  const missingTypes = getMissingDiggableTypes(availableTypes, counts);
+  if (missingTypes.length > 0) {
+    return pickWeightedDiggableType(missingTypes, counts);
+  }
+  return pickWeightedDiggableType(availableTypes, counts);
 }

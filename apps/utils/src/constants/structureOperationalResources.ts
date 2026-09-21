@@ -66,7 +66,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
     0: {
       ant: { itemType: "nettle_soup", maxCount: 2 },
       ladybug: { itemType: "grilled_greenflies", maxCount: 1 },
-      termite: { itemType: "pasta", maxCount: 2 },
+      termite: { itemType: "pasta", maxCount: 1 },
       spider: { itemType: "stuffed_fly", maxCount: 2 },
     },
   },
@@ -76,7 +76,7 @@ export const STRUCTURE_OPERATIONAL_RESOURCE_REQUIREMENTS: Partial<
       roof_tile: { itemType: "clay", maxCount: 2 },
     },
     1: {
-      concrete: { itemType: "gravel", maxCount: 1 },
+      concrete: { itemType: "gravel", maxCount: 2 },
       steel: { itemType: "iron_ingot", maxCount: 1 },
     },
   },

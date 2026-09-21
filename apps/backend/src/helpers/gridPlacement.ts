@@ -31,7 +31,11 @@ function toPositionedItem(item: {
   return { x: item.x, y: item.y, itemType: item.itemType };
 }
 
-function toPositionedBug(bug: { x: number | null; y: number | null; bugType: BugType }): Positionable | undefined {
+function toPositionedBug(bug: {
+  x: number | null;
+  y: number | null;
+  bugType: BugType;
+}): Positionable | undefined {
   if (bug.x == null || bug.y == null) {
     return undefined;
   }
@@ -58,7 +62,7 @@ export async function getPositionedEntitiesOnGrid(
     }),
     db.stack.findMany({
       where: { authorId },
-      select: { x: true, y: true },
+      select: { x: true, y: true, itemType: true },
     }),
     db.bug.findMany({
       where: {
@@ -81,12 +85,39 @@ export async function getPositionedEntitiesOnGrid(
       x: stack.x,
       y: stack.y,
       itemsCount: 1,
+      itemType: stack.itemType,
     })),
     ...bugs.flatMap((bug) => {
       const positioned = toPositionedBug(bug);
       return positioned ? [positioned] : [];
     }),
   ];
+}
+
+export async function getOwnedDiggableInventory(
+  db: GridDb,
+  authorId: string,
+): Promise<{ items: { itemType: ItemType }[]; bugs: { bugType: BugType }[] }> {
+  const [items, bugs] = await Promise.all([
+    db.item.findMany({
+      where: {
+        authorId,
+        removedAt: null,
+        OR: [{ x: { not: null }, y: { not: null } }, { stackId: { not: null } }],
+      },
+      select: { itemType: true },
+    }),
+    db.bug.findMany({
+      where: {
+        authorId,
+        removedAt: null,
+        OR: [{ x: { not: null }, y: { not: null } }, { structureId: { not: null } }],
+      },
+      select: { bugType: true },
+    }),
+  ]);
+
+  return { items, bugs };
 }
 
 export async function findNearestEmptyPositionForAuthor(

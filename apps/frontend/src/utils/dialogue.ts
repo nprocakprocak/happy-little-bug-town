@@ -226,7 +226,7 @@ export function smelterDialogue(): Dialogue {
 export function cookingListDialogue(): Dialogue {
   return {
     id: "cookingList",
-    text: "You can cook tasty meals here that will make other bugs visit our town.",
+    text: "You can cook tasty meals here that will make other bugs visit our town. Some dishes are available only after upgrading the building.",
     bugType: "beetle",
     infographic: createElement(CookingListInfographic),
   };
@@ -286,7 +286,7 @@ export function digMoreResourcesDialogue(anthillId: string): Dialogue {
 export function automateWithAntsDialogue(): Dialogue {
   return {
     id: "automateWithAnts",
-    text: "Me and other ants can help you carry items if you want. Just drop us on a stack and we will deliver items to that stack automatically.",
+    text: "Me and other ants can help you carry items if you want. Just drop us on a stack and we will deliver items to that stack automatically. To create stacks you need to craft a rake in the workshop.",
     bugType: "ant",
     infographic: createElement(AutomateTransportInfographic),
   };
@@ -311,7 +311,7 @@ export function firstIronOreDialogue(): Dialogue {
 export function firstLadybugDialogue(ladybugId: string): Dialogue {
   return {
     id: "firstLadybug",
-    text: "Mmm. That was yummy! Hey, you know what? I can upgrade buildings for you. Let's start with the workshop.",
+    text: "Mmm. That was yummy! Hey, guess what. I can upgrade buildings for you. They will craft better items. Let's start with the workshop.",
     bugType: "ladybug",
     cursorEntityId: ladybugId,
   };

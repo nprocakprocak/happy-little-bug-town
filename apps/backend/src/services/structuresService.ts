@@ -16,6 +16,7 @@ import { getDemolishResultingUpgradeLevel, getNextDemolishTarget } from "../help
 import { generateDiggableItem } from "../helpers/diggableItems.js";
 import {
   findNearestEmptyPositionForAuthor,
+  getOwnedDiggableInventory,
   getPositionedEntitiesOnGrid,
   lockAuthorGrid,
 } from "../helpers/gridPlacement.js";
@@ -131,9 +132,16 @@ export const digAtStructure = async (
 
   return prisma.$transaction(async (tx) => {
     await lockAuthorGrid(tx, authorId);
-    const entities = await getPositionedEntitiesOnGrid(tx, authorId);
+    const [entities, inventory] = await Promise.all([
+      getPositionedEntitiesOnGrid(tx, authorId),
+      getOwnedDiggableInventory(tx, authorId),
+    ]);
     const emptyPosition = await findNearestEmptyPositionForAuthor(structure, entities);
-    const itemOrBug = generateDiggableItem(structure.structureType, entities);
+    const itemOrBug = generateDiggableItem(
+      structure.structureType,
+      inventory.items,
+      inventory.bugs,
+    );
 
     if (itemOrBug === "beetle" || itemOrBug === "greenfly") {
       const createdBug = await tx.bug.create({
