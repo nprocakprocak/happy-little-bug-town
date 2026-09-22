@@ -586,6 +586,168 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
       };
     case "rotten_apple":
       return firstRottenAppleDialogue();
+    case "seeds":
+      return {
+        id: "seeds",
+        text: "Plant these seeds on the flower field at the farm.",
+        bugType: "termite",
+      };
+    case "gravel":
+      return {
+        id: "gravel",
+        text: "Use this gravel to produce concrete at the smelter.",
+        bugType: "termite",
+      };
+    case "axe":
+      return {
+        id: "axe",
+        text: "This axe is required in the woodcutter.",
+        bugType: "beetle",
+      };
+    case "hammer_and_chisel":
+      return {
+        id: "hammer_and_chisel",
+        text: "The hammer and chisel is needed in the stonemason.",
+        bugType: "beetle",
+      };
+    case "knife":
+      return {
+        id: "knife",
+        text: "This knife is required to cook meals in the kitchen.",
+        bugType: "beetle",
+      };
+    case "crucible":
+      return {
+        id: "crucible",
+        text: "The crucible is essential for the smelter to work.",
+        bugType: "ant",
+      };
+    case "hoe":
+      return {
+        id: "hoe",
+        text: "The hoe is used at the farm to grow food.",
+        bugType: "ladybug",
+      };
+    case "basket":
+      return {
+        id: "basket",
+        text: "The basket makes it possible to stack scraps of paper, apples and seeds.",
+        bugType: "ladybug",
+      };
+    case "desk":
+      return {
+        id: "desk",
+        text: "The desks are important inventory of the library.",
+        bugType: "termite",
+      };
+    case "fountain":
+      return {
+        id: "fountain",
+        text: "We need fountain to construct the town hall.",
+        bugType: "termite",
+      };
+    case "brick":
+      return {
+        id: "brick",
+        text: "You can use bricks as building material.",
+        bugType: "beetle",
+      };
+    case "wood":
+      return {
+        id: "wood",
+        text: "Use the wooden beams to construct buildings.",
+        bugType: "beetle",
+      };
+    case "nettle_soup":
+      return {
+        id: "nettle_soup",
+        text: "This nettle soup can attract ants at the tavern.",
+        bugType: "beetle",
+      };
+    case "grilled_greenflies":
+      return {
+        id: "grilled_greenflies",
+        text: "The grilled greenflies are ladybugs' snack. You can serve them at the tavern.",
+        bugType: "ant",
+      };
+    case "iron_ingot":
+      return {
+        id: "iron_ingot",
+        text: "The forged iron can be used to construct more advanced buildings and tools.",
+        bugType: "ant",
+      };
+    case "roof_tile":
+      return {
+        id: "roof_tile",
+        text: "The clay roof tiles are used at construction sites.",
+        bugType: "ant",
+      };
+    case "paving_stone":
+      return {
+        id: "paving_stone",
+        text: "The paving stones can be used to raise more advanced buildings.",
+        bugType: "ladybug",
+      };
+    case "plank":
+      return {
+        id: "plank",
+        text: "The planks are needed to build more advanced buildings and tools.",
+        bugType: "ladybug",
+      };
+    case "mushroom":
+      return {
+        id: "mushroom",
+        text: "Cook this mushroom at the kitchen to attract termites.",
+        bugType: "ladybug",
+      };
+    case "pasta":
+      return {
+        id: "pasta",
+        text: "This delicious pasta with mushroom sauce will give termites a good reason to stay at our tavern.",
+        bugType: "ladybug",
+      };
+    case "stuffed_fly":
+      return {
+        id: "stuffed_fly",
+        text: "This fly dish can be served at the tavern which should attract spiders.",
+        bugType: "termite",
+      };
+    case "concrete":
+      return {
+        id: "concrete",
+        text: "This is concrete, a professional building material.",
+        bugType: "termite",
+      };
+    case "steel":
+      return {
+        id: "steel",
+        text: "The steel beams are the best building material you can find.",
+        bugType: "termite",
+      };
+    case "furniture":
+      return {
+        id: "furniture",
+        text: "The furniture is needed to equip the most representative buildings in our town, like library or town hall.",
+        bugType: "termite",
+      };
+    case "sculpture":
+      return {
+        id: "sculpture",
+        text: "Thanks to the sculptures, we can build decorated structures, like library or fountains.",
+        bugType: "termite",
+      };
+    case "book":
+      return {
+        id: "book",
+        text: "The books are needed to equip the town hall.",
+        bugType: "termite",
+      };
+    case "flower":
+      return {
+        id: "flower",
+        text: "Use these flowers at the town hall to attract bees.",
+        bugType: "termite",
+      };
     default:
       return null;
   }
