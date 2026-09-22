@@ -1,4 +1,4 @@
-import { canSwapOnGrid, ItemType, Position } from "@happy-little-bug-town/utils";
+import { BugType, canSwapOnGrid, ItemType, Position } from "@happy-little-bug-town/utils";
 
 import { AppError } from "../errors/AppError.js";
 import { lockAuthorGrid } from "../helpers/gridPlacement.js";
@@ -11,7 +11,7 @@ import { getItem, isItemFreeOnGrid } from "./itemsService.js";
 
 type GridOccupant =
   | { kind: "item"; id: string; x: number; y: number; itemType: ItemType; items: ItemDto["items"] }
-  | { kind: "bug"; id: string; x: number; y: number };
+  | { kind: "bug"; id: string; x: number; y: number; bugType: BugType };
 
 function occupantFromItem(item: ItemDto): GridOccupant {
   if (!isPositioned(item) || !isItemFreeOnGrid(item)) {
@@ -31,7 +31,7 @@ function occupantFromBug(bug: BugDto): GridOccupant {
   if (!isPositioned(bug) || bug.stackId != null || bug.structureId != null) {
     throw new AppError(400, "Entity is not on the grid");
   }
-  return { kind: "bug", id: bug.id, x: bug.x, y: bug.y };
+  return { kind: "bug", id: bug.id, x: bug.x, y: bug.y, bugType: bug.bugType };
 }
 
 function occupantFromLoaded(
