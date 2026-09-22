@@ -12,22 +12,26 @@ const isSecureCookie = (): boolean => {
   return process.env.NODE_ENV !== "development";
 };
 
+const sharedCookieOptions = (): CookieOptions => {
+  const secure = isSecureCookie();
+
+  return {
+    httpOnly: true,
+    signed: true,
+    secure,
+    sameSite: secure ? "none" : "lax",
+    partitioned: secure,
+  };
+};
+
 export const getSignedCookieOptions = (): CookieOptions => {
   const { sessionTtlDays } = loadAuthEnv();
   const maxAge = sessionTtlDays * 24 * 60 * 60 * 1000;
 
   return {
-    httpOnly: true,
-    signed: true,
-    sameSite: "lax",
-    secure: isSecureCookie(),
+    ...sharedCookieOptions(),
     maxAge,
   };
 };
 
-export const getSignedClearCookieOptions = (): CookieOptions => ({
-  httpOnly: true,
-  signed: true,
-  sameSite: "lax",
-  secure: isSecureCookie(),
-});
+export const getSignedClearCookieOptions = (): CookieOptions => sharedCookieOptions();
