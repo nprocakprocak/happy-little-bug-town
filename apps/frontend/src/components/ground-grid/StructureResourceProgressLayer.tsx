@@ -14,6 +14,7 @@ import {
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
 import { isFlying } from "../helpers/isFlying";
+import { structureInvalidDropClass } from "../helpers/structureInvalidItemDrop";
 import type { DragPayload } from "../types/dragPayload";
 import { ResourceProgressBar } from "../ui/ResourceProgressBar";
 
@@ -51,7 +52,7 @@ export function StructureResourceProgressLayer({
         return (
           <div
             key={`structure-resource-${structure.id}`}
-            className="relative min-h-0 min-w-0"
+            className={`relative min-h-0 min-w-0 ${structureInvalidDropClass(gridDrag, structure)}`}
             style={{
               ...gridPlacementStyle(structure.x, structure.y, span),
               ...gridDragStyle(gridDrag, isDragged),

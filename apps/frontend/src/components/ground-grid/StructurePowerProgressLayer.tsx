@@ -18,6 +18,7 @@ import {
   spanCellGridPosition,
 } from "../helpers/groundGridStyles";
 import { itemTypeToImageForItem } from "../helpers/itemImages";
+import { structureInvalidDropClass } from "../helpers/structureInvalidItemDrop";
 import type { DragPayload } from "../types/dragPayload";
 import { MissingResourceCounter } from "../ui/MissingResourceCounter";
 
@@ -90,7 +91,7 @@ export function StructurePowerProgressLayer({
         return counters.map(({ key, imageSrc, missing }, index) => (
           <div
             key={`${structure.id}-${key}`}
-            className="relative min-h-0 min-w-0"
+            className={`relative min-h-0 min-w-0 ${structureInvalidDropClass(gridDrag, structure)}`}
             style={{
               ...spanCellGridPosition(
                 structure.x,

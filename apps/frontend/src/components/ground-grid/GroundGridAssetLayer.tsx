@@ -35,6 +35,10 @@ import {
 import { isFlying } from "../helpers/isFlying";
 import { itemTypeToImageForItem, itemTypeToImageForStack } from "../helpers/itemImages";
 import { structureTypeToImage } from "../helpers/structureImages";
+import {
+  stackInvalidDropClass,
+  structureInvalidDropClass,
+} from "../helpers/structureInvalidItemDrop";
 import { isBug } from "../helpers/typeGuards";
 import type { DragPayload } from "../types/dragPayload";
 import { AutomationMarker } from "./AutomationMarker";
@@ -114,7 +118,7 @@ export function GroundGridAssetLayer({
             return (
               <div
                 key={structure.id}
-                className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
+                className={`relative min-h-0 min-w-0 overflow-hidden rounded-sm ${structureInvalidDropClass(gridDrag, structure, true)}`}
                 style={{
                   ...gridPlacementStyle(structure.x, structure.y, span),
                   ...gridDragStyle(gridDrag, isDragged),
@@ -233,7 +237,7 @@ export function GroundGridAssetLayer({
             return (
               <div
                 key={stack.id}
-                className="relative min-h-0 min-w-0 overflow-hidden rounded-sm"
+                className={`relative min-h-0 min-w-0 overflow-hidden rounded-sm ${stackInvalidDropClass(gridDrag, stack, true)}`}
                 style={{
                   ...gridPlacementStyle(stack.x, stack.y, span),
                   ...gridDragStyle(gridDrag, isDragged),

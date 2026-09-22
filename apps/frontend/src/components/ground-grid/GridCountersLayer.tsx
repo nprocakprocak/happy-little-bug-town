@@ -18,6 +18,10 @@ import {
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
 import { isFlying } from "../helpers/isFlying";
+import {
+  stackInvalidDropClass,
+  structureInvalidDropClass,
+} from "../helpers/structureInvalidItemDrop";
 import type { DragPayload } from "../types/dragPayload";
 import { ResourceProgressBar } from "../ui/ResourceProgressBar";
 
@@ -85,7 +89,7 @@ export function GridCountersLayer({
         return (
           <div
             key={stack.id}
-            className="relative min-h-0 min-w-0"
+            className={`relative min-h-0 min-w-0 ${stackInvalidDropClass(gridDrag, stack)}`}
             style={{
               gridColumn: col,
               gridRow: row,
@@ -107,7 +111,7 @@ export function GridCountersLayer({
         return (
           <div
             key={`house-count-${structure.id}`}
-            className="relative min-h-0 min-w-0"
+            className={`relative min-h-0 min-w-0 ${structureInvalidDropClass(gridDrag, structure)}`}
             style={{
               gridColumn: col,
               gridRow: row,
@@ -125,7 +129,7 @@ export function GridCountersLayer({
         return (
           <div
             key={`occupancy-progress-${structure.id}`}
-            className="relative min-h-0 min-w-0"
+            className={`relative min-h-0 min-w-0 ${structureInvalidDropClass(gridDrag, structure)}`}
             style={{
               ...gridPlacementStyle(structure.x, structure.y, span),
               ...gridDragStyle(gridDrag, isDragged),

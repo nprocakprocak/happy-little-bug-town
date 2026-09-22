@@ -17,6 +17,7 @@ import {
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
 import { isFlying } from "../helpers/isFlying";
+import { structureInvalidDropClass } from "../helpers/structureInvalidItemDrop";
 import { getStructureName } from "../helpers/structureName";
 import type { DragPayload } from "../types/dragPayload";
 
@@ -73,7 +74,7 @@ export function StructureNameLabelsLayer({
         return (
           <div
             key={`structure-name-${structure.id}`}
-            className="relative min-h-0 min-w-0 overflow-hidden"
+            className={`relative min-h-0 min-w-0 overflow-hidden ${structureInvalidDropClass(gridDrag, structure)}`}
             style={{
               ...gridPlacementStyle(structure.x, structure.y, span),
               ...gridDragStyle(gridDrag, isDragged),
