@@ -215,13 +215,13 @@ const QUESTS: Quest[] = [
   },
   {
     id: "upgradeStonemasonAndWoodcutter",
-    text: "Upgrade the stonemason and the woodcutter.",
+    text: "Upgrade the stonemason and the woodcutter to the max level.",
     isActive: (context) =>
       hasClosedDialogue(context, "firstSpider") && hasUpgradedStructure(context, "smelter"),
   },
   {
     id: "upgradeWorkshop",
-    text: "Upgrade the workshop.",
+    text: "Upgrade the workshop to the max level.",
     isActive: (context) =>
       hasClosedDialogue(context, "firstSpider") &&
       hasMaxUpgradedStructure(context, "stonemason") &&

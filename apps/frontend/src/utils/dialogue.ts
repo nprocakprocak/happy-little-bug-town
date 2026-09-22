@@ -761,6 +761,12 @@ export function bugClickDialogue(bugType: BugType): Dialogue | null {
       return automateWithTermitesDialogue();
     case "bee":
       return firstBeeDialogue();
+    case "spider":
+      return {
+        id: "spider",
+        text: "Hi, I am a spider, a highly educated arachnid that can work in administration buildings, like library or town hall.",
+        bugType: "spider",
+      };
     case "greenfly":
       return {
         id: "greenfly",
