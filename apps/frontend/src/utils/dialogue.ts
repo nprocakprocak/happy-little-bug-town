@@ -111,7 +111,7 @@ export function hungryBugDialogue(bug: Bug): Dialogue | null {
 
   return {
     id: bug.bugType,
-    text: "I'm too hungry to work",
+    text: "I'm too hungry to work.",
     bugType: hasDialogueBust(bug.bugType) ? bug.bugType : undefined,
     infographic,
   };
@@ -138,7 +138,7 @@ export function placeStructureDialogue(structureId: string): Dialogue {
 export function beetleHouseDialogue(): Dialogue {
   return {
     id: "beetleHouse",
-    text: "This is our house. All the beetles that come from the hole will stay here. Collect 10 bugs to make this house generate unlimited amount of beetles.",
+    text: "This is our house. All the beetles that come from the hole will stay here. Collect 10 bugs to make this house generate an unlimited number of beetles.",
     bugType: "beetle",
   };
 }
@@ -146,7 +146,7 @@ export function beetleHouseDialogue(): Dialogue {
 export function greenflyHouseDialogue(): Dialogue {
   return {
     id: "greenflyHouse",
-    text: "This is greenfly house. Drop all the greenflies here.",
+    text: "This is the greenfly house. Drop all the greenflies here.",
     bugType: "ant",
   };
 }
@@ -154,7 +154,7 @@ export function greenflyHouseDialogue(): Dialogue {
 export function buildWorkshopDialogue(beetleId: string): Dialogue {
   return {
     id: "buildWorkshop",
-    text: "Wow, that's a very nice house. All the beetles that come from the hole will stay here. Let's build a workshop so we could craft tools that will make our lives easier.",
+    text: "Wow, that's a very nice house. All the beetles that come from the hole will stay here. Let's build a workshop so we can craft tools that will make our lives easier.",
     bugType: "beetle",
     cursorEntityId: beetleId,
   };
@@ -180,7 +180,7 @@ export function firstStackDialogue(): Dialogue {
 export function buildWoodcutterDialogue(beetleId?: string): Dialogue {
   return {
     id: "buildWoodcutter",
-    text: "Build a woodcutter and drop some sticks on it to create wood. If you need more beetles, try digging them out or take one from the house.",
+    text: "Build a woodcutter and drop some sticks on it to create wood. If you need more beetles, try digging them out or taking one from the house.",
     bugType: "beetle",
     cursorEntityId: beetleId,
   };
@@ -198,7 +198,7 @@ export function woodProductionDialogue(): Dialogue {
 export function buildStonemasonDialogue(beetleId?: string): Dialogue {
   return {
     id: "buildStonemason",
-    text: "Great! With the wooden beams we can build a stonemason and produce some bricks. You will need hammers and chisels for that purpose. You can find them in the workshop.",
+    text: "Great! With the wooden beams, we can build a stonemason and produce some bricks. You will need hammers and chisels for that purpose. You can find them in the workshop.",
     bugType: "beetle",
     cursorEntityId: beetleId,
     infographic: createElement(BricksProductionInfographic),
@@ -242,7 +242,7 @@ export function buildTavernDialogue(): Dialogue {
 export function tavernListDialogue(): Dialogue {
   return {
     id: "tavernList",
-    text: "We can attract other bugs by serving their favorite food here in this tavern.",
+    text: "We can attract other bugs by serving their favorite food in this tavern.",
     bugType: "beetle",
     infographic: createElement(TavernListInfographic),
   };
@@ -259,7 +259,7 @@ export function cookNettleSoupDialogue(): Dialogue {
 export function firstAntDialogue(): Dialogue {
   return {
     id: "firstAnt",
-    text: "Hello there! What a nice little village you have here. I would love to see it more prosperous. If you drop enough ants into the hole, we will turn it into an anthill.",
+    text: "Hello there! What a nice little village you have here. I would love to see it become more prosperous. If you drop enough ants into the hole, we will turn it into an anthill.",
     bugType: "ant",
     infographic: createElement(UpgradeHoleInfographic),
   };
@@ -268,7 +268,7 @@ export function firstAntDialogue(): Dialogue {
 export function digMoreResourcesDialogue(anthillId: string): Dialogue {
   return {
     id: "digMoreResources",
-    text: "Great! Thanks to our work this land is more fertile now. We can also dig more resources from the hole.",
+    text: "Great! Thanks to our work, this land is more fertile now. We can also dig more resources from the hole.",
     bugType: "ant",
     cursorEntityId: anthillId,
   };
@@ -277,7 +277,7 @@ export function digMoreResourcesDialogue(anthillId: string): Dialogue {
 export function automateWithAntsDialogue(): Dialogue {
   return {
     id: "automateWithAnts",
-    text: "Me and other ants can help you carry items if you want. Just drop us on a stack and we will deliver items to that stack automatically. To create stacks you need to craft a rake in the workshop.",
+    text: "The other ants and I can help you carry items if you want. Just drop us on a stack and we will deliver items to that stack automatically. To create stacks, you need to craft a rake in the workshop.",
     bugType: "ant",
     infographic: createElement(AutomateTransportInfographic),
   };
@@ -286,7 +286,7 @@ export function automateWithAntsDialogue(): Dialogue {
 export function firstGreenflyDialogue(): Dialogue {
   return {
     id: "firstGreenfly",
-    text: "Look. A greenfly! This is ladybugs' favorite food. Let's fatten it up and prepare it in the kitchen.",
+    text: "Look! A greenfly! This is ladybugs' favorite food. Let's fatten it up and prepare it in the kitchen.",
     bugType: "ant",
   };
 }
@@ -302,7 +302,7 @@ export function firstIronOreDialogue(): Dialogue {
 export function smelterDialogue(): Dialogue {
   return {
     id: "smelter",
-    text: "Smelter processes iron and clay. You will be able to process more items after upgrading the building.",
+    text: "The smelter processes iron and clay. You will be able to process more items after upgrading the building.",
     bugType: "ant",
     infographic: createElement(ProcessIronInfographic),
   };
@@ -311,7 +311,7 @@ export function smelterDialogue(): Dialogue {
 export function firstLadybugDialogue(ladybugId: string): Dialogue {
   return {
     id: "firstLadybug",
-    text: "Mmm. That was yummy! Hey, guess what. I can upgrade buildings for you. They will craft better items. Let's start with the workshop.",
+    text: "Mmm. That was yummy! Hey, guess what? I can upgrade buildings for you. They will craft better items. Let's start with the workshop.",
     bugType: "ladybug",
     cursorEntityId: ladybugId,
   };
@@ -320,7 +320,7 @@ export function firstLadybugDialogue(ladybugId: string): Dialogue {
 export function buildFarmDialogue(): Dialogue {
   return {
     id: "buildFarm",
-    text: "With this new set of handy tools we should be able to turn our village into a beautiful small town. Let's upgrade more buildings and produce more items to be able to construct a farm.",
+    text: "With this new set of handy tools, we should be able to turn our village into a beautiful small town. Let's upgrade more buildings and produce more items so we can construct a farm.",
     bugType: "ladybug",
   };
 }
@@ -328,7 +328,7 @@ export function buildFarmDialogue(): Dialogue {
 export function stonemasonUpgradedDialogue(): Dialogue {
   return {
     id: "stonemasonUpgraded",
-    text: "You can now produce paving stones from the stone bricks. Upgrade even more to make sculptures.",
+    text: "You can now produce paving stones from stone bricks. Upgrade it further to make sculptures.",
     bugType: "ladybug",
     infographic: createElement(StonemasonListInfographic),
   };
@@ -372,7 +372,7 @@ export function firstMushroomDialogue(): Dialogue {
 export function firstTermiteDialogue(): Dialogue {
   return {
     id: "firstTermite",
-    text: "Good morning, sir! I've heard about this place and was eager to see it. This town is so lovely and there is so much work to be done here. Let me suggest that termites are much better in tunneling than ants. If we could... improve their anthill into termite mound, we would be able to dig deeper making this land more fertile. Just drop three of us into the anthill and that should do it.",
+    text: "Good morning, sir! I've heard about this place and I've been eager to see it. This town is so lovely and there is so much work to be done here. Let me suggest that termites are much better at tunneling than ants. If we could... improve their anthill into a termite mound, we would be able to dig deeper, making this land more fertile. Just drop three of us into the anthill and that should do it.",
     bugType: "termite",
   };
 }
@@ -380,7 +380,7 @@ export function firstTermiteDialogue(): Dialogue {
 export function termiteMoundDialogue(termiteMoundId: string): Dialogue {
   return {
     id: "termiteMound",
-    text: "Fantastic! We will now dig more valuable items.",
+    text: "Fantastic! We will now dig up more valuable items.",
     bugType: "termite",
     cursorEntityId: termiteMoundId,
   };
@@ -389,7 +389,7 @@ export function termiteMoundDialogue(termiteMoundId: string): Dialogue {
 export function automateWithTermitesDialogue(): Dialogue {
   return {
     id: "automateWithTermites",
-    text: "We termites are excellent workers. You can put us in a building and we will automatically gather resources required for production.",
+    text: "We termites are excellent workers. You can put us in a building and we will automatically gather the resources required for production.",
     bugType: "termite",
     infographic: createElement(AutomateProductionInfographic),
   };
@@ -398,7 +398,7 @@ export function automateWithTermitesDialogue(): Dialogue {
 export function firstRottenAppleDialogue(): Dialogue {
   return {
     id: "firstRottenApple",
-    text: "These rotten apples can be used in the farm composter to attract flies.",
+    text: "These rotten apples can be used in the composter at the farm to attract flies.",
     bugType: "termite",
   };
 }
@@ -406,7 +406,7 @@ export function firstRottenAppleDialogue(): Dialogue {
 export function composterDialogue(): Dialogue {
   return {
     id: "composter",
-    text: "Drop some rotten apples here. That should attract flies which can be then prepared in the kitchen. Spiders can't resist them.",
+    text: "Drop some rotten apples here. That should attract flies, which can then be prepared in the kitchen. Spiders can't resist them.",
     bugType: "termite",
     infographic: createElement(AppleToFlyInfographic),
   };
@@ -415,7 +415,7 @@ export function composterDialogue(): Dialogue {
 export function firstSpiderDialogue(): Dialogue {
   return {
     id: "firstSpider",
-    text: "It's a pleasure to meet you. Spiders are very well educated bugs and can work in administration buildings, like library. Thanks to us this town may actually construct a town hall and call itself a true happy bug town. Start with upgrading the smelter and other buildings until you build the most important building - the town hall. Do you think you can do that?",
+    text: "It's a pleasure to meet you. Spiders are very well-educated bugs and can work in administration buildings, like the library. Thanks to us, this town may actually construct a town hall and call itself a truly happy bug town. Start by upgrading the smelter and other buildings until you build the most important building: the town hall. Do you think you can do that?",
     bugType: "spider",
   };
 }
@@ -432,7 +432,7 @@ export function libraryDialogue(): Dialogue {
 export function townHallDialogue(): Dialogue {
   return {
     id: "townHall",
-    text: "That's amazing! This city hall is the true crowning achievement of our town's glory. Thanks to it, we can establish diplomatic relations with other colonies. A bee delegation might visit us if we make a good impression. We can welcome them with flowers.",
+    text: "That's amazing! This town hall is the true crowning achievement of our town's glory. Thanks to it, we can establish diplomatic relations with other colonies. A bee delegation might visit us if we make a good impression. We can welcome them with flowers.",
     bugType: "spider",
     infographic: createElement(FlowersToBeeInfographic),
   };
@@ -450,7 +450,7 @@ export function flowersFieldDialogue(): Dialogue {
 export function firstBeeDialogue(): Dialogue {
   return {
     id: "firstBee",
-    text: "Greetings, my friends! What a delightfully splendid town. Should you grant us your permission, we shall transform it into the most prosperous community in the realm. It is our desire to establish a hive here, which will grandly enhance the fertility of your soil. If this proposal pleases you, kindly place three bees within the termite mound.",
+    text: "Greetings, my friends! What a delightfully splendid town! Should you grant us your permission, we shall transform it into the most prosperous community in the realm. It is our desire to establish a hive here, which will greatly enhance the fertility of your soil. If this proposal pleases you, kindly place three bees within the termite mound.",
     bugType: "bee",
   };
 }
@@ -468,7 +468,7 @@ export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
     case "noSpace":
       return {
         id: "cannotBuild",
-        text: "There's not enough space to build this. You can drop items back to the hole to make some room.",
+        text: "There's not enough space to build this. You can drop items back into the hole to make some room.",
         bugType: "beetle",
         infographic: createElement(StickToHoleInfographic),
       };
@@ -478,7 +478,7 @@ export function cannotBuildDialogue(reason: CannotBuildReason): Dialogue {
 export function cannotPlaceDialogue(): Dialogue {
   return {
     id: "cannotPlace",
-    text: "There's not enough space to place an item. You can drop items back to the hole to make some room.",
+    text: "There's not enough space to place an item. You can drop items back into the hole to make some room.",
     bugType: "beetle",
     infographic: createElement(StickToHoleInfographic),
   };
@@ -549,39 +549,39 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
     case "stick":
       return {
         id: "stick",
-        text: "Use stick as a building material or crafting resource.",
+        text: "Use this stick as a building material or a crafting resource.",
       };
     case "iron_ore":
       return firstIronOreDialogue();
     case "leaf_rake":
       return {
         id: "leaf_rake",
-        text: "Thanks to the rake you can stack light items: sticks, leaves and roots.",
+        text: "Thanks to the rake, you can stack light items: sticks, leaves, and roots.",
         bugType: "beetle",
         infographic: createElement(StackingItemsInfographic),
       };
     case "wheelbarrel":
       return {
         id: "wheelbarrel",
-        text: "The wheelbarrel allows you to stack heavy items: rocks, iron ore, clay, glass and gravel.",
+        text: "The wheelbarrel allows you to stack heavy items: rocks, iron ore, clay, glass, and gravel.",
         bugType: "ladybug",
       };
     case "clay":
       return {
         id: "clay",
-        text: "Burn this clay ore in the smelter to produce roof tiles.",
+        text: "Burn this clay in the smelter to produce roof tiles.",
         bugType: "ant",
       };
     case "glass":
       return {
         id: "glass",
-        text: "Glass can serve us as a building material.",
+        text: "Glass can serve as a building material.",
         bugType: "ant",
       };
     case "paper":
       return {
         id: "paper",
-        text: "These scraps of paper may become handy in agriculture or administration buildings.",
+        text: "These scraps of paper may come in handy for agriculture or administration.",
         bugType: "ant",
       };
     case "rotten_apple":
@@ -607,7 +607,7 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
     case "hammer_and_chisel":
       return {
         id: "hammer_and_chisel",
-        text: "The hammer and chisel is needed in the stonemason.",
+        text: "The hammer and chisel are needed in the stonemason.",
         bugType: "beetle",
       };
     case "knife":
@@ -631,25 +631,25 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
     case "basket":
       return {
         id: "basket",
-        text: "The basket makes it possible to stack scraps of paper, apples and seeds.",
+        text: "The basket makes it possible to stack scraps of paper, apples, and seeds.",
         bugType: "ladybug",
       };
     case "desk":
       return {
         id: "desk",
-        text: "The desks are important inventory of the library.",
+        text: "The desks are essential furnishings for the library.",
         bugType: "termite",
       };
     case "fountain":
       return {
         id: "fountain",
-        text: "We need fountain to construct the town hall.",
+        text: "We need a fountain to construct the town hall.",
         bugType: "termite",
       };
     case "brick":
       return {
         id: "brick",
-        text: "You can use bricks as building material.",
+        text: "You can use bricks as a building material.",
         bugType: "beetle",
       };
     case "wood":
@@ -661,13 +661,13 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
     case "nettle_soup":
       return {
         id: "nettle_soup",
-        text: "This nettle soup can attract ants at the tavern.",
+        text: "This nettle soup can attract ants to the tavern.",
         bugType: "beetle",
       };
     case "grilled_greenflies":
       return {
         id: "grilled_greenflies",
-        text: "The grilled greenflies are ladybugs' snack. You can serve them at the tavern.",
+        text: "The grilled greenflies are a snack for ladybugs. You can serve them at the tavern.",
         bugType: "ant",
       };
     case "iron_ingot":
@@ -697,7 +697,7 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
     case "mushroom":
       return {
         id: "mushroom",
-        text: "Cook this mushroom at the kitchen to attract termites.",
+        text: "Cook this mushroom in the kitchen to attract termites.",
         bugType: "ladybug",
       };
     case "pasta":
@@ -709,7 +709,7 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
     case "stuffed_fly":
       return {
         id: "stuffed_fly",
-        text: "This fly dish can be served at the tavern which should attract spiders.",
+        text: "This fly dish can be served at the tavern to attract spiders.",
         bugType: "termite",
       };
     case "concrete":
@@ -727,19 +727,19 @@ export function itemClickDialogue(itemType: ItemType): Dialogue | null {
     case "furniture":
       return {
         id: "furniture",
-        text: "The furniture is needed to equip the most representative buildings in our town, like library or town hall.",
+        text: "The furniture is needed for the town's most important buildings, such as the library or the town hall.",
         bugType: "termite",
       };
     case "sculpture":
       return {
         id: "sculpture",
-        text: "Thanks to the sculptures, we can build decorated structures, like library or fountains.",
+        text: "Thanks to the sculptures, we can build decorated structures, such as the library and the fountains.",
         bugType: "termite",
       };
     case "book":
       return {
         id: "book",
-        text: "The books are needed to equip the town hall.",
+        text: "The books are needed to supply the town hall.",
         bugType: "termite",
       };
     case "flower":

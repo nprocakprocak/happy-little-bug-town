@@ -84,7 +84,7 @@ const QUESTS: Quest[] = [
   },
   {
     id: "buildWorkshop",
-    text: "Build workshop.",
+    text: "Build a workshop.",
     isActive: (context) => hasClosedDialogue(context, "buildWorkshop"),
   },
   {
@@ -104,17 +104,17 @@ const QUESTS: Quest[] = [
   },
   {
     id: "buildStonemason",
-    text: "Build stonemason and produce some bricks.",
+    text: "Build a stonemason and produce some bricks.",
     isActive: (context) => hasClosedDialogue(context, "buildStonemason"),
   },
   {
     id: "buildKitchen",
-    text: "Build kitchen.",
+    text: "Build a kitchen.",
     isActive: (context) => hasClosedDialogue(context, "buildKitchen"),
   },
   {
     id: "buildTavern",
-    text: "Build tavern.",
+    text: "Build a tavern.",
     isActive: (context) => hasClosedDialogue(context, "buildTavern"),
   },
   {
@@ -134,7 +134,7 @@ const QUESTS: Quest[] = [
   },
   {
     id: "firstIronOre",
-    text: "Build smelter and craft an iron ingot.",
+    text: "Build a smelter and craft an iron ingot.",
     isActive: (context) => hasClosedDialogue(context, "firstIronOre"),
   },
   {
@@ -147,28 +147,28 @@ const QUESTS: Quest[] = [
   },
   {
     id: "firstGreenfly",
-    text: "Cook a greenfly and attract a ladybug in the tavern.",
+    text: "Cook a greenfly and attract a ladybug to the tavern.",
     isActive: (context) =>
       hasClosedDialogue(context, "firstGreenfly") && hasFullyBuiltStructure(context, "smelter"),
   },
   {
     id: "firstLadybug",
-    text: "Use ladybug to upgrade the workshop.",
+    text: "Use a ladybug to upgrade the workshop.",
     isActive: (context) => hasClosedDialogue(context, "firstLadybug"),
   },
   {
     id: "upgradeWithLadybugs",
-    text: "Summon more ladybugs and upgrade stonemason and woodcutter.",
+    text: "Summon more ladybugs and upgrade the stonemason and the woodcutter.",
     isActive: (context) => hasClosedDialogue(context, "buildFarm"),
   },
   {
     id: "buildFarm",
-    text: "Build farm.",
+    text: "Build a farm.",
     isActive: (context) => hasClosedDialogue(context, "woodcutterUpgraded"),
   },
   {
     id: "buildMushroomField",
-    text: "Build mushroom field at the farm.",
+    text: "Build a mushroom field at the farm.",
     isActive: (context) => hasClosedDialogue(context, "buildMushroomField"),
   },
   {
@@ -184,13 +184,13 @@ const QUESTS: Quest[] = [
   },
   {
     id: "attractTermites",
-    text: "Attract termites at the tavern using mushroom sauce.",
+    text: "Attract termites to the tavern using mushroom sauce.",
     isActive: (context) =>
       hasClosedDialogue(context, "firstMushroom") && hasUpgradedStructure(context, "kitchen"),
   },
   {
     id: "firstTermite",
-    text: "Drop 3 termites into the anthill.",
+    text: "Drop three termites into the anthill.",
     isActive: (context) => hasClosedDialogue(context, "firstTermite"),
   },
   {
@@ -200,7 +200,7 @@ const QUESTS: Quest[] = [
   },
   {
     id: "firstRottenApple",
-    text: "Build composter at the farm.",
+    text: "Build a composter at the farm.",
     isActive: (context) => hasClosedDialogue(context, "firstRottenApple"),
   },
   {
@@ -215,7 +215,7 @@ const QUESTS: Quest[] = [
   },
   {
     id: "upgradeStonemasonAndWoodcutter",
-    text: "Upgrade stonemason and woodcutter.",
+    text: "Upgrade the stonemason and the woodcutter.",
     isActive: (context) =>
       hasClosedDialogue(context, "firstSpider") && hasUpgradedStructure(context, "smelter"),
   },
@@ -229,23 +229,23 @@ const QUESTS: Quest[] = [
   },
   {
     id: "buildLibrary",
-    text: "Build library.",
+    text: "Build a library.",
     isActive: (context) =>
       hasClosedDialogue(context, "firstSpider") && hasMaxUpgradedStructure(context, "workshop"),
   },
   {
     id: "library",
-    text: "Build town hall.",
+    text: "Build the town hall.",
     isActive: (context) => hasClosedDialogue(context, "library"),
   },
   {
     id: "townHall",
-    text: "Grow some flowers at the farm. Use them to attract bees at town hall.",
+    text: "Grow some flowers at the farm. Use them to attract bees to the town hall.",
     isActive: (context) => hasClosedDialogue(context, "townHall"),
   },
   {
     id: "firstBee",
-    text: "Drop 3 bees into the termite mound.",
+    text: "Drop three bees into the termite mound.",
     isActive: (context) => hasClosedDialogue(context, "firstBee"),
   },
 ];
