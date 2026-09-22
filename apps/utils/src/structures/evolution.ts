@@ -23,7 +23,7 @@ export function isGroundEvolutionStructureType(
 }
 
 export function canDigAtStructureType(structureType: StructureType): boolean {
-  return isGroundEvolutionStructureType(structureType) && structureType !== "beehive";
+  return isGroundEvolutionStructureType(structureType);
 }
 
 export function getEvolutionStepFromType(

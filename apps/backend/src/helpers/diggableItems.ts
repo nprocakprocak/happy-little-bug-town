@@ -45,7 +45,7 @@ function isDiggableType(value: string): value is DiggableType {
 }
 
 function getAvailableDiggableTypes(structureType: StructureType): DiggableType[] {
-  if (structureType === "termite_mound") {
+  if (structureType === "termite_mound" || structureType === "beehive") {
     return DIGGABLE_TYPES_FOR_TERMITE_MOUND;
   }
   if (structureType === "anthill") {
