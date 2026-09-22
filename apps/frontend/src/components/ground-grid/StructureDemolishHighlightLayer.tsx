@@ -1,6 +1,6 @@
 "use client";
 
-import { canDemolishStructureType, getStructureSpan } from "@happy-little-bug-town/utils";
+import { canDemolishStructure, getStructureSpan } from "@happy-little-bug-town/utils";
 
 import { useMainStore } from "../../stores/main";
 import { Item } from "../../types/item";
@@ -34,10 +34,7 @@ export function StructureDemolishHighlightLayer({
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div className="grid h-full w-full gap-1" style={groundGridTemplateStyle(cols, rows)}>
         {structures
-          .filter(
-            (structure) =>
-              !isFlying(structure) && canDemolishStructureType(structure.structureType, items),
-          )
+          .filter((structure) => !isFlying(structure) && canDemolishStructure(structure, items))
           .map((structure) => {
             const isDragged = gridDrag?.entity.id === structure.id;
             const span = getStructureSpan(structure.structureType);

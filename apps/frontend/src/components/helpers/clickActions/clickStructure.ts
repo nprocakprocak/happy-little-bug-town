@@ -1,10 +1,11 @@
 import {
   canCraftFromStructureOperationalResources,
-  canDemolishStructureType,
+  canDemolishStructure,
   canDigAtStructureType,
   getGreenflyHouseOccupants,
   getHouseOccupants,
   hasEmptyGridCell,
+  isSelfGeneratingHouse,
   isStructurePowered,
   Position,
   Positionable,
@@ -53,6 +54,10 @@ type ClickStructureResult =
   | { kind: "noSpace" };
 
 export async function clickStructure(args: ClickStructureArgs): Promise<ClickStructureResult> {
+  if (args.isDemolishMode && isSelfGeneratingHouse(args.structure)) {
+    return { kind: "done" };
+  }
+
   if (isDemolishClick(args)) {
     return demolishStructureClick(args);
   }
@@ -82,7 +87,7 @@ export async function clickStructure(args: ClickStructureArgs): Promise<ClickStr
 }
 
 function isDemolishClick({ structure, items, isDemolishMode }: ClickStructureArgs): boolean {
-  return isDemolishMode && canDemolishStructureType(structure.structureType, items);
+  return isDemolishMode && canDemolishStructure(structure, items);
 }
 
 function poweredPopupResult(structure: Structure): ClickStructureResult | null {

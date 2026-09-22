@@ -1,6 +1,6 @@
 import {
   BugType,
-  canDemolishStructureType,
+  canDemolishStructure,
   canDigAtStructureType,
   getHouseOccupants,
   getHouseSourceBugType,
@@ -319,7 +319,7 @@ export const demolishAtStructure = async (
       },
       include: itemInclude,
     });
-    if (!canDemolishStructureType(latest.structureType, itemsOnGrid)) {
+    if (!canDemolishStructure(latest, itemsOnGrid)) {
       throw new AppError(400, "This structure cannot be demolished");
     }
 

@@ -1,8 +1,9 @@
 import { CSSProperties } from "react";
 import {
-  canDemolishStructureType,
+  canDemolishStructure,
   canRelocateStructure,
   getSpannableSpan,
+  isSelfGeneratingHouse,
   Position,
 } from "@happy-little-bug-town/utils";
 
@@ -39,14 +40,13 @@ export function calculateCellProperties({
   dragState,
   items,
 }: CalculateCellPropertiesProps): CalculateCellProperties {
-  const isDemolishLocked =
-    isDemolishMode &&
-    !!entity &&
-    isStructure(entity) &&
-    canDemolishStructureType(entity.structureType, items);
+  const structure = entity && isStructure(entity) ? entity : null;
+  const isDemolishLocked = isDemolishMode && !!structure && canDemolishStructure(structure, items);
+  const ignoresHammer = isDemolishMode && !!structure && isSelfGeneratingHouse(structure);
 
   const canDrag =
     !!entity &&
+    !ignoresHammer &&
     (!isStructure(entity) || (!isDemolishLocked && canRelocateStructure(entity, items)));
 
   const isDragging = dragState?.index === cellIndex;
