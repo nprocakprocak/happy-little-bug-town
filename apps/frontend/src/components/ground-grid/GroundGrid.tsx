@@ -15,6 +15,7 @@ import { useAutoRouteItems } from "../../hooks/useAutoRouteItems";
 import { useBugsQuery } from "../../hooks/useBugs";
 import { useDialogues } from "../../hooks/useDialogues";
 import { useCreateItemMutation, useItemsQuery } from "../../hooks/useItems";
+import { usePreloadBoardSprites } from "../../hooks/usePreloadBoardSprites";
 import { useStacksQuery } from "../../hooks/useStacks";
 import {
   useCreateFirstStructureMutation,
@@ -69,6 +70,7 @@ interface GroundGridProps {
 
 export function GroundGrid({ rows, cols }: GroundGridProps) {
   const { anonymousId } = useAuth();
+  usePreloadBoardSprites(cols);
   return <GroundGridBoard key={anonymousId} rows={rows} cols={cols} />;
 }
 

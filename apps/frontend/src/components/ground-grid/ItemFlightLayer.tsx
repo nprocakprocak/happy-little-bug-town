@@ -4,10 +4,13 @@ import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import { getSpannableSpan, Positionable } from "@happy-little-bug-town/utils";
 
-import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
 import { GridAnimatable, WithId } from "../../types/gridEntity";
 import { bugToImage } from "../helpers/bugImages";
-import { gridPlacementStyle, groundGridTemplateStyle } from "../helpers/groundGridStyles";
+import {
+  gridImageSizes,
+  gridPlacementStyle,
+  groundGridTemplateStyle,
+} from "../helpers/groundGridStyles";
 import { isFlying } from "../helpers/isFlying";
 import { itemTypeToImageForItem, itemTypeToImageForStack } from "../helpers/itemImages";
 import { structureTypeToImage } from "../helpers/structureImages";
@@ -141,7 +144,7 @@ function FlyingItemAnimation({ cols, rows, item, onComplete }: FlyingItemAnimati
           alt=""
           fill
           className="object-cover"
-          sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
+          sizes={gridImageSizes(cols, span)}
         />
       </div>
     </div>

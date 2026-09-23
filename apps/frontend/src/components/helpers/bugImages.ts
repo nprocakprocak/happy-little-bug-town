@@ -26,3 +26,18 @@ export function bugTypeToImage(bugType: BugType, isFed: boolean = true): string 
 export function bugToImage(bug: { bugType: BugType; items: { itemType: ItemType }[] }): string {
   return bugTypeToImage(bug.bugType, isBugFed(bug));
 }
+
+const BUG_SPRITE_SRC_BY_TYPE: Record<BugType, string[]> = {
+  beetle: [bugTypeToImage("beetle")],
+  ant: [bugTypeToImage("ant")],
+  ladybug: [bugTypeToImage("ladybug")],
+  termite: [bugTypeToImage("termite")],
+  fly: [bugTypeToImage("fly")],
+  spider: [bugTypeToImage("spider")],
+  greenfly: [bugTypeToImage("greenfly", true), bugTypeToImage("greenfly", false)],
+  bee: [bugTypeToImage("bee")],
+};
+
+export function allBugSpriteSrcs(): string[] {
+  return Object.values(BUG_SPRITE_SRC_BY_TYPE).flat();
+}

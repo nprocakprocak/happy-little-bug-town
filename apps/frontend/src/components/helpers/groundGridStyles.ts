@@ -1,6 +1,11 @@
 import type { CSSProperties } from "react";
 
+import { GROUND_GRID_MAX_WIDTH_PX } from "../../constants/layout";
 import type { DragPayload } from "../types/dragPayload";
+
+export function gridImageSizes(cols: number, span: number): string {
+  return `${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`;
+}
 
 export function groundGridTemplateStyle(cols: number, rows: number): CSSProperties {
   return {

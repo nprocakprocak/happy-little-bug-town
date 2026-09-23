@@ -29,6 +29,7 @@ import { GROUND_BG_TILE_HEIGHT_PX, GROUND_BG_TILE_WIDTH_PX } from "../constants/
 import { bugToImage, bugTypeToImage } from "../helpers/bugImages";
 import {
   gridDragStyle,
+  gridImageSizes,
   gridPlacementStyle,
   groundGridTemplateStyle,
 } from "../helpers/groundGridStyles";
@@ -113,7 +114,7 @@ export function GroundGridAssetLayer({
             const evolutionStep = getEvolutionStepToType(structure.structureType);
             const isEvolvingThis =
               evolvingToStructureType === structure.structureType && evolutionStep !== undefined;
-            const structureImageSizes = `${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`;
+            const structureImageSizes = gridImageSizes(cols, span);
 
             return (
               <div
@@ -232,7 +233,7 @@ export function GroundGridAssetLayer({
             const isDragged = gridDrag?.entity.id === stack.id;
             const span = getStackSpan();
             const isAutomated = stack.bugs.length > 0;
-            const stackImageSizes = `${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`;
+            const stackImageSizes = gridImageSizes(cols, span);
 
             return (
               <div
@@ -281,7 +282,7 @@ export function GroundGridAssetLayer({
                   alt=""
                   fill
                   className="object-cover"
-                  sizes={`${Math.ceil((GROUND_GRID_MAX_WIDTH_PX / cols) * span)}px`}
+                  sizes={gridImageSizes(cols, span)}
                 />
                 {showActivationGlow && (
                   <div className="absolute inset-0 rounded-sm bg-sky-500/40" aria-hidden />
