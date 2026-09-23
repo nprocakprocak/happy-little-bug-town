@@ -1,6 +1,20 @@
 @config "../../tailwind.config.mjs";
 @import "tailwindcss";
 
+html {
+  min-height: 100%;
+  background-color: #925d28;
+  background-image: url("/backgrounds/bg-main.webp");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+body {
+  min-height: 100%;
+}
+
 @keyframes dialogue-cursor-pulse {
   0%,
   100% {
